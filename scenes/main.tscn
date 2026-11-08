@@ -20,54 +20,459 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.121569, 0.0941176, 0.211765, 1)
 
-[node name="Title" type="Label" parent="."]
+[node name="TopBar" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -80.0
-offset_right = 250.0
-offset_bottom = -20.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = 50.0
 grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 48
-text = "To Beyond"
+theme_override_constants/separation = 20
+
+[node name="StageLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 20
+text = "ด่านที่: 1"
+
+[node name="CoinsLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+text = "🪙 เหรียญ: 0"
+
+[node name="Spacer" type="Control" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RestartBtn" type="Button" parent="TopBar"]
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "↻ เริ่มใหม่"
+
+[node name="Preview" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 40.0
+offset_top = 60.0
+offset_right = -40.0
+offset_bottom = 220.0
+grow_horizontal = 2
+theme_override_constants/separation = 30
+
+[node name="HeroCol" type="VBoxContainer" parent="Preview"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="HeroPic" type="Label" parent="Preview/HeroCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "🧙"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="."]
+[node name="HeroHPText" type="Label" parent="Preview/HeroCol"]
+layout_mode = 2
+text = "HP: 30 / 30"
+horizontal_alignment = 1
+
+[node name="HeroHPBar" type="ProgressBar" parent="Preview/HeroCol"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="CenterCol" type="VBoxContainer" parent="Preview"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Title" type="Label" parent="Preview/CenterCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.827451, 0.65098, 0.290196, 1)
+theme_override_font_sizes/font_size = 32
+text = "TO BEYOND"
+horizontal_alignment = 1
+
+[node name="CalcLabel" type="Label" parent="Preview"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "ATK: 0  ×  ตัวคูณ: 1.00  =  ดาเมจ: 0"
+horizontal_alignment = 1
+
+[node name="EnemyCol" type="VBoxContainer" parent="Preview"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="EnemyName" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+text = "ศัตรู ด่าน 1"
+horizontal_alignment = 1
+
+[node name="EnemyPic" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "👹"
+horizontal_alignment = 1
+
+[node name="EnemyHPText" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+text = "HP: 50 / 50"
+horizontal_alignment = 1
+
+[node name="EnemyHPBar" type="ProgressBar" parent="Preview/EnemyCol"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="EnemyAtkText" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
+text = "⚔ โจมตี: 10"
+horizontal_alignment = 1
+
+[node name="MsgLabel" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+horizontal_alignment = 1
+
+[node name="BoardSection" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -110.0
-offset_top = 10.0
-offset_right = 110.0
-offset_bottom = 65.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 60.0
+offset_top = 230.0
+offset_right = -60.0
+offset_bottom = 400.0
+grow_horizontal = 2
+
+[node name="BoardBg" type="ColorRect" parent="BoardSection"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 20
-text = "Click to Test"
+color = Color(0.168627, 0.133333, 0.313726, 1)
 
-[node name="Status" type="Label" parent="."]
+[node name="TilesContainer" type="HBoxContainer" parent="BoardSection"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 15.0
+offset_right = -20.0
+offset_bottom = -45.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Tile1" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#1\n▲\n[ว่าง]"
+
+[node name="Tile2" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#2\n▲\n[ว่าง]"
+
+[node name="Tile3" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#3\n▶\n[ว่าง]"
+
+[node name="Tile4" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#4\n▶\n[ว่าง]"
+
+[node name="Tile5" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#5\n▼\n[ว่าง]"
+
+[node name="Tile6" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#6\n▼\n[ว่าง]"
+
+[node name="Tile7" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#7\n◀\n[ว่าง]"
+
+[node name="Tile8" type="Button" parent="BoardSection/TilesContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "#8\n◀\n[ว่าง]"
+
+[node name="GstripContainer" type="HBoxContainer" parent="BoardSection"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -36.0
+offset_right = -20.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="G1" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G2" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G3" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G4" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G5" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G6" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G7" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="G8" type="Label" parent="BoardSection/GstripContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+horizontal_alignment = 1
+
+[node name="Token" type="Label" parent="BoardSection"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 40.0
+offset_right = 70.0
+offset_bottom = 80.0
+theme_override_font_sizes/font_size = 32
+text = "🔥"
+
+[node name="BottomSection" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -300.0
+offset_right = -40.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+
+[node name="HandContainer" type="HBoxContainer" parent="BottomSection"]
+custom_minimum_size = Vector2(0, 115)
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ControlsRow" type="HBoxContainer" parent="BottomSection"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="ToolCol" type="VBoxContainer" parent="BottomSection/ControlsRow"]
+layout_mode = 2
+alignment = 1
+
+[node name="DeckCountLabel" type="Label" parent="BottomSection/ControlsRow/ToolCol"]
+layout_mode = 2
+text = "กองการ์ด: 48 ใบ"
+
+[node name="StoneBtn" type="Button" parent="BottomSection/ControlsRow/ToolCol"]
+layout_mode = 2
+text = "📜 ดูสูตร Stone"
+
+[node name="ActionCol" type="HBoxContainer" parent="BottomSection/ControlsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="WalkBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol"]
+custom_minimum_size = Vector2(180, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.09, 0.21, 1)
+theme_override_font_sizes/font_size = 18
+text = "เดิน (3 รอบ)"
+
+[node name="SortGroup" type="HBoxContainer" parent="BottomSection/ControlsRow/ActionCol"]
+layout_mode = 2
+
+[node name="SortColorBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "สี"
+
+[node name="SortDirBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+toggle_mode = true
+text = "ทิศ"
+
+[node name="DiscardBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "ทิ้งการ์ด (3/3)"
+
+[node name="RewardModal" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = 90.0
-offset_right = 300.0
+offset_left = -220.0
+offset_top = -140.0
+offset_right = 220.0
 offset_bottom = 140.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.827451, 0.65098, 0.290196, 1)
-theme_override_font_sizes/font_size = 18
-text = "Ready (GDScript Engine Active)"
+
+[node name="VBox" type="VBoxContainer" parent="RewardModal"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="RewardModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 28
+text = "🎉 ชัยชนะ!"
 horizontal_alignment = 1
 
+[node name="RewardInfo" type="Label" parent="RewardModal/VBox"]
+layout_mode = 2
+text = "คุณเอาชนะด่านนี้ได้สำเร็จ!"
+horizontal_alignment = 1
+
+[node name="NextBtn" type="Button" parent="RewardModal/VBox"]
+custom_minimum_size = Vector2(180, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "ไปด่านถัดไป ▶"
+
+[node name="GameOverModal" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -120.0
+offset_right = 200.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="GameOverModal"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="GameOverModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 32
+text = "💀 GAME OVER"
+horizontal_alignment = 1
+
+[node name="GameOverInfo" type="Label" parent="GameOverModal/VBox"]
+layout_mode = 2
+text = "คุณพ่ายแพ้!"
+horizontal_alignment = 1
+
+[node name="RetryBtn" type="Button" parent="GameOverModal/VBox"]
+custom_minimum_size = Vector2(160, 42)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "เล่นใหม่อีกครั้ง"
+
+[node name="StoneModal" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -200.0
+offset_right = 260.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="StoneModal"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="StoneModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.8, 0.4, 1)
+theme_override_font_sizes/font_size = 22
+text = "📜 สูตร Stone (เรียง Gem)"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="StoneModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="StoneModal/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseBtn" type="Button" parent="StoneModal/VBox"]
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "ปิด"
