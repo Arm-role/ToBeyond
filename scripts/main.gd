@@ -32,6 +32,7 @@ var ART_TEX = {}           # artifact type -> Texture2D
 var CHAOS_TEX = {}         # chaos kind -> Texture2D
 var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
 var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
+var PLACED_TILE_TEX = {}   # "idx_color_dir" or "idx_blank" -> Texture2D
 var CRYSTAL_TEX: Texture2D = null
 var BALL_TEXTURE: Texture2D = null
 
@@ -74,6 +75,17 @@ func init_textures() -> void:
 		var p = "res://assets/tiles/tile_empty_%d.svg" % i
 		if ResourceLoader.exists(p):
 			TILE_EMPTY_TEX[i] = load(p)
+
+	# Placed tile SVGs (exact match with To_Beyond_Draft.html syncTiles)
+	for i in range(N_TILES):
+		for col in ["red", "green", "orange", "blue"]:
+			for d in ["N", "E", "S", "W"]:
+				var p = "res://assets/tiles/placed/tile_%d_%s_%s.svg" % [i, col, d]
+				if ResourceLoader.exists(p):
+					PLACED_TILE_TEX["%d_%s_%s" % [i, col, d]] = load(p)
+		var pb = "res://assets/tiles/placed/tile_%d_blank.svg" % i
+		if ResourceLoader.exists(pb):
+			PLACED_TILE_TEX["%d_blank" % i] = load(pb)
 
 	# Crystal
 	if ResourceLoader.exists("res://assets/crystal.svg"):
@@ -417,94 +429,54 @@ func render_tiles() -> void:
 		var tile_btn = tiles_container.get_child(i) as Button
 		var t_dir = TILE_DIR[i]
 
+		# Seamless empty stylebox so SVG fills the tile button cleanly without borders or clipping
+		var sb_empty = StyleBoxEmpty.new()
+		tile_btn.add_theme_stylebox_override("normal", sb_empty)
+		tile_btn.add_theme_stylebox_override("hover", sb_empty)
+		tile_btn.add_theme_stylebox_override("pressed", sb_empty)
+		tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tile_btn.expand_icon = true
+		tile_btn.text = ""
+
 		if placed_cards.has(i):
 			var card = placed_cards[i]
-			var is_blank = card.get("is_blank", false)
+			var is_blank = card.get("is_blank", false) or card.get("color") == "blank"
+			var is_gold = card.get("gold", false)
 
 			if is_blank:
-				# Blank card: use tile_empty with grey tint
-				var sb = StyleBoxFlat.new()
-				sb.set_corner_radius_all(10)
-				sb.set_border_width_all(3)
-				sb.bg_color = Color("#cfcfda")
-				sb.border_color = Color("#888899")
-				tile_btn.add_theme_stylebox_override("normal", sb)
-				tile_btn.add_theme_stylebox_override("hover", sb)
-				tile_btn.add_theme_stylebox_override("pressed", sb)
-				# Use empty tile frame as base; overlay blank text
-				if TILE_EMPTY_TEX.has(i):
+				var key = "%d_blank" % i
+				if PLACED_TILE_TEX.has(key):
+					tile_btn.icon = PLACED_TILE_TEX[key]
+				elif TILE_EMPTY_TEX.has(i):
 					tile_btn.icon = TILE_EMPTY_TEX[i]
-					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-					tile_btn.expand_icon = true
-					tile_btn.text = ""
-				else:
-					tile_btn.icon = null
-					tile_btn.text = "%d\n[เปล่า]" % (i + 1)
-				tile_btn.modulate = Color(0.75, 0.75, 0.75)
+				tile_btn.modulate = Color.WHITE
 			else:
-				var c_dir = card["dir"]
-				var c_col = card["color"]
-				var is_match = (c_dir == t_dir)
+				var c_dir = card.get("dir", "N")
+				var c_col = card.get("color", "blue")
+				var key = "%d_%s_%s" % [i, c_col, c_dir]
+				if PLACED_TILE_TEX.has(key):
+					tile_btn.icon = PLACED_TILE_TEX[key]
+				elif TILE_EMPTY_TEX.has(i):
+					tile_btn.icon = TILE_EMPTY_TEX[i]
 
-				# Placed card diamond frame as background + direction emblem as centered icon
-				var frame_tex = GEM_FRAME_TEX.get(c_col)
-				if frame_tex != null:
-					var sbt = StyleBoxTexture.new()
-					sbt.texture = frame_tex
-					tile_btn.add_theme_stylebox_override("normal", sbt)
-					tile_btn.add_theme_stylebox_override("hover", sbt)
-					tile_btn.add_theme_stylebox_override("pressed", sbt)
-
-					var icon_tex = EMBLEMS_GOLD.get(c_dir) if is_match else EMBLEMS.get(c_dir)
-					tile_btn.icon = icon_tex
-					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-					tile_btn.expand_icon = true
-					tile_btn.text = ""
+				if is_gold:
+					tile_btn.modulate = Color(1.2, 1.15, 0.8) # goldc drop-shadow aura
 				else:
-					# Fallback: emblem icon + stylebox
-					var sb = StyleBoxFlat.new()
-					sb.set_corner_radius_all(10)
-					sb.set_border_width_all(3)
-					sb.bg_color = COLORS.get(c_col, COLORS["empty_tile"]).darkened(0.2)
-					sb.border_color = COLORS["gold"] if is_match else COLORS["brass"]
-					tile_btn.add_theme_stylebox_override("normal", sb)
-					tile_btn.add_theme_stylebox_override("hover", sb)
-					tile_btn.add_theme_stylebox_override("pressed", sb)
-					var icon_tex = EMBLEMS_GOLD.get(c_dir) if is_match else EMBLEMS.get(c_dir)
-					tile_btn.icon = icon_tex
-					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-					tile_btn.expand_icon = true
-					tile_btn.text = "%d\n%s" % [i + 1, "★" if is_match else ""]
-
-				# Gold glow tint when direction matches
-				tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
+					tile_btn.modulate = Color.WHITE
 		else:
-			# Empty tile: use SVG per slot with direction emblem
-			var sb_empty = StyleBoxEmpty.new()
-			tile_btn.add_theme_stylebox_override("normal", sb_empty)
-			tile_btn.add_theme_stylebox_override("hover", sb_empty)
-			tile_btn.add_theme_stylebox_override("pressed", sb_empty)
-
 			if TILE_EMPTY_TEX.has(i):
 				tile_btn.icon = TILE_EMPTY_TEX[i]
-				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				tile_btn.expand_icon = true
-				tile_btn.text = ""
-			else:
-				# Fallback stylebox + emblem icon
-				var sb = StyleBoxFlat.new()
-				sb.set_corner_radius_all(10)
-				sb.set_border_width_all(3)
-				sb.bg_color = COLORS["empty_tile"]
-				sb.border_color = COLORS["brass"]
-				tile_btn.add_theme_stylebox_override("normal", sb)
-				tile_btn.add_theme_stylebox_override("hover", sb)
-				tile_btn.add_theme_stylebox_override("pressed", sb)
-				tile_btn.icon = EMBLEMS.get(t_dir)
-				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				tile_btn.expand_icon = true
-				tile_btn.text = "%d" % (i + 1)
 			tile_btn.modulate = Color.WHITE
+
+
+func pop_tile_anim(tile_idx: int) -> void:
+	if tile_idx < 0 or tile_idx >= N_TILES: return
+	var tile_btn = tiles_container.get_child(tile_idx) as Button
+	if not tile_btn: return
+	tile_btn.pivot_offset = tile_btn.size / 2.0
+	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tile_btn.scale = Vector2(1.12, 1.12)
+	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.28)
 
 
 func render_hand() -> void:
@@ -630,6 +602,7 @@ func _on_tile_clicked(tile_idx: int) -> void:
 			selected_card_ids.clear()
 			update_all_ui()
 			refresh_calc()
+			pop_tile_anim(tile_idx)
 
 
 func _on_discard_pressed() -> void:
@@ -846,6 +819,8 @@ func auto_place_selected() -> void:
 	selected_card_ids.clear()
 	update_all_ui()
 	refresh_calc()
+	for k in range(n):
+		pop_tile_anim(free_slots[k])
 
 
 # ==============================================================================
