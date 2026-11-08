@@ -157,17 +157,17 @@ const ARTIFACT_CATALOG: Array[Dictionary] = [
 @onready var speed_btn: Button = $TopBar/SpeedBtn
 @onready var restart_btn: Button = $TopBar/RestartBtn
 
-@onready var hero_hp_bar: ProgressBar = $Preview/HeroCol/HeroHPBar
-@onready var hero_hp_label: Label = $Preview/HeroCol/HeroHPText
-@onready var hero_pic: Label = $Preview/HeroCol/HeroPic
-@onready var calc_label: Label = $Preview/CenterCol/CalcLabel
+@onready var hero_hp_bar: ProgressBar = $Preview/PreviewHBox/HeroCol/HeroHPBar
+@onready var hero_hp_label: Label = $Preview/PreviewHBox/HeroCol/HeroHPText
+@onready var hero_pic: Label = $Preview/PreviewHBox/HeroCol/HeroPic
+@onready var calc_label: RichTextLabel = $Preview/PreviewHBox/CenterCol/CalcLabel
 
-@onready var enemy_name: Label = $Preview/EnemyCol/EnemyName
-@onready var enemy_pic: Label = $Preview/EnemyCol/EnemyPic
-@onready var enemy_hp_bar: ProgressBar = $Preview/EnemyCol/EnemyHPBar
-@onready var enemy_hp_label: Label = $Preview/EnemyCol/EnemyHPText
-@onready var enemy_atk_label: Label = $Preview/EnemyCol/EnemyAtkText
-@onready var msg_label: Label = $Preview/EnemyCol/MsgLabel
+@onready var enemy_name: Label = $Preview/PreviewHBox/EnemyCol/EnemyName
+@onready var enemy_pic: Label = $Preview/PreviewHBox/EnemyCol/EnemyPic
+@onready var enemy_hp_bar: ProgressBar = $Preview/PreviewHBox/EnemyCol/EnemyHPBar
+@onready var enemy_hp_label: Label = $Preview/PreviewHBox/EnemyCol/EnemyHPText
+@onready var enemy_atk_label: Label = $Preview/PreviewHBox/EnemyCol/EnemyAtkText
+@onready var msg_label: Label = $Preview/PreviewHBox/EnemyCol/MsgLabel
 
 # Artifact Row
 @onready var artifact_row: HBoxContainer = $ArtifactRow
@@ -186,8 +186,8 @@ const ARTIFACT_CATALOG: Array[Dictionary] = [
 @onready var hand_container: HBoxContainer = $BottomSection/HandContainer
 @onready var deck_count_btn: Button = $BottomSection/ControlsRow/ToolCol/DeckCountBtn
 @onready var stone_btn: Button = $BottomSection/ControlsRow/ToolCol/StoneBtn
-@onready var sort_color_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortColorBtn
-@onready var sort_dir_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortDirBtn
+@onready var sort_color_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortColorBtn
+@onready var sort_dir_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortDirBtn
 @onready var walk_btn: Button = $BottomSection/ControlsRow/ActionCol/WalkBtn
 @onready var discard_btn: Button = $BottomSection/ControlsRow/ActionCol/DiscardBtn
 
@@ -377,9 +377,9 @@ func start_new_round() -> void:
 # ==============================================================================
 
 func update_all_ui() -> void:
-	stage_label.text = "ด่านที่: %d" % stage
-	coins_label.text = "🪙 เหรียญ: %d" % coins
-	deck_count_btn.text = "🂠 กองการ์ด: %d ใบ 🔍" % deck.size()
+	stage_label.text = "ด่าน %d" % stage
+	coins_label.text = "🪙 %d" % coins
+	deck_count_btn.text = "🂠 กอง %d ใบ · กดดู" % deck.size()
 
 	hero_hp_label.text = "HP %d / %d" % [player_hp, player_max_hp]
 	hero_hp_bar.max_value = player_max_hp
@@ -388,13 +388,13 @@ func update_all_ui() -> void:
 	enemy_hp_label.text = "HP %d / %d" % [enemy_hp, enemy_max_hp]
 	enemy_hp_bar.max_value = enemy_max_hp
 	enemy_hp_bar.value = enemy_hp
-	enemy_atk_label.text = "⚔ โจมตี %d" % enemy_atk
+	enemy_atk_label.text = "⚔ %d" % enemy_atk
 
 	walk_btn.disabled = is_busy or (walks_left <= 0 and selected_card_ids.is_empty())
 	if selected_card_ids.size() > 0:
-		walk_btn.text = "วางการ์ด (%d)" % selected_card_ids.size()
+		walk_btn.text = "วาง (%d)" % selected_card_ids.size()
 	else:
-		walk_btn.text = "เดิน (%d รอบ)" % walks_left
+		walk_btn.text = "เดิน %d รอบ" % walks_left
 
 	# Rule: If board has cards, cannot discard unless freediscard artifact is owned
 	var blocked = (placed_cards.size() > 0) and (not has_artifact("freediscard"))
@@ -403,9 +403,9 @@ func update_all_ui() -> void:
 	if blocked:
 		discard_btn.text = "วาง Gem แล้วทิ้งไม่ได้"
 	elif selected_card_ids.size() > 0:
-		discard_btn.text = "ทิ้ง Gem (%d) [%d รอบ]" % [selected_card_ids.size(), discards_left]
+		discard_btn.text = "ทิ้ง Gem (%d)" % selected_card_ids.size()
 	else:
-		discard_btn.text = "ทิ้ง Gem (%d รอบ)" % discards_left
+		discard_btn.text = "ทิ้ง Gem"
 
 	render_tiles()
 	render_hand()
@@ -578,6 +578,12 @@ func set_sort_mode(mode: String) -> void:
 	sort_mode = mode
 	sort_color_btn.button_pressed = (mode == "color")
 	sort_dir_btn.button_pressed = (mode == "dir")
+	if mode == "color":
+		sort_color_btn.add_theme_color_override("font_color", Color("#2a2140"))
+		sort_dir_btn.add_theme_color_override("font_color", Color("#a79fc4"))
+	else:
+		sort_color_btn.add_theme_color_override("font_color", Color("#a79fc4"))
+		sort_dir_btn.add_theme_color_override("font_color", Color("#2a2140"))
 	render_hand()
 
 
@@ -771,7 +777,7 @@ func refresh_calc() -> void:
 		atk = int(atk * 1.5)
 
 	var final_dmg = int(atk * mult)
-	calc_label.text = "%d   ×   %.2f   =   ดาเมจ: %d" % [atk, mult, final_dmg]
+	calc_label.text = "[center][color=#5fb0ff]%d[/color] [color=#a79fc4]×[/color] [color=#ff6b6b]%.2f[/color] [color=#a79fc4]=[/color] [b][color=#f0cf86]%d[/color][/b][/center]" % [atk, mult, final_dmg]
 
 	# Check for new Stone formula discoveries
 	for g in result["groups"]:

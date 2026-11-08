@@ -87,16 +87,16 @@ graph TD
 | `coins_label` | `$TopBar/CoinsLabel` | `Label` | แสดงเหรียญสะสม |
 | `speed_btn` | `$TopBar/SpeedBtn` | `Button` | ปุ่มเร่งความเร็วแอนิเมชัน (x1 / x2 / x3) |
 | `restart_btn` | `$TopBar/RestartBtn` | `Button` | ปุ่มเริ่มเกมใหม่ |
-| `hero_hp_bar` | `$Preview/HeroCol/HeroHPBar` | `ProgressBar` | หลอดเลือดฮีโร่ |
-| `hero_hp_label` | `$Preview/HeroCol/HeroHPText` | `Label` | ข้อความเลือดฮีโร่ |
-| `hero_pic` | `$Preview/HeroCol/HeroPic` | `Label` | รูปอวาตาร์ฮีโร่ (`🧙`) |
-| `calc_label` | `$Preview/CenterCol/CalcLabel` | `Label` | แสดงสูตรดาเมจ `ATK × MULT = TOTAL` |
-| `enemy_name` | `$Preview/EnemyCol/EnemyName` | `Label` | ชื่อศัตรู |
-| `enemy_pic` | `$Preview/EnemyCol/EnemyPic` | `Label` | รูปศัตรู (`👹`) |
-| `enemy_hp_bar` | `$Preview/EnemyCol/EnemyHPBar` | `ProgressBar` | หลอดเลือดศัตรู |
-| `enemy_hp_label` | `$Preview/EnemyCol/EnemyHPText` | `Label` | ข้อความเลือดศัตรู |
-| `enemy_atk_label` | `$Preview/EnemyCol/EnemyAtkText` | `Label` | พลังโจมตีของศัตรู |
-| `msg_label` | `$Preview/EnemyCol/MsgLabel` | `Label` | ข้อความแจ้งเตือนสถานะรอบ |
+| `hero_hp_bar` | `$Preview/PreviewHBox/HeroCol/HeroHPBar` | `ProgressBar` | หลอดเลือดฮีโร่ |
+| `hero_hp_label` | `$Preview/PreviewHBox/HeroCol/HeroHPText` | `Label` | ข้อความเลือดฮีโร่ |
+| `hero_pic` | `$Preview/PreviewHBox/HeroCol/HeroPic` | `Label` | รูปอวาตาร์ฮีโร่ (`🧙`) |
+| `calc_label` | `$Preview/PreviewHBox/CenterCol/CalcLabel` | `RichTextLabel` | แสดงสูตรดาเมจ `ATK × MULT = TOTAL` แบบ BBCode |
+| `enemy_name` | `$Preview/PreviewHBox/EnemyCol/EnemyName` | `Label` | ชื่อศัตรู |
+| `enemy_pic` | `$Preview/PreviewHBox/EnemyCol/EnemyPic` | `Label` | รูปศัตรู (`👹`) |
+| `enemy_hp_bar` | `$Preview/PreviewHBox/EnemyCol/EnemyHPBar` | `ProgressBar` | หลอดเลือดศัตรู |
+| `enemy_hp_label` | `$Preview/PreviewHBox/EnemyCol/EnemyHPText` | `Label` | ข้อความเลือดศัตรู |
+| `enemy_atk_label` | `$Preview/PreviewHBox/EnemyCol/EnemyAtkText` | `Label` | พลังโจมตีของศัตรู (Pill Badge) |
+| `msg_label` | `$Preview/PreviewHBox/EnemyCol/MsgLabel` | `Label` | ข้อความแจ้งเตือนสถานะรอบ |
 | `tiles_container` | `$BoardSection/TilesContainer` | `HBoxContainer` | บรรจุช่องกระดาน 8 ช่อง (`Tile1` .. `Tile8`) |
 | `gstrip_container` | `$BoardSection/GstripContainer` | `HBoxContainer` | บรรจุป้ายแต้มคอมโบ 8 ช่อง (`G1` .. `G8`) |
 | `token` | `$BoardSection/Token` | `Control` | ลูกไฟเคลื่อนที่บนกระดาน |
@@ -104,8 +104,8 @@ graph TD
 | `deck_count_btn`| `$BottomSection/ControlsRow/ToolCol/DeckCountBtn` | `Button` | แสดงจำนวนการ์ดคงเหลือในกอง และกดเพื่อเปิดดูการ์ด |
 | `stone_btn` | `$BottomSection/ControlsRow/ToolCol/StoneBtn` | `Button` | ปุ่มเปิดหน้าต่างดูสูตร Stone |
 | `walk_btn` | `$BottomSection/ControlsRow/ActionCol/WalkBtn` | `Button` | ปุ่มเดิน / วางการ์ดอัตโนมัติ |
-| `sort_color_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortColorBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามสี |
-| `sort_dir_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortDirBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามทิศ |
+| `sort_color_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortColorBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามสี |
+| `sort_dir_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortDirBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามทิศ |
 | `discard_btn` | `$BottomSection/ControlsRow/ActionCol/DiscardBtn` | `Button` | ปุ่มทิ้งการ์ดที่เลือก (สูงสุด 3 ครั้ง) |
 | `reward_modal` | `$RewardModal` | `PanelContainer` | ป๊อปอัปเมื่อชนะด่าน |
 | `gameover_modal` | `$GameOverModal` | `PanelContainer` | ป๊อปอัปเมื่อพ่ายแพ้ |

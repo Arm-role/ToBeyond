@@ -1,102 +1,149 @@
-[gd_scene load_steps=9 format=3 uid="uid://c1xstarterscene"]
+[gd_scene load_steps=18 format=3 uid="uid://c1xstarterscene"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preview_bg"]
+bg_color = Color(0.121569, 0.0941176, 0.211765, 1)
+border_width_bottom = 2
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill_stat"]
+bg_color = Color(0.176471, 0.141176, 0.313726, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill_btn"]
+bg_color = Color(0.788235, 0.752941, 0.901961, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_circle_btn"]
+bg_color = Color(0.788235, 0.752941, 0.901961, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_hero"]
+bg_color = Color(0.24, 0.75, 0.42, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_enemy"]
+bg_color = Color(0.85, 0.28, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eatk_pill"]
+bg_color = Color(0, 0, 0, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.3, 0.37, 0.45)
+corner_radius_top_left = 99
+corner_radius_top_right = 99
+corner_radius_bottom_right = 99
+corner_radius_bottom_left = 99
+expand_margin_left = 10.0
+expand_margin_right = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_art_slot"]
+bg_color = Color(1, 1, 1, 0.05)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.827451, 0.65098, 0.290196, 0.5)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_board"]
 bg_color = Color(0.168627, 0.133333, 0.313726, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 border_color = Color(0.827451, 0.65098, 0.290196, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 shadow_color = Color(0, 0, 0, 0.4)
 shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calc"]
-bg_color = Color(0.08, 0.06, 0.15, 0.85)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vbtn"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_go_btn"]
+bg_color = Color(0.941176, 0.811765, 0.52549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort_row"]
+bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.827451, 0.65098, 0.290196, 0.6)
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-expand_margin_left = 12.0
-expand_margin_top = 6.0
-expand_margin_right = 12.0
-expand_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_hero"]
-bg_color = Color(0.18, 0.62, 0.35, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort_on"]
+bg_color = Color(0.827451, 0.65098, 0.290196, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_enemy"]
-bg_color = Color(0.84, 0.23, 0.23, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sort_off"]
+bg_color = Color(0, 0, 0, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
-bg_color = Color(0.14, 0.1, 0.27, 0.95)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dis_btn"]
+bg_color = Color(0.788235, 0.752941, 0.901961, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_panel"]
+bg_color = Color(0.176471, 0.141176, 0.313726, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.94, 0.81, 0.53, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_artifact_slot"]
-bg_color = Color(0.1, 0.07, 0.2, 0.7)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.827, 0.651, 0.29, 0.5)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_artifact_has"]
-bg_color = Color(0.2, 0.14, 0.4, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.827, 0.651, 0.29, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop"]
-bg_color = Color(0.1, 0.07, 0.22, 0.98)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.827, 0.651, 0.29, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.7)
-shadow_size = 20
+shadow_size = 16
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -116,210 +163,242 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.121569, 0.0941176, 0.211765, 1)
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="Preview" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 24.0
+offset_bottom = 223.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_preview_bg")
+
+[node name="PreviewHBox" type="HBoxContainer" parent="Preview"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
 offset_top = 10.0
-offset_right = -24.0
-offset_bottom = 50.0
+offset_right = -50.0
+offset_bottom = -10.0
 grow_horizontal = 2
-theme_override_constants/separation = 20
-
-[node name="StageLabel" type="Label" parent="TopBar"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 20
-text = "ด่านที่: 1"
-
-[node name="CoinsLabel" type="Label" parent="TopBar"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 20
-text = "🪙 เหรียญ: 0"
-
-[node name="Spacer" type="Control" parent="TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="SpeedBtn" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(76, 36)
-layout_mode = 2
-text = "▶ x1"
-
-[node name="RestartBtn" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(80, 36)
-layout_mode = 2
-text = "↻ เริ่มใหม่"
-
-[node name="Preview" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 40.0
-offset_top = 56.0
-offset_right = -40.0
-offset_bottom = 210.0
-grow_horizontal = 2
-theme_override_constants/separation = 24
+grow_vertical = 2
 alignment = 1
 
-[node name="HeroCol" type="VBoxContainer" parent="Preview"]
-custom_minimum_size = Vector2(240, 0)
+[node name="HeroCol" type="VBoxContainer" parent="Preview/PreviewHBox"]
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 alignment = 1
 
-[node name="HeroPic" type="Label" parent="Preview/HeroCol"]
+[node name="HeroPic" type="Label" parent="Preview/PreviewHBox/HeroCol"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
+theme_override_font_sizes/font_size = 64
 text = "🧙"
 horizontal_alignment = 1
 
-[node name="HeroHPText" type="Label" parent="Preview/HeroCol"]
+[node name="HeroHPText" type="Label" parent="Preview/PreviewHBox/HeroCol"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.95, 0.85, 1)
-text = "HP: 30 / 30"
+theme_override_font_sizes/font_size = 14
+text = "HP 30 / 30"
 horizontal_alignment = 1
 
-[node name="HeroHPBar" type="ProgressBar" parent="Preview/HeroCol"]
-custom_minimum_size = Vector2(0, 14)
+[node name="HeroHPBar" type="ProgressBar" parent="Preview/PreviewHBox/HeroCol"]
+custom_minimum_size = Vector2(200, 10)
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_styles/fill = SubResource("StyleBoxFlat_hp_hero")
 value = 100.0
 show_percentage = false
 
-[node name="CenterCol" type="VBoxContainer" parent="Preview"]
+[node name="CenterCol" type="VBoxContainer" parent="Preview/PreviewHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="Title" type="Label" parent="Preview/CenterCol"]
+[node name="CalcLabel" type="RichTextLabel" parent="Preview/PreviewHBox/CenterCol"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.827451, 0.65098, 0.290196, 1)
-theme_override_font_sizes/font_size = 28
-text = "TO BEYOND"
-horizontal_alignment = 1
+bbcode_enabled = true
+text = "[center][color=#5fb0ff]0[/color] [color=#a79fc4]×[/color] [color=#ff6b6b]1.00[/color] [color=#a79fc4]=[/color] [b][color=#f0cf86]0[/color][/b][/center]"
+fit_content = true
+scroll_active = false
 
-[node name="SpacerC" type="Control" parent="Preview/CenterCol"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-
-[node name="CalcLabel" type="Label" parent="Preview/CenterCol"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_calc")
-text = "ATK: 0   ×   ตัวคูณ: 1.00   =   ดาเมจ: 0"
-horizontal_alignment = 1
-
-[node name="EnemyCol" type="VBoxContainer" parent="Preview"]
-custom_minimum_size = Vector2(240, 0)
+[node name="EnemyCol" type="VBoxContainer" parent="Preview/PreviewHBox"]
+custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 alignment = 1
 
-[node name="EnemyPic" type="Label" parent="Preview/EnemyCol"]
+[node name="EnemyName" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 46
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 20
+text = "ศัตรู"
+horizontal_alignment = 1
+
+[node name="EnemyPic" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
 text = "👹"
 horizontal_alignment = 1
 
-[node name="EnemyName" type="Label" parent="Preview/EnemyCol"]
+[node name="EnemyHPText" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.7, 0.7, 1)
-theme_override_font_sizes/font_size = 18
-text = "ศัตรู ด่าน 1"
+theme_override_colors/font_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_font_sizes/font_size = 16
+text = "HP 50 / 50"
 horizontal_alignment = 1
 
-[node name="EnemyHPText" type="Label" parent="Preview/EnemyCol"]
+[node name="EnemyHPBar" type="ProgressBar" parent="Preview/PreviewHBox/EnemyCol"]
+custom_minimum_size = Vector2(320, 12)
 layout_mode = 2
-text = "HP: 50 / 50"
-horizontal_alignment = 1
-
-[node name="EnemyHPBar" type="ProgressBar" parent="Preview/EnemyCol"]
-custom_minimum_size = Vector2(0, 14)
-layout_mode = 2
+size_flags_horizontal = 4
 theme_override_styles/fill = SubResource("StyleBoxFlat_hp_enemy")
 value = 100.0
 show_percentage = false
 
-[node name="EnemyAtkText" type="Label" parent="Preview/EnemyCol"]
+[node name="EnemyAtkText" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
+custom_minimum_size = Vector2(120, 24)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.55, 1)
-text = "⚔ โจมตี: 10"
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.54, 0.58, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_eatk_pill")
+text = "⚔ 10"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="MsgLabel" type="Label" parent="Preview/EnemyCol"]
+[node name="MsgLabel" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 13
 text = "เตรียมพร้อมวางการ์ด..."
 horizontal_alignment = 1
 
-[node name="ArtifactRow" type="HBoxContainer" parent="."]
+[node name="TopBar" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 50.0
-offset_top = 220.0
-offset_right = -50.0
-offset_bottom = 288.0
+offset_bottom = 56.0
 grow_horizontal = 2
-alignment = 1
-theme_override_constants/separation = 10
+mouse_filter = 2
 
-[node name="ArtLabel" type="Label" parent="ArtifactRow"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.827, 0.651, 0.29, 1)
-theme_override_font_sizes/font_size = 13
-text = "ARTIFACT"
+[node name="StageLabel" type="Label" parent="TopBar"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 92.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_pill_stat")
+text = "ด่าน 1"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ArtSlot1" type="Button" parent="ArtifactRow"]
-custom_minimum_size = Vector2(60, 64)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_artifact_slot")
-theme_override_font_sizes/font_size = 24
-text = ""
+[node name="CoinsLabel" type="Label" parent="TopBar"]
+layout_mode = 0
+offset_left = 98.0
+offset_top = 8.0
+offset_right = 202.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_pill_stat")
+text = "🪙 0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="ArtSlot2" type="Button" parent="ArtifactRow"]
-custom_minimum_size = Vector2(60, 64)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_artifact_slot")
-theme_override_font_sizes/font_size = 24
-text = ""
+[node name="SpeedBtn" type="Button" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_top = 8.0
+offset_right = -56.0
+offset_bottom = 48.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_pill_btn")
+text = "▶ x1"
 
-[node name="ArtSlot3" type="Button" parent="ArtifactRow"]
-custom_minimum_size = Vector2(60, 64)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_artifact_slot")
-theme_override_font_sizes/font_size = 24
-text = ""
+[node name="RestartBtn" type="Button" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -48.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 48.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_circle_btn")
+text = "↻"
 
-[node name="ArtSlot4" type="Button" parent="ArtifactRow"]
-custom_minimum_size = Vector2(60, 64)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_artifact_slot")
-theme_override_font_sizes/font_size = 24
-text = ""
+[node name="ArtifactRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -125.0
+offset_right = 300.0
+offset_bottom = -41.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
 
-[node name="ArtSlot5" type="Button" parent="ArtifactRow"]
-custom_minimum_size = Vector2(60, 64)
+[node name="ArtLabel" type="Label" parent="ArtifactRow"]
+visible = false
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_artifact_slot")
-theme_override_font_sizes/font_size = 24
-text = ""
+text = "ARTIFACT:"
+
+[node name="Slot1" type="Button" parent="ArtifactRow"]
+custom_minimum_size = Vector2(64, 84)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_art_slot")
+
+[node name="Slot2" type="Button" parent="ArtifactRow"]
+custom_minimum_size = Vector2(64, 84)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_art_slot")
+
+[node name="Slot3" type="Button" parent="ArtifactRow"]
+custom_minimum_size = Vector2(64, 84)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_art_slot")
+
+[node name="Slot4" type="Button" parent="ArtifactRow"]
+custom_minimum_size = Vector2(64, 84)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_art_slot")
+
+[node name="Slot5" type="Button" parent="ArtifactRow"]
+custom_minimum_size = Vector2(64, 84)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_art_slot")
 
 [node name="BoardSection" type="Control" parent="."]
+custom_minimum_size = Vector2(1088, 136)
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 50.0
-offset_top = 290.0
-offset_right = -50.0
-offset_bottom = 460.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -544.0
+offset_top = -30.0
+offset_right = 544.0
+offset_bottom = 106.0
 grow_horizontal = 2
+grow_vertical = 2
 
-[node name="BoardBg" type="Panel" parent="BoardSection"]
+[node name="BoardBackground" type="Panel" parent="BoardSection"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -333,54 +412,58 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 18.0
-offset_top = 16.0
-offset_right = -18.0
-offset_bottom = -46.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Tile1" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "1"
+size_flags_vertical = 3
 
 [node name="Tile2" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "2"
+size_flags_vertical = 3
 
 [node name="Tile3" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "3"
+size_flags_vertical = 3
 
 [node name="Tile4" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "4"
+size_flags_vertical = 3
 
 [node name="Tile5" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "5"
+size_flags_vertical = 3
 
 [node name="Tile6" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "6"
+size_flags_vertical = 3
 
 [node name="Tile7" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "7"
+size_flags_vertical = 3
 
 [node name="Tile8" type="Button" parent="BoardSection/TilesContainer"]
+custom_minimum_size = Vector2(136, 136)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "8"
+size_flags_vertical = 3
 
 [node name="GstripContainer" type="HBoxContainer" parent="BoardSection"]
 layout_mode = 1
@@ -388,60 +471,66 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 18.0
-offset_top = -38.0
-offset_right = -18.0
-offset_bottom = -10.0
+offset_top = 4.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 12
+theme_override_constants/separation = 0
 alignment = 1
 
 [node name="G1" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G2" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G3" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G4" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G5" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G6" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G7" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
 [node name="G8" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "•"
 horizontal_alignment = 1
 
@@ -449,10 +538,10 @@ horizontal_alignment = 1
 visible = false
 layout_mode = 3
 anchors_preset = 0
-offset_left = 30.0
-offset_top = 30.0
-offset_right = 78.0
-offset_bottom = 94.0
+offset_left = 48.0
+offset_top = 34.0
+offset_right = 88.0
+offset_bottom = 102.0
 
 [node name="BottomSection" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -460,69 +549,105 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = -310.0
-offset_right = -40.0
-offset_bottom = -15.0
+offset_left = 50.0
+offset_top = -215.0
+offset_right = -50.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 12
+alignment = 1
 
 [node name="HandContainer" type="HBoxContainer" parent="BottomSection"]
-custom_minimum_size = Vector2(0, 115)
+custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="ControlsRow" type="HBoxContainer" parent="BottomSection"]
 layout_mode = 2
 theme_override_constants/separation = 20
+alignment = 1
 
 [node name="ToolCol" type="VBoxContainer" parent="BottomSection/ControlsRow"]
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
 alignment = 1
 
 [node name="DeckCountBtn" type="Button" parent="BottomSection/ControlsRow/ToolCol"]
 layout_mode = 2
-text = "🂠 กองการ์ด: 48 ใบ 🔍"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_colors/font_hover_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_vbtn")
+text = "🂠 กอง 48 ใบ · กดดู"
+alignment = 0
 
 [node name="StoneBtn" type="Button" parent="BottomSection/ControlsRow/ToolCol"]
 layout_mode = 2
-text = "📜 ดูสูตร Stone"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_colors/font_hover_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_vbtn")
+text = "📜 สูตร Stone"
+alignment = 0
 
 [node name="ActionCol" type="HBoxContainer" parent="BottomSection/ControlsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 15
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="WalkBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol"]
-custom_minimum_size = Vector2(180, 48)
+custom_minimum_size = Vector2(200, 44)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.12, 0.09, 0.21, 1)
-theme_override_font_sizes/font_size = 18
-text = "เดิน (3 รอบ)"
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+text = "เดิน 1 รอบ"
 
 [node name="SortGroup" type="HBoxContainer" parent="BottomSection/ControlsRow/ActionCol"]
+custom_minimum_size = Vector2(140, 40)
 layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
 
-[node name="SortColorBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup"]
-custom_minimum_size = Vector2(70, 0)
+[node name="SortFrame" type="PanelContainer" parent="BottomSection/ControlsRow/ActionCol/SortGroup"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sort_row")
+
+[node name="HBox" type="HBoxContainer" parent="BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="SortColorBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox"]
+custom_minimum_size = Vector2(70, 36)
 layout_mode = 2
 toggle_mode = true
 button_pressed = true
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_sort_on")
 text = "สี"
 
-[node name="SortDirBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup"]
-custom_minimum_size = Vector2(70, 0)
+[node name="SortDirBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox"]
+custom_minimum_size = Vector2(70, 36)
 layout_mode = 2
 toggle_mode = true
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_sort_off")
 text = "ทิศ"
 
 [node name="DiscardBtn" type="Button" parent="BottomSection/ControlsRow/ActionCol"]
-custom_minimum_size = Vector2(140, 0)
+custom_minimum_size = Vector2(200, 44)
 layout_mode = 2
-text = "ทิ้งการ์ด (3/3)"
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_dis_btn")
+text = "ทิ้ง Gem"
+
+[node name="RightSpacer" type="Control" parent="BottomSection/ControlsRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
 
 [node name="RewardModal" type="PanelContainer" parent="."]
 visible = false
@@ -532,35 +657,39 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -140.0
-offset_right = 220.0
-offset_bottom = 140.0
+offset_left = -260.0
+offset_top = -180.0
+offset_right = 260.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="RewardModal"]
 layout_mode = 2
 theme_override_constants/separation = 16
-alignment = 1
 
 [node name="Title" type="Label" parent="RewardModal/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 28
-text = "🎉 ชัยชนะ!"
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 26
+text = "🎉 ชนะแล้ว!"
 horizontal_alignment = 1
 
 [node name="RewardInfo" type="Label" parent="RewardModal/VBox"]
 layout_mode = 2
-text = "คุณเอาชนะด่านนี้ได้สำเร็จ!"
+theme_override_font_sizes/font_size = 17
+text = "รางวัลผ่านด่าน: +4 🪙"
 horizontal_alignment = 1
 
 [node name="NextBtn" type="Button" parent="RewardModal/VBox"]
-custom_minimum_size = Vector2(180, 42)
+custom_minimum_size = Vector2(160, 42)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "🏪 เข้าร้านค้า ▶"
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+text = "เข้าร้านค้า ▶"
 
 [node name="GameOverModal" type="PanelContainer" parent="."]
 visible = false
@@ -570,35 +699,39 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -120.0
-offset_right = 200.0
-offset_bottom = 120.0
+offset_left = -240.0
+offset_top = -150.0
+offset_right = 240.0
+offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameOverModal"]
 layout_mode = 2
 theme_override_constants/separation = 16
-alignment = 1
 
 [node name="Title" type="Label" parent="GameOverModal/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 32
-text = "💀 GAME OVER"
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "GAME OVER"
 horizontal_alignment = 1
 
 [node name="GameOverInfo" type="Label" parent="GameOverModal/VBox"]
 layout_mode = 2
-text = "คุณพ่ายแพ้!"
+theme_override_font_sizes/font_size = 16
+text = "คุณพ่ายแพ้ในด่านที่ 1"
 horizontal_alignment = 1
 
 [node name="RetryBtn" type="Button" parent="GameOverModal/VBox"]
-custom_minimum_size = Vector2(160, 42)
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "เล่นใหม่อีกครั้ง"
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+text = "เริ่มเกมใหม่"
 
 [node name="StoneModal" type="PanelContainer" parent="."]
 visible = false
@@ -608,22 +741,23 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -200.0
-offset_right = 260.0
-offset_bottom = 200.0
+offset_left = -300.0
+offset_top = -240.0
+offset_right = 300.0
+offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="StoneModal"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="StoneModal/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.4, 1)
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 22
-text = "📜 สูตร Stone (เรียง Gem)"
+text = "Stone (สูตรเรียง Gem)"
 horizontal_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="StoneModal/VBox"]
@@ -639,6 +773,8 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(120, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_pill_btn")
 text = "ปิด"
 
 [node name="DeckModal" type="PanelContainer" parent="."]
@@ -649,20 +785,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -200.0
-offset_right = 260.0
-offset_bottom = 200.0
+offset_left = -280.0
+offset_top = -220.0
+offset_right = 280.0
+offset_bottom = 220.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="DeckModal"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="DeckModal/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.4, 1)
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 22
 text = "🂠 การ์ดที่เหลือในกอง"
 horizontal_alignment = 1
@@ -674,12 +811,14 @@ size_flags_vertical = 3
 [node name="List" type="VBoxContainer" parent="DeckModal/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="CloseBtn" type="Button" parent="DeckModal/VBox"]
 custom_minimum_size = Vector2(120, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_pill_btn")
 text = "ปิด"
 
 [node name="ShopModal" type="PanelContainer" parent="."]
@@ -688,57 +827,60 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 223.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_shop")
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="ShopVBox" type="VBoxContainer" parent="ShopModal"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="ShopHeader" type="HBoxContainer" parent="ShopModal/ShopVBox"]
 layout_mode = 2
 theme_override_constants/separation = 20
-alignment = 1
 
 [node name="ShopTitle" type="Label" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.95, 0.82, 0.3, 1)
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 26
-text = "🏪 ร้านค้า"
+text = "ร้านค้า"
 
 [node name="ShopCoinsLabel" type="Label" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 18
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 24
 text = "🪙 0"
 
 [node name="ShopLeaveBtn" type="Button" parent="ShopModal/ShopVBox/ShopHeader"]
-custom_minimum_size = Vector2(130, 40)
+custom_minimum_size = Vector2(140, 40)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
 text = "เล่นต่อ ▶"
 
 [node name="ShopOwnedLabel" type="Label" parent="ShopModal/ShopVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.827, 0.651, 0.29, 1)
-theme_override_font_sizes/font_size = 13
-text = "ARTIFACT ที่มี:"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 12
+text = "ARTIFACT ที่มี (แตะเพื่อดู / ขาย):"
 
 [node name="ShopItemsScroll" type="ScrollContainer" parent="ShopModal/ShopVBox"]
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
-size_flags_vertical = 3
 
 [node name="ShopItemsContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopItemsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="ShopSectionLabel" type="Label" parent="ShopModal/ShopVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.827, 0.651, 0.29, 1)
-theme_override_font_sizes/font_size = 13
-text = "ซื้อ ARTIFACT / อัปเกรด STONE:"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 12
+text = "ข้อเสนอร้านค้า:"
 
 [node name="ShopOfferScroll" type="ScrollContainer" parent="ShopModal/ShopVBox"]
 layout_mode = 2
@@ -747,7 +889,7 @@ size_flags_vertical = 3
 [node name="ShopOfferContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopOfferScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="EffectsLayer" type="Control" parent="."]
 layout_mode = 1
@@ -760,14 +902,14 @@ mouse_filter = 2
 
 [node name="BeamLine" type="Line2D" parent="EffectsLayer"]
 visible = false
-width = 20.0
-default_color = Color(1, 0.72, 0.2, 1)
+width = 16.0
+default_color = Color(1, 0.7, 0.2, 1)
 begin_cap_mode = 2
 end_cap_mode = 2
 
 [node name="EnemyBeamLine" type="Line2D" parent="EffectsLayer"]
 visible = false
-width = 20.0
+width = 16.0
 default_color = Color(0.85, 0.25, 0.95, 1)
 begin_cap_mode = 2
 end_cap_mode = 2
@@ -778,18 +920,18 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -220.0
+offset_left = -200.0
 offset_top = 70.0
-offset_right = 220.0
-offset_bottom = 120.0
+offset_right = 200.0
+offset_bottom = 115.0
 grow_horizontal = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="ToastLabel" type="Label" parent="EffectsLayer/Toast"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 16
 text = "✨ ค้นพบสูตรใหม่!"
 horizontal_alignment = 1
 vertical_alignment = 1
