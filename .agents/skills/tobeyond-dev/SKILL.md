@@ -76,6 +76,8 @@ graph TD
     StoneModal --> StoneList["$StoneModal/VBox/Scroll/List"]
     StoneModal --> CloseBtn["$StoneModal/VBox/CloseBtn"]
 
+    Main --> ShopModal["ShopModal (PanelContainer)\n$ShopModal"]
+
     %% Effects Layer
     Main --> EffectsLayer["EffectsLayer (Control)\n$EffectsLayer"]
     EffectsLayer --> BeamLine["BeamLine (Line2D)\n$EffectsLayer/BeamLine"]

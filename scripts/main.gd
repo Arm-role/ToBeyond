@@ -68,6 +68,27 @@ var is_busy: bool = false
 var speed_multiplier: float = 1.0
 var discovered_formulas: Array[String] = ["col"]
 
+# --- Phase 4: Artifact System ---
+const MAX_ARTIFACTS: int = 5
+var artifacts: Array = []  # Array of null or Dict {type, name, icon, desc, color}
+
+# Artifact catalog: 10 artifacts to offer in shop
+const ARTIFACT_CATALOG: Array[Dictionary] = [
+	{"type": "add5",        "name": "Gem Blade",       "icon": "⚔️", "desc": "+5 ATK เพิ่มเติมทุกครั้งที่ยิงเลเซอร์",    "color": Color("#2f7fd6"), "price": 5},
+	{"type": "mult2",       "name": "Rune Lens",        "icon": "🔮", "desc": "×1.5 ตัวคูณสุดท้ายก่อนคิดดาเมจ",        "color": Color("#d63a3a"), "price": 6},
+	{"type": "reverse",     "name": "Mirror Walk",      "icon": "↩️", "desc": "ลูกไฟวิ่งกลับมาอีกครั้งหลังถึงปลายกระดาน", "color": Color("#a66cf2"), "price": 6},
+	{"type": "emptyAtk",    "name": "Empty Fist",       "icon": "👊", "desc": "+2 ATK ต่อช่องกระดานที่ว่างเปล่า",       "color": Color("#a66cf2"), "price": 6},
+	{"type": "firstGem",    "name": "First Strike",     "icon": "🥇", "desc": "+8 ATK โบนัสสำหรับการ์ดในช่องแรก",       "color": Color("#f08a24"), "price": 6},
+	{"type": "walkCoin",    "name": "Gold Step",        "icon": "👟", "desc": "รับ 🪙 1 เหรียญต่อรอบเดินที่เหลือเมื่อชนะ", "color": Color("#f08a24"), "price": 6},
+	{"type": "stoneUp",     "name": "Stone Carver",     "icon": "🪨", "desc": "ทุกสูตร Stone +1 ATK ต่อใบ",              "color": Color("#a66cf2"), "price": 7},
+	{"type": "freediscard", "name": "Wild Shuffle",     "icon": "♻️", "desc": "เพิ่มจำนวนครั้งทิ้งการ์ด +1 ทุกด่าน",    "color": Color("#2e9e5b"), "price": 8},
+	{"type": "atk15",       "name": "Power Core",       "icon": "⚡", "desc": "ATK รวมทั้งหมด ×1.3",                    "color": Color("#2f7fd6"), "price": 8},
+	{"type": "greenCoin",   "name": "Coin Hoard",       "icon": "🪙", "desc": "รับดอกเบี้ย +1🪙 ต่อ 5🪙 ที่ถือไว้",      "color": Color("#2e9e5b"), "price": 6},
+]
+
+# Stone upgrade levels (bonus ATK per card to add on upgrade)
+var stone_upgrade_levels: Array[int] = [0, 0, 0, 0, 0, 0]  # one per formula
+
 # --- Node References ---
 @onready var stage_label: Label = $TopBar/StageLabel
 @onready var coins_label: Label = $TopBar/CoinsLabel
@@ -84,6 +105,9 @@ var discovered_formulas: Array[String] = ["col"]
 @onready var enemy_hp_label: Label = $Preview/EnemyCol/EnemyHPText
 @onready var enemy_atk_label: Label = $Preview/EnemyCol/EnemyAtkText
 @onready var msg_label: Label = $Preview/EnemyCol/MsgLabel
+
+# Artifact Row
+@onready var artifact_row: HBoxContainer = $ArtifactRow
 
 # Effects Layer References
 @onready var effects_layer: Control = $EffectsLayer
@@ -116,6 +140,13 @@ var discovered_formulas: Array[String] = ["col"]
 @onready var stone_modal: PanelContainer = $StoneModal
 @onready var stone_list: VBoxContainer = $StoneModal/VBox/Scroll/List
 @onready var stone_close_btn: Button = $StoneModal/VBox/CloseBtn
+
+# Shop Modal
+@onready var shop_modal: PanelContainer = $ShopModal
+@onready var shop_coins_label: Label = $ShopModal/ShopVBox/ShopHeader/ShopCoinsLabel
+@onready var shop_leave_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopLeaveBtn
+@onready var shop_items_container: HBoxContainer = $ShopModal/ShopVBox/ShopItemsScroll/ShopItemsContainer
+@onready var shop_offer_container: HBoxContainer = $ShopModal/ShopVBox/ShopOfferScroll/ShopOfferContainer
 
 
 func _ready() -> void:
@@ -151,14 +182,21 @@ func connect_ui_signals() -> void:
 	sort_dir_btn.pressed.connect(func(): set_sort_mode("dir"))
 	stone_btn.pressed.connect(func(): stone_modal.visible = true)
 	stone_close_btn.pressed.connect(func(): stone_modal.visible = false)
-	reward_next_btn.pressed.connect(_on_next_stage_pressed)
+	reward_next_btn.pressed.connect(_on_reward_shop_pressed)
 	gameover_btn.pressed.connect(start_new_game)
+	shop_leave_btn.pressed.connect(_on_shop_leave)
 
 	# Connect tile click events
 	for i in range(N_TILES):
 		var tile_btn = tiles_container.get_child(i) as Button
 		var idx = i
 		tile_btn.pressed.connect(func(): _on_tile_clicked(idx))
+
+	# Connect artifact slot buttons (slots 1-5 are children 1-5, child 0 is ArtLabel)
+	for i in range(MAX_ARTIFACTS):
+		var slot = artifact_row.get_child(i + 1) as Button
+		var slot_idx = i
+		slot.pressed.connect(func(): _on_artifact_slot_pressed(slot_idx))
 
 
 # ==============================================================================
@@ -179,9 +217,14 @@ func start_new_game() -> void:
 	hand.clear()
 	placed_cards.clear()
 	selected_card_ids.clear()
+	artifacts.clear()
+	for i in range(MAX_ARTIFACTS): artifacts.append(null)
+	stone_upgrade_levels = [0, 0, 0, 0, 0, 0]
+	discovered_formulas = ["col"]
 	reward_modal.visible = false
 	gameover_modal.visible = false
 	stone_modal.visible = false
+	shop_modal.visible = false
 	token.visible = false
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
@@ -253,6 +296,7 @@ func update_all_ui() -> void:
 
 	render_tiles()
 	render_hand()
+	render_artifact_row()
 
 
 func render_tiles() -> void:
@@ -522,6 +566,24 @@ func calculate_groups() -> Dictionary:
 	if total_atk == 0 and placed_cards.size() > 0:
 		total_atk = placed_cards.size() # fallback 1 ATK per card
 
+	# --- Artifact Effects on ATK and Multiplier ---
+	if has_artifact("add5"):
+		total_atk += 5
+	if has_artifact("emptyAtk"):
+		var empty_count = N_TILES - placed_cards.size()
+		total_atk += empty_count * 2
+	if has_artifact("firstGem") and placed_cards.has(0):
+		total_atk += 8
+	if has_artifact("stoneUp"):
+		for g in final_groups:
+			total_atk += g["idxs"].size()
+	if has_artifact("reverse"):
+		total_atk = int(total_atk * 1.5)
+	if has_artifact("atk15"):
+		total_atk = int(total_atk * 1.3)
+	if has_artifact("mult2"):
+		total_mult *= 1.5
+
 	return {
 		"atk": total_atk,
 		"mult": total_mult,
@@ -637,6 +699,13 @@ func _on_walk_pressed() -> void:
 	for i in range(1, N_TILES):
 		if placed_cards.has(i):
 			active_tiles.append(i)
+
+	if has_artifact("reverse") and active_tiles.size() > 1:
+		var rev = active_tiles.duplicate()
+		rev.reverse()
+		rev.pop_front()
+		for idx in rev:
+			active_tiles.append(idx)
 
 	var tile_btn_sample = tiles_container.get_child(0) as Button
 	var tile_w = tile_btn_sample.size.x + 12.0
@@ -915,18 +984,159 @@ func on_victory() -> void:
 	msg_label.text = "🏆 ชนะศัตรูแล้ว!"
 	var fade_tween = create_tween()
 	fade_tween.tween_property(enemy_pic, "modulate:a", 0.0, 0.4 / speed_multiplier)
-	fade_tween.tween_property(enemy_pic, "scale", Vector2(0.5, 0.5), 0.4 / speed_multiplier)
+	fade_tween.parallel().tween_property(enemy_pic, "scale", Vector2(0.5, 0.5), 0.4 / speed_multiplier)
 
 	await fade_tween.finished
+
+	# Calculate coins: base + interest from coin hoard artifact
 	var reward_coins = 15 + stage * 5
-	coins += reward_coins
-	reward_info.text = "เอาชนะศัตรูด่านที่ %d สำเร็จ!\n\nได้รับ: +%d 🪙 เหรียญ\nพลังชีวิตฟื้นฟูเต็มเปี่ยม" % [stage, reward_coins]
+	var interest_bonus = 0
+	if has_artifact("greenCoin"):
+		interest_bonus = mini(10, int(coins / 5))
+	var walk_bonus = 0
+	if has_artifact("walkCoin"):
+		walk_bonus = walks_left
+
+	coins += reward_coins + interest_bonus + walk_bonus
+
+	var reward_text = "เอาชนะศัตรูด่านที่ %d!\n\n🪙 ชนะ: +%d" % [stage, reward_coins]
+	if interest_bonus > 0:
+		reward_text += "\n🪙 ดอกเบี้ย (Coin Hoard): +%d" % interest_bonus
+	if walk_bonus > 0:
+		reward_text += "\n🪙 Gold Step (%d รอบเหลือ): +%d" % [walks_left, walk_bonus]
+	reward_text += "\n\n💊 พลังชีวิตฟื้นฟูเต็มเปี่ยม"
+
+	reward_info.text = reward_text
+	update_all_ui()
 	reward_modal.visible = true
 
 
-func _on_next_stage_pressed() -> void:
-	stage += 1
+func _on_reward_shop_pressed() -> void:
 	reward_modal.visible = false
+	open_shop()
+
+
+func _on_next_stage_pressed() -> void:
+	# Legacy: now goes to shop
+	_on_reward_shop_pressed()
+
+
+func open_shop() -> void:
+	shop_modal.visible = true
+	_render_shop_owned()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
+
+
+func _render_shop_owned() -> void:
+	for child in shop_items_container.get_children():
+		child.queue_free()
+
+	for i in range(MAX_ARTIFACTS):
+		var art = artifacts[i]
+		var slot_btn = Button.new()
+		slot_btn.custom_minimum_size = Vector2(72, 84)
+		slot_btn.add_theme_font_size_override("font_size", 28)
+		if art != null:
+			slot_btn.text = art["icon"]
+			slot_btn.tooltip_text = "%s\n%s" % [art["name"], art["desc"]]
+			var sell_idx = i
+			slot_btn.pressed.connect(func(): _sell_artifact(sell_idx))
+		else:
+			slot_btn.text = "·"
+			slot_btn.disabled = true
+		shop_items_container.add_child(slot_btn)
+
+
+func _render_shop_offers() -> void:
+	for child in shop_offer_container.get_children():
+		child.queue_free()
+
+	# Pick 4 random artifacts to show (filtered: not already owned by type)
+	var owned_types: Array[String] = []
+	for art in artifacts:
+		if art != null:
+			owned_types.append(art["type"])
+
+	var pool = ARTIFACT_CATALOG.filter(func(a): return not owned_types.has(a["type"]))
+	pool.shuffle()
+	var offers = pool.slice(0, mini(4, pool.size()))
+
+	for item in offers:
+		var btn = Button.new()
+		btn.custom_minimum_size = Vector2(100, 110)
+		btn.add_theme_font_size_override("font_size", 24)
+		btn.add_theme_color_override("font_color", item["color"])
+		var is_full = not artifacts.has(null)
+		var can_buy = not is_full and coins >= item["price"]
+		btn.text = "%s\n%s\n🪙%d" % [item["icon"], item["name"], item["price"]]
+		btn.disabled = not can_buy
+		btn.tooltip_text = item["desc"]
+		var capture = item
+		btn.pressed.connect(func(): _buy_artifact(capture))
+		shop_offer_container.add_child(btn)
+
+	# Stone upgrade buttons for discovered formulas
+	for idx in range(stone_formulas.size()):
+		var fkey = stone_formulas[idx]["key"]
+		if not discovered_formulas.has(fkey): continue
+		var upgrade_cost = 8 + idx * 3
+		var can_upg = coins >= upgrade_cost
+		var upg_btn = Button.new()
+		upg_btn.custom_minimum_size = Vector2(100, 110)
+		upg_btn.add_theme_font_size_override("font_size", 14)
+		upg_btn.text = "🪨 %s\n+1 ATK/ใบ\nLv%d→%d\n🪙%d" % [
+			stone_formulas[idx]["name"],
+			stone_upgrade_levels[idx] + 1,
+			stone_upgrade_levels[idx] + 2,
+			upgrade_cost
+		]
+		upg_btn.disabled = not can_upg
+		var capture_idx = idx
+		upg_btn.pressed.connect(func(): _buy_stone_upgrade(capture_idx))
+		shop_offer_container.add_child(upg_btn)
+
+
+func _buy_artifact(item: Dictionary) -> void:
+	var slot = artifacts.find(null)
+	if slot == -1 or coins < item["price"]: return
+	coins -= item["price"]
+	artifacts[slot] = item.duplicate()
+	update_all_ui()
+	_render_shop_owned()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
+	render_artifact_row()
+
+
+func _sell_artifact(slot_idx: int) -> void:
+	var art = artifacts[slot_idx]
+	if art == null: return
+	var sell_price = int(art["price"] / 3.0)
+	coins += sell_price
+	artifacts[slot_idx] = null
+	update_all_ui()
+	_render_shop_owned()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
+	render_artifact_row()
+
+
+func _buy_stone_upgrade(formula_idx: int) -> void:
+	var upgrade_cost = 8 + formula_idx * 3
+	if coins < upgrade_cost: return
+	coins -= upgrade_cost
+	stone_upgrade_levels[formula_idx] += 1
+	# Permanently boost the formula's ATK per card
+	stone_formulas[formula_idx]["g"] += 1
+	update_all_ui()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
+
+
+func _on_shop_leave() -> void:
+	shop_modal.visible = false
+	stage += 1
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
 	enemy_max_hp = int(enemy_max_hp * 1.35)
@@ -934,8 +1144,48 @@ func _on_next_stage_pressed() -> void:
 	enemy_atk = int(enemy_atk * 1.25)
 	player_hp = player_max_hp
 	walks_left = 3
-	discards_left = 3
+	# freediscard artifact: extra discard each stage
+	discards_left = 3 + (1 if has_artifact("freediscard") else 0)
 	start_new_round()
+
+
+func _on_artifact_slot_pressed(slot_idx: int) -> void:
+	var art = artifacts[slot_idx]
+	if art == null: return
+	# Show a simple info toast about this artifact
+	show_discovery_toast("") # repurpose: just show info
+	toast_label.text = "%s %s\n%s" % [art["icon"], art["name"], art["desc"]]
+	toast.visible = true
+	toast.modulate.a = 0.0
+	var orig_y = 70.0
+	toast.position.y = orig_y - 25.0
+	var tween = create_tween()
+	tween.tween_property(toast, "position:y", orig_y, 0.28 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(toast, "modulate:a", 1.0, 0.25 / speed_multiplier)
+	tween.tween_interval(2.5 / speed_multiplier)
+	tween.tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
+	tween.tween_callback(func(): toast.visible = false)
+
+
+func render_artifact_row() -> void:
+	# Update the 5 artifact slot buttons in ArtifactRow
+	for i in range(MAX_ARTIFACTS):
+		var slot = artifact_row.get_child(i + 1) as Button
+		if slot == null: continue
+		var art = artifacts[i]
+		if art != null:
+			slot.text = art["icon"]
+			slot.tooltip_text = art["name"]
+		else:
+			slot.text = ""
+			slot.tooltip_text = ""
+
+
+func has_artifact(type_key: String) -> bool:
+	for art in artifacts:
+		if art != null and art["type"] == type_key:
+			return true
+	return false
 
 
 func on_game_over() -> void:

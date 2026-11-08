@@ -35,6 +35,9 @@ graph TD
     EnemyCol --> EnemyAtkText["EnemyAtkText (Label)\n$Preview/EnemyCol/EnemyAtkText"]
     EnemyCol --> MsgLabel["MsgLabel (Label)\n$Preview/EnemyCol/MsgLabel"]
     
+    %% Artifact Row
+    Main --> ArtifactRow["ArtifactRow (HBoxContainer)\n$ArtifactRow\n(Slots 1..5)"]
+
     %% Board Section
     Main --> BoardSection["BoardSection (Control)"]
     BoardSection --> BoardBg["BoardBg (Panel)\n$BoardSection/BoardBg"]
@@ -62,6 +65,7 @@ graph TD
     Main --> RewardModal["RewardModal (PanelContainer)\n$RewardModal"]
     Main --> GameOverModal["GameOverModal (PanelContainer)\n$GameOverModal"]
     Main --> StoneModal["StoneModal (PanelContainer)\n$StoneModal"]
+    Main --> ShopModal["ShopModal (PanelContainer)\n$ShopModal"]
 
     %% Effects Layer
     Main --> EffectsLayer["EffectsLayer (Control)\n$EffectsLayer"]
@@ -103,6 +107,8 @@ graph TD
 | `reward_modal` | `$RewardModal` | `PanelContainer` | ป๊อปอัปเมื่อชนะด่าน |
 | `gameover_modal` | `$GameOverModal` | `PanelContainer` | ป๊อปอัปเมื่อพ่ายแพ้ |
 | `stone_modal` | `$StoneModal` | `PanelContainer` | ป๊อปอัปสูตรการผสมการ์ด Stone |
+| `shop_modal` | `$ShopModal` | `PanelContainer` | หน้าต่างร้านค้าหลังจบด่าน ซื้อ Artifact และอัปเกรด Stone |
+| `artifact_row` | `$ArtifactRow` | `HBoxContainer` | แถบแสดง Artifact 5 ช่อง |
 | `effects_layer` | `$EffectsLayer` | `Control` | เลเยอร์เอฟเฟกต์แสดงผลด้านบนสุด |
 | `beam_line` | `$EffectsLayer/BeamLine` | `Line2D` | ลำแสงเลเซอร์ฮีโร่ยิงใส่ศัตรู |
 | `enemy_beam_line`| `$EffectsLayer/EnemyBeamLine`| `Line2D` | ลำแสงเลเซอร์ศัตรูยิงสวนกลับ |
