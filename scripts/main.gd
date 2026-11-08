@@ -2,19 +2,21 @@ extends Control
 
 # ==============================================================================
 # To Beyond - Godot 4 Full Implementation
-# Faithfully matching To_Beyond_Draft
+# Faithfully matching To_Beyond_Draft.html Logic 100%
 # ==============================================================================
 
 const N_TILES: int = 8
 const TILE_DIR: Array[String] = ["N", "N", "E", "E", "S", "S", "W", "W"]
 const COLOR_ORDER: Array[String] = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array[String] = ["N", "E", "S", "W"]
+const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"]
 
 const COLORS = {
 	"red": Color("#d63a3a"),
 	"green": Color("#2e9e5b"),
 	"orange": Color("#f08a24"),
 	"blue": Color("#2f7fd6"),
+	"blank": Color("#555566"),
 	"empty_tile": Color("#2b2250"),
 	"brass": Color("#d3a64a"),
 	"brass_bright": Color("#f0cf86"),
@@ -37,13 +39,36 @@ func init_textures() -> void:
 
 # --- Stone Formulas ---
 var stone_formulas = [
-	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน", "min": 1, "a": 1, "g": 1},
+	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1},
 	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน", "min": 2, "a": 2, "g": 1},
 	{"key": "alt", "name": "สลับสี", "desc": "สองสีวางสลับกัน (3 ใบขึ้นไป)", "min": 3, "a": 3, "g": 1},
 	{"key": "dtile", "name": "ทิศตรงช่อง", "desc": "ทิศการ์ดตรงกับช่องทุกใบ", "min": 1, "a": 2, "g": 2},
 	{"key": "cd", "name": "สีทิศ", "desc": "สีเดียวกัน และทิศตรงช่องทุกใบ", "min": 2, "a": 3, "g": 3},
 	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน", "min": 2, "a": 4, "g": 4}
 ]
+
+# --- Progression & Stat Limits (Matching Draft) ---
+const EATK_START: int = 10
+const PHP_GROW: float = 1.2
+const WALK_START: int = 3
+const DISCARD_START: int = 3
+const HAND_START: int = 8
+const HAND_CAP: int = 12
+const BOSS_BLANKS: int = 15
+
+var walk_max: int = WALK_START
+var discard_max: int = DISCARD_START
+var hand_max: int = HAND_START
+
+var enemy_atk: int = EATK_START
+var walks_left: int = WALK_START
+var discards_left: int = DISCARD_START
+
+var player_max_hp: int = enemy_atk * walk_max
+var player_hp: int = player_max_hp
+
+var enemy_max_hp: int = 50
+var enemy_hp: int = 50
 
 # --- State Variables ---
 var deck: Array[Dictionary] = []
@@ -56,42 +81,29 @@ var stage: int = 1
 var coins: int = 0
 var sort_mode: String = "color" # "color" or "dir"
 
-var player_max_hp: int = 30
-var player_hp: int = 30
-var enemy_max_hp: int = 50
-var enemy_hp: int = 50
-var enemy_atk: int = 10
-
-var walks_left: int = 3
-var discards_left: int = 3
 var is_busy: bool = false
 var speed_multiplier: float = 1.0
 var discovered_formulas: Array[String] = ["col"]
-var boss_crystal_tile: int = -1
 
 func is_boss() -> bool:
 	return stage % 3 == 0
 
-# --- Phase 4: Artifact System ---
+# --- Artifact System ---
 const MAX_ARTIFACTS: int = 5
-var artifacts: Array = []  # Array of null or Dict {type, name, icon, desc, color}
+var artifacts: Array = []  # Array of null or Dict
 
-# Artifact catalog: 10 artifacts to offer in shop
 const ARTIFACT_CATALOG: Array[Dictionary] = [
-	{"type": "add5",        "name": "Gem Blade",       "icon": "⚔️", "desc": "+5 ATK เพิ่มเติมทุกครั้งที่ยิงเลเซอร์",    "color": Color("#2f7fd6"), "price": 5},
-	{"type": "mult2",       "name": "Rune Lens",        "icon": "🔮", "desc": "×1.5 ตัวคูณสุดท้ายก่อนคิดดาเมจ",        "color": Color("#d63a3a"), "price": 6},
-	{"type": "reverse",     "name": "Mirror Walk",      "icon": "↩️", "desc": "ลูกไฟวิ่งกลับมาอีกครั้งหลังถึงปลายกระดาน", "color": Color("#a66cf2"), "price": 6},
+	{"type": "add5",        "name": "Gem Blade",       "icon": "⚔️", "desc": "+10 ATK เพิ่มเติมเมื่อยิงโจมตี",          "color": Color("#2f7fd6"), "price": 5},
+	{"type": "mult2",       "name": "Rune Lens",        "icon": "🔮", "desc": "ตัวคูณ +5 ก่อนคิดดาเมจสุดท้าย",          "color": Color("#d63a3a"), "price": 6},
+	{"type": "reverse",     "name": "Mirror Walk",      "icon": "↩️", "desc": "ลูกไฟเดินย้อนกลับอีกรอบ +50% ATK รวม",   "color": Color("#a66cf2"), "price": 6},
 	{"type": "emptyAtk",    "name": "Empty Fist",       "icon": "👊", "desc": "+2 ATK ต่อช่องกระดานที่ว่างเปล่า",       "color": Color("#a66cf2"), "price": 6},
-	{"type": "firstGem",    "name": "First Strike",     "icon": "🥇", "desc": "+8 ATK โบนัสสำหรับการ์ดในช่องแรก",       "color": Color("#f08a24"), "price": 6},
+	{"type": "firstGem",    "name": "First Strike",     "icon": "🥇", "desc": "+8 ATK สำหรับการ์ดในช่องแรก",           "color": Color("#f08a24"), "price": 6},
 	{"type": "walkCoin",    "name": "Gold Step",        "icon": "👟", "desc": "รับ 🪙 1 เหรียญต่อรอบเดินที่เหลือเมื่อชนะ", "color": Color("#f08a24"), "price": 6},
-	{"type": "stoneUp",     "name": "Stone Carver",     "icon": "🪨", "desc": "ทุกสูตร Stone +1 ATK ต่อใบ",              "color": Color("#a66cf2"), "price": 7},
-	{"type": "freediscard", "name": "Wild Shuffle",     "icon": "♻️", "desc": "เพิ่มจำนวนครั้งทิ้งการ์ด +1 ทุกด่าน",    "color": Color("#2e9e5b"), "price": 8},
-	{"type": "atk15",       "name": "Power Core",       "icon": "⚡", "desc": "ATK รวมทั้งหมด ×1.3",                    "color": Color("#2f7fd6"), "price": 8},
-	{"type": "greenCoin",   "name": "Coin Hoard",       "icon": "🪙", "desc": "รับดอกเบี้ย +1🪙 ต่อ 5🪙 ที่ถือไว้",      "color": Color("#2e9e5b"), "price": 6},
+	{"type": "stoneUp",     "name": "Stone Carver",     "icon": "🪨", "desc": "ตัวสะสมพลัง Stone: ตัวคูณ ×1.5",        "color": Color("#a66cf2"), "price": 7},
+	{"type": "freediscard", "name": "Wild Shuffle",     "icon": "♻️", "desc": "ทิ้งการ์ดได้แม้มี Gem วางอยู่บนกระดาน",   "color": Color("#2e9e5b"), "price": 8},
+	{"type": "atk15",       "name": "Power Core",       "icon": "⚡", "desc": "ATK รวมทั้งหมด ×1.5",                    "color": Color("#2f7fd6"), "price": 8},
+	{"type": "greenCoin",   "name": "Coin Hoard",       "icon": "🪙", "desc": "รับดอกเบี้ย +1🪙 ต่อ 5🪙 ที่ถือไว้ (สูงสุด 10)", "color": Color("#2e9e5b"), "price": 6},
 ]
-
-# Stone upgrade levels (bonus ATK per card to add on upgrade)
-var stone_upgrade_levels: Array[int] = [0, 0, 0, 0, 0, 0]  # one per formula
 
 # --- Node References ---
 @onready var stage_label: Label = $TopBar/StageLabel
@@ -205,7 +217,7 @@ func connect_ui_signals() -> void:
 		var idx = i
 		tile_btn.pressed.connect(func(): _on_tile_clicked(idx))
 
-	# Connect artifact slot buttons (slots 1-5 are children 1-5, child 0 is ArtLabel)
+	# Connect artifact slot buttons
 	for i in range(MAX_ARTIFACTS):
 		var slot = artifact_row.get_child(i + 1) as Button
 		var slot_idx = i
@@ -219,37 +231,69 @@ func connect_ui_signals() -> void:
 func start_new_game() -> void:
 	stage = 1
 	coins = 0
+	walk_max = WALK_START
+	discard_max = DISCARD_START
+	hand_max = HAND_START
+
+	enemy_atk = EATK_START
+	walks_left = walk_max
+	discards_left = discard_max
+
+	player_max_hp = enemy_atk * walk_max
+	player_hp = player_max_hp
+
 	enemy_max_hp = 50
-	enemy_hp = 50
-	enemy_atk = 10
-	player_max_hp = 30
-	player_hp = 30
-	discards_left = 3
-	walks_left = 3
+	enemy_hp = enemy_max_hp
+
 	is_busy = false
 	hand.clear()
 	placed_cards.clear()
 	selected_card_ids.clear()
 	artifacts.clear()
 	for i in range(MAX_ARTIFACTS): artifacts.append(null)
-	stone_upgrade_levels = [0, 0, 0, 0, 0, 0]
 	discovered_formulas = ["col"]
+
 	reward_modal.visible = false
 	gameover_modal.visible = false
 	stone_modal.visible = false
 	shop_modal.visible = false
 	deck_modal.visible = false
-	boss_crystal_tile = -1
 	token.visible = false
+
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
 	hero_pic.modulate = Color.WHITE
 	hero_pic.scale = Vector2.ONE
 
 	build_deck()
-	draw_up_to_hand(8)
-	update_all_ui()
-	refresh_calc()
+	spawn_current_enemy()
+
+
+func spawn_current_enemy() -> void:
+	var boss_idx = (stage - 1) % BOSS_PICS.size()
+	enemy_pic.text = BOSS_PICS[boss_idx]
+	if is_boss():
+		enemy_name.text = "👑 บอสใหญ่ ด่าน %d" % stage
+		boss_skill()
+	else:
+		enemy_name.text = "ศัตรู ด่าน %d" % stage
+
+	start_new_round()
+
+
+func boss_skill() -> void:
+	if not is_boss(): return
+	for i in range(BOSS_BLANKS):
+		deck.append({
+			"id": card_uid_counter,
+			"color": "blank",
+			"dir": "blank",
+			"is_blank": true,
+			"gold": false
+		})
+		card_uid_counter += 1
+	deck.shuffle()
+	msg_label.text = "⚠️ บอสใส่การ์ดเปล่า 15 ใบเข้าสำรับ (ชั่วคราว)!"
 
 
 func build_deck() -> void:
@@ -262,13 +306,14 @@ func build_deck() -> void:
 					"id": card_uid_counter,
 					"color": col,
 					"dir": dir,
+					"is_blank": false,
 					"gold": false
 				})
 				card_uid_counter += 1
 	deck.shuffle()
 
 
-func draw_up_to_hand(target_count: int = 8) -> void:
+func draw_up_to_hand(target_count: int) -> void:
 	while hand.size() < target_count and deck.size() > 0:
 		hand.append(deck.pop_back())
 
@@ -276,26 +321,13 @@ func draw_up_to_hand(target_count: int = 8) -> void:
 func start_new_round() -> void:
 	placed_cards.clear()
 	selected_card_ids.clear()
-	draw_up_to_hand(8)
-
-	if is_boss():
-		enemy_pic.text = "👑👹"
-		enemy_name.text = "👑 บอสใหญ่ ด่าน %d" % stage
-		boss_crystal_tile = randi_range(1, N_TILES - 1)
-		if hand.size() > 0:
-			hand[0]["cursed"] = true
-		msg_label.text = "⚠️ บอสใหญ่คำราม! มีผลึกคริสตัลขวางและคำสาป!"
-	else:
-		enemy_pic.text = "👹"
-		enemy_name.text = "ศัตรู ด่าน %d" % stage
-		boss_crystal_tile = -1
-
+	draw_up_to_hand(hand_max)
 	update_all_ui()
 	refresh_calc()
 
 
 # ==============================================================================
-# Rendering: Tiles & Cards
+# Rendering: Tiles, Hand & UI
 # ==============================================================================
 
 func update_all_ui() -> void:
@@ -307,7 +339,6 @@ func update_all_ui() -> void:
 	hero_hp_bar.max_value = player_max_hp
 	hero_hp_bar.value = player_hp
 
-	enemy_name.text = "ศัตรู ด่าน %d" % stage
 	enemy_hp_label.text = "HP %d / %d" % [enemy_hp, enemy_max_hp]
 	enemy_hp_bar.max_value = enemy_max_hp
 	enemy_hp_bar.value = enemy_hp
@@ -319,8 +350,16 @@ func update_all_ui() -> void:
 	else:
 		walk_btn.text = "เดิน (%d รอบ)" % walks_left
 
-	discard_btn.disabled = is_busy or discards_left <= 0 or selected_card_ids.is_empty()
-	discard_btn.text = "ทิ้งการ์ด (%d/3)" % discards_left
+	# Rule: If board has cards, cannot discard unless freediscard artifact is owned
+	var blocked = (placed_cards.size() > 0) and (not has_artifact("freediscard"))
+	discard_btn.disabled = is_busy or discards_left <= 0 or selected_card_ids.is_empty() or blocked
+
+	if blocked:
+		discard_btn.text = "วาง Gem แล้วทิ้งไม่ได้"
+	elif selected_card_ids.size() > 0:
+		discard_btn.text = "ทิ้ง Gem (%d) [%d รอบ]" % [selected_card_ids.size(), discards_left]
+	else:
+		discard_btn.text = "ทิ้ง Gem (%d รอบ)" % discards_left
 
 	render_tiles()
 	render_hand()
@@ -332,7 +371,6 @@ func render_tiles() -> void:
 		var tile_btn = tiles_container.get_child(i) as Button
 		var t_dir = TILE_DIR[i]
 
-		# Create/configure custom StyleBox for rich brass border look
 		var sb = StyleBoxFlat.new()
 		sb.set_corner_radius_all(10)
 		sb.border_width_top = 3
@@ -342,54 +380,55 @@ func render_tiles() -> void:
 
 		if placed_cards.has(i):
 			var card = placed_cards[i]
-			var c_dir = card["dir"]
-			var c_col = card["color"]
-			var is_match = (c_dir == t_dir)
+			var is_blank = card.get("is_blank", false)
 
-			sb.bg_color = COLORS.get(c_col, COLORS["empty_tile"]).darkened(0.2)
-			sb.border_color = COLORS["gold"] if is_match else COLORS["brass"]
-			tile_btn.add_theme_stylebox_override("normal", sb)
-			tile_btn.add_theme_stylebox_override("hover", sb)
-			tile_btn.add_theme_stylebox_override("pressed", sb)
+			if is_blank:
+				sb.bg_color = Color("#3a3a48")
+				sb.border_color = Color("#777788")
+				tile_btn.icon = null
+				tile_btn.text = "%d\n\n[การ์ดเปล่า]" % (i + 1)
+				tile_btn.modulate = Color(0.8, 0.8, 0.8)
+			else:
+				var c_dir = card["dir"]
+				var c_col = card["color"]
+				var is_match = (c_dir == t_dir)
 
-			var icon_tex = EMBLEMS.get(c_dir)
-			if icon_tex != null:
-				tile_btn.icon = icon_tex
-				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				tile_btn.expand_icon = true
-				tile_btn.text = "%d\n\n%s" % [i + 1, "★ GOLD" if is_match else ""]
-			else:
-				tile_btn.icon = null
-				tile_btn.text = "#%d\n%s\n%s" % [i + 1, c_dir, "★ GOLD" if is_match else ""]
-			tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
-		else:
-			var is_crystal = (i == boss_crystal_tile)
-			if is_crystal:
-				sb.bg_color = Color("#42155e")
-				sb.border_color = Color("#c866ff")
-				tile_btn.icon = null
-				tile_btn.text = "%d\n💎\n[ผลึก]" % (i + 1)
-				tile_btn.modulate = Color(1.3, 0.9, 1.5)
-			else:
-				sb.bg_color = COLORS["empty_tile"]
-				sb.border_color = COLORS["brass"]
-				var icon_tex = EMBLEMS.get(t_dir)
+				sb.bg_color = COLORS.get(c_col, COLORS["empty_tile"]).darkened(0.2)
+				sb.border_color = COLORS["gold"] if is_match else COLORS["brass"]
+
+				var icon_tex = EMBLEMS.get(c_dir)
 				if icon_tex != null:
 					tile_btn.icon = icon_tex
 					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 					tile_btn.expand_icon = true
-					tile_btn.text = "%d\n\n" % (i + 1)
+					tile_btn.text = "%d\n\n%s" % [i + 1, "★ GOLD" if is_match else ""]
 				else:
 					tile_btn.icon = null
-					tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
-				tile_btn.modulate = Color(0.65, 0.65, 0.75)
+					tile_btn.text = "#%d\n%s\n%s" % [i + 1, c_dir, "★ GOLD" if is_match else ""]
+				tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
+
+			tile_btn.add_theme_stylebox_override("normal", sb)
+			tile_btn.add_theme_stylebox_override("hover", sb)
+			tile_btn.add_theme_stylebox_override("pressed", sb)
+		else:
+			sb.bg_color = COLORS["empty_tile"]
+			sb.border_color = COLORS["brass"]
+			var icon_tex = EMBLEMS.get(t_dir)
+			if icon_tex != null:
+				tile_btn.icon = icon_tex
+				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				tile_btn.expand_icon = true
+				tile_btn.text = "%d\n\n" % (i + 1)
+			else:
+				tile_btn.icon = null
+				tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
+			tile_btn.modulate = Color(0.65, 0.65, 0.75)
 			tile_btn.add_theme_stylebox_override("normal", sb)
 			tile_btn.add_theme_stylebox_override("hover", sb)
 			tile_btn.add_theme_stylebox_override("pressed", sb)
 
 
 func render_hand() -> void:
-	# Sort hand by color or direction
 	if sort_mode == "color":
 		hand.sort_custom(func(a, b):
 			var ca = COLOR_ORDER.find(a["color"])
@@ -405,7 +444,6 @@ func render_hand() -> void:
 			return COLOR_ORDER.find(a["color"]) < COLOR_ORDER.find(b["color"])
 		)
 
-	# Clean previous cards
 	for child in hand_container.get_children():
 		child.queue_free()
 
@@ -413,30 +451,27 @@ func render_hand() -> void:
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(76, 104)
 		var is_sel = selected_card_ids.has(card["id"])
-		var c_col = card["color"]
-		var c_dir = card["dir"]
+		var is_blank = card.get("is_blank", false)
 
 		var sb = StyleBoxFlat.new()
 		sb.set_corner_radius_all(8)
-		sb.bg_color = COLORS.get(c_col, Color.GRAY)
 		sb.border_width_top = 3 if is_sel else 2
 		sb.border_width_bottom = 3 if is_sel else 2
 		sb.border_width_left = 3 if is_sel else 2
 		sb.border_width_right = 3 if is_sel else 2
-		sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
 
-		btn.add_theme_stylebox_override("normal", sb)
-		btn.add_theme_stylebox_override("hover", sb)
-		btn.add_theme_stylebox_override("pressed", sb)
-
-		var is_cursed = card.get("cursed", false)
-		if is_cursed:
-			sb.bg_color = Color("#2e1236")
-			sb.border_color = Color("#ff3b69")
+		if is_blank:
+			sb.bg_color = Color("#40404e")
+			sb.border_color = Color("#ffd966") if is_sel else Color("#888899")
 			btn.icon = null
-			btn.text = "💀 %s\n[คำสาป]%s" % [c_dir, "\n▲ เลือก" if is_sel else ""]
-			btn.tooltip_text = "การ์ดติดคำสาป! บล็อกคอมโบ Stone (แนะนำให้เลือกทิ้งการ์ด Discard)"
+			btn.text = "⬜\n[การ์ดเปล่า]%s" % ["\n▲ เลือก" if is_sel else ""]
+			btn.tooltip_text = "การ์ดเปล่าจากสกิลบอส ไม่มีสีไม่มีทิศ (แนะนำให้เลือกทิ้ง Discard)"
 		else:
+			var c_col = card["color"]
+			var c_dir = card["dir"]
+			sb.bg_color = COLORS.get(c_col, Color.GRAY)
+			sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
+
 			var icon_tex = EMBLEMS.get(c_dir)
 			if icon_tex != null:
 				btn.icon = icon_tex
@@ -450,6 +485,10 @@ func render_hand() -> void:
 			else:
 				btn.icon = null
 				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
+
+		btn.add_theme_stylebox_override("normal", sb)
+		btn.add_theme_stylebox_override("hover", sb)
+		btn.add_theme_stylebox_override("pressed", sb)
 
 		var card_id = card["id"]
 		btn.pressed.connect(func(): _on_hand_card_clicked(card_id))
@@ -480,8 +519,11 @@ func _on_hand_card_clicked(card_id: int) -> void:
 func _on_tile_clicked(tile_idx: int) -> void:
 	if is_busy: return
 
-	# If tile already has card, return to hand
+	# Rule: If tile already has card, return it to hand!
 	if placed_cards.has(tile_idx):
+		if hand.size() >= hand_max:
+			msg_label.text = "⚠️ มือเต็ม เอา Gem กลับไม่ได้"
+			return
 		var card = placed_cards[tile_idx]
 		placed_cards.erase(tile_idx)
 		hand.append(card)
@@ -489,7 +531,7 @@ func _on_tile_clicked(tile_idx: int) -> void:
 		refresh_calc()
 		return
 
-	# If exactly one card selected, place it here
+	# If exactly one card selected in hand, place it here
 	if selected_card_ids.size() == 1:
 		var target_id = selected_card_ids[0]
 		var found_card = null
@@ -497,16 +539,21 @@ func _on_tile_clicked(tile_idx: int) -> void:
 			if card["id"] == target_id:
 				found_card = card
 				break
-		if found_card:
+		if found_card != null:
 			hand.erase(found_card)
-			selected_card_ids.clear()
 			placed_cards[tile_idx] = found_card
+			selected_card_ids.clear()
 			update_all_ui()
 			refresh_calc()
 
 
 func _on_discard_pressed() -> void:
-	if is_busy or discards_left <= 0 or selected_card_ids.is_empty(): return
+	if is_busy or selected_card_ids.is_empty() or discards_left <= 0:
+		return
+	if placed_cards.size() > 0 and not has_artifact("freediscard"):
+		msg_label.text = "⚠️ วาง Gem แล้วทิ้งไม่ได้ (ดึง Gem กลับก่อน)"
+		return
+
 	discards_left -= 1
 	var to_remove = []
 	for card in hand:
@@ -515,158 +562,160 @@ func _on_discard_pressed() -> void:
 	for card in to_remove:
 		hand.erase(card)
 	selected_card_ids.clear()
-	draw_up_to_hand(8)
+	draw_up_to_hand(hand_max)
 	update_all_ui()
 	refresh_calc()
 
 
 # ==============================================================================
-# Stone Calculations & Group Combinations
+# Stone Calculations & Group Combinations (Matching Draft calcGroups)
 # ==============================================================================
 
 func calculate_groups() -> Dictionary:
-	var used = []
-	var groups = []
-	var total_atk = 0
-	var total_mult = 1.0
+	var used: Array[int] = []
+	var groups: Array = []
+	var grp_val: Dictionary = {} # tile_idx -> ATK per gem
 
-	# Find contiguous blocks of placed cards
-	for s0 in range(N_TILES):
-		if used.has(s0) or not placed_cards.has(s0): continue
-		for e0 in range(s0, N_TILES):
-			if used.has(e0) or not placed_cards.has(e0): break
-			var idxs = []
-			for q in range(s0, e0 + 1): idxs.append(q)
-			var n = idxs.size()
-
-			var same_col = true
-			var same_dir = true
-			var tile_match = true
-			var first_col = placed_cards[s0]["color"]
-			var first_dir = placed_cards[s0]["dir"]
-
-			for idx in idxs:
-				var c = placed_cards[idx]
-				if c.get("cursed", false):
-					same_col = false
-					same_dir = false
-					tile_match = false
+	while true:
+		var cands: Array = []
+		for s0 in range(N_TILES):
+			if used.has(s0) or not placed_cards.has(s0) or placed_cards[s0].get("is_blank", false):
+				continue
+			for e0 in range(s0, N_TILES):
+				if used.has(e0) or not placed_cards.has(e0) or placed_cards[e0].get("is_blank", false):
 					break
-				if c["color"] != first_col: same_col = false
-				if c["dir"] != first_dir: same_dir = false
-				if c["dir"] != TILE_DIR[idx]: tile_match = false
+				var idxs: Array[int] = []
+				for q in range(s0, e0 + 1):
+					idxs.append(q)
+				var n = idxs.size()
 
-			var alt_col = false
-			if n >= 3:
-				alt_col = (placed_cards[idxs[0]]["color"] != placed_cards[idxs[1]]["color"])
-				for q in range(2, n):
-					if placed_cards[idxs[q]]["color"] != placed_cards[idxs[q - 2]]["color"]:
-						alt_col = false
-						break
+				var first_col = placed_cards[s0]["color"]
+				var first_dir = placed_cards[s0]["dir"]
 
-			# Evaluate best matching formula
-			var best_val = 0
-			var best_key = ""
-			for r in stone_formulas:
-				var ok = false
-				if r["key"] == "col" and same_col and n >= r["min"]: ok = true
-				elif r["key"] == "dsame" and same_dir and n >= r["min"]: ok = true
-				elif r["key"] == "alt" and alt_col and n >= r["min"]: ok = true
-				elif r["key"] == "dtile" and tile_match and n >= r["min"]: ok = true
-				elif r["key"] == "cd" and same_col and tile_match and n >= r["min"]: ok = true
-				elif r["key"] == "twin" and same_col and same_dir and n >= r["min"]: ok = true
+				var same_col = true
+				var same_dir = true
+				var dtile = true
 
-				if ok:
-					var val = r["a"] + r["g"] * (n - 1)
-					if val > best_val:
-						best_val = val
-						best_key = r["key"]
+				for idx in idxs:
+					var c = placed_cards[idx]
+					if c["color"] != first_col: same_col = false
+					if c["dir"] != first_dir: same_dir = false
+					if c["dir"] != TILE_DIR[idx]: dtile = false
 
-			if best_val > 0:
-				groups.append({
-					"key": best_key,
-					"idxs": idxs,
-					"atk_per_card": best_val,
-					"tot": best_val * n,
-					"color": first_col if same_col else "alt"
-				})
+				var alt_col = false
+				if n >= 3:
+					alt_col = (placed_cards[idxs[0]]["color"] != placed_cards[idxs[1]]["color"])
+					for q in range(2, n):
+						if placed_cards[idxs[q]]["color"] != placed_cards[idxs[q - 2]]["color"]:
+							alt_col = false
+							break
 
-	# Pick non-overlapping groups with maximum total score
-	groups.sort_custom(func(a, b): return a["tot"] > b["tot"])
-	var final_groups = []
-	for g in groups:
-		var overlap = false
-		for idx in g["idxs"]:
-			if used.has(idx):
-				overlap = true
-				break
-		if not overlap:
-			for idx in g["idxs"]: used.append(idx)
-			final_groups.append(g)
-			total_atk += g["tot"]
+				var f = {
+					"col": same_col,
+					"dsame": same_dir,
+					"alt": alt_col,
+					"dtile": dtile,
+					"cd": same_col and dtile,
+					"twin": same_col and same_dir
+				}
 
-	# Check gold synergies (+0.25 Multiplier per card matching tile direction)
+				var best_k = -1
+				var best_v = 0
+				for k in range(stone_formulas.size()):
+					var r = stone_formulas[k]
+					if f.get(r["key"], false) and n >= r["min"]:
+						var v = r["a"] + r["g"] * (n - 1)
+						if v > best_v or (v == best_v and k > best_k):
+							best_v = v
+							best_k = k
+
+				if best_k >= 0:
+					cands.append({
+						"type": stone_formulas[best_k]["key"],
+						"name": stone_formulas[best_k]["name"],
+						"idxs": idxs,
+						"col": first_col if same_col else null,
+						"res": {"a": best_v, "k": best_k, "tot": best_v * n}
+					})
+
+		var best = null
+		for g in cands:
+			if best == null:
+				best = g
+				continue
+			var b = best
+			if g["res"]["tot"] > b["res"]["tot"] or (g["res"]["tot"] == b["res"]["tot"] and (g["res"]["a"] > b["res"]["a"] or (g["res"]["a"] == b["res"]["a"] and g["idxs"].size() > b["idxs"].size()))):
+				best = g
+
+		if best == null:
+			break
+
+		for i in best["idxs"]:
+			used.append(i)
+			grp_val[i] = best["res"]["a"]
+		groups.append(best)
+
+	# Sum of base damage from all cards on board
+	var total_base_dmg = 0
 	for i in range(N_TILES):
-		if placed_cards.has(i):
-			if placed_cards[i]["dir"] == TILE_DIR[i]:
-				total_mult += 0.25
-
-	if total_atk == 0 and placed_cards.size() > 0:
-		total_atk = placed_cards.size() # fallback 1 ATK per card
-
-	# --- Artifact Effects on ATK and Multiplier ---
-	if has_artifact("add5"):
-		total_atk += 5
-	if has_artifact("emptyAtk"):
-		var empty_count = N_TILES - placed_cards.size()
-		total_atk += empty_count * 2
-	if has_artifact("firstGem") and placed_cards.has(0):
-		total_atk += 8
-	if has_artifact("stoneUp"):
-		for g in final_groups:
-			total_atk += g["idxs"].size()
-	if has_artifact("reverse"):
-		total_atk = int(total_atk * 1.5)
-	if has_artifact("atk15"):
-		total_atk = int(total_atk * 1.3)
-	if has_artifact("mult2"):
-		total_mult *= 1.5
+		if placed_cards.has(i) and not placed_cards[i].get("is_blank", false):
+			total_base_dmg += grp_val.get(i, 1)
 
 	return {
-		"atk": total_atk,
-		"mult": total_mult,
-		"groups": final_groups
+		"groups": groups,
+		"grp_val": grp_val,
+		"base_dmg": total_base_dmg
 	}
 
 
 func refresh_calc() -> void:
 	var result = calculate_groups()
-	var final_dmg = int(result["atk"] * result["mult"])
-	calc_label.text = "ATK: %d   ×   ตัวคูณ: %.2f   =   ดาเมจ: %d" % [result["atk"], result["mult"], final_dmg]
+	var base_dmg = result["base_dmg"]
+
+	var atk = 1 + base_dmg
+	var mult = 1.0
+
+	# Pre-evaluate Artifacts (attackSeq preview)
+	if has_artifact("add5"):
+		atk += 10
+	if has_artifact("mult2"):
+		mult += 5.0
+	if has_artifact("emptyAtk"):
+		atk += 2 * (N_TILES - placed_cards.size())
+	if has_artifact("atk15"):
+		atk = int(atk * 1.5)
+	if has_artifact("firstGem") and placed_cards.has(0):
+		atk += 8
+	if has_artifact("stoneUp"):
+		mult *= 1.5
+	if has_artifact("reverse"):
+		atk = int(atk * 1.5)
+
+	var final_dmg = int(atk * mult)
+	calc_label.text = "%d   ×   %.2f   =   ดาเมจ: %d" % [atk, mult, final_dmg]
 
 	# Check for new Stone formula discoveries
 	for g in result["groups"]:
-		var key = g["key"]
+		var key = g["type"]
 		if not discovered_formulas.has(key):
 			discovered_formulas.append(key)
 			show_discovery_toast(key)
 
-	# Update Gstrip badges & group connecting bars
+	# Update Gstrip badges
 	for i in range(N_TILES):
 		var lbl = gstrip_container.get_child(i) as Label
-		var found_val = 0
-		var group_col = COLORS["brass"]
-		for g in result["groups"]:
-			if g["idxs"].has(i):
-				found_val = g["atk_per_card"]
-				if g["color"] != "alt":
-					group_col = COLORS.get(g["color"], COLORS["brass"])
-				else:
-					group_col = Color("#E040FB")
-				break
-		if found_val > 0:
-			lbl.text = "+%d" % found_val
-			lbl.modulate = group_col
+		if placed_cards.has(i) and not placed_cards[i].get("is_blank", false):
+			var val = result["grp_val"].get(i, 1)
+			lbl.text = "+%d" % val
+			var g_col = COLORS["brass"]
+			for g in result["groups"]:
+				if g["idxs"].has(i):
+					if g["col"] != null:
+						g_col = COLORS.get(g["col"], COLORS["brass"])
+					else:
+						g_col = Color("#E040FB")
+					break
+			lbl.modulate = g_col
 		else:
 			lbl.text = "•"
 			lbl.modulate = Color(0.35, 0.35, 0.45)
@@ -687,26 +736,22 @@ func auto_place_selected() -> void:
 	var n = mini(cards_to_place.size(), free_slots.size())
 	if n <= 0: return
 
-	# Test combinations to maximize score
 	var best_score = -1
 	var best_perm = []
 
-	# Greedy/Permutation heuristic
 	var perm = cards_to_place.slice(0, n)
-	for trial in range(30):
+	for trial in range(40):
 		if trial > 0:
 			perm.shuffle()
-		# Evaluate
 		for k in range(n):
 			placed_cards[free_slots[k]] = perm[k]
-		var score = calculate_groups()["atk"]
+		var score = calculate_groups()["base_dmg"]
 		if score > best_score:
 			best_score = score
 			best_perm = perm.duplicate()
 		for k in range(n):
 			placed_cards.erase(free_slots[k])
 
-	# Apply best arrangement
 	for k in range(n):
 		var c = best_perm[k]
 		var slot = free_slots[k]
@@ -737,7 +782,6 @@ func _on_walk_pressed() -> void:
 	update_all_ui()
 	msg_label.text = "🔥 กำลังเดินสำรวจกระดาน..."
 
-	# Animate token dashing through active tiles
 	token.visible = true
 	var tween = create_tween()
 	var step_duration = 0.26 / speed_multiplier
@@ -776,28 +820,18 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 	var card = placed_cards.get(tile_idx)
 	if card == null: return
 
-	if tile_idx == boss_crystal_tile:
-		boss_crystal_tile = -1
-		spawn_damage_number("💎 ทำลายผลึก! +10", tile_btn.global_position, Color.MAGENTA, true)
-
-	var is_gold = (card["dir"] == TILE_DIR[tile_idx])
-	var pop = Label.new()
-
-	var group_atk = 1
 	var calc = calculate_groups()
-	for g in calc["groups"]:
-		if g["idxs"].has(tile_idx):
-			group_atk = g["atk_per_card"]
-			break
+	var gain = calc["grp_val"].get(tile_idx, 1)
 
-	if is_gold:
-		pop.text = "★ GOLD +0.25x"
-		pop.modulate = COLORS["gold"]
+	var pop = Label.new()
+	if card.get("is_blank", false):
+		pop.text = "+0"
+		pop.modulate = Color.GRAY
 	else:
-		pop.text = "+%d ATK" % group_atk
+		pop.text = "+%d ATK" % gain
 		pop.modulate = COLORS.get(card["color"], Color.CYAN)
 
-	pop.add_theme_font_size_override("font_size", 16 if is_gold else 20)
+	pop.add_theme_font_size_override("font_size", 18)
 	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
 	pop.add_theme_constant_override("shadow_offset_x", 1)
 	pop.add_theme_constant_override("shadow_offset_y", 1)
@@ -822,8 +856,8 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 
 
 func _on_walk_finished() -> void:
-	# 1. Fireball flies up to Hero along a curved Bézier path
-	msg_label.text = "✨ ลูกไฟพุ่งรวมพลังเข้าสู่ฮีโร่!"
+	# 1. Fireball flies up to Hero along curved Bézier path
+	msg_label.text = "✨ รวมพลังเวทเข้าสู่ฮีโร่!"
 	var start_global = token.global_position + token.size * 0.5
 	var hero_center = hero_pic.global_position + hero_pic.size * 0.5
 	var mid_global = (start_global + hero_center) * 0.5 + Vector2(-60.0, -100.0)
@@ -838,7 +872,7 @@ func _on_walk_finished() -> void:
 	token.visible = false
 	token.position = Vector2(20.0, 26.0)
 
-	# 2. Hero cast charge (pulse scale & glow)
+	# 2. Hero charge pulse
 	hero_pic.pivot_offset = hero_pic.size * 0.5
 	var charge_tween = create_tween()
 	charge_tween.tween_property(hero_pic, "scale", Vector2(1.35, 1.35), 0.2 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -848,9 +882,20 @@ func _on_walk_finished() -> void:
 	charge_tween.parallel().tween_property(hero_pic, "modulate", Color.WHITE, 0.15 / speed_multiplier)
 	await charge_tween.finished
 
-	# 3. Calculate Damage & Fire Hero Laser Beam!
-	var result = calculate_groups()
-	var dmg = int(result["atk"] * result["mult"])
+	# 3. Calculate Attack & Final Damage (Matching attackSeq)
+	var calc = calculate_groups()
+	var atk = 1 + calc["base_dmg"]
+	var mult = 1.0
+
+	if has_artifact("add5"): atk += 10
+	if has_artifact("mult2"): mult += 5.0
+	if has_artifact("emptyAtk"): atk += 2 * (N_TILES - placed_cards.size())
+	if has_artifact("atk15"): atk = int(atk * 1.5)
+	if has_artifact("firstGem") and placed_cards.has(0): atk += 8
+	if has_artifact("stoneUp"): mult *= 1.5
+	if has_artifact("reverse"): atk = int(atk * 1.5)
+
+	var dmg = int(atk * mult)
 	if dmg <= 0: dmg = 1
 
 	msg_label.text = "🧙 ฮีโร่ยิงลำแสงเวท %d ดาเมจ!" % dmg
@@ -860,7 +905,7 @@ func _on_walk_finished() -> void:
 
 	await get_tree().create_timer(0.08 / speed_multiplier).timeout
 
-	# 4. Enemy takes damage, shakes, flashes red, damage popup
+	# 4. Enemy takes damage
 	enemy_hp = maxi(0, enemy_hp - dmg)
 	enemy_hp_label.text = "HP %d / %d" % [enemy_hp, enemy_max_hp]
 	create_tween().tween_property(enemy_hp_bar, "value", float(enemy_hp), 0.35 / speed_multiplier)
@@ -895,13 +940,13 @@ func _enemy_counter_attack() -> void:
 
 	await get_tree().create_timer(0.18 / speed_multiplier).timeout
 
-	# 2. Enemy fires dark purple/magenta laser beam
+	# 2. Enemy fires counter-attack beam
 	fire_laser_beam(enemy_beam_line, enemy_center, hero_center, Color(0.9, 0.25, 0.95), 22.0, 0.28)
 
 	await get_tree().create_timer(0.08 / speed_multiplier).timeout
 
-	# 3. Hero gets hit!
-	player_hp = maxi(0, player_hp - enemy_atk)
+	# 3. Rule: Hero HP is tied to walks_left!
+	player_hp = enemy_atk * walks_left
 	hero_hp_label.text = "HP %d / %d" % [player_hp, player_max_hp]
 	create_tween().tween_property(hero_hp_bar, "value", float(player_hp), 0.3 / speed_multiplier)
 
@@ -914,121 +959,12 @@ func _enemy_counter_attack() -> void:
 
 	await get_tree().create_timer(0.5 / speed_multiplier).timeout
 
-	if player_hp <= 0:
+	# 4. Check if player ran out of walks
+	if walks_left <= 0 or player_hp <= 0:
 		on_game_over()
 	else:
 		is_busy = false
-		if walks_left <= 0:
-			walks_left = 3
-			start_new_round()
-		else:
-			update_all_ui()
-
-
-func fire_laser_beam(line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Color, beam_w: float = 20.0, duration: float = 0.25) -> void:
-	var p0 = (effects_layer.get_global_transform().affine_inverse() * from_pos)
-	var p1 = (effects_layer.get_global_transform().affine_inverse() * to_pos)
-	line.clear_points()
-	line.add_point(p0)
-	line.add_point(p0)
-	line.default_color = col
-	line.width = beam_w
-	line.modulate.a = 1.0
-	line.visible = true
-
-	var tween = create_tween()
-	# Beam shoots quickly from p0 to p1
-	tween.tween_method(func(pos: Vector2):
-		if line.get_point_count() >= 2:
-			line.set_point_position(1, pos)
-	, p0, p1, 0.07 / speed_multiplier)
-
-	# Hold beam
-	tween.tween_interval(duration / speed_multiplier)
-
-	# Dissolve beam width and fade out
-	tween.tween_property(line, "width", 0.0, 0.12 / speed_multiplier)
-	tween.parallel().tween_property(line, "modulate:a", 0.0, 0.12 / speed_multiplier)
-	tween.tween_callback(func():
-		line.visible = false
-		line.clear_points()
-	)
-
-
-func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38) -> void:
-	node.pivot_offset = node.size * 0.5
-	var orig_pos = node.position
-	var orig_rot = node.rotation
-	var tween = create_tween()
-	var steps = int(duration / 0.04)
-	for i in range(steps):
-		var decay = 1.0 - (float(i) / float(steps))
-		var offset = Vector2(randf_range(-intensity, intensity) * decay, randf_range(-intensity * 0.35, intensity * 0.35) * decay)
-		var rot_offset = deg_to_rad(randf_range(-6.0, 6.0) * decay)
-		tween.tween_property(node, "position", orig_pos + offset, 0.04 / speed_multiplier)
-		tween.parallel().tween_property(node, "rotation", orig_rot + rot_offset, 0.04 / speed_multiplier)
-	tween.tween_property(node, "position", orig_pos, 0.04 / speed_multiplier)
-	tween.parallel().tween_property(node, "rotation", orig_rot, 0.04 / speed_multiplier)
-
-
-func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = Color("#ff4d5e"), is_big: bool = true) -> void:
-	var pop = Label.new()
-	pop.text = text
-	pop.add_theme_font_size_override("font_size", 34 if is_big else 22)
-	pop.add_theme_color_override("font_color", col)
-	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
-	pop.add_theme_constant_override("shadow_offset_x", 2)
-	pop.add_theme_constant_override("shadow_offset_y", 2)
-	pop.add_theme_constant_override("shadow_outline_size", 4)
-	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pop.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	effects_layer.add_child(pop)
-	var start_pos = (effects_layer.get_global_transform().affine_inverse() * target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
-	pop.position = start_pos - Vector2(50.0, 20.0)
-	pop.size = Vector2(100.0, 40.0)
-	pop.pivot_offset = Vector2(50.0, 20.0)
-	pop.scale = Vector2(0.5, 0.5)
-	pop.modulate.a = 0.0
-
-	var tween = create_tween()
-	# Pop in & scale up to 1.3
-	tween.tween_property(pop, "scale", Vector2(1.3, 1.3), 0.14 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(pop, "modulate:a", 1.0, 0.12 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 45.0, 0.14 / speed_multiplier)
-
-	# Float up and settle to scale 1.0
-	tween.tween_property(pop, "scale", Vector2.ONE, 0.2 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 75.0, 0.35 / speed_multiplier)
-
-	# Fade out
-	tween.tween_property(pop, "modulate:a", 0.0, 0.22 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 95.0, 0.22 / speed_multiplier)
-	tween.tween_callback(pop.queue_free)
-
-
-func show_discovery_toast(formula_key: String) -> void:
-	var f_info = null
-	for f in stone_formulas:
-		if f["key"] == formula_key:
-			f_info = f
-			break
-	if f_info == null: return
-
-	toast_label.text = "✨ ค้นพบสูตรใหม่! · %s (%s) · ATK +%d" % [f_info["name"], f_info["desc"], f_info["a"]]
-	toast.visible = true
-	toast.modulate.a = 0.0
-	var orig_y = 70.0
-	toast.position.y = orig_y - 25.0
-
-	var tween = create_tween()
-	tween.tween_property(toast, "position:y", orig_y, 0.28 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(toast, "modulate:a", 1.0, 0.25 / speed_multiplier)
-	tween.tween_interval(2.2 / speed_multiplier)
-	tween.tween_property(toast, "position:y", orig_y - 20.0, 0.25 / speed_multiplier)
-	tween.parallel().tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
-	tween.tween_callback(func(): toast.visible = false)
+		start_new_round()
 
 
 func on_victory() -> void:
@@ -1040,23 +976,27 @@ func on_victory() -> void:
 
 	await fade_tween.finished
 
-	# Calculate coins: base + interest from coin hoard artifact
-	var reward_coins = 15 + stage * 5
-	var interest_bonus = 0
+	# Matching Draft Reward: base (4) + walks + interest (held/5, max 10) + artifacts
+	var base_reward = 4
+	var interest = mini(10, int(coins / 5))
+	var walk_reward = walks_left
+	var arti_count = 0
+	for a in artifacts:
+		if a != null: arti_count += 1
+	var arti_pay = 0
 	if has_artifact("greenCoin"):
-		interest_bonus = mini(10, int(coins / 5))
-	var walk_bonus = 0
+		arti_pay = interest # extra interest
 	if has_artifact("walkCoin"):
-		walk_bonus = walks_left
+		walk_reward = walks_left * 2
 
-	coins += reward_coins + interest_bonus + walk_bonus
+	var total_gain = base_reward + walk_reward + interest + arti_pay
+	coins += total_gain
 
-	var reward_text = "เอาชนะศัตรูด่านที่ %d!\n\n🪙 ชนะ: +%d" % [stage, reward_coins]
-	if interest_bonus > 0:
-		reward_text += "\n🪙 ดอกเบี้ย (Coin Hoard): +%d" % interest_bonus
-	if walk_bonus > 0:
-		reward_text += "\n🪙 Gold Step (%d รอบเหลือ): +%d" % [walks_left, walk_bonus]
-	reward_text += "\n\n💊 พลังชีวิตฟื้นฟูเต็มเปี่ยม"
+	var reward_text = "เอาชนะด่านที่ %d สำเร็จ!\n\n🪙 รางวัลพื้นฐาน: +%d" % [stage, base_reward]
+	reward_text += "\n🪙 เลือดที่เหลือ (%d รอบ): +%d" % [walks_left, walk_reward]
+	if interest > 0:
+		reward_text += "\n🪙 ดอกเบี้ย (มี %d ÷ 5): +%d" % [coins - total_gain, interest]
+	reward_text += "\n\nรวมได้รับ: +%d 🪙\n💊 พลังชีวิตฟื้นฟูเต็มเปี่ยม" % total_gain
 
 	reward_info.text = reward_text
 	update_all_ui()
@@ -1066,11 +1006,6 @@ func on_victory() -> void:
 func _on_reward_shop_pressed() -> void:
 	reward_modal.visible = false
 	open_shop()
-
-
-func _on_next_stage_pressed() -> void:
-	# Legacy: now goes to shop
-	_on_reward_shop_pressed()
 
 
 func open_shop() -> void:
@@ -1091,7 +1026,7 @@ func _render_shop_owned() -> void:
 		slot_btn.add_theme_font_size_override("font_size", 28)
 		if art != null:
 			slot_btn.text = art["icon"]
-			slot_btn.tooltip_text = "%s\n%s" % [art["name"], art["desc"]]
+			slot_btn.tooltip_text = "%s\n%s\n(แตะเพื่อขาย 🪙%d)" % [art["name"], art["desc"], int(art["price"] / 3.0)]
 			var sell_idx = i
 			slot_btn.pressed.connect(func(): _sell_artifact(sell_idx))
 		else:
@@ -1104,7 +1039,56 @@ func _render_shop_offers() -> void:
 	for child in shop_offer_container.get_children():
 		child.queue_free()
 
-	# Pick 4 random artifacts to show (filtered: not already owned by type)
+	# 1. Basic Stat Upgrades (Matching Draft: Hand+1, HP/Walk+1, Discard+1)
+	# Hand +1 (Price: 6)
+	var hand_btn = Button.new()
+	hand_btn.custom_minimum_size = Vector2(100, 110)
+	hand_btn.add_theme_font_size_override("font_size", 14)
+	var hand_maxed = (hand_max >= HAND_CAP)
+	hand_btn.text = "🃏 Hand +1\n(ปัจจุบัน %d)\n%s" % [hand_max, "สูงสุด" if hand_maxed else "🪙 6"]
+	hand_btn.disabled = hand_maxed or (coins < 6)
+	hand_btn.pressed.connect(func(): _buy_stat("hand", 6))
+	shop_offer_container.add_child(hand_btn)
+
+	# Walk / HP +1 (Price: 6)
+	var walk_btn_up = Button.new()
+	walk_btn_up.custom_minimum_size = Vector2(100, 110)
+	walk_btn_up.add_theme_font_size_override("font_size", 14)
+	walk_btn_up.text = "❤️ HP (Walk)+1\n(ปัจจุบัน %d รอบ)\n🪙 6" % walk_max
+	walk_btn_up.disabled = (coins < 6)
+	walk_btn_up.pressed.connect(func(): _buy_stat("walk", 6))
+	shop_offer_container.add_child(walk_btn_up)
+
+	# Discard +1 (Price: 6)
+	var disc_btn = Button.new()
+	disc_btn.custom_minimum_size = Vector2(100, 110)
+	disc_btn.add_theme_font_size_override("font_size", 14)
+	disc_btn.text = "♻️ ทิ้ง +1\n(ปัจจุบัน %d รอบ)\n🪙 6" % discard_max
+	disc_btn.disabled = (coins < 6)
+	disc_btn.pressed.connect(func(): _buy_stat("disc", 6))
+	shop_offer_container.add_child(disc_btn)
+
+	# 2. Stone Formula Upgrade
+	for idx in range(stone_formulas.size()):
+		var fkey = stone_formulas[idx]["key"]
+		if not discovered_formulas.has(fkey): continue
+		var upg_cost = 6 + (stone_formulas[idx]["a"] - 1) * 2
+		var upg_btn = Button.new()
+		upg_btn.custom_minimum_size = Vector2(100, 110)
+		upg_btn.add_theme_font_size_override("font_size", 13)
+		upg_btn.text = "🪨 %s\nATK เริ่มต้น +1\nLv%d→%d\n🪙 %d" % [
+			stone_formulas[idx]["name"],
+			stone_formulas[idx]["a"],
+			stone_formulas[idx]["a"] + 1,
+			upg_cost
+		]
+		upg_btn.disabled = (coins < upg_cost)
+		var capture_idx = idx
+		var capture_cost = upg_cost
+		upg_btn.pressed.connect(func(): _buy_stone_upgrade(capture_idx, capture_cost))
+		shop_offer_container.add_child(upg_btn)
+
+	# 3. Artifact Offers (4 unowned artifacts)
 	var owned_types: Array[String] = []
 	for art in artifacts:
 		if art != null:
@@ -1117,7 +1101,7 @@ func _render_shop_offers() -> void:
 	for item in offers:
 		var btn = Button.new()
 		btn.custom_minimum_size = Vector2(100, 110)
-		btn.add_theme_font_size_override("font_size", 24)
+		btn.add_theme_font_size_override("font_size", 22)
 		btn.add_theme_color_override("font_color", item["color"])
 		var is_full = not artifacts.has(null)
 		var can_buy = not is_full and coins >= item["price"]
@@ -1128,25 +1112,33 @@ func _render_shop_offers() -> void:
 		btn.pressed.connect(func(): _buy_artifact(capture))
 		shop_offer_container.add_child(btn)
 
-	# Stone upgrade buttons for discovered formulas
-	for idx in range(stone_formulas.size()):
-		var fkey = stone_formulas[idx]["key"]
-		if not discovered_formulas.has(fkey): continue
-		var upgrade_cost = 8 + idx * 3
-		var can_upg = coins >= upgrade_cost
-		var upg_btn = Button.new()
-		upg_btn.custom_minimum_size = Vector2(100, 110)
-		upg_btn.add_theme_font_size_override("font_size", 14)
-		upg_btn.text = "🪨 %s\n+1 ATK/ใบ\nLv%d→%d\n🪙%d" % [
-			stone_formulas[idx]["name"],
-			stone_upgrade_levels[idx] + 1,
-			stone_upgrade_levels[idx] + 2,
-			upgrade_cost
-		]
-		upg_btn.disabled = not can_upg
-		var capture_idx = idx
-		upg_btn.pressed.connect(func(): _buy_stone_upgrade(capture_idx))
-		shop_offer_container.add_child(upg_btn)
+
+func _buy_stat(stat_type: String, price: int) -> void:
+	if coins < price: return
+	coins -= price
+	if stat_type == "hand":
+		hand_max = mini(HAND_CAP, hand_max + 1)
+	elif stat_type == "walk":
+		walk_max += 1
+		walks_left = walk_max
+		player_max_hp = enemy_atk * walk_max
+		player_hp = player_max_hp
+	elif stat_type == "disc":
+		discard_max += 1
+		discards_left += 1
+
+	update_all_ui()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
+
+
+func _buy_stone_upgrade(formula_idx: int, cost: int) -> void:
+	if coins < cost: return
+	coins -= cost
+	stone_formulas[formula_idx]["a"] += 1
+	update_all_ui()
+	_render_shop_offers()
+	shop_coins_label.text = "🪙 %d" % coins
 
 
 func _buy_artifact(item: Dictionary) -> void:
@@ -1174,40 +1166,30 @@ func _sell_artifact(slot_idx: int) -> void:
 	render_artifact_row()
 
 
-func _buy_stone_upgrade(formula_idx: int) -> void:
-	var upgrade_cost = 8 + formula_idx * 3
-	if coins < upgrade_cost: return
-	coins -= upgrade_cost
-	stone_upgrade_levels[formula_idx] += 1
-	# Permanently boost the formula's ATK per card
-	stone_formulas[formula_idx]["g"] += 1
-	update_all_ui()
-	_render_shop_offers()
-	shop_coins_label.text = "🪙 %d" % coins
-
-
 func _on_shop_leave() -> void:
 	shop_modal.visible = false
 	stage += 1
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
-	var boss_mult = 1.6 if is_boss() else 1.35
-	var atk_mult = 1.4 if is_boss() else 1.25
-	enemy_max_hp = int(enemy_max_hp * boss_mult)
+
+	# Enemy scaling per draft
+	enemy_max_hp = int(enemy_max_hp * 1.5)
 	enemy_hp = enemy_max_hp
-	enemy_atk = int(enemy_atk * atk_mult)
+	enemy_atk = int(enemy_atk * PHP_GROW)
+
+	walks_left = walk_max
+	player_max_hp = enemy_atk * walk_max
 	player_hp = player_max_hp
-	walks_left = 3
-	# freediscard artifact: extra discard each stage
-	discards_left = 3 + (1 if has_artifact("freediscard") else 0)
-	start_new_round()
+
+	discards_left = discard_max + (1 if has_artifact("freediscard") else 0)
+
+	build_deck()
+	spawn_current_enemy()
 
 
 func _on_artifact_slot_pressed(slot_idx: int) -> void:
 	var art = artifacts[slot_idx]
 	if art == null: return
-	# Show a simple info toast about this artifact
-	show_discovery_toast("") # repurpose: just show info
 	toast_label.text = "%s %s\n%s" % [art["icon"], art["name"], art["desc"]]
 	toast.visible = true
 	toast.modulate.a = 0.0
@@ -1222,7 +1204,6 @@ func _on_artifact_slot_pressed(slot_idx: int) -> void:
 
 
 func render_artifact_row() -> void:
-	# Update the 5 artifact slot buttons in ArtifactRow
 	for i in range(MAX_ARTIFACTS):
 		var slot = artifact_row.get_child(i + 1) as Button
 		if slot == null: continue
@@ -1281,11 +1262,16 @@ func open_deck_modal() -> void:
 		"orange": {"N": 0, "E": 0, "S": 0, "W": 0},
 		"blue": {"N": 0, "E": 0, "S": 0, "W": 0}
 	}
+	var blank_count = 0
+
 	for card in deck:
-		var c = card["color"]
-		var d = card["dir"]
-		if counts.has(c) and counts[c].has(d):
-			counts[c][d] += 1
+		if card.get("is_blank", false):
+			blank_count += 1
+		else:
+			var c = card["color"]
+			var d = card["dir"]
+			if counts.has(c) and counts[c].has(d):
+				counts[c][d] += 1
 
 	var color_names = {
 		"red": "🔴 สีแดง",
@@ -1321,4 +1307,125 @@ func open_deck_modal() -> void:
 		pnl.add_child(vbox)
 		deck_modal_list.add_child(pnl)
 
+	if blank_count > 0:
+		var pnl = PanelContainer.new()
+		var pnl_sb = StyleBoxFlat.new()
+		pnl_sb.bg_color = Color("#3a3a48")
+		pnl_sb.border_color = Color("#aaaaaa")
+		pnl_sb.border_width_left = 4
+		pnl_sb.set_corner_radius_all(6)
+		pnl.add_theme_stylebox_override("panel", pnl_sb)
+
+		var vbox = VBoxContainer.new()
+		var lbl_title = Label.new()
+		lbl_title.text = "⬜ การ์ดเปล่า (ชั่วคราวจากสกิลบอส): %d ใบ" % blank_count
+		lbl_title.modulate = Color(0.9, 0.9, 0.9)
+		lbl_title.add_theme_font_size_override("font_size", 16)
+		vbox.add_child(lbl_title)
+		pnl.add_child(vbox)
+		deck_modal_list.add_child(pnl)
+
 	deck_modal.visible = true
+
+
+# ==============================================================================
+# Helper VFX Methods
+# ==============================================================================
+
+func fire_laser_beam(line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Color, beam_w: float = 20.0, duration: float = 0.25) -> void:
+	var p0 = (effects_layer.get_global_transform().affine_inverse() * from_pos)
+	var p1 = (effects_layer.get_global_transform().affine_inverse() * to_pos)
+	line.clear_points()
+	line.add_point(p0)
+	line.add_point(p0)
+	line.default_color = col
+	line.width = beam_w
+	line.modulate.a = 1.0
+	line.visible = true
+
+	var tween = create_tween()
+	tween.tween_method(func(pos: Vector2):
+		if line.get_point_count() >= 2:
+			line.set_point_position(1, pos)
+	, p0, p1, 0.07 / speed_multiplier)
+
+	tween.tween_interval(duration / speed_multiplier)
+	tween.tween_property(line, "width", 0.0, 0.12 / speed_multiplier)
+	tween.parallel().tween_property(line, "modulate:a", 0.0, 0.12 / speed_multiplier)
+	tween.tween_callback(func():
+		line.visible = false
+		line.clear_points()
+	)
+
+
+func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38) -> void:
+	node.pivot_offset = node.size * 0.5
+	var orig_pos = node.position
+	var orig_rot = node.rotation
+	var tween = create_tween()
+	var steps = int(duration / 0.04)
+	for i in range(steps):
+		var decay = 1.0 - (float(i) / float(steps))
+		var offset = Vector2(randf_range(-intensity, intensity) * decay, randf_range(-intensity * 0.35, intensity * 0.35) * decay)
+		var rot_offset = deg_to_rad(randf_range(-6.0, 6.0) * decay)
+		tween.tween_property(node, "position", orig_pos + offset, 0.04 / speed_multiplier)
+		tween.parallel().tween_property(node, "rotation", orig_rot + rot_offset, 0.04 / speed_multiplier)
+	tween.tween_property(node, "position", orig_pos, 0.04 / speed_multiplier)
+	tween.parallel().tween_property(node, "rotation", orig_rot, 0.04 / speed_multiplier)
+
+
+func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = Color("#ff4d5e"), is_big: bool = true) -> void:
+	var pop = Label.new()
+	pop.text = text
+	pop.add_theme_font_size_override("font_size", 34 if is_big else 22)
+	pop.add_theme_color_override("font_color", col)
+	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
+	pop.add_theme_constant_override("shadow_offset_x", 2)
+	pop.add_theme_constant_override("shadow_offset_y", 2)
+	pop.add_theme_constant_override("shadow_outline_size", 4)
+	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pop.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	effects_layer.add_child(pop)
+	var start_pos = (effects_layer.get_global_transform().affine_inverse() * target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
+	pop.position = start_pos - Vector2(50.0, 20.0)
+	pop.size = Vector2(100.0, 40.0)
+	pop.pivot_offset = Vector2(50.0, 20.0)
+	pop.scale = Vector2(0.5, 0.5)
+	pop.modulate.a = 0.0
+
+	var tween = create_tween()
+	tween.tween_property(pop, "scale", Vector2(1.3, 1.3), 0.14 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(pop, "modulate:a", 1.0, 0.12 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 45.0, 0.14 / speed_multiplier)
+
+	tween.tween_property(pop, "scale", Vector2.ONE, 0.2 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 75.0, 0.35 / speed_multiplier)
+
+	tween.tween_property(pop, "modulate:a", 0.0, 0.22 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 95.0, 0.22 / speed_multiplier)
+	tween.tween_callback(pop.queue_free)
+
+
+func show_discovery_toast(formula_key: String) -> void:
+	var f_info = null
+	for f in stone_formulas:
+		if f["key"] == formula_key:
+			f_info = f
+			break
+	if f_info == null: return
+
+	toast_label.text = "✨ ค้นพบสูตรใหม่! · %s (%s) · ATK +%d" % [f_info["name"], f_info["desc"], f_info["a"]]
+	toast.visible = true
+	toast.modulate.a = 0.0
+	var orig_y = 70.0
+	toast.position.y = orig_y - 25.0
+
+	var tween = create_tween()
+	tween.tween_property(toast, "position:y", orig_y, 0.28 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(toast, "modulate:a", 1.0, 0.25 / speed_multiplier)
+	tween.tween_interval(2.2 / speed_multiplier)
+	tween.tween_property(toast, "position:y", orig_y - 20.0, 0.25 / speed_multiplier)
+	tween.parallel().tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
+	tween.tween_callback(func(): toast.visible = false)
