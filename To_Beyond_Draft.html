@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>To Beyond Draft 2</title>
+<style>
+:root{--ball:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTgiIGhlaWdodD0iMTY4IiB2aWV3Qm94PSIwIDAgOTggMTY4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNTguMjU0NiAxNjcuMjM2TDU3LjEwOTEgMTY2LjI1NUw1NS40NzI3IDE2Mi45ODJMNTUuMzA5MSAxNjAuNTI3TDUzLjgzNjQgMTU3LjI1NUw1My42NzI3IDE1My4xNjRMNTIuMiAxNTEuNTI3TDUyLjAzNjQgMTQ5Ljg5MUw1MS4zODE4IDE0OS4wNzNMNTEuMjE4MiAxNDYuNjE4TDQ5Ljc0NTUgMTQ0LjE2NEw0OC43NjM2IDE0MC4wNzNMNDUuNDkwOSAxMzMuNTI3TDQyLjM4MTggMTI5LjQzNkw0MS40IDEyNi45ODJMMzkuOTI3MyAxMjUuMzQ1TDM5Ljc2MzYgMTI0LjUyN0wzOC4yOTA5IDEyMi44OTFMMzguMTI3MyAxMjIuMDczTDM1Ljc1NDYgMTE4LjhMMzAuNDM2NCAxMTMuNTY0TDI3LjE2MzYgMTExLjkyN0wyNS41MjczIDExMS43NjRMMjMuMDcyNyAxMTAuMjkxTDIxLjQzNjQgMTEwLjEyN0wyMC42MTgyIDEwOS40NzNMMTguMTYzNiAxMDkuMzA5TDE2LjUyNzMgMTA4LjU3M0g1LjA3MjczTDMuNDM2MzYgMTA5LjMwOUwxLjggMTA5LjM5MUwwLjk4MTgxOCAxMDkuMzA5TDAgMTA4LjE2NEwwLjk4MTgxOCAxMDcuMDE4TDUuMDcyNzMgMTA2LjAzNkw2LjcwOTA5IDEwNC41NjRMOC4zNDU0NiAxMDQuNEw5Ljk4MTgyIDEwMy41ODJMMTEuNjE4MiAxMDIuMTA5TDE0LjA3MjcgMTAxLjEyN0wxNS43MDkxIDk5LjY1NDZMMTYuNTI3MyA5OS40OTA5TDE4LjE2MzYgOTguMDE4MkwxOC45ODE4IDk3Ljg1NDZMMjAuNjE4MiA5Ni4zODE4TDIxLjg0NTUgOTUuODkwOUwyNy45ODE4IDg5Ljc1NDZMMjguNDcyNyA4OC41MjczTDI5Ljk0NTUgODYuODkwOUwzMC43NjM2IDg1LjI1NDZMMzAuOTI3MyA4My42MTgyTDMzLjIxODIgNzkuNTI3M0wzMy4zODE4IDc3Ljg5MDlMMzQuMDM2NCA3Ny4wNzI3TDM0LjIgNzQuNjE4MkwzNC44NTQ2IDczLjhMMzUuMDE4MiA3MS4zNDU1TDM1Ljc1NDYgNjkuNzA5MVY0OS4yNTQ2TDM0LjkzNjQgNDYuOFY0MC4yNTQ2TDM0LjExODIgMzcuOFYzMS4yNTQ2TDMzLjMgMjguOEwzMy4yMTgyIDIyLjI1NDZMMzIuNTYzNiAyMS40MzY0TDMyLjQgMTUuNzA5MUwzMS42NjM2IDE0LjA3MjdMMzEuNTgxOCA3LjUyNzI3TDMwLjkyNzMgNi43MDkwOUwzMC43NjM2IDMuNDM2MzZMMzAuMDI3MyAxLjhMMzAuMTA5MSAwLjk4MTgxOEwzMS4yNTQ2IDBMMzIuNCAwLjk4MTgxOEwzMi41NjM2IDMuNDM2MzZMMzMuMjE4MiA0LjI1NDU1TDMzLjM4MTggNi43MDkwOUwzNC4wMzY0IDcuNTI3MjdMMzQuMiAxMS42MTgyTDM0Ljg1NDYgMTIuNDM2NEwzNS4wMTgyIDE0Ljg5MDlMMzUuNjcyNyAxNS43MDkxTDM1LjgzNjQgMTguMTYzNkwzNi40OTA5IDE4Ljk4MThMMzYuNjU0NiAyMy44OTA5TDM4LjEyNzMgMjcuMTYzNkwzOC4yOTA5IDI5LjYxODJMMzguOTQ1NSAzMC40MzY0TDM5LjEwOTEgMzIuODkwOUwzOS43NjM2IDMzLjcwOTFMMzkuOTI3MyAzNi4xNjM2TDQwLjU4MTggMzYuOTgxOEw0MS41NjM2IDQyLjcwOTFMNDIuMjE4MiA0My41MjczTDQyLjM4MTggNDUuMTYzNkw0My44NTQ2IDQ3LjYxODJMNDQuMDE4MiA0OS4yNTQ2TDQ0LjY3MjcgNTAuMDcyN0w0NC44MzY0IDU0LjE2MzZMNDUuNDkwOSA1NC45ODE4TDQ1LjY1NDYgNTguMjU0Nkw0Ni4zMDkxIDU5LjA3MjdMNDYuNDcyNyA2MC43MDkxTDQ3Ljk0NTUgNjMuMTYzNkw0OC4xMDkxIDY0LjhMNTEuMjE4MiA3MC41MjczTDUxLjM4MTggNzIuMTYzN0w1NC40OTA5IDc1LjQzNjRMNTQuOTgxOCA3Ni42NjM3TDU3Ljg0NTUgNzkuNTI3M0w1OS4wNzI3IDgwLjAxODJMNjAuNzA5MSA4MS40OTA5TDYxLjUyNzMgODEuNjU0Nkw2My4xNjM2IDgzLjEyNzNMNjYuNDM2NCA4NC43NjM3TDY4LjA3MjcgODQuOTI3M0w3MC41MjczIDg2LjRMNzIuOTgxOCA4Ni41NjM3TDc2LjI1NDYgODguMDM2NEw4MS45ODE4IDg5LjAxODJMODQuNDM2NCA5MC40OTA5TDg4LjUyNzMgOTAuNjU0Nkw5MC4xNjM3IDkxLjM5MDlMOTYuNzA5MSA5MS40NzI3TDk3LjY5MDkgOTIuNjE4Mkw5Ni43MDkxIDkzLjc2MzdMOTIuNjE4MiA5My45MjczTDkwLjk4MTggOTQuNjYzN0w4Ny43MDkxIDk0Ljc0NTVMODYuODkwOSA5NS40TDgyLjggOTYuMzgxOEw4MC4zNDU1IDk3Ljg1NDZMNzguNzA5MSA5OC4wMTgyTDc3LjA3MjcgOTkuNDkwOUw3MS4zNDU1IDEwMi4xMDlMNjYuMTA5MSAxMDcuMzQ1TDY1LjEyNzMgMTA5LjhMNjIuMDE4MiAxMTMuODkxTDYxLjAzNjQgMTE3Ljk4Mkw1OS41NjM2IDEyMC40MzZMNTkuNCAxMjIuODkxTDU4Ljc0NTUgMTIzLjcwOUw1OC41ODE4IDEyNy44TDU3Ljg0NTUgMTI5LjQzNlYxNTMuMTY0TDU4LjU4MTggMTU0LjhMNTguNzQ1NSAxNTguODkxTDU5LjQ4MTggMTYwLjUyN0w1OS40IDE2Ni4yNTVMNTguMjU0NiAxNjcuMjM2WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiM5NTkzQjAiLz4KPHBhdGggZD0iTTQyLjcwOTEgODMuNzgxOUw0MS43MjczIDgyLjgwMDFMNDIuMyA4MS45ODE5TDQyLjM4MTggODAuMzQ1Nkw0My40NDU1IDgwLjAxODNMNDQuNDI3MyA4MS4xNjM4TDQzLjExODIgODEuOTgxOUw0Mi43MDkxIDgzLjc4MTlaTTI3LjE2MzYgOTIuMDQ1NkwyNi4xODE4IDkxLjgwMDFMMjcuOTgxOCA5MC4wMDAxTDI4LjIyNzMgOTAuOTgyTDI3LjE2MzYgOTIuMDQ1NlpNNTkuMDcyNyAxMjMuMTM3SDU4LjI1NDZMNTUuOCAxMjAuNzY0TDU1LjMwOTEgMTE4LjcxOEw1NC4xNjM2IDExNy41NzNMNTAuODkwOSAxMTguMzkxTDUwLjA3MjcgMTE5LjA0Nkg0My41MjczTDQyLjMgMTE3LjE2NEw0MS4wNzI3IDExNi42NzNMMzguNjE4MiAxMTQuMzgyTDM3LjggMTE0LjIxOEwzMy43MDkxIDExMC4yOTFMMzEuMjU0NiAxMTAuMTI3TDMwLjQzNjQgMTA5LjQ3M0gyOC44TDI3Ljk4MTggMTEyLjMzN0wyMy44OTA5IDExMC44NjRMMjIuMjU0NiAxMDkuMzkxTDE5LjYzNjQgMTA4LjlMMjAuNjE4MiAxMDcuNzU1TDIyLjI1NDYgMTA3LjU5MUwyMy4wNzI3IDEwNi45MzdMMjQuNzA5MSAxMDcuNDI3TDI1LjUyNzMgMTA2LjkzN0wyOC44IDEwNi44NTVMMzAuMDI3MyAxMDYuNDQ2TDMwLjY4MTggMTA1LjYyN0wzMC4xOTA5IDEwNC44MDlWMTAzLjE3M0wzMS4wMDkxIDEwMS41MzZMMzIuNDgxOCA5OS45MDAxTDMyLjU2MzYgOTguMjYzOEwzMi40ODE4IDk3LjQ0NTZMMzEuMzM2NCA5Ni4zMDAxTDI5LjQ1NDYgOTUuODA5MlY5NC45OTFMMzEuNDE4MiA5My4wMjc0TDMyLjU2MzYgOTIuNTM2NUwzMy4wNTQ2IDkxLjU1NDdMMzQuNjkwOSA5Mi43ODE5SDM1LjUwOTFMMzUuOTE4MiA5Mi41MzY1TDM2LjMyNzMgOTAuNjU0N0wzOS42IDkwLjU3MjlMNDIuMDU0NiA4OS42NzI5TDQzLjAzNjQgOTAuMDgyTDQyLjA1NDYgOTEuMjI3NEw0MC40MTgyIDkxLjk2MzhMMzguNzgxOCA5MS4xNDU2TDM3LjE0NTUgOTEuMjI3NEwzNi43MzY0IDkxLjYzNjVWOTIuNDU0N0wzNy45NjM2IDkzLjYwMDFMMzkuNiA5My43NjM4TDM5LjkyNzMgOTQuMDkxTDQwLjE3MjcgOTkuMDAwMUw0MS42NDU1IDEwMS40NTVMNDEuODA5MSAxMDMuMDkxTDQzLjI4MTggMTA0LjcyN0w0My40NDU1IDEwNi4zNjRMNDQuOTE4MiAxMDguODE4TDQ1LjA4MTggMTEwLjQ1NUw0OC42ODE4IDExMy4yMzZINDkuNUw1MC42NDU1IDExMi4wOTFMNTEuNTQ1NSAxMDkuNjM3TDUxLjQ2MzYgMTA3LjE4Mkw1MC45NzI3IDEwNi4zNjRMNTEuMyAxMDUuNTQ2TDUwLjgwOTEgMTA0LjcyN1YxMDMuOTA5TDUxLjQ2MzYgMTAzLjA5MUw1MS41NDU1IDEwMC42MzdMNTAuNzI3MyA5OC4xODJMNTAuODA5MSA5Ni41NDU2TDUxLjU0NTUgOTQuOTA5Mkw1MS40NjM2IDk0LjA5MUw0OS45OTA5IDkyLjQ1NDdMNDkuOTA5MSA5MS42MzY1TDQ5Ljk5MDkgOTAuMDAwMUw1MS4xMzY0IDg5Ljc1NDdMNTMuOTE4MiA5NC45MDkyTDU0LjE2MzYgOTYuNTQ1Nkw1NS4yMjczIDk2Ljc5MUw1Ni4wNDU1IDk1LjQwMDFMNTcuMTA5MSA5NS42NDU2Vjk3LjI4MTlMNTYuNDU0NiA5OC4xMDAxTDU2LjM3MjcgOTkuNzM2NUw1Ni40NTQ2IDEwMC41NTVMNTcuNiAxMDIuNDM3TDU4LjY2MzYgMTAyLjE5MUw1OC44MjczIDk4LjkxODNMNTkuMjM2NCA5Ny45MzY1TDYwLjA1NDYgOTguMjYzOEw2MC44NzI3IDk3LjkzNjVMNjEuNjkwOSA5OS4wMDAxTDYyLjEgOTguMTAwMUw2My4zMjczIDk3Ljc3MjlMNjQuNDcyNyA5OC45MTgzTDY1LjEyNzMgMTAwLjU1NUw2NC44IDEwMS4zNzNMNjUuMTI3MyAxMDIuMTkxTDU5LjcyNzMgMTA3LjkxOEw1OC45MDkxIDEwOS41NTVMNTguNzQ1NSAxMTEuMTkxTDU4LjA5MDkgMTEyLjAwOUw1Ny45MjczIDExNS4yODJMNTcuMTkwOSAxMTYuOTE4TDU3LjI3MjcgMTE3LjczN0w1OS40ODE4IDExOS4zNzNMNTkuNTYzNiAxMjEuODI3TDU5LjE1NDYgMTIyLjg5MUw1OS4wNzI3IDEyMy4xMzdaTTkxLjggOTQuNTgyTDg5LjM0NTUgOTQuNjYzOEw4Ny41NDU1IDk0LjI1NDdMODguNTI3MyA5My44NDU2TDkwLjk4MTggOTEuNDcyOUw5Ni43OTA5IDkxLjgwMDFMOTQuMDkwOSA5Mi42MTgzTDk2LjYyNzMgOTMuMjcyOVY5My41MTgzTDkyLjUzNjQgOTMuOTI3NEw5MS43MTgyIDk0LjU4Mkg5MS44Wk0xNC4wNzI3IDEwOC40OTFIOS4xNjM2NEw4LjgzNjM3IDEwOC4yNDZWMTA3LjQyN0wxMC4zOTA5IDEwNS43OTFMMTEuNjE4MiAxMDUuM0wxMy4yNTQ1IDEwMy44MjdMMTUuNzA5MSAxMDMuNjY0TDE3LjM0NTUgMTAyLjE5MUwxOC4xNjM2IDEwMi4xMDlMMTguNTcyNyAxMDIuNTE4TDE4LjQ5MDkgMTAzLjMzN0wxNi4yODE4IDEwNC45NzNMMTYuMTE4MiAxMDcuNDI3TDE0LjE1NDUgMTA4LjU3M0wxNC4wNzI3IDEwOC40OTFaTTMuNDM2MzYgMTA5LjMwOUgwLjk4MTgxOEwwIDEwOC4xNjRMMC45ODE4MTggMTA3LjAxOEwyLjYxODE4IDEwNi44NTVMMy40MzYzNiAxMDYuMzY0TDYuMDU0NTUgMTA4LjE2NEw0LjI1NDU1IDEwOC42NTVMMy40MzYzNiAxMDkuMzA5Wk0zNi45ODE4IDExOS4yMDlMMzYuMTYzNiAxMTkuMTI3TDMwLjQzNjQgMTEzLjQ4MkwyOS41MzY0IDExMy4wNzNMMzEuMjU0NiAxMTIuNjY0TDMyLjQ4MTggMTEzLjA3M0wzNy4yMjczIDExOC44TDM2Ljk4MTggMTE5LjIwOVpNMzkuNDM2NCAxMjIuMzE4SDM4LjYxODJMMzcuMzkwOSAxMjEuMTczTDM2LjgxODIgMTIwLjM1NUwzNy4zOTA5IDExOS41MzZMMzcuOCAxMTkuMjkxTDM5Ljc2MzYgMTIxLjE3M0wzOS40MzY0IDEyMi4yMzdWMTIyLjMxOFoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjQUE5RkE5Ii8+CjxwYXRoIGQ9Ik01NC4xNjM2IDgxLjQwOTFINTIuNTI3M0w1MC44OTA5IDc5Ljg1NDVMNTAuNCA3OC42MjczTDQ4LjEwOTEgNzYuMTcyN0w0Ny45NDU0IDc1LjM1NDVMNDUuNjU0NSA3Mi45TDQ0LjgzNjMgNzEuMjYzNkw0NC42NzI3IDY5LjYyNzNMNDEuODkwOSA2Ni44NDU0TDQwLjgyNzMgNjcuMTcyN0w0MC4wMDkxIDY4LjgwOTFMMzkuODQ1NCA3Mi4wODE4TDM4LjcgNzMuMDYzNkwzNy41NTQ1IDcyLjA4MThMMzcuMzkwOSA2OC44MDkxTDM1LjkxODIgNjcuMTcyN1Y2My4wODE4TDM2LjY1NDUgNjEuNDQ1NEwzNS44MzYzIDU4Ljk5MDlWNDkuMTcyN0wzNS4wMTgyIDQ2LjcxODJWNDAuMTcyN0wzNC4yIDM3LjcxODJWMzEuMTcyN0wzMy40NjM2IDI5LjUzNjNMMzMuMzgxOCAyMi45OTA5TDMyLjY0NTQgMjEuMzU0NUwzMi40ODE4IDE1LjYyNzJMMzEuNzQ1NCAxMy45OTA5VjguMjYzNkwzMS4xNzI3IDYuNjI3MjRMMzEuNSA1LjgwOTA2TDMxLjAwOTEgNC45OTA4N0wzMC44NDU0IDMuMzU0NTFMMzAuMjcyNyAyLjUzNjMzTDMwLjUxODIgMC43MzYzMjhMMzEuMzM2MyAxLjg4MTc4TDMxLjgyNzMgMC45ODE3ODNIMzIuMzE4MkwzMi42NDU0IDMuNDM2MzNMMzMuMyA0LjI1NDUxTDMzLjQ2MzYgNi43MDkwNkwzNC4xMTgyIDcuNTI3MjRMMzQuMjgxOCAxMS42MTgxTDM0LjkzNjMgMTIuNDM2M0wzNS4xIDE0Ljg5MDlMMzUuNzU0NSAxNS43MDkxTDM1LjkxODIgMTguMTYzNkwzNi41NzI3IDE4Ljk4MThMMzYuNzM2MyAyMy44OTA5TDM4LjIwOTEgMjcuMTYzNkwzOC4zNzI3IDI5LjYxODJMMzkuMDI3MyAzMC40MzYzTDM5LjE5MDkgMzIuODkwOUwzOS44NDU0IDMzLjcwOTFMNDAuMDA5MSAzNi4xNjM2TDQwLjY2MzYgMzYuOTgxOEw0MS42NDU0IDQyLjcwOTFMNDIuMyA0My41MjcyTDQyLjQ2MzYgNDUuMTYzNkw0My45MzYzIDQ3LjYxODJMNDQuMSA1MC4wNzI3TDQ0Ljc1NDUgNTAuODkwOUw0NC45MTgyIDU0LjE2MzZMNDUuNTcyNyA1NC45ODE4TDQ1LjczNjMgNTguMjU0NUw0Ni4zOTA5IDU5LjA3MjdMNDYuNTU0NSA2MC43MDkxTDQ4LjAyNzMgNjMuMTYzNkw0OC4xOTA5IDY0LjhMNTEuMyA3MC41MjczTDUxLjU0NTQgNzYuMjU0NUw1Mi42MDkxIDc2Ljc0NTRMNTQuNTcyNyA3OC43MDkxTDU0LjY1NDUgODAuMzQ1NEw1NC4yNDU0IDgxLjQwOTFINTQuMTYzNloiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjNjg4NkNCIi8+CjxwYXRoIGQ9Ik01My4zNDU1IDg4Ljc3MjZMNTIuMjgxOCA4OC41MjcyTDUyLjUyNzMgODcuNDYzNUw1My41OTA5IDg3LjcwOUw1My4zNDU1IDg4Ljc3MjZaTTQ4LjQzNjQgMTA3LjU5MUg0Ni44TDQ0LjgzNjQgMTA1LjYyN0w0Mi4zODE4IDEwMC43MThMNDIuMjE4MiA5OS4wODE3TDQxLjU2MzYgOTguMjYzNVY5My4zNTQ1TDQzLjUyNzMgOTEuMzkwOEw0NS4xNjM2IDkwLjU3MjZINDcuNjE4Mkw0OS4yNTQ1IDkyLjEyNzJMNDkuNTgxOCA5Mi41MzYzTDQ5Ljc0NTUgOTUuODA5TDUwLjQgOTYuNjI3MlY5OC4yNjM1TDQ5LjY2MzYgOTkuODk5OUw0OS41ODE4IDEwNC44MDlMNDguOTI3MyAxMDUuNjI3TDQ4LjQzNjQgMTA3LjUwOVYxMDcuNTkxWk0zOC42MTgyIDkzLjY4MTdIMzcuOEwzNi42NTQ1IDkyLjUzNjNMMzYuOTgxOCA5MS40NzI2TDM4Ljg2MzYgOTEuNzE4MUwzOC42MTgyIDkzLjU5OTlWOTMuNjgxN1pNNTYuNjE4MiAxNTAuOTU0SDU0Ljk4MThMNTMuODM2NCAxNDkuODA5TDUzLjY3MjcgMTQ4LjE3M0w1My4wMTgyIDE0Ny4zNTRMNTIuODU0NSAxNDQuOUw1Mi4yIDE0NC4wODJMNTIuMDM2NCAxMzkuOTkxTDUwLjU2MzYgMTM3LjUzNkw1MC40IDEzNS4wODJMNDguOTI3MyAxMzIuNjI3TDQ4Ljc2MzYgMTMwLjk5MUw0Ny4yOTA5IDEyOS4zNTRMNDcuMTI3MyAxMjcuNzE4TDQ1LjY1NDUgMTI2LjA4Mkw0NC4wMTgyIDEyMi44MDlMNDMuOTM2NCAxMjAuMzU0TDQ0LjM0NTUgMTE5LjI5MUw1MC4wNzI3IDExOS4wNDVMNTAuODkwOSAxMTguMzkxTDU0LjE2MzYgMTE3LjU3M0w1NS4zMDkxIDExOC43MThMNTUuNDcyNyAxMjAuMzU0TDU2Ljc4MTggMTIxLjk5MUw1Ni4yOTA5IDEyMi44MDlMNTYuMTI3MyAxMjQuNDQ1TDU0LjY1NDUgMTI2LjA4Mkw1NC41NzI3IDEyNi45VjEzOS45OTFMNTUuMzA5MSAxNDEuNjI3TDU1LjQ3MjcgMTQ1LjcxOEw1Ni43ODE4IDE0Ny4zNTRMNTYuNDU0NSAxNDguMTczTDU3LjAyNzMgMTQ5LjgwOUw1Ni42MTgyIDE1MC44NzNWMTUwLjk1NFoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjRjJDREE2Ii8+CjxwYXRoIGQ9Ik0yMi4yNTQ1IDk2Ljk1NDVMMjAuNTM2MyA5Ni43MDlMMjIuMjU0NSA5NS43MjcyTDIyLjUgOTYuNzA5TDIyLjI1NDUgOTYuOTU0NVpNNi43MDkwNiAxMDguMzI3TDUuMDcyNyAxMDcuNjczTDQuMjU0NTIgMTA2LjM2NEw5Ljk4MTc5IDEwMy41ODJMMTEuNjE4MiAxMDIuMTA5TDE0LjA3MjcgMTAxLjIwOUwxOC4xNjM2IDk4LjAxODFMMjAuNjE4MiA5OC4wOTk5TDE5LjMwOTEgMTAwLjhMMTguMTYzNiAxMDEuOTQ1TDE0LjA3MjcgMTAyLjAyN0wxMy41ODE4IDEwMy4yNTRMMTIuMDI3MiAxMDQuODkxTDEwLjggMTA1LjM4Mkw4LjM0NTQzIDEwNy42NzNMNi43MDkwNiAxMDguMzI3Wk01MC4wNzI3IDEwNS44NzNMNDkuODI3MyAxMDMuMjU0TDUwLjg5MDkgMTAzLjA5MUw1MC4wNzI3IDEwNS44NzNaTTQ0LjM0NTQgMTA2LjY5MUw0My4yODE4IDEwNi41MjdMNDMuNTI3MyAxMDQuNjQ1TDQ0LjUwOTEgMTA0Ljg5MUw0NC4xIDEwNS43MDlMNDQuMzQ1NCAxMDYuNjkxWk00OS4yNTQ1IDExMy40SDQ4LjQzNjNMNDYuOCAxMTEuOTI3TDQ1LjU3MjcgMTExLjQzNkw0NC44MzYzIDExMC42MThMNDQuNzU0NSAxMDguOTgyTDQ2LjggMTA3LjgzNkw0OS4yNTQ1IDEwNy42NzNMNTAuMDcyNyAxMDcuMDE4TDUwLjg5MDkgMTA3LjFMNTEuMyAxMDguMjQ1TDUxLjIxODIgMTEwLjdMNTAuNCAxMTIuMzM2TDQ5LjI1NDUgMTEzLjQ4MlYxMTMuNFpNNDMuNTI3MyAxMjEuNUw0Mi4zODE4IDEyMS4yNTRMNDEuNTYzNiAxMTkuNjE4TDQxLjQ4MTggMTE3Ljk4Mkw0MS44OTA5IDExN0w0My4wMzYzIDExNy45ODJMNDMuODU0NSAxMTkuNjE4TDQzLjUyNzMgMTIxLjVaTTQyLjcwOTEgMTI2LjQwOUw0MC44MjczIDEyNi4xNjRMNDAuNzQ1NCAxMjMuNzA5TDQxLjE1NDUgMTIxLjk5MUw0MS41NjM2IDEyMi44OTFMNDMuMTE4MiAxMjQuNTI3TDQyLjc5MDkgMTI2LjQwOUg0Mi43MDkxWk01Ny40MzY0IDE0Ny4wMjdINTYuNjE4Mkw1NS40NzI3IDE0NS44TDU1LjMwOTEgMTQxLjcwOUw1NC42NTQ1IDE0MC44OTFMNTQuNTcyNyAxMzkuMjU0TDU0LjY1NDUgMTI2LjE2NEw1Ni4xMjczIDEyNC41MjdMNTYuMzcyNyAxMjIuODkxTDU3LjQzNjQgMTIyLjU2NEw1OC41ODE4IDEyMy43MDlMNTguNjYzNiAxMjUuMzQ1TDU4LjU4MTggMTI3LjhMNTcuODQ1NCAxMjkuNDM2VjEzOS4yNTRMNTcuMDI3MyAxNDEuNzA5TDU3Ljg0NTQgMTQ0LjE2NEw1Ny40MzY0IDE0Ny4wMjdaTTQ4LjQzNjMgMTM5LjQxOEw0Ni40NzI3IDEzNS45ODJMNDYuMzkwOSAxMzQuMzQ1TDQ2LjggMTMzLjM2NEw0Ny45NDU0IDEzNC4zNDVMNDguMTA5MSAxMzUuMTY0TDQ5LjU4MTggMTM2LjhWMTM4LjQzNkw0OC40MzYzIDEzOS40MThaTTU4LjI1NDUgMTY3LjIzNkw1Ny4xMDkxIDE2Ni4yNTVMNTUuNDcyNyAxNjIuOTgyTDU1LjMwOTEgMTYwLjUyN0w1My44MzYzIDE1Ny4yNTVMNTMuNjcyNyAxNTMuMTY0TDUyLjM2MzYgMTUxLjUyN0w1Mi43NzI3IDE1MC43MDlMNTEuNTQ1NCAxNDkuMDczTDUyLjExODIgMTQ3LjQzNkw1MC41NjM2IDE0NS44TDQ5Ljc0NTQgMTQ0LjE2NEw0OS45OTA5IDE0Mi4zNjRMNTAuODA5MSAxNDMuNTA5TDUxLjc5MDkgMTQzLjM0NUw1Mi43NzI3IDE0NC45ODJMNTIuODU0NSAxNDcuNDM2TDUzLjU5MDkgMTQ4LjI1NEw1My43NTQ1IDE0OS44OTFMNTQuOSAxNTEuMDM2TDU2Ljk0NTQgMTUwLjcwOVYxNDkuMDczTDU2LjM3MjcgMTQ4LjI1NEw1Ny4zNTQ1IDE0Ny45MjdMNTcuNiAxNDguMjU0TDU3Ljg0NTQgMTUzLjk4Mkw1OC41IDE1NC44TDU4LjY2MzYgMTU4Ljg5MUw1OS40IDE2MC41MjdMNTkuMzE4MiAxNjYuMjU1TDU4LjE3MjcgMTY3LjIzNkg1OC4yNTQ1WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiNDRjkwODkiLz4KPHBhdGggZD0iTTIxLjQzNjQgMTAxLjEyN0wxOS41NTQ1IDEwMC44Vjk5Ljk4MThMMjAuODYzNiA5OC4zNDU0TDE5LjggOTcuNTI3MkwyMi4zMzY0IDk2Ljk1NDVMMjIuODI3MyA5NS4wNzI3TDI0Ljc5MDkgOTMuMDI3MkwyNS42MDkxIDkyLjI5MDlMMjcuMjQ1NSA5Mi4xMjcyTDI4LjM5MDkgOTAuOTgxOEwyOC44ODE4IDg4LjExODFMMzAuNTE4MiA4Ni41NjM2TDMyLjE1NDUgODYuNDgxOEwzMi40ODE4IDg3LjYyNzJMMzEuOTkwOSA4OC40NDU0TDMyLjU2MzYgOTAuMDgxOEwzMS42NjM2IDkyLjUzNjNMMjUuMiA5OS4wODE4TDIxLjUxODIgMTAxLjA0NUwyMS40MzY0IDEwMS4xMjdaTTQzLjUyNzMgMTA0LjRINDIuNzA5MUw0MS41NjM2IDEwMy4yNTRMNDEuNCAxMDEuNjE4TDM5LjkyNzMgOTkuMTYzNkwzOS43NjM2IDk0LjI1NDVMMzkuMjcyNyA5My40MzYzTDQxLjA3MjcgOTEuNDcyN0w0MS44OTA5IDkxLjMwOUw0My41MjczIDg5LjgzNjNMNDQuMzQ1NSA4OS43NTQ1TDQ1LjMyNzMgOTAuMTYzNkw0NC43NTQ1IDkwLjk4MThMNDMuNTI3MyA5MS40NzI3TDQxLjg5MDkgOTMuMDI3Mkw0MS40ODE4IDk0LjI1NDVMNDEuNTYzNiA5OC4zNDU0TDQyLjIxODIgOTkuMTYzNkw0Mi4zODE4IDEwMC44TDQzLjg1NDUgMTAzLjI1NEw0My41MjczIDEwNC40Wk00OS4yNTQ2IDkxLjk2MzZMNDguMDI3MyA5MC45ODE4TDQ3LjYxODIgODkuOTk5OUw0OC40MzY0IDg5LjgzNjNMNDkuMjU0NiA5MC41NzI3TDQ5LjUgOTAuODk5OUw0OS4yNTQ2IDkxLjg4MThWOTEuOTYzNlpNNTAuODkwOSA5Ni4xMzYzTDQ5LjgyNzMgOTUuODkwOUw0OS43NDU1IDk0LjI1NDVMNTAuMTU0NSA5My4yNzI3TDUxLjMgOTQuMjU0NUw1MC45NzI3IDk2LjEzNjNINTAuODkwOVpNNTAuODkwOSAxMDIuNjgyTDQ5LjgyNzMgMTAyLjQzNkw0OS43NDU1IDk5Ljk4MThMNTAuMTU0NSA5OUw1MS4zIDk5Ljk4MThMNTEuMzgxOCAxMDEuNjE4TDUwLjk3MjcgMTAyLjY4Mkg1MC44OTA5Wk0xNS43MDkxIDEwMy41ODJIMTQuMDcyN0wxMy44MjczIDEwMi41MThMMTQuODkwOSAxMDIuMTA5TDE2LjUyNzMgMTAyLjM1NEwxNS43MDkxIDEwMy42NjRWMTAzLjU4MlpNNDkuMjU0NiAxMDcuNTA5TDQ4LjkyNzMgMTA2LjUyN0w0OS4yNTQ2IDEwNS41NDVMNTAuMzE4MiAxMDYuNTI3TDQ5LjI1NDYgMTA3LjUwOVpNNDUuOTgxOCAxMDguNDA5SDQ1LjE2MzZMNDQuMTgxOCAxMDcuMjY0TDQ1LjE2MzYgMTA2LjJMNDYuMzA5MSAxMDcuMjY0TDQ1Ljk4MTggMTA4LjMyN1YxMDguNDA5Wk01MC44OTA5IDE0My41MDlMNDguOTI3MyAxNDAuMDczVjEzOS4yNTVMNDkuNzQ1NSAxMzcuNjE4TDQ5LjY2MzYgMTM2LjhMNDguMTA5MSAxMzUuMTY0TDQ3LjYxODIgMTMzLjkzNkw0Ni44IDEzMy4zNjRMNDUuOSAxMzQuMzQ1TDQ1LjU3MjcgMTMzLjUyN0w0NC4wMTgyIDEzMS44OTFMNDMuMiAxMzAuMjU1TDQzLjAzNjQgMTI4LjYxOEw0MS43MjczIDEyNi45ODJMNDIuOTU0NSAxMjYuMTY0VjEyNC41MjdMNDEuNCAxMjIuODkxTDQwLjk5MDkgMTIxLjk5MUw0MC4wOTA5IDEyNS4zNDVMMzguNDU0NSAxMjIuODkxTDM5Ljc2MzYgMTIyLjA3M0wzOS42ODE4IDEyMS4yNTRMMzQuNDQ1NSAxMTUuOTM2TDMzLjk1NDUgMTE0LjcwOUwzMS45OTA5IDExMi43NDVMMjkuNTM2NCAxMTIuNjY0TDI4LjQ3MjcgMTEyLjI1NEwyOC4zMDkxIDExMC42MThMMjguNzE4MiAxMDkuNTU0SDMwLjM1NDVMMzEuMTcyNyAxMTAuMjA5TDMzLjYyNzMgMTEwLjM3M0w0MS4zMTgyIDExNy4yNDVMNDEuNDgxOCAxMTkuN0w0Mi4zIDEyMS4zMzZMNDMuNjkwOSAxMjIuMTU1TDQ1LjU3MjcgMTI2LjI0NUw0Ny4wNDU1IDEyNy44ODJMNDcuMjA5MSAxMjkuNTE4TDQ4LjY4MTggMTMxLjE1NUw0OC44NDU1IDEzMi43OTFMNTAuMzE4MiAxMzUuMjQ1TDUwLjQgMTM3LjdMNTEuMTM2NCAxMzguNTE4TDUyLjAzNjQgMTQwLjk3M0w1MS45NTQ2IDE0Mi42MDlMNTAuODA5MSAxNDMuNTkxTDUwLjg5MDkgMTQzLjUwOVpNNTcuNDM2NCAxNDIuNjA5TDU3LjE5MDkgMTQxLjcwOUw1Ny40MzY0IDE0MC44MDlMNTcuNjgxOCAxNDEuNzA5TDU3LjQzNjQgMTQyLjYwOVoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjQUY4MThCIi8+CjxwYXRoIGQ9Ik0zNi4xNjM2IDYyLjQyNzJMMzUuOTE4MiA2MS41MjcyTDM2LjE2MzYgNjAuNjI3MkwzNi40MDkxIDYxLjUyNzJMMzYuMTYzNiA2Mi40MjcyWk05Ny41MjczIDkyLjY5OTlMOTQuMTcyNyA5Mi42MTgxTDk2LjcwOTEgOTIuMzcyN0w5Ny41MjczIDkyLjc4MTdWOTIuNjk5OVoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjNzI3NTkyIi8+Cjwvc3ZnPgo=");--C:8;--R:1;--bg:#1f1836;--ink:#f3ead7;--dim:#a79fc4;--brass:#d3a64a;--brass2:#f0cf86;--tile:#f3ead7;--tileink:#2a2140}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;touch-action:manipulation}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;margin:-360px 0 0 -640px;transform:scale(var(--k,1));transform-origin:center center;overflow:hidden;background:var(--bg)}
+#app{width:1280px;height:720px;display:flex;flex-direction:column;--s:1088px;--cw:72px}
+.preview{flex:0 0 31%;min-height:0;display:flex;align-items:center;justify-content:space-around;padding:14px 14px 6px;border-bottom:2px solid var(--brass);background:radial-gradient(ellipse at 50% 40%,#3a2d6b 0,#1f1836 75%)}
+.artrow{flex:none;display:flex;align-items:center;justify-content:center;gap:8px}
+.aslot{width:64px;height:84px;border-radius:8px;border:2px dashed rgba(211,166,74,.5);background:rgba(255,255,255,.05)}
+.play{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 24px;overflow:hidden}
+.play>*{flex:none}
+.itemrow{display:flex;align-items:flex-end;justify-content:center;gap:30px;flex:none}
+.chaoswrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.chaoslbl{font:800 11px system-ui,sans-serif;letter-spacing:.12em;color:#c79bff}
+.islot.cs{border-color:rgba(166,108,242,.75)}
+.islot.cs.has{border-style:solid;border-color:#c79bff}
+.islot.cs.has.pur{background:#7b4fc9}
+.islot.cs.has.gld{background:linear-gradient(180deg,#f7dc7a,#d9a21e);color:#3a2a00}
+.islot.cs.has.gld .cov svg{stroke:#3a2a00}
+.islot.cs.has.tdr{background:linear-gradient(180deg,#34c4b8,#126a68);border-color:#8ff0e6}
+.islot.cs.has.dst{background:linear-gradient(180deg,#e0605e,#8e1c1c)}
+.islot.cs.sel{outline:3px solid #ffd966;outline-offset:1px}
+.cov.ct{align-items:center;justify-content:center;font:800 19px system-ui,sans-serif;color:#fff6d6}
+.cov svg.fillc{fill:#fff6d6}
+.ctoast{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:700;background:#241a3d;color:#fff;border:2px solid #a66cf2;border-radius:12px;padding:10px 18px;font:700 15px system-ui,"Noto Sans Thai",sans-serif;pointer-events:none;max-width:90%;text-align:center;opacity:0;transition:opacity .2s}
+.ctoast.on{opacity:1}
+.gstrip>div{gap:3px}
+.gchips{display:flex;gap:3px;order:2}
+.gchips b{background:#000;border-radius:0 0 8px 8px;padding:2px 7px;font:800 15px/22px system-ui,sans-serif;color:#c79bff;white-space:nowrap}
+.gstrip span.eq{color:#ffd966}.gchips b.tt{color:#7fd0ff}.gchips b.xm{color:#ff6b6b}.gchips b.xa{color:#5fb0ff}
+.tile.goldc>svg.tf{filter:drop-shadow(0 0 7px #f2c230)}
+.tcard.gold{box-shadow:0 0 0 2px #f2c230,0 0 10px 2px rgba(242,194,48,.75)}
+.tcard.gold svg [fill="#fff"]{fill:#f2c230}
+.mc.gold{box-shadow:0 0 0 2px #f2c230,0 0 8px 1px rgba(242,194,48,.7)}
+.mc.gold svg [fill="#fff"]{fill:#f2c230}
+.tcard.blank,.mc.blank{background:#cfcfda}
+.bk{width:48%;height:48%;border:3px dashed #6b6b78;border-radius:8px}
+.eskill{font:700 13px system-ui,"Noto Sans Thai",sans-serif;color:#ffb3b3;background:rgba(229,72,77,.18);border:1px solid rgba(229,72,77,.5);border-radius:8px;padding:3px 10px;min-height:0}
+.eskill:empty{display:none}
+.herocol{display:flex;flex-direction:column;align-items:center;gap:4px}
+.calc{font-family:system-ui,sans-serif;font-weight:700;font-size:24px;color:var(--brass2);text-align:center;min-height:24px}
+.calc .catk{color:#5fb0ff}.calc .cmult{color:#ff6b6b}.calc i{font-style:normal;color:var(--dim);margin:0 6px}
+#msg{font-size:14px;color:var(--dim);min-height:1.2em}
+.pic{font-size:76px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+.name{font-family:Georgia,"Noto Serif Thai",serif;font-size:20px;color:var(--brass2);font-weight:700}
+.hpbar{width:100%;max-width:420px;height:12px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(255,255,255,.2)}
+.hpbar i{display:block;height:100%;width:100%;background:linear-gradient(180deg,#ef6b6b,#c23a3a);transition:width .4s}
+.hptxt{font-size:16px;font-weight:700}
+.eatk{font:800 15px system-ui,sans-serif;color:#ff8a95;background:rgba(0,0,0,.35);border:1px solid rgba(255,77,94,.45);border-radius:99px;padding:2px 12px;margin-top:2px}.eatk b{color:#fff}
+.php{width:200px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.php .hpbar{height:10px}.php .hpbar i{background:linear-gradient(180deg,#6be38a,#2e9e5b)}
+.php .hptxt{font-size:14px}
+.hero.ouch{animation:ouch .45s}@keyframes ouch{0%,100%{transform:none;filter:none}20%{transform:translateX(-10px) rotate(-8deg);filter:drop-shadow(0 0 14px #ff3b3b) brightness(1.4)}50%{transform:translateX(8px) rotate(5deg)}75%{transform:translateX(-4px)}}
+.enemy.lunge .pic{animation:lunge .35s}@keyframes lunge{40%{transform:translateX(-30px) scale(1.15)}}
+.beam.ebeam{background:linear-gradient(90deg,#ffd0f0,#c03aff 40%,#ff2e5a);box-shadow:0 0 14px 5px rgba(200,40,120,.8)}
+.dmgpop{position:fixed;z-index:520;pointer-events:none;font:900 34px system-ui,sans-serif;color:#ff4d5e;text-shadow:0 2px 0 #000,0 0 8px #000;transform:translate(-50%,-50%);animation:dmgpop .9s ease-out forwards}
+@keyframes dmgpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}20%{transform:translate(-50%,-70%) scale(1.3);opacity:1}100%{transform:translate(-50%,-140%) scale(1);opacity:0}}
+.enemy.hit .pic{animation:shake .5s}
+.enemy.spawn .pic{animation:bossin .5s cubic-bezier(.2,1.3,.4,1)}
+.enemy.dead .pic{opacity:0;transition:opacity .5s}
+.enemy{display:flex;flex-direction:column;align-items:center;gap:6px;width:50%}.beam{position:fixed;z-index:500;pointer-events:none;height:10px;margin-top:-5px;border-radius:99px;transform-origin:0 50%;background:linear-gradient(90deg,#fff6c0,#ffb22e 40%,#ff5a1f);box-shadow:0 0 14px 5px rgba(255,110,30,.8);transition:width .25s ease-out}.hero.cast{animation:cast .7s ease-in-out}@keyframes cast{0%{transform:none}25%{transform:translateY(-6%) scale(1.1) rotate(-7deg)}55%{transform:translateY(-12%) scale(1.3) rotate(7deg);filter:drop-shadow(0 0 20px #ffb22e)}80%{transform:translateY(-8%) scale(1.35) rotate(0);filter:drop-shadow(0 0 28px #ff8a1f)}100%{transform:none}}.charge{position:fixed;z-index:499;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:4px solid #ffd36a;box-shadow:0 0 18px 6px rgba(255,150,40,.8),inset 0 0 14px 4px rgba(255,200,90,.7);pointer-events:none;animation:chg .65s ease-in forwards}@keyframes chg{0%{transform:scale(2.4);opacity:0}30%{opacity:1}100%{transform:scale(.3);opacity:1}}.hero{font-size:76px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8%) rotate(-6deg)}40%{transform:translateX(8%) rotate(6deg)}60%{transform:translateX(-5%)}80%{transform:translateX(5%)}}
+@keyframes bossin{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.board{position:relative;width:calc(var(--s)*var(--C)/8);height:calc(var(--s)*var(--R)/8);flex:none;display:grid;
+  grid-template-columns:repeat(var(--C),1fr);grid-template-rows:repeat(var(--R),1fr);background:#2b2250;border:2px solid var(--brass);border-radius:10px;overflow:hidden}
+.tile{position:relative;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
+.tile>svg.tf{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tf .tbg{fill:#2A2160}
+.tile:not(.filled) .tbg{fill:#3c3c46}.tile:not(.filled) .dia{fill:#62626e}.tile:not(.filled) .dia+.dia{fill:#555560}
+.tile.now .tbg{fill:#5a47b8}.tile.now .tfr{stroke:#ffd966}
+.tile.placeable{cursor:pointer}
+.tile.placeable::before{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px rgba(240,207,134,.95);pointer-events:none;z-index:2}
+.tile.grp{z-index:1}
+.gstrip{display:grid;grid-template-columns:repeat(var(--C),1fr);width:calc(var(--s)*var(--C)/8);height:36px;margin-top:-6px}
+.gstrip>div{position:relative;padding-top:10px}
+.gbar{position:absolute;top:0;left:0;right:0;height:7px;background:var(--g);box-shadow:0 0 6px var(--g)}
+.gbar.f{left:3px;border-bottom-left-radius:6px}.gbar.l{right:3px;border-bottom-right-radius:6px}
+.gstrip span{justify-self:center;align-self:start;min-width:44px;padding:2px 10px;box-sizing:border-box;text-align:center;background:#000;border-radius:0 0 8px 8px;font-family:system-ui,sans-serif;font-weight:800;font-size:20px;line-height:22px;color:#5fb0ff}
+.pcard{display:none}
+.disc-toast{position:absolute;left:50%;top:36%;transform:translateX(-50%);z-index:600;background:linear-gradient(180deg,#3b2a6b,#241a45);border:2px solid var(--brass2);color:#fff;font:600 17px system-ui,sans-serif;padding:10px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.6);pointer-events:none;animation:dtoast 2.6s ease forwards;white-space:nowrap}.disc-toast b{color:var(--brass2)}
+@keyframes dtoast{0%{opacity:0;transform:translate(-50%,10px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-10px)}}
+.token.helper .ball{filter:hue-rotate(170deg) saturate(1.4) drop-shadow(0 0 6px rgba(80,180,255,.85))}
+.tile .totm{position:absolute;right:6%;top:4%;z-index:4;pointer-events:none;font-size:26px;line-height:1;filter:drop-shadow(0 0 3px #7fd0ff)}
+.rar{display:inline-block;font:800 12px system-ui,sans-serif;letter-spacing:.12em;padding:2px 10px;border-radius:99px;margin-bottom:6px}.rar.common{background:#3a3560;color:#d6d9ea}.rar.uncommon{background:#1e4a37;color:#6df0a8}.rar.rare{background:#4a3a10;color:#ffcf5a}
+.islot.has{touch-action:none}.islot.dragging{z-index:30;opacity:.9;box-shadow:0 8px 16px rgba(0,0,0,.6);transition:none!important;cursor:grabbing}.islot.dropto{outline:3px dashed #ffd966;outline-offset:2px}
+.tile.chaosd .tfr{stroke:#c79bff}
+.crys{position:absolute;left:50%;top:50%;width:64%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:4;pointer-events:none;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 8px rgba(120,220,255,.85))}
+.crys svg{position:absolute;inset:0;width:100%;height:100%}
+.crys b{position:relative;font:800 20px system-ui,sans-serif;color:#fff;text-shadow:0 1px 3px #000;margin-top:4px}
+.crys.hit{animation:crhit .35s}
+@keyframes crhit{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-50%) scale(1.25)}100%{transform:translate(-50%,-50%) scale(1)}}
+.crys.out{animation:crout .6s forwards}
+@keyframes crout{to{opacity:0;transform:translate(-50%,-90%) scale(1.5)}}
+.tile.filled .dia{fill:var(--dc)}
+.tile .tbg,.tile .dia,.tile .emb [fill="#fff"]{transition:fill .25s}
+.tile.gold .emb [fill="#fff"]{fill:#F2B63C}
+.tile.tplace>svg.tf{animation:tpop .28s ease-out}
+@keyframes tpop{0%{transform:scale(1.12)}100%{transform:none}}
+@keyframes place{0%{transform:translateY(-30%) scale(1.3);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pout{0%{transform:none;opacity:1}100%{transform:translateY(40%) scale(.6) rotate(8deg);opacity:0}}
+.tcard.red,.pcard.red{background:#d63a3a}.tcard.green,.pcard.green{background:#2e9e5b}.tcard.orange,.pcard.orange{background:#f08a24}.tcard.blue,.pcard.blue{background:#2f7fd6}
+.token{position:absolute;width:calc(100%/var(--C));height:calc(100%/var(--R));left:0;top:0;display:flex;align-items:center;justify-content:center;transition:left .45s cubic-bezier(.15,.85,.25,1),top .45s cubic-bezier(.15,.85,.25,1),opacity .3s;pointer-events:none;z-index:2}
+.token.away{opacity:0}
+.token .ball{height:calc(var(--s)/8*.7);aspect-ratio:98/168;background:var(--ball) center/contain no-repeat;filter:drop-shadow(0 0 6px rgba(255,110,30,.75));animation:flick .25s ease-in-out infinite alternate}
+@keyframes flick{from{filter:brightness(.95)}to{filter:brightness(1.3)}}
+.token i{font-style:normal;display:flex;align-items:center;justify-content:center;font-size:calc(var(--s)/8*.6);line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+.token.dashing .ball{transform:scaleX(1.3);filter:drop-shadow(-12px 0 8px rgba(255,150,40,.6)) drop-shadow(0 0 8px rgba(255,100,20,.8))}
+.fb{position:fixed;z-index:500;pointer-events:none;width:40px;height:68px;margin:-34px 0 0 -20px;background:var(--ball) center/contain no-repeat;filter:drop-shadow(0 0 8px rgba(255,110,30,.8));transform:rotate(var(--ang,0rad));transition:left .55s cubic-bezier(.45,0,.9,.55),top .55s cubic-bezier(.45,0,.9,.55)}
+.fb::after{content:"";position:absolute;right:55%;top:50%;width:80px;height:22px;transform:translateY(-50%);border-radius:50%;background:linear-gradient(270deg,rgba(255,170,40,.9),rgba(255,70,20,0))}
+.burst{position:fixed;z-index:500;pointer-events:none;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle,#fff6c0 0,#ffb22e 40%,rgba(255,80,20,0) 72%);animation:burst .45s ease-out forwards}
+@keyframes burst{from{transform:scale(.3);opacity:1}to{transform:scale(3.2);opacity:0}}
+.token .ball{transition:transform .2s,box-shadow .2s}
+.token.warp i{animation:warpin .35s ease-out}
+@keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-35%) scale(1.1)}100%{transform:translateY(0)}}
+@keyframes warpin{0%{transform:scale(0) rotate(-180deg);opacity:0}100%{transform:none;opacity:1}}
+.spop{position:absolute;z-index:25;pointer-events:none;font-family:system-ui,sans-serif;font-weight:800;font-size:calc(var(--s)/22);color:#1f7ae0;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #fff;animation:spop .9s ease-out forwards}
+@keyframes spop{0%{transform:translate(-50%,0) scale(.6);opacity:0}20%{transform:translate(-50%,-6px) scale(1.25);opacity:1}100%{transform:translate(-50%,-22px) scale(1);opacity:0}}
+.side{display:flex;flex-direction:column;gap:6px;align-items:center;width:100%;max-width:640px}
+.bottom{display:grid;grid-template-columns:150px 1fr 150px;gap:20px;align-items:center;width:1180px}
+.midcol{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.toolcol{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.actcol{display:flex;flex-direction:row;justify-content:center;gap:12px}
+.sortrow{display:inline-flex;border:1.5px solid var(--brass);border-radius:8px;overflow:hidden}
+.sortrow button{width:auto;font-size:14px;font-weight:700;padding:6px 18px;border-radius:0;border:0;background:transparent;color:var(--dim)}
+.sortrow button.on{background:var(--brass);color:var(--tileink)}
+.tray{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:100px;width:100%}
+.handrow{display:flex;flex-wrap:nowrap;justify-content:center;width:100%;padding-top:10px}
+.handrow .tcard{position:relative;flex:none}
+.handrow .tcard.sel{z-index:20}
+.tcard{display:flex;align-items:center;justify-content:center;width:var(--cw);height:calc(var(--cw)*1.3);border-radius:calc(var(--s)/80);background:#fff;border:2px solid var(--brass);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.tcard.sel{transform:translateY(-8px);box-shadow:0 8px 12px rgba(0,0,0,.5);border-color:#ffd966}
+.cdir{width:70%;height:70%;pointer-events:none;filter:drop-shadow(0 0 1.5px rgba(255,255,255,.85))}
+.tcard.deal{animation:tdeal .4s cubic-bezier(.2,.9,.3,1) backwards}
+@keyframes tdeal{0%{transform:translateY(-30px) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.tcard.drop{animation:tdrop .25s ease-in forwards}
+@keyframes tdrop{0%{transform:translateY(-8px)}100%{transform:translateY(40px) rotate(12deg);opacity:0}}
+.deckn{font-size:14px;color:var(--dim)}
+button{font:inherit;font-size:15px;font-weight:700;padding:9px 14px;border-radius:10px;border:0;cursor:pointer;color:var(--tileink);background:linear-gradient(180deg,var(--brass2),var(--brass));width:100%}
+button:active:not(:disabled){transform:scale(.96)}
+button:disabled{opacity:.4;cursor:default}
+.actcol{align-items:center}.actcol>button{width:200px;min-width:0;white-space:nowrap;line-height:1.2}
+#go{font-size:19px;padding:9px 14px}
+#dis{font-size:15px;padding:6px 14px}
+#dis small{display:block;font-size:11px;font-weight:600;opacity:.75}
+.sec{background:#c9c0e6}
+.spd{position:absolute;top:8px;right:56px;left:auto;width:auto;height:40px;min-width:62px;padding:0 12px;border-radius:99px;font:800 17px system-ui,sans-serif;background:#c9c0e6;color:#2a2140;z-index:20}.spd.fast{background:linear-gradient(180deg,#ffd966,#e0a21e)}
+.gear{position:absolute;top:8px;right:8px;width:40px;height:40px;padding:0;border-radius:50%;font-size:20px;line-height:1;background:#c9c0e6;z-index:20}
+.stat{position:absolute;top:8px;left:8px;height:40px;padding:0 14px;border-radius:20px;background:#2d2450;border:2px solid var(--brass);color:var(--brass2);font-family:system-ui,sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30}
+.modal.open{display:flex}
+.panel{background:#2d2450;border:2px solid var(--brass);border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:240px;align-items:center}
+.ptitle{font-size:28px;font-weight:700;color:var(--brass2)}
+
+.vbtn{background:transparent;border:0;color:var(--dim);font:inherit;font-size:14px;padding:2px 0;cursor:pointer;text-align:left;width:auto}
+.vbtn:hover{color:var(--brass2)}
+.vw{position:absolute;inset:0;z-index:600;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.vw.open{display:flex}
+.vw .panel{max-height:640px;width:640px;gap:10px;align-items:stretch;font-family:system-ui,sans-serif;color:var(--ink)}
+.vw h2{margin:0;text-align:center;font-size:20px;color:var(--brass2)}
+.vw .vscroll{overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.vgrp b{font-size:14px;color:var(--brass2)}
+.vrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.mc{width:38px;height:50px;border-radius:5px;border:1.5px solid var(--brass);display:flex;align-items:center;justify-content:center;flex:none}
+.mc svg{width:62%;height:62%}
+.mc.red{background:#d63a3a}.mc.green{background:#2e9e5b}.mc.orange{background:#f08a24}.mc.blue{background:#2f7fd6}
+.srow{display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.05)}
+.srow .pvrow{display:flex;gap:3px;min-width:150px}
+.srow .mc{width:24px;height:32px;border-radius:4px}
+.srow .st{flex:1;font-size:12px;line-height:1.35}.srow .st b{font-size:14px}
+.srow .at{font-size:20px;font-weight:800;color:#5fb0ff;min-width:50px;text-align:right}
+.vnote{font-size:12px;color:var(--dim);line-height:1.5}
+/* ===== Artifact slots / shop ===== */
+.coins{position:absolute;top:8px;left:96px;height:40px;padding:0 14px;border-radius:20px;background:#2d2450;border:2px solid var(--brass);color:var(--brass2);font-family:system-ui,sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;z-index:20}
+.islot{width:64px;height:84px;flex:none;border-radius:8px;border:2px dashed rgba(211,166,74,.5);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;color:#fff;font-family:system-ui,sans-serif;font-weight:800;text-align:center;white-space:nowrap;overflow:hidden;letter-spacing:-.5px}
+.islot.has{border-style:solid;border-color:var(--brass);cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.4)}
+.islot.has.red{background:#d63a3a}.islot.has.orange{background:#f08a24}.islot.has.blue{background:#2f7fd6}.islot.has.green{background:#2e9e5b}.islot.has.purple{background:#a66cf2}
+.islot.itrig{animation:itrig .5s ease-out}
+@keyframes itrig{0%{transform:scale(1)}40%{transform:scale(1.3);box-shadow:0 0 14px 4px rgba(255,217,102,.9)}100%{transform:scale(1)}}
+.ov{position:absolute;left:0;right:0;bottom:0;top:31%;z-index:300;background:#150f26;border-top:2px solid var(--brass);display:none;flex-direction:column;align-items:center;padding:10px 36px 14px;gap:8px}
+.ov.open{display:flex;animation:shopup .45s cubic-bezier(.2,.9,.3,1)}@keyframes shopup{from{transform:translateY(100%)}to{transform:none}}
+.ov h2{margin:0;font-family:Georgia,"Noto Serif Thai",serif;color:var(--brass2);font-size:26px}
+.rbox{width:520px;max-width:100%}
+.rrow{display:flex;justify-content:space-between;font-family:system-ui,sans-serif;font-size:18px;padding:6px 4px;border-bottom:1px solid rgba(211,166,74,.3)}
+.rrow.tot{border-bottom:0;font-weight:800;font-size:24px;color:var(--brass2)}
+.shopgo{width:auto;min-width:200px;font-size:18px;padding:12px 26px;background:linear-gradient(180deg,var(--brass2),var(--brass))}
+.shophead{display:flex;align-items:center;justify-content:space-between;width:100%}
+.shopcoins{font-family:system-ui,sans-serif;font-weight:800;font-size:24px;color:var(--brass2)}
+.shopowned{display:flex;align-items:center;gap:14px;width:100%;justify-content:center;font:700 12px system-ui,sans-serif;color:var(--dim)}
+.ownedrow{display:flex;gap:8px}
+.shoptabs{display:flex;gap:8px;width:760px;max-width:100%}
+.shoptabs button.test{border-style:dashed;font-size:13px;opacity:.85}
+.sitem.reroll{background:linear-gradient(180deg,#5a4d8f,#342a63);border-style:dashed}.sitem.reroll b{font-size:20px}
+.rtag{position:absolute;top:4px;right:5px;font:900 11px system-ui,sans-serif;font-style:normal;padding:1px 5px;border-radius:6px}.rtag.uncommon{background:#1e4a37;color:#6df0a8}.rtag.rare{background:#4a3a10;color:#ffcf5a}
+.offrow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.offlab{width:84px;flex:none;text-align:right;font:800 12px system-ui,sans-serif;color:var(--brass2);letter-spacing:.06em;line-height:1.3;padding-right:6px}
+.offrow .sitem{height:106px;padding:6px 4px}
+.offrow .sitem .cov{transform:scale(.88)}.offrow .sitem.stone .sup{font-size:21px}.offrow .sitem.stone .spv .mc{height:24px;width:19px}
+.sitem.sold{opacity:.35;pointer-events:none}
+.shoptabs button{flex:1;padding:9px 6px;border-radius:12px;border:2px solid var(--brass);background:transparent;color:var(--brass2);font:800 15px system-ui,"Noto Sans Thai",sans-serif}
+.shoptabs button.on{background:var(--brass);color:#2a2140}
+.shopscroll{flex:1;min-height:0;overflow-y:auto;width:100%;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;justify-content:center;padding:8px;border:2px dashed rgba(211,166,74,.35);border-radius:14px}
+.shsec{flex:0 0 100%;text-align:center;font:700 12px system-ui,sans-serif;color:var(--brass2);letter-spacing:.08em;border-top:1px solid rgba(211,166,74,.3);padding-top:8px;margin-top:2px}
+.shsec:first-child{border-top:0;margin-top:0;padding-top:0}
+.sitem{width:104px;height:122px;border-radius:10px;border:2px solid var(--brass);padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;font-family:system-ui,sans-serif;cursor:pointer;user-select:none;box-shadow:0 3px 8px rgba(0,0,0,.4);position:relative}
+.sitem b{font-size:26px;margin:auto 0;max-width:100%;text-align:center;line-height:1.15;overflow-wrap:anywhere}
+.sitem small{font-size:11px;font-weight:800;text-align:center;line-height:1.2}
+.sitem span{font-size:13px;font-weight:800;background:rgba(0,0,0,.35);border-radius:8px;padding:2px 8px}
+.sitem.red{background:#d63a3a}.sitem.orange{background:#f08a24}.sitem.blue{background:#2f7fd6}.sitem.green{background:#2e9e5b}.sitem.purple{background:#a66cf2}
+.islot.has.cvr{flex-direction:column}
+.cov{width:44px;height:44px;display:flex;flex:none}
+.cov svg{width:100%;height:100%;stroke:#fff6d6;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.cov svg.cvi{stroke:none}
+.lbl{font-size:13px;line-height:1.1;font-weight:800;margin-top:2px}
+.islot.has:has(.cov){flex-direction:column;gap:2px}
+.sitem .cov{width:50px;height:50px;margin:2px 0 0}
+.sitem .nm{font-size:12px;font-weight:800;text-align:center;line-height:1.15;max-width:100%}
+.sitem.tdr{background:linear-gradient(180deg,#34c4b8,#126a68);color:#fff}.sitem.gld{background:linear-gradient(180deg,#f7dc7a,#d9a21e);color:#3a2a00}.sitem.gld .cov svg{stroke:#3a2a00}.sitem.gld span{color:#fff}.sitem.dst{background:linear-gradient(180deg,#e0605e,#8e1c1c)}
+.sitem.stone{justify-content:space-between;padding:7px 4px 6px;background:linear-gradient(180deg,#c98428,#8f5512)}
+.sitem.stone .spv{display:flex;gap:2px;justify-content:center}
+.sitem.stone .spv .mc{width:21px;height:28px;border-radius:4px;border-width:1px}
+.sitem.stone .sup{font:900 26px system-ui,sans-serif;line-height:1;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.sitem.stone .snm{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}
+.sitem.stone .slv{font-size:10px;font-weight:700;opacity:.8;margin:-2px 0 2px}
+.sitem.hand{background:#3a8f5a}.sitem.upg{background:#8a5cd6}.sitem.stone{background:#b8741f}
+.sitem.off{opacity:.45;cursor:default}
+.sitem.closed{opacity:.4;filter:grayscale(.85);cursor:pointer}
+.sitem.closed span{background:#000;color:#ffb3b3}
+.pop{position:absolute;inset:0;z-index:500;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.pop.open{display:flex}
+.popbox{background:#2d2450;border:2px solid var(--brass);border-radius:14px;padding:18px 22px;width:440px;max-width:90%;display:flex;flex-direction:column;gap:10px;font-family:system-ui,"Noto Sans Thai",sans-serif}
+.popbox h3{margin:0;color:var(--brass2);font-size:22px}
+#popDesc{font-size:15px;line-height:1.5;color:var(--ink)}
+.popoff{margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(229,72,77,.18);color:#ffb3b3;font-size:13px}
+.popact{display:flex;gap:8px}
+.popact button{flex:1;padding:11px 8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="app">
+  <section class="preview">
+    <div class="herocol"><div class="hero" id="hero">🧙</div><div class="calc" id="calc"></div><div class="php"><div class="hpbar"><i id="phpfill"></i></div><div class="hptxt">HP <span id="php">30</span> / <span id="phpmax">30</span></div></div></div>
+    <div class="enemy">
+      <div class="name" id="ename">ศัตรู</div>
+      <div class="eskill" id="eskill"></div>
+      <div class="pic" id="epic">👹</div>
+      <div class="hpbar"><i id="hpfill"></i></div>
+      <div class="hptxt">HP <span id="hp">100</span> / <span id="hpmax">100</span></div>
+      <div class="eatk" id="eatk"></div>
+      <div id="msg"></div>
+    </div>
+  </section>
+  <section class="play">
+    <div class="itemrow"><div class="artrow" id="artrow"></div><div class="chaoswrap"><div class="chaoslbl">CHAOS</div><div class="artrow" id="chaosrow"></div></div></div>
+    <div class="board" id="board"><div class="token away" id="token"><i class="ball"></i></div><div class="token helper away" id="helperTok"><i class="ball"></i></div></div>
+    <div class="gstrip" id="gstrip"></div>
+    <div class="bottom">
+      <div class="toolcol"><button class="vbtn" id="deckn" onclick="openDeckView()"></button><button class="vbtn" onclick="openStoneView()">📜 สูตร Stone</button></div>
+      <div class="midcol"><div class="tray" id="tray"></div>
+      <div class="actcol"><button id="go" onclick="walk()">เดิน 1 รอบ</button><div class="sortrow"><button id="sortCol" class="on" onclick="setSort('color')">สี</button><button id="sortDir" onclick="setSort('dir')">ทิศ</button></div><button id="dis" class="sec" onclick="discardCard()" disabled>ทิ้ง Gem</button></div></div>
+      <div></div>
+    </div>
+  </section>
+</div>
+<div class="stat" id="stat"></div>
+<div class="coins" id="coins">🪙 0</div>
+<button class="spd" id="spd" aria-label="Speed" onclick="cycleSpeed()">▶ x1</button>
+<button class="gear" id="rst" aria-label="Restart" onclick="resetGame()">↻</button>
+
+<div class="ov" id="reward"><h2>ชนะ!</h2><div class="rbox" id="rewardRows"></div><button class="shopgo" onclick="afterReward()">เข้าร้านค้า</button></div>
+<div class="ov" id="shop">
+  <div class="shophead"><h2>ร้านค้า</h2><div class="shopcoins" id="shopCoins"></div><button class="shopgo" onclick="leaveShop()">เล่นต่อ ▶</button></div>
+  <div class="shopowned"><span>ARTIFACT ที่มี (แตะเพื่อดู / ขาย)</span><div class="ownedrow" id="shopOwned"></div><span>CHAOS ที่มี (แตะเพื่อขาย)</span><div class="ownedrow" id="shopChaos"></div></div>
+  <div class="shoptabs"><button data-k="game" class="on" onclick="setShopTab('game')">ในเกม</button><button data-k="art" class="test" onclick="setShopTab('art')">TEST · ARTIFACT</button><button data-k="chaos" class="test" onclick="setShopTab('chaos')">TEST · CHAOS</button><button data-k="up" class="test" onclick="setShopTab('up')">TEST · อัปเกรด</button></div>
+  <div class="shopscroll" id="shopItems"></div>
+</div>
+<div class="vw" id="vwDeck"><div class="panel"><h2 id="vwDeckT"></h2><div class="vscroll" id="vwDeckB"></div><button class="sec" onclick="closeView()">ปิด</button></div></div>
+<div class="vw" id="vwStone"><div class="panel"><h2>Stone (สูตรเรียง Gem)</h2><div class="vnote">ATK ต่อ Gem = <b>ค่าเริ่ม + ค่าเพิ่ม × (จำนวนใบ − 1)</b> · สูตรยากได้ค่าเพิ่มต่อใบสูงกว่า · อัปเกรดในร้านเพิ่มค่าเริ่ม · ระบบเลือกกลุ่มที่ได้ ATK รวมสูงสุดให้เอง</div><div class="vscroll" id="vwStoneB"></div><button class="sec" onclick="closeView()">ปิด</button></div></div>
+<div class="ctoast" id="ctoast"></div>
+<div class="pop" id="pop"><div class="popbox"><h3 id="popTitle"></h3><div id="popDesc"></div><div class="popact" id="popAct"></div></div></div>
+</div>
+<div class="modal" id="gameover"><div class="panel"><div class="ptitle">GAME OVER</div><div id="goinfo" style="font-family:system-ui,sans-serif"></div><button onclick="newGame()">New Game</button></div></div>
+<script>
+/* ===== Speed (x1-x5): เร่งทั้ง setTimeout, rAF และ CSS animation/transition ===== */
+let SPD=1;
+(()=>{
+  const _st=window.setTimeout.bind(window);
+  window.setTimeout=(f,d,...a)=>_st(f,(d||0)/SPD,...a);
+  const apply=()=>{try{document.getAnimations().forEach(a=>{if(a.playbackRate!==SPD)a.playbackRate=SPD;});}catch(e){}};
+  ['animationstart','transitionrun'].forEach(ev=>document.addEventListener(ev,apply,true));
+  window.__applySpd=apply;
+})();
+function cycleSpeed(){
+  SPD=SPD>=5?1:SPD+1;
+  const b=document.getElementById('spd');b.textContent=(SPD>1?'⏩ x':'▶ x')+SPD;b.classList.toggle('fast',SPD>1);
+  try{localStorage.setItem('tb2spd',SPD);}catch(e){}
+  window.__applySpd();
+}
+/* ===== Board: loop 6x2 = 12 tiles ===== */
+const C=8,R=1,N=8;
+const TILE_DIR=['N','N','E','E','S','S','W','W'];
+const TILE_DIR0=TILE_DIR.slice();
+function pos(i){return {col:i+1,row:1};}
+function locked(i){return false;}
+const EMBLEM={
+N:'<g transform="scale(.192) translate(-512,-512)"><circle cx="512" cy="512" r="500" fill="#000"/><g fill="#fff"><path d="M544.3,773.8L542.6,770.1L542.0,766.1L542.3,621.2L544.4,616.2L596.0,540.0L544.4,463.8L542.6,460.1L542.1,457.4L542.1,220.2L543.6,215.1L547.0,210.9L551.7,208.3L555.8,207.6L559.8,208.1L563.5,209.8L566.6,212.4L568.8,215.8L720.6,552.6L721.5,555.1L721.9,559.1L721.1,563.0L719.2,566.6L566.5,775.4L563.4,778.0L559.6,779.6L555.6,780.1L551.7,779.4L548.0,777.6ZM480.9,461.4L479.6,463.8L428.0,540.0L479.6,616.2L481.7,621.2L481.9,767.4L481.0,771.4L478.0,775.9L474.8,778.3L471.0,779.8L467.0,780.1L463.1,779.2L459.5,777.2L456.7,774.4L304.8,566.6L302.9,563.0L302.1,557.8L303.4,552.6L455.2,215.8L458.4,211.4L461.7,209.1L465.5,207.8L469.6,207.7L474.7,209.3L478.0,211.8L481.0,216.3L481.9,220.2L481.9,457.4ZM292.6,428.9L291.5,432.9L231.0,567.2L286.1,642.6L287.4,644.9L288.6,648.7L288.6,652.8L287.5,656.6L262.1,712.9L258.5,717.0L256.1,718.5L252.1,719.7L247.9,719.7L243.9,718.5L239.5,715.1L237.2,711.6L162.5,545.5L161.2,540.0L162.3,534.4L237.0,351.7L239.1,348.1L243.4,344.6L247.3,343.2L251.4,343.0L255.4,344.0L257.8,345.4L260.9,348.1L262.4,350.4L291.7,421.9L292.5,424.6ZM736.6,644.9L737.9,642.6L792.9,566.9L732.5,432.9L731.4,428.9L731.5,424.6L732.3,421.9L761.6,350.4L764.1,347.1L766.2,345.4L768.6,344.0L772.6,343.0L776.7,343.2L780.6,344.6L783.9,347.1L787.0,351.7L861.7,534.4L862.8,540.0L861.5,545.5L786.8,711.6L784.5,715.1L780.1,718.5L776.1,719.7L771.9,719.7L766.7,717.8L763.5,715.1L761.9,712.9L736.5,656.6L735.4,652.8L735.4,648.7Z"/></g></g>',
+E:'<g transform="scale(.192) translate(-512,-512)"><circle cx="512" cy="512" r="500" fill="#000"/><g fill="#fff"><path d="M249.7,535.1L247.5,531.6L246.4,527.7L244.2,501.8L244.5,475.5L247.4,449.4L252.9,423.7L260.8,398.6L271.2,374.4L283.9,351.4L298.7,329.7L315.7,309.6L334.5,291.2L355.0,274.8L377.1,260.4L400.4,248.3L424.9,238.6L450.1,231.2L476.0,226.4L502.2,224.2L528.5,224.5L554.6,227.4L580.3,232.9L605.4,240.8L629.6,251.2L652.6,263.9L674.3,278.7L694.4,295.7L712.8,314.5L729.2,335.0L743.6,357.1L755.7,380.4L765.4,404.9L772.8,430.1L777.6,456.0L779.4,473.9L780.0,492.0L779.4,510.0L777.6,527.7L776.5,531.6L774.3,535.1L771.1,537.7L766.0,539.6L757.6,539.6L739.6,538.0L707.8,533.0L679.5,526.5L610.2,508.8L578.7,502.2L547.2,497.8L520.3,496.1L503.6,496.1L482.5,497.3L466.0,499.0L445.2,502.2L408.9,510.0L325.7,531.0L302.5,535.5L284.4,538.0L266.2,539.6L259.3,539.8L256.6,539.3L252.9,537.7ZM347.5,140.6L370.5,130.7L387.4,124.6L410.9,117.4L417.7,116.3L422.2,116.4L428.0,117.5L436.0,121.3L440.5,125.0L444.2,129.5L447.0,134.7L448.7,140.3L449.3,146.2L448.7,152.0L447.0,157.6L444.3,162.8L438.4,169.3L432.3,173.2L406.4,181.5L392.6,186.5L372.7,195.1L353.3,205.0L334.8,216.0L322.6,224.2L305.4,237.2L294.3,246.7L278.6,261.6L263.8,277.5L254.5,288.8L241.7,306.2L230.0,324.5L222.8,337.3L213.2,356.7L204.9,376.7L195.9,404.4L192.4,418.4L188.2,439.6L184.8,468.5L184.0,490.1L184.3,504.8L186.7,533.6L188.8,548.0L193.2,569.1L197.0,583.2L203.6,603.8L216.1,634.3L217.3,640.1L217.4,645.9L216.3,651.7L213.3,658.5L208.9,664.3L203.1,668.9L196.5,671.9L189.2,673.2L182.0,672.8L176.3,671.1L171.1,668.4L167.6,665.6L161.9,658.9L153.4,640.0L144.6,616.6L139.2,599.5L132.9,574.5L128.3,549.4L125.4,524.4L124.3,506.6L124.2,481.0L125.7,456.0L127.7,438.3L132.0,413.7L136.0,396.3L142.9,372.2L148.9,355.3L158.4,332.3L166.1,316.2L178.2,294.3L187.6,279.2L202.0,258.7L213.0,244.7L229.6,225.9L242.1,213.3L260.7,196.4L274.5,185.2L294.8,170.5L309.7,160.9L331.5,148.5ZM676.5,843.4L653.5,853.3L636.6,859.4L613.1,866.6L606.3,867.7L597.5,866.9L592.0,865.0L588.0,862.7L583.5,859.0L579.8,854.5L577.0,849.3L575.3,843.7L574.7,837.8L575.3,832.0L577.0,826.4L579.7,821.2L585.6,814.7L591.7,810.8L617.6,802.5L631.4,797.5L651.3,788.9L670.7,779.0L689.2,768.0L701.4,759.8L718.6,746.8L729.7,737.3L745.4,722.4L755.5,711.8L769.4,695.3L782.3,677.8L794.0,659.5L801.2,646.7L810.8,627.3L819.1,607.3L828.1,579.6L833.2,558.6L835.8,544.4L837.8,529.9L839.6,508.4L839.7,479.2L837.3,450.4L833.9,429.1L830.8,414.9L827.0,400.8L820.4,380.2L807.9,349.7L806.7,343.9L806.6,338.1L807.7,332.3L810.7,325.5L815.1,319.7L820.9,315.1L827.5,312.1L834.8,310.8L840.7,311.0L847.7,312.9L855.2,317.3L859.4,321.5L862.1,325.1L870.6,344.0L879.4,367.4L886.9,392.0L891.1,409.5L895.7,434.6L898.6,459.6L899.7,477.4L899.9,502.5L899.0,520.2L896.3,545.7L892.0,570.3L888.0,587.7L881.1,611.8L875.1,628.7L865.6,651.7L857.9,667.8L845.8,689.7L836.4,704.8L822.0,725.3L811.0,739.3L794.4,758.1L781.9,770.7L763.3,787.6L749.5,798.8L729.2,813.5L714.3,823.1L692.5,835.5ZM278.2,602.2L281.5,599.8L286.7,598.1L312.2,594.7L338.4,589.6L364.0,583.5L422.9,568.3L455.6,561.3L473.8,558.5L487.5,557.0L505.2,556.1L518.8,556.1L545.5,557.9L573.0,562.2L601.1,568.3L660.0,583.5L685.7,589.6L711.9,594.7L738.7,598.3L743.7,600.5L746.7,603.2L748.8,606.8L749.8,612.1L748.8,617.5L745.2,624.1L737.5,636.8L728.6,649.9L725.7,652.8L723.3,654.3L717.9,655.6L687.8,650.8L614.0,635.3L583.3,629.8L546.6,625.4L514.4,624.0L498.5,624.2L477.7,625.4L440.9,629.8L409.9,635.3L336.2,650.8L306.1,655.6L302.0,654.8L299.5,653.6L295.4,649.9L283.8,632.6L274.8,616.2L274.2,610.7L275.2,606.8L276.5,604.3Z"/></g></g>',
+S:'<g transform="scale(.192) translate(-512,-512)"><circle cx="512" cy="512" r="500" fill="#000"/><g fill="#fff"><path d="M730.1,224.1L727.3,227.3L723.6,229.4L668.2,252.1L664.0,252.6L661.2,252.3L658.5,251.4L654.9,249.1L652.2,245.9L648.7,238.6L647.3,233.0L645.7,177.4L646.7,173.3L648.8,169.6L651.9,166.8L654.4,165.4L712.4,141.7L715.1,141.2L719.1,141.4L722.9,142.7L725.2,144.2L728.7,148.3L730.4,153.4L732.3,216.1L731.8,220.2ZM355.5,181.0L357.5,184.7L358.3,188.8L360.7,251.5L359.9,255.5L358.8,257.9L356.2,261.0L354.1,262.7L349.0,264.5L346.3,264.7L342.4,264.0L284.1,244.8L280.3,242.9L276.5,238.7L274.9,234.8L274.5,232.0L272.1,169.4L272.9,165.4L274.0,163.0L276.6,159.9L278.8,158.2L283.8,156.4L289.1,156.5L348.7,176.1L352.5,178.0ZM218.2,379.5L223.2,377.5L383.3,362.0L499.3,116.7L501.6,113.3L503.7,111.5L507.3,109.6L511.3,108.8L515.4,109.2L519.2,110.7L522.4,113.3L524.7,116.7L640.7,362.0L794.7,327.9L800.1,328.3L805.0,330.7L808.5,334.7L810.0,338.5L810.3,343.9L809.1,347.8L807.7,350.1L630.8,588.8L525.2,883.3L524.0,885.7L521.4,888.9L519.2,890.5L515.4,892.1L509.9,892.4L506.0,891.2L501.6,887.9L498.8,883.3L393.2,588.8L215.7,400.8L213.3,397.5L212.0,393.6L212.2,388.2L214.3,383.3ZM584.2,486.2L585.4,479.0L586.0,471.8L585.8,464.5L584.9,457.3L583.3,450.2L581.0,443.3L578.1,436.7L574.5,430.4L570.3,424.4L565.6,418.9L560.3,413.9L554.6,409.5L548.4,405.6L542.0,402.3L535.2,399.7L528.2,397.8L521.0,396.6L513.8,396.0L506.5,396.2L499.3,397.1L492.2,398.7L485.3,401.0L478.7,403.9L472.4,407.5L466.4,411.7L460.9,416.4L455.9,421.7L451.5,427.4L447.6,433.6L444.3,440.0L441.7,446.8L439.8,453.8L438.6,461.0L438.0,468.2L438.2,475.5L439.1,482.7L440.7,489.8L443.0,496.7L445.9,503.3L449.5,509.6L453.7,515.6L458.4,521.1L463.7,526.1L469.4,530.5L475.6,534.4L482.0,537.7L488.8,540.3L495.8,542.2L503.0,543.4L510.2,544.0L517.5,543.8L524.7,542.9L531.8,541.3L538.7,539.0L545.3,536.1L551.6,532.5L557.6,528.3L563.1,523.6L568.1,518.3L572.5,512.6L576.4,506.4L579.7,500.0L582.3,493.2ZM807.4,604.2L811.2,605.9L814.4,608.8L816.6,612.4L840.3,670.4L840.9,674.4L840.6,677.1L839.8,679.7L837.8,683.2L834.9,686.0L832.5,687.3L827.3,688.5L765.9,690.3L761.8,689.8L756.8,687.2L753.9,684.1L752.6,681.6L728.9,623.6L728.3,619.6L728.5,616.9L729.3,614.3L731.3,610.8L735.4,607.3L740.5,605.7L803.2,603.7ZM284.9,701.7L281.9,704.7L278.2,706.7L274.0,707.5L211.4,709.9L208.7,709.5L205.0,708.0L202.8,706.4L200.2,703.2L198.4,698.2L198.3,694.2L198.9,691.6L218.1,633.3L220.0,629.5L224.1,625.7L228.1,624.1L230.8,623.7L293.5,621.3L296.2,621.7L299.9,623.2L303.0,625.8L304.7,627.9L306.5,633.0L306.4,638.3L286.8,697.9Z"/></g></g>',
+W:'<g transform="scale(.192) translate(-512,-512)"><circle cx="512" cy="512" r="500" fill="#000"/><g fill="#fff"><path d="M763.5,283.4L765.9,280.1L801.1,245.0L805.9,242.4L811.4,241.9L815.4,242.9L818.9,245.0L854.1,280.1L857.1,284.6L858.1,288.6L858.1,291.4L857.1,295.4L855.0,298.9L819.9,334.1L815.4,337.1L811.4,338.1L808.6,338.1L804.6,337.1L800.1,334.1L764.2,297.8L762.1,292.7L761.9,288.6ZM813.1,475.7L815.1,487.4L816.0,499.1L815.7,510.9L814.2,522.6L811.6,534.0L807.9,545.2L803.2,556.0L797.4,566.2L790.6,575.9L782.9,584.8L774.3,592.9L765.1,600.1L755.1,606.4L744.6,611.7L733.6,616.0L722.3,619.1L710.6,621.1L698.9,622.0L687.1,621.7L675.4,620.2L664.0,617.6L652.8,613.9L642.0,609.2L631.8,603.4L622.1,596.6L613.2,588.9L605.1,580.3L597.9,571.1L591.6,561.1L586.3,550.6L582.0,539.6L578.9,528.3L576.9,516.6L576.0,504.9L576.3,493.1L577.8,481.4L580.4,470.0L584.1,458.8L588.8,448.0L594.6,437.8L601.4,428.1L609.1,419.2L617.7,411.1L626.9,403.9L636.9,397.6L647.4,392.3L658.4,388.0L669.7,384.9L681.4,382.9L693.1,382.0L704.9,382.3L716.6,383.8L728.0,386.4L739.2,390.1L750.0,394.8L760.2,400.6L769.9,407.4L778.8,415.1L786.9,423.7L794.1,432.9L800.4,442.9L805.7,453.4L810.0,464.4ZM652.7,241.0L649.2,243.2L621.4,248.7L598.4,255.1L574.6,264.3L553.2,275.0L531.6,288.5L512.6,303.1L495.0,319.3L478.0,338.3L463.8,357.6L450.7,379.5L440.4,401.1L432.1,423.5L426.0,446.6L421.8,471.8L420.1,495.7L420.7,521.2L423.6,544.9L428.6,568.3L435.2,589.6L444.3,611.8L455.4,633.0L467.5,651.7L481.1,669.4L497.3,687.0L516.3,704.0L535.6,718.2L557.5,731.3L579.1,741.6L601.5,749.9L624.6,756.0L649.8,760.2L675.4,762.0L680.6,763.7L684.7,767.2L687.2,772.1L687.7,777.5L686.0,782.7L684.5,784.9L681.4,787.6L667.9,796.1L653.8,804.0L631.9,814.5L609.2,823.4L586.1,830.6L564.3,835.7L540.4,839.5L518.3,841.5L496.0,842.0L473.7,840.9L449.6,838.1L427.7,834.0L406.1,828.4L383.2,820.6L362.5,812.0L342.6,802.1L328.6,794.0L314.9,785.2L301.8,775.8L289.1,765.8L276.9,755.1L265.2,743.9L254.1,732.1L243.6,719.7L233.7,706.9L224.5,693.6L215.9,679.9L208.0,665.7L200.8,651.2L194.3,636.4L188.6,621.2L183.6,605.8L179.4,590.2L175.9,574.4L173.3,558.4L171.4,542.3L170.3,526.1L170.0,509.9L170.5,493.7L171.8,477.6L173.9,461.5L176.8,445.6L180.4,429.8L184.8,414.2L190.0,398.9L195.9,383.8L202.6,369.0L209.9,354.6L219.0,338.9L227.9,325.3L238.6,310.6L248.8,298.0L259.6,285.9L272.4,273.0L284.5,262.1L298.5,250.6L311.7,241.0L326.8,231.1L340.8,222.9L355.3,215.4L370.0,208.7L386.9,202.0L402.3,196.8L419.8,191.9L439.6,187.6L457.6,184.7L477.7,182.8L497.9,182.0L518.2,182.5L536.4,184.0L556.4,186.9L574.3,190.5L595.8,196.2L615.0,202.7L635.6,211.2L652.1,219.4L654.9,222.4L656.8,226.0L657.5,230.1L657.0,234.1L655.3,237.9ZM361.0,512.0L295.0,446.0L229.0,512.0L295.0,578.0Z"/></g></g>'
+};
+function dirSvg(dir,cls){return '<svg class="'+cls+'" xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200">'+EMBLEM[dir]+'</svg>';}
+function tileSvg(i){
+  const orn=(x,y)=>'<path transform="translate('+x+','+y+') scale(.667)" fill="#C9A66B" opacity=".85" d="M0,-24 C2,-6 6,-2 24,0 C6,2 2,6 0,24 C-2,6 -6,2 -24,0 C-6,-2 -2,-6 0,-24Z"/>';
+  const slot='<g class="emb" transform="translate(128,128) scale(.54)" opacity=".95">'+EMBLEM[TILE_DIR[i]]+'</g>';
+  return '<svg class="tf" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">'
+   +'<polygon class="tbg" points="20,4 236,4 252,20 252,236 236,252 20,252 4,236 4,20"/>'
+   +'<polygon class="tfr" points="20,4 236,4 252,20 252,236 236,252 20,252 4,236 4,20" fill="none" stroke="#C9A66B" stroke-width="6" stroke-linejoin="round"/>'
+   +'<polygon points="30,18 226,18 238,30 238,226 226,238 30,238 18,226 18,30" fill="none" stroke="#C9A66B" stroke-width="3" opacity=".7" stroke-linejoin="round"/>'
+   +'<polygon class="dia" points="128,34 222,128 128,222 34,128" fill="#3B2F82" stroke="#C9A66B" stroke-width="3" stroke-opacity=".5" stroke-linejoin="round"/>'
+   +'<polygon class="dia" points="128,52 204,128 128,204 52,128" fill="#33296F" stroke="#C9A66B" stroke-width="2" stroke-opacity=".45" stroke-linejoin="round"/>'
+   +'<circle cx="128" cy="128" r="66" fill="#14121C" stroke="#C9A66B" stroke-width="5"/>'
+   +'<circle cx="128" cy="128" r="58" fill="none" stroke="#C9A66B" stroke-width="2" opacity=".5"/>'
+   +slot
+   +'<circle cx="46" cy="46" r="22" fill="#14121C" stroke="#C9A66B" stroke-width="4"/>'
+   +'<text x="46" y="'+(i>=9?54:55)+'" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="'+(i>=9?22:26)+'" fill="#F0CF86">'+(i+1)+'</text>'
+   +orn(210,46)+orn(46,210)+'<g class="orn3">'+orn(210,210)+'</g><g class="cs" transform="translate(210,210) scale(.22)"></g></svg>';
+}
+const PCOL={red:'#B8383D',green:'#2B8A55',orange:'#CC7420',blue:'#2F5FA8'};
+function placedSvg(i,type,dir){
+  const c=PCOL[type]||'#2F5FA8';
+  return '<svg class="pf" viewBox="0 0 229 229" fill="none" xmlns="http://www.w3.org/2000/svg">'
+  +'<path d="M17.1 2.7H211.5L225.9 17.1V211.5L211.5 225.9H17.1L2.7 211.5V17.1L17.1 2.7Z" fill="#2A2160" stroke="#C9A66B" stroke-width="5.4" stroke-linejoin="round"/>'
+  +'<path opacity=".7" d="M26.1 15.3H202.5L213.3 26.1V202.5L202.5 213.3H26.1L15.3 202.5V26.1L26.1 15.3Z" stroke="#C9A66B" stroke-width="2.7" stroke-linejoin="round"/>'
+  +'<path d="M114.3 29.7L198.9 114.3L114.3 198.9L29.7 114.3L114.3 29.7Z" fill="'+c+'" stroke="#C9A66B" stroke-opacity=".5" stroke-width="2.7" stroke-linejoin="round"/>'
+  +'<path d="M114.3 45.9L182.7 114.3L114.3 182.7L45.9 114.3L114.3 45.9Z" fill="'+c+'" stroke="#C9A66B" stroke-opacity=".45" stroke-width="1.8" stroke-linejoin="round"/>'
+  +'<circle cx="114.3" cy="114.3" r="52.2" fill="#14121C" stroke="#C9A66B" stroke-width="4.5"/>'
+  +'<circle opacity=".6" cx="114.3" cy="114.3" r="45" stroke="#C9A66B" stroke-width="1.8"/>'
+  +'<g transform="translate(114.3,114.3) scale(.5)">'+(dir===TILE_DIR[i]?EMBLEM[TILE_DIR[i]].replace(/#fff/g,'#F2B63C'):EMBLEM[TILE_DIR[i]])+'</g>'
+  +'<circle cx="40.5" cy="40.5" r="19.8" fill="#14121C" stroke="#C9A66B" stroke-width="3.6"/>'
+  +'<text x="40.5" y="'+(i>=9?47:48)+'" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="'+(i>=9?20:23)+'" fill="#F3DFA8">'+(i+1)+'</text>'
+  +'<path opacity=".85" d="M188.1 26.1C189.3 36.9 191.7 39.3 202.5 40.5C191.7 41.7 189.3 44.1 188.1 54.9C186.9 44.1 184.5 41.7 173.7 40.5C184.5 39.3 186.9 36.9 188.1 26.1Z" fill="#C9A66B"/>'
+  +'<path opacity=".85" d="M40.5 173.7C41.7 184.5 44.1 186.9 54.9 188.1C44.1 189.3 41.7 191.7 40.5 202.5C39.3 191.7 36.9 189.3 26.1 188.1C36.9 186.9 39.3 184.5 40.5 173.7Z" fill="#C9A66B"/>'
+  +'<path opacity=".85" transform="translate(0,147.6)" d="M188.1 26.1C189.3 36.9 191.7 39.3 202.5 40.5C191.7 41.7 189.3 44.1 188.1 54.9C186.9 44.1 184.5 41.7 173.7 40.5C184.5 39.3 186.9 36.9 188.1 26.1Z" fill="#C9A66B"/>'
+  +'</svg>';
+}
+const board=document.getElementById('board'),tokenEl=document.getElementById('token'),msgEl=document.getElementById('msg');
+const tiles=[];
+let totemTiles=[];
+function totemAtk(i){return Math.round(20+40*Math.pow((N-1-i)/(N-1),2));}
+function syncTotem(force){
+  const cnt=Math.min(N,ITEMS.filter(it=>it&&it.type==='totem').length);
+  if(force)totemTiles=[];
+  if(totemTiles.length>cnt)totemTiles=totemTiles.slice(0,cnt);
+  while(totemTiles.length<cnt){const free=[];for(let q=0;q<N;q++)if(!totemTiles.includes(q))free.push(q);if(!free.length)break;totemTiles.push(free[Math.floor(Math.random()*free.length)]);}
+  document.querySelectorAll('.tile .totm').forEach(n=>n.remove());
+  totemTiles.forEach(q=>{const e=document.createElement('div');e.className='totm';e.textContent='🗿';tiles[q].appendChild(e);});
+  if(typeof syncTiles==='function')syncTiles();
+}
+for(let i=0;i<N;i++){
+  const p=pos(i),t=document.createElement('div');
+  t.className='tile'+(locked(i)?' locked':'');
+  t.style.gridColumn=p.col;t.style.gridRow=p.row;
+  t.innerHTML=tileSvg(i);
+  board.insertBefore(t,tokenEl);tiles.push(t);
+}
+const gstripEl=document.getElementById('gstrip');
+for(let i=0;i<N;i++){const d=document.createElement('div');d.style.display='flex';d.style.justifyContent='center';gstripEl.appendChild(d);}
+function gstripClear(){[...gstripEl.children].forEach(d=>{const g=d.querySelector('.gval');if(g)g.remove();const b=d.querySelector('.gbar');if(b)b.remove();});}
+/* ===== State ===== */
+const WALK_START=3,DECK_SIZE=48,HAND_START=8,DISCARD_START=3;
+let deck=[],hand=[],selIds=new Set(),uid=0,fresh=new Set();
+let tileColor=new Map(),tileCardDir=new Map(),placedCards=new Map();
+// ศัตรูตีแรง EATK (โต ×1.2 ทุกตัว) · เลือดสูงสุดผู้เล่น = EATK × จำนวนครั้งที่รับได้
+const EATK_START=10,PHP_GROW=1.2;
+let EATK=EATK_START,php=EATK_START*3;
+const phpMax=()=>EATK*walkMax;
+const ENEMY_HP_START=50;
+let cur=-1,busy=false,dmg=0,multBonus=0,pendingHit=0,coins=0,HPMAX=ENEMY_HP_START,hp=ENEMY_HP_START,bossN=0,walkMax=WALK_START,discardMax=DISCARD_START,walks=WALK_START,discardsLeft=DISCARD_START,handMax=HAND_START,sortMode='color';
+const fmt=n=>{const x=Number(n);return Math.abs(x)>=1000?x.toLocaleString('en-US'):String(n);};
+const stepMs=()=>500;
+/* ===== Deck / hand ===== */
+const COLOR_ORDER=['red','green','orange','blue'],DIR_ORDER=['N','E','S','W'];
+const colorRank=t=>{const i=COLOR_ORDER.indexOf(t);return i<0?99:i;};
+const dirRank=d=>{const i=DIR_ORDER.indexOf(d);return i<0?99:i;};
+let extraGem=[];
+function buildDeck(){
+  deck=[];
+  COLOR_ORDER.forEach(col=>DIR_ORDER.forEach(dir=>{for(let n=0;n<3;n++)deck.push({id:uid++,type:col,dir});}));
+  extraGem.forEach(e=>deck.push({id:uid++,type:e.type,dir:e.dir}));
+  applyDeckMods();
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+}
+function drawUp(){
+  fresh=new Set();
+  while(hand.length<handMax&&deck.length){const c=deck.pop();hand.push(c);fresh.add(c.id);}
+}
+function boardHasCards(){return placedCards.size>0;}
+function setSort(m){
+  sortMode=m;
+  document.getElementById('sortCol').classList.toggle('on',m==='color');
+  document.getElementById('sortDir').classList.toggle('on',m==='dir');
+  renderTray();
+}
+function fitHand(){
+  const row=document.querySelector('#tray .handrow');
+  if(!row)return;
+  const cs=[...row.children],n=cs.length;
+  if(!n)return;
+  const gap=6,w=cs[0].offsetWidth,full=row.parentElement.clientWidth;
+  const W=Math.min(8*w+7*gap,full||8*w+7*gap);
+  row.style.width=W+'px';
+  cs.forEach((c,i)=>{c.style.marginLeft=i?gap+'px':'0';});
+  if(n<2||!W||!w)return;
+  if(n*w+(n-1)*gap<=W)return;
+  const step=Math.max((W-w)/(n-1),12);
+  cs.forEach((c,i)=>{if(i)c.style.marginLeft=(step-w)+'px';});
+}
+function fitStage(){const k=Math.min(innerWidth/1280,innerHeight/720);document.documentElement.style.setProperty('--k',k);}
+window.addEventListener('resize',()=>{fitStage();fitHand();});
+fitStage();
+function renderTray(){
+  hand.sort((a,b)=>sortMode==='dir'
+    ?(dirRank(a.dir)-dirRank(b.dir))||(colorRank(a.type)-colorRank(b.type))
+    :(colorRank(a.type)-colorRank(b.type))||(dirRank(a.dir)-dirRank(b.dir)));
+  const tr=document.getElementById('tray');tr.innerHTML='';
+  const row=document.createElement('div');row.className='handrow';tr.appendChild(row);
+  let k=0;
+  hand.forEach(card=>{
+    const c=document.createElement('div'),isNew=fresh.has(card.id);
+    c.className='tcard '+card.type+(card.gold?' gold':'')+(selIds.has(card.id)?' sel':'')+(isNew?' deal':'');
+    if(isNew)c.style.animationDelay=(k++*70)+'ms';
+    c.innerHTML=card.type==='blank'?'<div class="bk"></div>':dirSvg(card.dir,'cdir');
+    c.onclick=()=>{if(busy)return;if(selIds.has(card.id))selIds.delete(card.id);else selIds.add(card.id);renderTray();};
+    row.appendChild(c);
+  });
+  fitHand();
+  document.getElementById('deckn').textContent='🂠 กอง '+deck.length+' ใบ · กดดู';
+  const canPlace=selIds.size===1&&!busy;
+  tiles.forEach((t,i)=>t.classList.toggle('placeable',(selChaos>=0&&!busy)||(canPlace&&!locked(i)&&!crystals.has(i)&&!t.querySelector('.pcard'))));
+  const d=document.getElementById('dis');
+  const blocked=boardHasCards()&&!hasFreeDiscard();
+  d.disabled=busy||selIds.size===0||discardsLeft<=0||blocked;
+  {const g=document.getElementById('go');if(g)g.textContent=selIds.size?'วาง ('+selIds.size+')':'เดิน';}
+  d.innerHTML='ทิ้ง Gem'+(selIds.size&&!blocked?' ('+selIds.size+')':'')+'<small>'+(blocked?'วาง Gem แล้วทิ้งไม่ได้':'เหลือ '+discardsLeft+' รอบ')+'</small>';
+  fresh=new Set();
+}
+function discardCard(){
+  if(busy||!selIds.size||discardsLeft<=0||(boardHasCards()&&!hasFreeDiscard()))return;
+  const ids=new Set(selIds);
+  discardsLeft--;
+  document.querySelectorAll('.tcard.sel').forEach((el,i)=>{el.style.animationDelay=(i*60)+'ms';el.classList.add('drop');});
+  setTimeout(()=>{hand=hand.filter(x=>!ids.has(x.id));selIds.clear();drawUp();renderTray();},250+ids.size*60);
+}
+/* ===== Place / take back ===== */
+function placeCard(card,idx){
+  const t=tiles[idx];
+  if(locked(idx)||crystals.has(idx)||!hand.includes(card)||t.querySelector('.pcard'))return;
+  const c=document.createElement('div');c.className='pcard '+card.type;t.classList.add('tplace');setTimeout(()=>t.classList.remove('tplace'),320);
+  t.appendChild(c);
+  if(card.type!=='blank'){tileColor.set(idx,card.type);tileCardDir.set(idx,card.dir);}placedCards.set(idx,card);
+  hand=hand.filter(x=>x.id!==card.id);selIds.delete(card.id);
+  refreshCalc();renderTray();
+}
+tiles.forEach((t,idx)=>t.addEventListener('click',()=>{
+  if(busy)return;
+  if(selChaos>=0){placeChaos(idx);return;}
+  if(crystals.has(idx)){msgEl.textContent='ช่องนี้มีผลึก Gem วาง Gem ไม่ได้';return;}
+  if(placedCards.has(idx)){
+    if(hand.length>=handMax){msgEl.textContent='มือเต็ม เอา Gem กลับไม่ได้';return;}
+    hand.push(placedCards.get(idx));placedCards.delete(idx);tileColor.delete(idx);tileCardDir.delete(idx);
+    const pc=t.querySelector('.pcard');if(pc)pc.remove();
+    refreshCalc();renderTray();return;
+  }
+  if(selIds.size!==1)return;
+  const card=hand.find(x=>x.id===[...selIds][0]);
+  if(card)placeCard(card,idx);
+}));
+function clearBoardCards(){
+  tiles.forEach(t=>{const pc=t.querySelector('.pcard');if(pc)pc.remove();});
+  tileColor.clear();tileCardDir.clear();placedCards.clear();
+}
+function newRound(){
+  syncTotem(true);
+  clearBoardCards();selIds.clear();drawUp();renderTray();refreshCalc();
+}
+/* ===== Stone (สูตรเรียง Gem) ===== */
+// n=จำนวนใบ, c=สีเดียวกัน, d=ทิศตรงช่อง, a=ATK
+/* ===== Stone: 6 ประเภท เรียงจากง่ายไปยาก · ATK ต่อ Gem = ค่าเริ่ม + ค่าเพิ่ม × (จำนวนใบ − 1) · อัปเกรดเพิ่มค่าเริ่ม ===== */
+const FROWS=[
+  {key:'col',name:'สีเรียงกัน',desc:'สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)',min:1,a:1,g:1,pv:[['red',0],['red',0],['red',0]]},
+  {key:'dsame',name:'ทิศเรียงกัน',desc:'ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)',min:2,a:2,g:1,pv:[['red','E'],['blue','E'],['green','E']]},
+  {key:'alt',name:'สลับสี',desc:'สองสีวางสลับกัน (3 ใบขึ้นไป)',min:3,a:3,g:1,pv:[['red',0],['blue',0],['red',0]]},
+  {key:'dtile',name:'ทิศตรงช่อง',desc:'ทิศของการ์ดตรงกับช่องทุกใบ (สีไหนก็ได้)',min:1,a:2,g:2,pv:[['red','N'],['blue','N'],['green','E']]},
+  {key:'cd',name:'สีทิศ',desc:'สีเดียวกัน และทิศตรงช่องทุกใบ (2 ใบขึ้นไป)',min:2,a:3,g:3,pv:[['red','N'],['red','N'],['red','E']]},
+  {key:'twin',name:'ฝาแฝด',desc:'การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)',min:2,a:4,g:4,pv:[['red','S'],['red','S'],['red','S']]}
+];
+function stoneVal(r,n){return r.a+r.g*(n-1);}
+FROWS.forEach(r=>{r.lv=1;});
+const FROWS_A0=FROWS.map(r=>r.a);
+// สูตรที่ค้นพบแล้ว: เริ่มด้วยสูตรพื้นฐาน 6 สูตร ที่เหลือโผล่เมื่อผู้เล่นวางได้ครั้งแรก
+const STONE_BASIC=[0,1,2,3];
+let foundRows=new Set(STONE_BASIC);
+function stoneDesc(r){return r.name;}
+function tileDir(i){return TILE_DIR[i];}
+// สูตรเหมือนต้นฉบับ: (1) run = การ์ดสีเดียวกันวางติดกัน (d=1 ถ้าทุกใบทิศการ์ด=ทิศช่อง และช่องทิศเดียวกัน)
+// (2) dir = การ์ดทิศ D วางบนช่องทิศ D ติดกัน (สีเดียวกันหรือไม่ก็ได้ c)
+function lineRuns(used){
+  const ok=i=>!used.has(i)&&tileColor.has(i);
+  const out=[];let k=0;
+  while(k<N){
+    if(!ok(k)){k++;continue;}
+    const col=tileColor.get(k);
+    let e=k+1;while(e<N&&ok(e)&&tileColor.get(e)===col)e++;
+    out.push({idxs:Array.from({length:e-k},(_,q)=>k+q),col});
+    k=e;
+  }
+  return out;
+}
+function calcGroups(){
+  // ทุกช่วงของ Gem ที่วางติดกัน → หาประเภทที่ได้ ATK ต่อใบสูงสุด · เลือกกลุ่มที่ได้ ATK รวมสูงสุดก่อน
+  const used=new Set(),out=[];
+  let ta=0;
+  const has=i=>tileColor.has(i);
+  for(;;){
+    const cands=[];
+    for(let s0=0;s0<N;s0++){
+      if(used.has(s0)||!has(s0))continue;
+      for(let e0=s0;e0<N&&!used.has(e0)&&has(e0);e0++){
+        const idxs=[];for(let q=s0;q<=e0;q++)idxs.push(q);
+        const n=idxs.length,col=i=>tileColor.get(i),cdir=i=>tileCardDir.get(i);
+        const f={
+          col:idxs.every(i=>col(i)===col(s0)),
+          dsame:idxs.every(i=>cdir(i)===cdir(s0)),
+          alt:n>=3&&col(idxs[0])!==col(idxs[1])&&idxs.every((i,q)=>q<2||col(i)===col(idxs[q-2])),
+          dtile:idxs.every(i=>cdir(i)===tileDir(i))
+        };
+        f.cd=f.col&&f.dtile;f.twin=f.col&&f.dsame;
+        let bk=-1,bv=0;
+        FROWS.forEach((r,k)=>{if(f[r.key]&&n>=r.min){const v=stoneVal(r,n);if(v>bv||(v===bv&&k>bk)){bv=v;bk=k;}}});
+        if(bk<0)continue;
+        const sameCol=f.col;
+        cands.push({type:FROWS[bk].key,idxs,col:sameCol?col(s0):null,dirSame:f.dtile?1:0,res:{a:bv,k:bk,tot:bv*n}});
+      }
+    }
+    let best=null;
+    cands.forEach(g=>{
+      if(!best){best=g;return;}
+      const b=best;
+      if(g.res.tot>b.res.tot||(g.res.tot===b.res.tot&&(g.res.a>b.res.a||(g.res.a===b.res.a&&g.idxs.length>b.idxs.length))))best=g;
+    });
+    if(!best)break;
+    best.idxs.forEach(i=>used.add(i));
+    out.push(best);ta+=best.res.a;
+  }
+  return {a:ta,groups:out};
+}
+
+/* ===== ดูไพ่ที่เหลือ / สูตร Stone ===== */
+function closeView(){document.querySelectorAll('.vw.open').forEach(e=>e.classList.remove('open'));}
+document.querySelectorAll('.vw').forEach(v=>v.addEventListener('click',e=>{if(e.target===v)closeView();}));
+function openDeckView(){
+  const NAMES={red:'แดง',green:'เขียว',orange:'ส้ม',blue:'น้ำเงิน',blank:'เปล่า (ชั่วคราว จากสกิลบอส)'};
+  document.getElementById('vwDeckT').textContent='ไพ่ที่เหลือในกอง ('+deck.length+')';
+  const box=document.getElementById('vwDeckB');box.innerHTML='';
+  if(!deck.length)box.innerHTML='<div style="text-align:center;color:var(--dim);padding:20px 0">กองหมดแล้ว</div>';
+  const cards=deck.slice().sort((a,b)=>colorRank(a.type)-colorRank(b.type)||dirRank(a.dir)-dirRank(b.dir));
+  const groups=new Map();cards.forEach(c=>{if(!groups.has(c.type))groups.set(c.type,[]);groups.get(c.type).push(c);});
+  groups.forEach((list,type)=>{
+    const g=document.createElement('div');g.className='vgrp';
+    g.innerHTML='<b>'+(NAMES[type]||type)+' × '+list.length+'</b>';
+    const row=document.createElement('div');row.className='vrow';
+    list.forEach(c=>{const d=document.createElement('div');d.className='mc '+c.type+(c.gold?' gold':'');d.innerHTML=c.type==='blank'?'<div class="bk"></div>':dirSvg(c.dir,'cdir');row.appendChild(d);});
+    g.appendChild(row);box.appendChild(g);
+  });
+  document.getElementById('vwDeck').classList.add('open');
+}
+function openStoneView(){
+  const box=document.getElementById('vwStoneB');box.innerHTML='';
+  const MIX=['red','blue','orange','green'];
+  const hid=FROWS.length-foundRows.size;
+  FROWS.forEach((r,i)=>{
+    if(!foundRows.has(i))return;
+    let pv='';r.pv.forEach(([cl,dr])=>{pv+='<div class="mc '+cl+'">'+(dr?dirSvg(dr,'cdir'):'')+'</div>';});
+    const d=document.createElement('div');d.className='srow';
+    d.innerHTML='<div class="pvrow">'+pv+'</div><div class="st"><b>'+r.name+' <em style="font-style:normal;color:var(--brass2)">Lv'+r.lv+'</em></b><br>'+r.desc+'<br><span style="color:var(--dim)">'+[2,3,5].filter(n=>n>=r.min).map(n=>n+' ใบ = ใบละ '+stoneVal(r,n)).join(' · ')+'</span></div><div class="at">'+r.a+' <small style="font-size:14px">+'+r.g+'/ใบ</small></div>';
+    box.appendChild(d);
+  });
+  if(hid>0){const h=document.createElement('div');h.className='srow';h.style.justifyContent='center';h.style.color='var(--dim)';h.textContent='ยังไม่ค้นพบอีก '+hid+' สูตร · วางให้ได้เพื่อค้นพบ';box.appendChild(h);}
+  document.getElementById('vwStone').classList.add('open');
+}
+/* ===== Calc display / group highlight ===== */
+function showCalc(a,m){
+  document.getElementById('calc').innerHTML='<span class="catk">'+fmt(Math.round(a*100)/100)+'</span><i>×</i><span class="cmult">'+fmt(Math.round(m*100)/100)+'</span><i>=</i>'+fmt(Math.round(a*m));
+}
+const GCOL={red:'#e5484d',green:'#5fd48a',orange:'#f08a24',blue:'#2f7fd6'};
+function gShadow(ti,chunk,col){
+  const set=new Set(chunk.map(x=>{const q=pos(x);return q.col+','+q.row;}));
+  const p=pos(ti),T=!set.has(p.col+','+(p.row-1)),Bm=!set.has(p.col+','+(p.row+1)),L=!set.has((p.col-1)+','+p.row),Rt=!set.has((p.col+1)+','+p.row);
+  const out=[];
+  if(T)out.push('inset 0 3px 0 0 '+col);if(Bm)out.push('inset 0 -3px 0 0 '+col);if(L)out.push('inset 3px 0 0 0 '+col);if(Rt)out.push('inset -3px 0 0 0 '+col);
+  if(T)out.push('0 -5px 8px -1px '+col);if(Bm)out.push('0 5px 8px -1px '+col);if(L)out.push('-5px 0 8px -1px '+col);if(Rt)out.push('5px 0 8px -1px '+col);
+  return out.join(',')||'none';
+}
+const grpVal=new Map();
+function discoverToast(k){
+  const t=document.createElement('div');t.className='disc-toast';t.innerHTML='✨ ค้นพบสูตรใหม่ · <b>stone '+(k+1)+'</b> '+stoneDesc(FROWS[k])+' · ATK '+FROWS[k].a;
+  document.getElementById('stage').appendChild(t);setTimeout(()=>t.remove(),2600);
+}
+function clearGroupFx(){
+  grpVal.clear();
+  tiles.forEach(t=>{t.classList.remove('grp');t.style.removeProperty('--g');t.style.removeProperty('--gsh');});gstripClear();
+}
+function updateGroups(G){
+  clearGroupFx();
+  G.groups.forEach(g=>{const k=g.res&&g.res.k;if(k>=0&&!foundRows.has(k)){foundRows.add(k);discoverToast(k);}});
+  const eq=ITEMS.some(it=>it&&it.type==='equalG')&&G.groups.length>=2;
+  let mx=0,mi=null;
+  if(eq){mx=Math.max(...G.groups.map(g=>g.res.a));mi=G.groups.reduce((a,g)=>g.res.a<a.res.a?g:a);if(mi.res.a>=mx)mi=null;}
+  G.groups.forEach(g=>{
+    const gv0=(g===mi)?mx:g.res.a;
+    const c=g.col?GCOL[g.col]:g.type==='alt'?'#f0cf86':'#E040FB';
+    g.idxs.forEach(ti=>{
+      grpVal.set(ti,gv0);
+      if(tiles[ti].querySelector('.pcard')){const gv=document.createElement('span');gv.className='gval'+(g===mi?' eq':'');gv.textContent=fmt(gv0);gstripEl.children[ti].appendChild(gv);}
+      const cell=gstripEl.children[ti],bar=document.createElement('i');bar.className='gbar'+(ti===Math.min(...g.idxs)?' f':'')+(ti===Math.max(...g.idxs)?' l':'');bar.style.setProperty('--g',c);cell.insertBefore(bar,cell.firstChild);
+    });
+  });
+}
+function syncTiles(){tiles.forEach((t,i)=>{const c=tileColor.get(i),d=tileCardDir.get(i),f=!!t.querySelector('.pcard');t.classList.toggle('filled',f);{const pcd=placedCards.get(i);t.classList.toggle('goldc',!!(f&&pcd&&pcd.gold));const h=(totemTiles.includes(i)?'<b class="tt">🗿+'+totemAtk(i)+'</b>':'')+(tileChaos.mt.has(i)?'<b class="mt">⚡+5</b>':'')+(tileChaos.xm.has(i)?'<b class="xm">×1.2</b>':'')+(tileChaos.xa.has(i)?'<b class="xa">×1.2</b>':'');const cell=gstripEl.children[i];let gc=cell.querySelector('.gchips');if(h){if(!gc){gc=document.createElement('div');gc.className='gchips';cell.appendChild(gc);}if(gc.innerHTML!==h)gc.innerHTML=h;}else if(gc)gc.remove();}t.classList.toggle('gold',f&&d===TILE_DIR[i]);{const sv=t.querySelector('svg.tf'),cs=sv.querySelector('.cs'),em=sv.querySelector('.emb'),o3=sv.querySelector('.orn3'),td=TILE_DIR[i],cd=(f&&d)?d:'',key=cd+'|'+td;if(cs.dataset.k!==key){cs.dataset.k=key;/* วางการ์ด: ใหญ่ = ทิศของการ์ด · เล็กมุมขวาล่าง = ทิศของช่อง */if(em)em.innerHTML=EMBLEM[cd||td];cs.innerHTML=cd?EMBLEM[td]:'';o3.style.display=cd?'none':'';}}if(f)t.style.setProperty('--dc',PCOL[c]||(placedCards.get(i)&&placedCards.get(i).type==='blank'?'#a3a3b3':'#2F5FA8'));else{t.style.removeProperty('--dc');}});}
+function refreshCalc(){syncTiles();const G=calcGroups();showCalc((1+dmg)*tileAtkX,(1+multBonus)*tileMultX);updateGroups(G);}
+/* ===== Auto place (เลือกหลายใบแล้วกดเดิน → วางให้ตาม stone สูงสุด) ===== */
+function autoPlace(){
+  const cards=hand.filter(c=>selIds.has(c.id));
+  const free=[];for(let i=0;i<N;i++)if(!locked(i)&&!crystals.has(i)&&!tiles[i].querySelector('.pcard'))free.push(i);
+  const n=Math.min(cards.length,free.length);
+  if(n<1)return;
+  const use=cards.slice(0,n).sort((a,b)=>colorRank(a.type)-colorRank(b.type)||dirRank(a.dir)-dirRank(b.dir));
+  const t0=performance.now();
+  const score=as=>{
+    as.forEach((t,j)=>{if(use[j].type!=='blank'){tileColor.set(t,use[j].type);tileCardDir.set(t,use[j].dir);}});
+    const G=calcGroups();
+    as.forEach(t=>{tileColor.delete(t);tileCardDir.delete(t);});
+    return {ks:[G.groups.reduce((t,g)=>t+g.res.a*g.idxs.length,0)],v:1+G.a};
+  };
+  const cmp=(x,y)=>{
+    const L=Math.max(x.ks.length,y.ks.length);
+    for(let i=0;i<L;i++){const a=i<x.ks.length?x.ks[i]:-9,b=i<y.ks.length?y.ks[i]:-9;if(a!==b)return a-b;}
+    return x.v-y.v;
+  };
+  let perms=1;for(let i=0;i<n;i++)perms*=(free.length-i);
+  let best=null,bs=null;
+  const take=(as,sc)=>{if(!bs||cmp(sc,bs)>0){bs=sc;best=as.slice();}};
+  if(perms<=15000){
+    const as=[],usedT=new Set();
+    const rec=j=>{
+      if(j===n){take(as,score(as));return;}
+      for(const f of free){if(usedT.has(f))continue;usedT.add(f);as[j]=f;rec(j+1);usedT.delete(f);}
+    };
+    rec(0);
+  }else{
+    const cand=[];
+    for(let off=0;off<free.length;off++){const as=[];for(let j=0;j<n;j++)as.push(free[(off+j)%free.length]);cand.push([score(as),as]);}
+    for(let r=0;r<40;r++){const f=free.slice();for(let i=f.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[f[i],f[j]]=[f[j],f[i]];}const as=f.slice(0,n);cand.push([score(as),as]);}
+    cand.sort((a,b)=>cmp(b[0],a[0]));
+    cand.slice(0,8).forEach(([v0,as0])=>{
+      let as=as0.slice(),v=v0,imp=true;
+      while(imp&&performance.now()-t0<900){
+        imp=false;
+        for(let a=0;a<n;a++){
+          for(let b=a+1;b<n;b++){const t=as.slice();[t[a],t[b]]=[t[b],t[a]];const w=score(t);if(cmp(w,v)>0){as=t;v=w;imp=true;}}
+          for(const f of free){if(as.includes(f))continue;const t=as.slice();t[a]=f;const w=score(t);if(cmp(w,v)>0){as=t;v=w;imp=true;}}
+        }
+      }
+      take(as,v);
+    });
+  }
+  if(best)best.forEach((t,j)=>placeCard(use[j],t));
+}
+/* ===== Token / walk ===== */
+function place(i){
+  const p=pos(i<0?0:i);
+  tokenEl.classList.toggle('away',i<0);
+  tokenEl.style.left=((p.col-1)/C*100)+'%';tokenEl.style.top=((p.row-1)/R*100)+'%';
+  tiles.forEach((t,k)=>t.classList.toggle('now',k===i));
+}
+function warpHome(){
+  tokenEl.style.transition='none';cur=-1;place(-1);void tokenEl.offsetWidth;tokenEl.style.transition='';
+}
+function popScore(i,txt,col){
+  const p=pos(i),e=document.createElement('div');
+  e.className='spop';e.textContent=txt;
+  e.style.left=(((p.col-1)+0.5)/C*100)+'%';e.style.top=(((p.row-1)+0.42)/R*100)+'%';
+  if(col)e.style.color=col;
+  board.appendChild(e);setTimeout(()=>e.remove(),900);
+}
+function updatePlayerHP(){
+  document.getElementById('php').textContent=fmt(Math.round(php));
+  document.getElementById('phpmax').textContent=fmt(Math.round(phpMax()));
+  document.getElementById('phpfill').style.width=Math.max(0,php/phpMax()*100)+'%';
+  document.getElementById('eatk').innerHTML='⚔ โจมตี <b>'+fmt(Math.round(EATK))+'</b>';
+}
+// ศัตรูโจมตีกลับ: ดาเมจ = เลือดสูงสุด ÷ จำนวนครั้งที่รับได้ (ค่าเริ่มต้น 3 ครั้งตายเสมอ)
+function enemyStrike(cb){
+  const en=document.querySelector('.enemy'),ep=document.getElementById('epic').getBoundingClientRect(),hr=document.getElementById('hero'),hb=hr.getBoundingClientRect();
+  const x0=ep.left+ep.width/2,y0=ep.top+ep.height/2,x1=hb.left+hb.width/2,y1=hb.top+hb.height/2;
+  en.classList.remove('lunge');void en.offsetWidth;en.classList.add('lunge');
+  msgEl.textContent='ศัตรูโจมตี!';
+  setTimeout(()=>{
+    const bm=document.createElement('div');bm.className='beam ebeam';bm.style.left=x0+'px';bm.style.top=y0+'px';bm.style.width='0px';
+    bm.style.transform='rotate('+Math.atan2(y1-y0,x1-x0)+'rad)';document.body.appendChild(bm);
+    setTimeout(()=>{bm.style.width=Math.hypot(x1-x0,y1-y0)+'px';},30);
+    setTimeout(()=>{
+      bm.remove();
+      const before=php;php=EATK*walks;
+      const d=document.createElement('div');d.className='dmgpop';d.textContent='-'+fmt(Math.round(before-php));d.style.left=x1+'px';d.style.top=y1+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),900);
+      hr.classList.remove('ouch');void hr.offsetWidth;hr.classList.add('ouch');
+      updatePlayerHP();
+      setTimeout(cb,550);
+    },300);
+  },250);
+}
+function updateBtn(){
+  const b=document.getElementById('go');
+  b.textContent=selIds.size?'วาง ('+selIds.size+')':'เดิน';
+  b.disabled=busy||walks<=0;
+  document.getElementById('rst').disabled=busy;
+  document.getElementById('stat').textContent='ด่าน '+(bossN+1);
+  updateCoins();
+}
+function walk(){
+  if(busy||walks<=0)return;
+  if(selIds.size>=1){autoPlace();selIds.clear();renderTray();updateBtn();refreshCalc();return;}
+  busy=true;walks--;selIds.clear();
+  updateBtn();renderTray();
+  msgEl.textContent='กำลังเดิน...';
+  // จุดหยุด: ช่องแรก (จุดที่ลูกไฟโผล่) และทุกช่องที่มี Gem ช่องว่างข้ามด้วยการ dash ผ่านไปเลย
+  // Artifact สะสมทิศ: สูตรที่มีการ์ดทิศ+ช่องทิศเดียวกันครบทั้ง 2 ช่อง (ช่องละคู่)
+  {const GR=calcGroups().groups,dg=(D,col)=>GR.filter(g=>g.idxs.filter(i=>TILE_DIR[i]===D&&tileCardDir.get(i)===D&&(!col||tileColor.get(i)===col)).length>=2).length;
+   const pc=(D,col)=>{let n=0;for(let i=0;i<N;i++)if(TILE_DIR[i]===D&&tileCardDir.get(i)===D&&tileColor.get(i)===col)n++;return n;};
+   const w7=pc('W','blue'),e7=pc('E','green'),s7=dg('S','red'),n7=dg('N','orange');let ch=false;
+   ITEMS.forEach((it,k)=>{if(!it)return;
+     if(it.type==='redS'&&s7){it.m=Math.round((it.m+0.5*s7)*10)/10;it.label='S×'+it.m;ch=true;}
+     else if(it.type==='stone7E'&&e7){it.m+=1*e7;it.label='E+'+it.m;ch=true;}
+     else if(it.type==='stone7W'&&w7){it.m+=3*w7;it.label='W+'+it.m;ch=true;}});
+   ITEMS.forEach((it,k)=>{if(it&&it.type==='orangeN'&&n7){let got=0;for(let q=0;q<n7;q++)if(giveRandChaos())got++;flashItem(k);setTimeout(()=>chaosMsg(got?'ได้ Chaos สุ่ม ×'+got:'ช่อง Chaos เต็ม'),200);}});
+   if(ch){renderItems();ITEMS.forEach((it,k)=>{if(it&&['redS','stone7E','stone7W'].includes(it.type))flashItem(k);});}}
+  // เส้นทาง: ช่องแรก + ทุกช่องที่มี Gem / ผลึก / Totem · ดาวผู้ช่วยวิ่งก่อน · Reverse = ลูกไฟเดินย้อนกลับเมื่อถึงช่องสุดท้าย
+  const fwd=[0];
+  for(let i=1;i<N;i++)if(tiles[i].querySelector('.pcard')||crystals.has(i)||totemTiles.includes(i))fwd.push(i);
+  const helperEl=document.getElementById('helperTok');
+  const passes=[];
+  ITEMS.forEach(it=>{
+    if(!it||(it.type!=='helperOdd'&&it.type!=='helperEven'))return;
+    const odd=it.type==='helperOdd',r=fwd.filter(i=>((i+1)%2===1)===odd);   // เลขช่อง = index+1
+    if(r.length)passes.push({el:helperEl,route:r,helper:true});
+  });
+  const back=ITEMS.some(it=>it&&it.type==='reverse')?fwd.slice(0,-1).reverse():[];
+  passes.push({el:tokenEl,route:fwd.concat(back),helper:false});
+  let firstHit=false,firstTile=-1;
+  let P=0,k=0,stops=passes[0].route,runEl=passes[0].el,at=0;
+  const placeRun=i=>{if(runEl===tokenEl){cur=i;place(i);}else{const pp=pos(i);runEl.style.left=((pp.col-1)/C*100)+'%';runEl.style.top=((pp.row-1)/R*100)+'%';}};
+  const arrive=()=>{
+    const t=stops[k];
+    const has=!!tiles[t].querySelector('.pcard');
+    const gain=has?(grpVal.get(t)||0):0;
+    dmg+=gain;
+    if(gain>0)popScore(t,'+'+gain);
+    // Artifact แบบ "ตกช่องที่วาง Gem": สีของการ์ด → ATK +5 / ทิศของการ์ด → ตัวคูณ +3
+    // Chaos บนช่อง: ทำงานเมื่อมี Gem ตกช่องนั้น และทิศการ์ดตรงกับทิศช่อง · การ์ดทอง ทำงานซ้ำ 2 รอบ
+    const acts=[];
+    if(crystals.has(t))acts.push(()=>hitCrystal(t));
+    if(totemTiles.includes(t)){const ta=totemAtk(t),ti=ITEMS.findIndex(it=>it&&it.type==='totem');acts.push(()=>{dmg+=ta;if(ti>=0)flashItem(ti);popScore(t,'🗿+'+ta,'#7fd0ff');refreshCalc();});}
+    if(has){
+      const tc=tileColor.get(t),td=tileCardDir.get(t),pcd=placedCards.get(t),dm=td===TILE_DIR[t];
+      const reps=(pcd&&pcd.gold)?2:1;
+      for(let r=0;r<reps;r++){
+        if(r){acts.push(()=>popScore(t,'↻','#0a84ff'));if(gain>0)acts.push(()=>{dmg+=gain;popScore(t,'+'+gain);refreshCalc();});}
+        ITEMS.forEach((it,ix)=>{
+          if(!it)return;
+          if(it.type===tc+'Hit')acts.push(()=>{dmg+=5;flashItem(ix);popScore(t,'+5');refreshCalc();});
+          else if(it.type==='isoGem'&&gain>0&&!placedCards.has(t-1)&&!placedCards.has(t+1))acts.push(()=>{multBonus+=gain;flashItem(ix);popScore(t,'ตัวคูณ +'+gain,'#e5484d');refreshCalc();});
+          else if(it.type==='firstGem'&&!passes[P].helper&&(!firstHit||firstTile===t)&&gain>0){firstHit=true;firstTile=t;const tg=gain*(gain+1)/2;acts.push(()=>{dmg+=tg-gain;flashItem(ix);popScore(t,gain+'+…+1 = '+fmt(tg),'#ffd966');refreshCalc();});}
+          else if(it.type==='greenCoin'&&tc==='green')acts.push(()=>{flashItem(ix);if(Math.random()<1/3){coins+=1;updateCoins();popScore(t,'+1 🪙','#f2c230');}else popScore(t,'✗','#8a86a8');});
+          else if(it.type==='eastG'&&td==='E'){const f=eastFactor();acts.push(()=>{tileMultX*=f;flashItem(ix);popScore(t,'×'+(Math.round(f*100)/100)+' ตัวคูณ','#e5484d');refreshCalc();});}
+          else if(it.type==='west5'&&td==='W'&&gain>0&&dirRun('W')>=5)acts.push(()=>{multBonus+=gain;flashItem(ix);popScore(t,'ตัวคูณ +'+gain,'#e5484d');refreshCalc();});
+          else if(td&&it.type==='dir'+td+'Hit')acts.push(()=>{multBonus+=3;flashItem(ix);popScore(t,'ตัวคูณ +3','#e5484d');refreshCalc();});
+        });
+        if(dm){
+          if(tileChaos.mt.has(t))acts.push(()=>{multBonus+=5;popScore(t,'⚡ ตัวคูณ +5','#c79bff');refreshCalc();});
+          if(tileChaos.xm.has(t))acts.push(()=>{tileMultX*=1.2;popScore(t,'×1.2 ตัวคูณ','#e5484d');refreshCalc();});
+          if(tileChaos.xa.has(t))acts.push(()=>{tileAtkX*=1.2;popScore(t,'×1.2 ATK','#5fb0ff');refreshCalc();});
+        }
+      }
+    }
+    refreshCalc();
+    runEl.classList.remove('dashing');
+    acts.forEach((f,q)=>setTimeout(f,(q+1)*300));
+    k++;
+    const wait=350+acts.length*300;
+    if(k>=stops.length){setTimeout(endPass,wait-50);return;}
+    setTimeout(dash,wait);
+  };
+  const dash=()=>{
+    const t=stops[k],dist=Math.abs(t-at),ms=Math.min(700,220+70*dist);
+    runEl.style.transitionDuration=ms+'ms,'+ms+'ms,.3s';
+    runEl.style.transform=t<at?'scaleX(-1)':'';
+    at=t;placeRun(t);
+    runEl.classList.add('dashing');
+    setTimeout(arrive,ms);
+  };
+  const startPass=()=>{
+    const ps=passes[P];runEl=ps.el;stops=ps.route;k=0;at=0;
+    runEl.style.transition='none';runEl.style.transform='';placeRun(0);runEl.classList.remove('away');
+    runEl.classList.remove('warp');void runEl.offsetWidth;runEl.classList.add('warp');
+    void runEl.offsetWidth;runEl.style.transition='';
+    setTimeout(()=>runEl.classList.remove('warp'),400);
+    setTimeout(arrive,400);
+  };
+  const endPass=()=>{
+    if(passes[P].helper){runEl.classList.add('away');runEl.style.transform='';P++;setTimeout(startPass,300);return;}
+    tokenEl.style.transform='';
+    attackSeq();
+  };
+  startPass();
+}
+const ATK_TYPES=['emptyAtk','chaosStack','discardStack','chaosAtk','add5','mult2','atk15','stone3','tileAtk','north5','stoneUp','redS','stone7W','stone7E'];
+function westCardAtk(){let s=0;for(let i=0;i<N;i++)if(placedCards.has(i)&&tileCardDir.get(i)==='W')s+=grpVal.get(i)||0;return s;}
+function greenEastOk(){for(let i=0;i<N;i++)if(tileCardDir.get(i)==='E')return true;return false;}
+function dirCount(D){let n=0;for(let i=0;i<N;i++)if(TILE_DIR[i]===D)n++;return n;}
+// แนวเหนือ: ยกกำลัง 1 + 0.12 ต่อช่อง N · เต็มกระดาน (8) = ยกกำลัง 2
+function northExp(){const n=dirCount('N');return n>=N?2:1+0.12*n;}
+// แนวตะวันออก: ×(1 + 0.1 ต่อช่อง E) · เต็มกระดาน (8) = ×2
+function eastFactor(){const n=dirCount('E');return n>=N?2:1+0.1*n;}
+function dirRun(D){let best=0,run=0;for(let i=0;i<N;i++){run=TILE_DIR[i]===D?run+1:0;if(run>best)best=run;}return best;}
+function passiveTileCount(){let n=0;for(let i=0;i<N;i++)if(tileChaos.mt.has(i)||tileChaos.xm.has(i)||tileChaos.xa.has(i))n++;return n;}
+function attackSeq(){
+  const s3=calcGroups().groups.filter(g=>g.idxs.length>=2&&g.col).length;
+  let atk=(1+dmg)*tileAtkX,mult=(1+multBonus)*tileMultX;
+  showCalc(atk,mult);
+  const seq=[];
+  const pt=passiveTileCount(),n5=dirRun('N')>=5,ne=N-placedCards.size,nc=chaos.filter(Boolean).length;
+  ITEMS.forEach((it,ix)=>{if(it&&ATK_TYPES.includes(it.type)&&(it.type!=='stone3'||s3>0)&&(it.type!=='north5'||dirCount('N')>0)&&!(it.type==='emptyAtk'&&ne===0)&&!((it.type==='chaosStack'||it.type==='discardStack')&&!it.m)&&!(it.type==='chaosAtk'&&nc===0))seq.push([it,ix]);});
+  let n=0;
+  const next=()=>{
+    if(n>=seq.length){pendingHit=Math.round(atk*mult);setTimeout(strike,250);return;}
+    const [it,ix]=seq[n++];
+    if(it.type==='add5')atk+=10;
+    else if(it.type==='mult2')mult+=5;
+    else if(it.type==='atk15')atk*=1.5;
+    else if(it.type==='stone3')atk+=40*s3;
+    else if(it.type==='emptyAtk')atk+=2*ne;
+    else if(it.type==='chaosStack')atk+=it.m;
+    else if(it.type==='discardStack')mult+=it.m;
+    else if(it.type==='chaosAtk')atk+=10*nc;
+    else if(it.type==='north5')mult=Math.pow(mult,northExp());
+    else if(it.type==='tileAtk')atk*=(1+0.5*pt);
+    else if(it.type==='stoneUp')mult*=it.m;
+    else if(it.type==='redS')mult*=it.m;
+    else if(it.type==='stone7W')atk+=it.m;
+    else if(it.type==='stone7E')mult+=it.m;
+    flashItem(ix);
+    showCalc(atk,mult);
+    setTimeout(next,450);
+  };
+  // แนวใต้: ก่อน Artifact ทำงาน รวมผล ATK×ตัวคูณ เป็น ATK แล้วตัวคูณเหลือ 1
+  const sk=ITEMS.findIndex(it=>it&&it.type==='south5');
+  if(sk>=0&&dirRun('S')>=5){
+    setTimeout(()=>{atk=atk*mult;mult=1;flashItem(sk);showCalc(atk,mult);setTimeout(next,450);},350);
+  }else setTimeout(next,350);
+}
+function strike(){
+  const b=tokenEl.querySelector('.ball').getBoundingClientRect(),e=document.getElementById('hero').getBoundingClientRect(),en2=document.getElementById('epic').getBoundingClientRect();
+  const x0=b.left+b.width/2,y0=b.top+b.height/2,x1=e.left+e.width/2,y1=e.top+e.height/2,ex=en2.left+en2.width/2,ey=en2.top+en2.height/2;
+  const f=document.createElement('div');f.className='fb';
+  f.style.transition='none';
+  f.style.left=x0+'px';f.style.top=y0+'px';f.style.setProperty('--ang','0rad');
+  document.body.appendChild(f);
+  tokenEl.classList.add('away');
+  msgEl.textContent='🔥';
+  // เริ่มพุ่งต่อจากทิศที่ลูกไฟเคลื่อนที่อยู่ (ไปทางขวาตามกระดาน) แล้วค่อยโค้งขึ้นหาศัตรู ไม่หมุนตัวก่อน
+  const L=Math.hypot(x1-x0,y1-y0)||1;
+  const k=Math.max(140,L*0.5),m=Math.max(160,L*0.5);
+  const ax=x0+k,ay=y0;      // จุดควบคุม 1: เดินหน้าต่อไปทางขวา
+  const bx=x1,by=y1+m;      // จุดควบคุม 2: เข้าหาศัตรูจากด้านล่าง
+  const DUR=750/SPD,t0=performance.now();
+  const step=now=>{
+    const q=Math.min(1,(now-t0)/DUR),e=Math.pow(q,1.6),u=1-e;
+    const x=u*u*u*x0+3*u*u*e*ax+3*u*e*e*bx+e*e*e*x1;
+    const y=u*u*u*y0+3*u*u*e*ay+3*u*e*e*by+e*e*e*y1;
+    let tx=3*u*u*(ax-x0)+6*u*e*(bx-ax)+3*e*e*(x1-bx);
+    let ty=3*u*u*(ay-y0)+6*u*e*(by-ay)+3*e*e*(y1-by);
+    f.style.left=x+'px';f.style.top=y+'px';f.style.setProperty('--ang',Math.atan2(ty,tx)+'rad');
+    if(q<1){requestAnimationFrame(step);return;}
+    f.remove();
+    const mk=(c,x,y)=>{const d=document.createElement('div');d.className=c;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);return d;};
+    const bu=mk('burst',x1,y1);setTimeout(()=>bu.remove(),500);
+    // ผู้เล่นร่ายเวท (ชาร์จพลัง) ก่อน แล้วค่อยปล่อยลำแสง
+    const hr=document.getElementById('hero');hr.classList.remove('cast');void hr.offsetWidth;hr.classList.add('cast');
+    const ch=mk('charge',x1,y1);setTimeout(()=>ch.remove(),700);
+    msgEl.textContent='✨';
+    const CAST=700;
+    setTimeout(()=>{
+      msgEl.textContent='🔥';
+      const bl=Math.hypot(ex-x1,ey-y1),ba=Math.atan2(ey-y1,ex-x1);
+      const bm=mk('beam',x1,y1);bm.style.width='0px';bm.style.transform='rotate('+ba+'rad)';
+      setTimeout(()=>{bm.style.width=bl+'px';},30);
+      setTimeout(()=>{
+        bm.remove();
+        const b2=mk('burst',ex,ey);setTimeout(()=>b2.remove(),500);
+        msgEl.textContent='';
+        finish();
+      },300);
+    },CAST);
+  };
+  requestAnimationFrame(step);
+}
+function finish(){
+  const hit=pendingHit;
+  hp=Math.max(0,hp-hit);dmg=0;multBonus=0;tileMultX=1;tileAtkX=1;pendingHit=0;
+  if(hp===0){
+    const interest=Math.min(10,Math.floor(coins/5)),artiN=ITEMS.filter(Boolean).length,fateN=DECK_SIZE+extraGem.length-deckRemovals.length;
+    const arti=ITEMS.filter(it=>it&&it.type==='artiPay').length*artiN,fate=ITEMS.filter(it=>it&&it.type==='fatePay').length*Math.floor(fateN/10);
+    let cry=0;if(isBoss()){cry=giveCrystalChaos()?1:-1;}
+    let dsUp=false;ITEMS.forEach(it=>{if(it&&it.type==='discardStack'&&discardsLeft>0){it.m=(it.m||0)+discardsLeft;it.label='+'+it.m;dsUp=true;}});if(dsUp)renderItems();
+    const wc=ITEMS.filter(it=>it&&it.type==='walkCoin').length*walks;
+    rewardInfo={wc:wc,cry:cry,base:4,left:walks,held:coins,interest:interest,arti:arti,artiN:artiN,fate:fate,fateN:fateN};
+    coins+=4+walks+interest+arti+fate+wc;updateCoins();
+  }
+  document.getElementById('hp').textContent=fmt(hp);
+  document.getElementById('hpfill').style.width=(hp/HPMAX*100)+'%';
+  const en=document.querySelector('.enemy');
+  en.classList.remove('hit');void en.offsetWidth;en.classList.add('hit');
+  warpHome();
+  gstripClear();
+  clearGroupFx();
+  if(hp===0)setTimeout(()=>en.classList.add('dead'),350);
+  setTimeout(()=>{
+    if(hp===0){msgEl.textContent='ชนะ!';setTimeout(showReward,700);return;}
+    enemyStrike(()=>{
+      if(walks<=0){msgEl.textContent='';showGameOver();return;}
+      newRound();msgEl.textContent='';
+      busy=false;updateBtn();renderTray();
+    });
+  },900);
+}
+
+/* ===== Artifact / Shop ===== */
+const STONE_UP=[1,1,2,2,3,4];
+const HAND_CAP=12,HAND_PRICE=10,STAT_PRICE=10,STONE_PRICE=3;
+const ITEMS=[null,null,null,null,null];
+let shopBought=new Set(),shopMode=false,shopTab='game',rewardInfo=null;
+// ร้านในเกม: สุ่ม 5 ใบต่อร้าน · ซื้อแล้วหาย · สุ่มใหม่ 🪙5 (+2 ทุกครั้ง) · รีเซ็ตทุกร้าน
+const REROLL_START=5,REROLL_STEP=2,OFFER_ART=2,OFFER_MISC=5;
+let shopOffers=[],rerollCost=REROLL_START;
+function genOffers(){
+  // แถว 1: Artifact 2 ใบ · แถว 2: Chaos / Stone / อัปเกรด 5 ใบ
+  shopOffers=[];const used=new Set();
+  const owned=t=>ITEMS.some(x=>x&&x.type===t);
+  for(let n=0;n<OFFER_ART;n++){
+    let o=null,guard=0;
+    while(!o&&guard++<60){
+      const r=Math.random(),rr=r<0.7?'common':r<0.95?'uncommon':'rare';
+      const pool=[];SHOP_CATALOG.forEach((c,i)=>{if(!c.off&&RARITY[c.type]===rr&&!used.has('a'+i)&&!owned(c.type))pool.push(i);});
+      if(pool.length){const i=pool[Math.floor(Math.random()*pool.length)];used.add('a'+i);o={kind:'art',i,row:1};}
+    }
+    if(o)shopOffers.push(o);
+  }
+  for(let n=0;n<OFFER_MISC;n++){
+    let o=null,guard=0;
+    while(!o&&guard++<60){
+      const roll=Math.random();
+      if(roll<0.35){
+        const pool=[...foundRows].filter(i=>!used.has('s'+i));
+        if(pool.length){const i=pool[Math.floor(Math.random()*pool.length)];used.add('s'+i);o={kind:'stone',i,row:2};}
+      }else if(roll<0.75){
+        const ci=Math.floor(Math.random()*CHAOS_SHOP.length);
+        if(!used.has('c'+ci)){used.add('c'+ci);o={kind:'chaos',def:CHAOS_SHOP[ci],row:2};}
+      }else{
+        const ks=['hand','walk','disc'].filter(k=>!used.has('u'+k)&&!(k==='hand'&&handMax>=HAND_CAP));
+        if(ks.length){const k=ks[Math.floor(Math.random()*ks.length)];used.add('u'+k);o={kind:'upg',k,row:2};}
+      }
+    }
+    if(o)shopOffers.push(o);
+  }
+}
+const UPG_INFO={hand:{lab:'Hand<br>+1',cls:'hand',name:'Hand +1',desc:'ถือ Gem ในมือได้เพิ่ม 1 ใบ'},walk:{lab:'HP<br>+%',cls:'upg',name:'HP เพิ่ม',desc:'เลือดสูงสุดเพิ่ม (รับการโจมตีได้อีก 1 ครั้ง)'},disc:{lab:'ทิ้ง<br>+1',cls:'upg',name:'ทิ้ง +1',desc:'ทิ้ง Gem ได้เพิ่ม 1 ครั้งต่อศัตรู'}};
+function upgPrice(k){return k==='hand'?HAND_PRICE:STAT_PRICE;}
+function upgLabel(k){return k==='walk'?'HP<br>+'+Math.round(100/walkMax)+'%':UPG_INFO[k].lab;}
+function upgCardEl(k,priceTxt,off){
+  const d=document.createElement('div');d.className='sitem '+UPG_INFO[k].cls+(off?' off':'');
+  d.innerHTML='<b style="font-size:24px;line-height:1.1">'+upgLabel(k)+'</b><span>'+priceTxt+'</span>';return d;
+}
+function rerollShop(){
+  if(coins<rerollCost)return;
+  coins-=rerollCost;rerollCost+=REROLL_STEP;genOffers();renderShop();
+}
+function buyOffer(k){
+  const o=shopOffers[k];if(!o||o.sold)return;
+  const c0=coins;
+  if(o.kind==='art')buyItem(o.i);else if(o.kind==='stone')buyStone(o.i);else if(o.kind==='upg'){if(o.k==='hand')buyHand();else buyStat(o.k);}else buyChaos(o.def);
+  if(coins<c0)o.sold=true;
+  closePop();renderShop();
+}
+function openOfferPop(k){
+  const o=shopOffers[k];if(!o)return;
+  if(o.kind==='upg'){
+    const pr=upgPrice(o.k),poor=coins<pr;
+    openPop(UPG_INFO[o.k].name,UPG_INFO[o.k].desc,[{label:poor?'เหรียญไม่พอ':'ซื้อ 🪙 '+pr,off:poor,fn:()=>buyOffer(k)}]);
+    return;
+  }
+  if(o.kind==='stone'){
+    const r=FROWS[o.i],v=STONE_UP[o.i],poor=coins<STONE_PRICE;
+    openPop('Stone '+r.name+' Lv'+r.lv+' → '+(r.lv+1),r.desc+'<br>ค่าเริ่ม '+r.a+' → <b>'+(r.a+v)+'</b> · +'+r.g+' ต่อใบที่เพิ่ม<br>ตัวอย่าง 3 ใบ: ใบละ '+stoneVal(r,3)+' → '+(stoneVal(r,3)+v),[{label:poor?'เหรียญไม่พอ':'ซื้อ 🪙 '+STONE_PRICE,off:poor,fn:()=>buyOffer(k)}]);
+    return;
+  }
+  if(o.kind==='art'){
+    const c=SHOP_CATALOG[o.i],full=ITEMS.every(Boolean),poor=coins<c.price;
+    let label='ซื้อ 🪙 '+c.price,off=false;
+    if(full){label='ช่อง Artifact เต็ม';off=true;}else if(poor){label='เหรียญไม่พอ';off=true;}
+    openPop(itemName(c),rarTag(c)+itemDesc(c),[{label,off,fn:()=>buyOffer(k)}]);
+  }else{
+    const c=chaosFromDef(o.def,0),free=chaos.includes(null),poor=coins<o.def.price;
+    let label='ซื้อ 🪙 '+o.def.price,off=false;
+    if(!free){label='ช่อง Chaos เต็ม';off=true;}else if(poor){label='เหรียญไม่พอ';off=true;}
+    openPop(chaosName(c),chaosDesc(c),[{label,off,fn:()=>buyOffer(k)}]);
+  }
+}
+function artCardEl(c,priceTxt,off){
+  const d=document.createElement('div');d.className='sitem '+c.color+(off?' off':'');
+  const nm=itemName(c),cv=itemCover(c);
+  d.innerHTML=(cv?'<div class="cov">'+cv+'</div><div class="nm">'+nm+'</div>':'<b>'+nm+'</b>')+'<span>'+priceTxt+'</span>';
+  if(!cv)d.querySelector('b').style.fontSize=([...nm].length<=4?22:[...nm].length<=7?17:14)+'px';
+  return d;
+}
+function stoneCardEl(i,priceTxt,off){
+  const r=FROWS[i],v=STONE_UP[i],d=document.createElement('div');d.className='sitem stone'+(off?' off':'');
+  const spv=r.pv.map(([cl,dr])=>'<div class="mc '+cl+'">'+(dr?dirSvg(dr,'cdir'):'')+'</div>').join('');
+  d.innerHTML='<div class="snm">'+r.name+'</div><div class="spv">'+spv+'</div><div class="sup">+'+v+'</div><div class="slv">Lv'+r.lv+' → '+(r.lv+1)+'</div><span>'+priceTxt+'</span>';
+  return d;
+}
+function chaosCardEl(def,priceTxt,off){
+  const c=chaosFromDef(def,0),d=document.createElement('div');
+  d.className='sitem '+(c.kind==='color'?c.col:c.kind==='goldify'?'gld':c.kind==='destroy'?'dst':c.kind==='tdir'?'tdr':'purple')+(off?' off':'');
+  d.innerHTML='<div class="cov'+(c.kind==='xmult'||c.kind==='xatk'?' ct':'')+'">'+chaosCover(c)+'</div><div class="nm">'+chaosName(c)+'</div><span>'+priceTxt+'</span>';
+  return d;
+}
+function hasFreeDiscard(){return ITEMS.some(it=>it&&it.type==='freediscard');}
+function discardCap(){return Math.max(0,discardMax-(hasFreeDiscard()?1:0));}
+const OFF_DIR='ใช้ทิศของช่อง ซึ่งถูกเอาออกจากกระดานแล้ว';
+const OFF_LOOP='ใช้การเดินวนรอบกระดาน ซึ่งเปลี่ยนเป็นพุ่งไปเฉพาะช่องที่มี Gem แล้ว';
+const SHOP_CATALOG=[
+  {type:'add5',label:'+10',color:'blue',price:5},
+  {type:'mult2',label:'+5',color:'red',price:6},
+  {type:'atk15',label:'A×1.5',color:'blue',price:6,m:0},
+  {type:'stone3',label:'G+40',color:'blue',price:6,m:0},
+  {type:'tileAtk',label:'ช่อง×',color:'purple',price:6,m:0},
+  {type:'north5',label:'N5',color:'orange',price:6,m:0},
+  {type:'eastG',label:'E×2',color:'green',price:6,m:0},
+  {type:'west5',label:'W+',color:'blue',price:6,m:0},
+  {type:'south5',label:'S',color:'red',price:6,m:0},
+  {type:'greenCoin',label:'🪙',color:'green',price:6,m:0},
+  {type:'equalG',label:'=',color:'blue',price:6,m:0},
+  {type:'isoGem',label:'M+',color:'blue',price:6,m:0},
+  {type:'firstGem',label:'1st',color:'orange',price:6,m:0},
+  {type:'emptyAtk',label:'+2',color:'purple',price:6,m:0},
+  {type:'chaosStack',label:'+0',color:'purple',price:6,m:0},
+  {type:'discardStack',label:'+0',color:'red',price:6,m:0},
+  {type:'walkCoin',label:'🪙',color:'orange',price:6,m:0},
+  {type:'chaosAtk',label:'+10',color:'purple',price:6,m:0},
+  {type:'reverse',label:'⇄',color:'purple',price:6,m:0},
+  {type:'fullSell',label:'ขาย',color:'orange',price:6,m:0},
+  {type:'stoneUp',label:'U×1',color:'purple',price:6,m:1},
+  {type:'dirNHit',label:'↑+3',color:'green',price:6},
+  {type:'dirEHit',label:'→+3',color:'green',price:6},
+  {type:'dirSHit',label:'↓+3',color:'green',price:6},
+  {type:'dirWHit',label:'←+3',color:'green',price:6},
+  {type:'artiPay',label:'🏺',color:'orange',price:6,m:0},
+  {type:'fatePay',label:'🎴',color:'orange',price:6,m:0,off:'ปิดไว้ก่อน (ตามที่สั่ง)'},
+  {type:'freediscard',label:'♻️',color:'green',price:8},
+  // ปิดไว้ก่อน: เสี่ยง bug เพราะระบบเกมในร่าง 2 เปลี่ยนไป
+  {type:'redS',label:'S×1',color:'red',price:6,m:1},
+  {type:'stone7W',label:'W+0',color:'purple',price:6,m:0},
+  {type:'stone7E',label:'E+0',color:'green',price:6,m:0},
+  {type:'totem',label:'🗿',color:'purple',price:6,m:0},
+  {type:'orangeN',label:'N',color:'orange',price:6,m:0},
+  {type:'helperC',label:'🔷',color:'green',price:6,off:OFF_LOOP},
+  {type:'helperOdd',label:'คี่',color:'green',price:6},
+  {type:'helperEven',label:'คู่',color:'blue',price:6},
+  {type:'helperR',label:'⏪',color:'green',price:6,off:OFF_LOOP},
+  {type:'lshape',label:'L',color:'green',price:8,off:'กระดานเป็นเส้นตรงแล้ว ไม่มีทางหักมุม'},
+  {type:'moneybox',label:'💰',color:'green',price:8,off:'ใช้ระบบกล่องบนกระดาน ซึ่งยังไม่มีในร่างนี้'}
+];
+const CN={red:'แดง',orange:'ส้ม',blue:'น้ำเงิน',green:'เขียว'};
+const DIRN={N:'เหนือ',E:'ตะวันออก',S:'ใต้',W:'ตะวันตก'};
+const ITEM_NAME={isoGem:'โดดเดี่ยว',firstGem:'ก้าวแรก',emptyAtk:'พลังช่องว่าง',chaosStack:'สะสม Chaos',discardStack:'เก็บไพ่ทิ้ง',walkCoin:'เดินประหยัด',chaosAtk:'คลัง Chaos',helperOdd:'ผู้ช่วยเลขคี่',helperEven:'ผู้ช่วยเลขคู่',equalG:'ยกระดับกลุ่ม',reverse:'Reverse',greenCoin:'เขียวนำโชค',south5:'แนวใต้',west5:'แนวตะวันตก',fullSell:'ขายเต็มราคา',eastG:'แนวตะวันออก',north5:'แนวเหนือ',tileAtk:'พลังช่องพิเศษ',helperC:'ผู้ช่วยมุม',artiPay:'รายได้ Artifact',fatePay:'รายได้ Gem',add5:'พลังโจมตี +10',mult2:'ตัวคูณ +5',redS:'คูณแดงใต้',stoneUp:'คูณอัปเกรด',stone7W:'พลังตะวันตก',stone7E:'คูณตะวันออก',totem:'โทเท็ม',stone3:'โบนัสกลุ่มสี',atk15:'พลังโจมตี ×1.5',orangeN:'ส้มแจก Chaos',helper:'ผู้ช่วย',helperR:'ผู้ช่วยย้อนกลับ',lshape:'สูตรตัว L',moneybox:'กล่องเงิน',freediscard:'ทิ้งไพ่ฟรี'};
+const RARITY={};
+['add5','mult2','atk15','dirNHit','dirEHit','dirSHit','dirWHit','artiPay','greenCoin','isoGem','firstGem','emptyAtk','chaosStack','discardStack','walkCoin','chaosAtk'].forEach(t=>RARITY[t]='common');
+['stone3','tileAtk','fullSell','stoneUp','freediscard','redS','stone7W','stone7E','orangeN'].forEach(t=>RARITY[t]='uncommon');
+RARITY.north5='rare';RARITY.eastG='rare';RARITY.west5='rare';RARITY.south5='rare';RARITY.reverse='rare';RARITY.equalG='uncommon';RARITY.totem='uncommon';RARITY.helperOdd='uncommon';RARITY.helperEven='uncommon';
+const RARLBL={common:'COMMON',uncommon:'UNCOMMON',rare:'RARE'};
+function rarTag(it){const r=RARITY[it.type];return r?'<div class="rar '+r+'">'+RARLBL[r]+'</div><br>':'';}
+function itemName(it){
+  if(ITEM_NAME[it.type])return ITEM_NAME[it.type];
+  const dm=/^dir([NESW])Hit$/.exec(it.type);
+  if(dm)return 'คูณทิศ'+DIRN[dm[1]];
+  const m=/^(\w+)Hit$/.exec(it.type);
+  if(m)return 'พลังโจมตีสี'+(CN[m[1]]||m[1]);
+  return it.label;
+}
+function itemDesc(it){
+  const t=it.type;
+  const D={
+    add5:'ตอนโจมตี: ATK +10',
+    mult2:'ตอนโจมตี: ตัวคูณ +5',
+    atk15:'ตอนโจมตี: ATK × 1.5',
+    fullSell:'ขาย Artifact และ Chaos ได้เต็มราคาที่ซื้อ (ปกติ Artifact ได้ 1/3, Chaos ได้ 🪙1) · ใบนี้ขายเองก็ได้เต็มราคา',
+    isoGem:'ทุกครั้งที่เดินตกช่อง Gem ที่ทั้งสองข้างเป็นช่องว่าง (ไม่มี Gem · ขอบกระดานนับเป็นช่องว่าง): ตัวคูณ + ATK ของกลุ่ม (สูตร Stone) ของใบนั้น',
+    firstGem:'Gem ใบแรกที่ลูกไฟเดินถึงในแต่ละรอบ: ATK ของใบนั้นกลายเป็นผลบวกไล่ลงถึง 1 เช่น ATK 5 → 5+4+3+2+1 = 15',
+    emptyAtk:'ตอนโจมตี: ATK +2 ต่อช่องว่างบนกระดาน (ช่องที่ไม่มี Gem)',
+    chaosStack:'ทุกครั้งที่ใช้การ์ด Chaos: ATK ของการ์ดนี้ +2 ถาวร · ตอนโจมตี ATK +'+(it.m||0),
+    discardStack:'ตอนชนะศัตรู: ตัวคูณของการ์ดนี้ + จำนวนครั้งที่ทิ้งได้ที่เหลือ ถาวร · ตอนโจมตี ตัวคูณ +'+(it.m||0),
+    walkCoin:'ตอนชนะศัตรู: ได้เหรียญเพิ่ม +1 ต่อครั้งที่ยังรับการโจมตีได้ (เลือดที่เหลือ)',
+    chaosAtk:'ตอนโจมตี: ATK +10 ต่อการ์ดที่อยู่ในช่อง Chaos',
+    equalG:'กลุ่ม Stone ที่ได้ ATK น้อยที่สุดบนกระดาน จะได้ ATK เท่ากับกลุ่มที่ได้มากที่สุด (ต้องมีอย่างน้อย 2 กลุ่ม)',
+    reverse:'เมื่อลูกไฟเดินถึงช่องสุดท้าย จะเดินย้อนกลับไปช่องเริ่มต้น และเก็บ ATK / ทำให้ Artifact ทำงานซ้ำทุกช่องที่ผ่านขากลับ',
+    greenCoin:'ทุกครั้งที่เดินตกช่องที่วาง Gem สีเขียว: มีโอกาส 1 ใน 3 ได้ 🪙 1 เหรียญทันที',
+    south5:'ถ้ามีช่องทิศใต้ (S) เรียงติดกันตั้งแต่ 5 ช่อง: ตอนเดินถึงช่องสุดท้าย ก่อน Artifact ใบอื่นทำงาน รวมผล ATK × ตัวคูณ ตอนนั้นมาเป็น ATK แล้วตัวคูณกลับเป็น 1 จากนั้น Artifact ใบอื่นจึงทำงานต่อ (ทำงานก่อนเสมอ ไม่ขึ้นกับตำแหน่ง) · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง S แค่ 2 ช่อง)',
+    west5:'ถ้ามีช่องทิศตะวันตก (W) เรียงติดกันตั้งแต่ 5 ช่อง: ทุกครั้งที่เดินตกช่องที่วาง Gem ทิศตะวันตก ตัวคูณ + ATK ที่ Gem ใบนั้นได้จากสูตร Stone · ยิ่งอัปเกรด Stone ยิ่งแรง · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง W แค่ 2 ช่อง)',
+    eastG:'ทุกครั้งที่เดินตกช่องที่วาง Gem ทิศตะวันออก (สีไหนก็ได้ ช่องไหนก็ได้): ตัวคูณ × (1 + 0.1 ต่อช่องทิศ E บนกระดาน) · ตอนนี้ ×'+(Math.round(eastFactor()*100)/100)+' · ทั้งกระดานเป็นทิศ E (8 ช่อง) ได้โบนัสเป็น ×2',
+    north5:'ตอนโจมตี: ตัวคูณยกกำลัง (1 + 0.12 ต่อช่องทิศ N บนกระดาน) · ตอนนี้ ^'+(Math.round(northExp()*100)/100)+' · ทั้งกระดานเป็นทิศ N (8 ช่อง) ได้โบนัสเป็นยกกำลัง 2 พอดี',
+    tileAtk:'ตอนโจมตี: ATK คูณเพิ่มตามจำนวนช่องบนกระดานที่มี Chaos ช่อง (⚡+5, ×1.2 ตัวคูณ, ×1.2 ATK) วางอยู่<br>• 0 ช่อง = ×1<br>• 1 ช่อง = ×1.5<br>• 2 ช่อง = ×2<br>• เพิ่มขึ้น ×0.5 ทุกช่อง<br>ช่องเดียวมี Chaos หลายอัน นับเป็น 1 ช่อง',
+    stone3:'ตอนโจมตี: ATK +40 ต่อ 1 กลุ่มสี<br>กลุ่มสี = Gem สีเดียวกันวางติดกันตั้งแต่ 2 ใบขึ้นไป (แถบสีใต้ช่อง)<br>เช่น แดงติดกัน 3 ใบ + น้ำเงินติดกัน 2 ใบ = 2 กลุ่ม = ATK +80<br>กลุ่มสูตรทิศ (แถบม่วง) ไม่นับ',
+    stoneUp:'ทุกครั้งที่อัปเกรด stone (ซื้อในร้าน): ตัวสะสมของการ์ดนี้ +0.2 ถาวร · ตอนโจมตี ตัวคูณ × '+(it.m||1),
+    artiPay:'ตอนจบด่าน (เมื่อฆ่าศัตรูได้) ได้ 1 เหรียญต่อ Artifact ที่ถืออยู่ (นับรวมใบนี้)',
+    fatePay:'ตอนจบด่าน (เมื่อฆ่าศัตรูได้) ได้ 1 เหรียญต่อ Gem ทุก 10 ใบในสำรับ',
+    freediscard:'ทิ้ง Gem ได้แม้วางการ์ดบนกระดานไปแล้ว · ทิ้งแล้วจั่วเต็มมือ · ข้อเสีย: จำนวนครั้งที่ทิ้งได้ต่อด่าน -1 ตราบที่ถือการ์ดนี้',
+    redS:'ตอนเดิน ถ้ามีสูตรที่การ์ดสีแดงทิศ S วางบนช่องทิศ S ครบทั้ง 2 ช่อง: ตัวสะสมของการ์ดนี้ +0.5 ถาวร · ตอนโจมตี ตัวคูณ × '+(it.m||1),
+    stone7W:'ตอนเดิน ทุก Gem สีน้ำเงินทิศตะวันตกที่วางบนช่องทิศตะวันตก (นับทีละใบ): ATK ของการ์ดนี้ +3 ต่อใบ ถาวร · ตอนโจมตี ATK +'+(it.m||0),
+    stone7E:'ตอนเดิน ทุก Gem สีเขียวทิศตะวันออกที่วางบนช่องทิศตะวันออก (นับทีละใบ): ตัวคูณของการ์ดนี้ +1 ต่อใบ ถาวร · ตอนโจมตี ตัวคูณ +'+(it.m||0),
+    totem:'ปัก Totem ลงช่องสุ่ม 1 ช่องต่อการ์ด (สุ่มช่องใหม่ทุกรอบเดิน) · ลูกไฟเดินถึงช่องนั้น ได้ ATK ตามเลขช่อง ยิ่งเลขน้อยยิ่งได้มาก<br>ช่อง 1 = +60 … ช่อง 8 = +20 · ดูค่าได้ใต้ช่องที่มี 🗿',
+    orangeN:'ตอนเดิน ถ้ามีสูตรที่การ์ดสีส้มทิศ N วางบนช่องทิศ N ครบทั้ง 2 ช่อง: ได้การ์ด Chaos สุ่ม 1 ใบต่อสูตร (ช่อง Chaos เต็มจะไม่ได้)',
+    helperC:'ผู้ช่วยที่เดินเฉพาะช่องมุม',
+    helperOdd:'ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคี่ (1, 3, 5, 7) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ',
+    helperEven:'ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคู่ (2, 4, 6, 8) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ',
+    helperR:'ผู้ช่วยที่เดินย้อนกลับเฉพาะช่องเลขคู่',
+    lshape:'ทุกสูตรเรียงเป็นตัว L (หักมุม) ได้',
+    moneybox:'ทุกครั้งที่เริ่มศัตรูใหม่ เกิดกล่องเงินที่ช่องว่างแบบสุ่ม 1 กล่องต่อการ์ด'
+  };
+  if(D[t])return D[t];
+  const dm=/^dir([NESW])Hit$/.exec(t);
+  if(dm)return 'เดินไปตกช่องที่วาง Gem ทิศ'+DIRN[dm[1]]+' (ทิศของการ์ด): ตัวคูณ +3';
+  const m=/^(\w+)Hit$/.exec(t);
+  if(m)return 'เดินไปตกช่องที่วาง Gem สี'+(CN[m[1]]||m[1])+': ATK +5';
+  return '';
+}
+
+/* ===== ปกการ์ด Artifact: ไอคอนเป็นภาพหลัก ===== */
+const ART_SVG={
+  add5:'<path d="M12 36L36 12M28 12h8v8M14 26l8 8M9 40l4-4"/>',
+  mult2:'<path d="M24 6v36M6 24h36M11 11l26 26M37 11L11 37"/><circle cx="24" cy="24" r="4" fill="#fff6d6"/>',
+  atk15:'<path d="M24 5c2 9 11 12 11 23a11 11 0 0 1-22 0c0-6 3-9 6-14 2 3 4 4 5 2 1-3 0-7 0-11z"/>',
+  isoGem:'<path d="M24 14l8 10-8 10-8-10zM6 24h6M36 24h6"/>',
+  firstGem:'<path d="M14 8v32M14 10h20l-5 7 5 7H14"/>',
+  emptyAtk:'<path d="M8 14h12v20H8zM28 14h12v20H28z"/>',
+  chaosStack:'<path d="M10 38h28M14 31h20M18 24h12M24 6v12M19 11l5-5 5 5"/>',
+  discardStack:'<path d="M12 10h16v26H12zM20 16h16v26H20z"/>',
+  walkCoin:'<circle cx="24" cy="24" r="16"/><path d="M17 24h14M26 18l6 6-6 6"/>',
+  chaosAtk:'<path d="M6 14h10v20H6zM19 14h10v20H19zM32 14h10v20H32z"/>',
+  equalG:'<path d="M8 40V28M18 40V14M30 40V14M40 40V28M6 12h36"/>',
+  reverse:'<path d="M8 16h28l-6-6M40 32H12l6 6"/>',
+  totem:'<path d="M16 6h16v10H16zM14 18h20v12H14zM17 32h14v10H17zM20 10h.01M28 10h.01M19 24h10"/>',
+  helperOdd:'<path d="M24 4l5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1z"/>',
+  helperEven:'<path d="M24 4l5 12 13 1-10 8 3 13-11-7-11 7 3-13-10-8 13-1z"/>',
+  greenCoin:'<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="10"/><path d="M24 18v12M20.5 21.5h7"/>',
+  fullSell:'<path d="M6 24L24 6h16v16L22 40zM33 15h.01" stroke-linejoin="round"/><circle cx="33" cy="15" r="3"/>',
+  tileAtk:'<path d="M24 4l17 10v20L24 44 7 34V14zM24 15v18M15 24h18"/>',
+  stone3:'<path d="M14 11h20l8 11-18 22L6 22zM6 22h36M18 11l6 11 6-11M24 22v22"/>',
+  stoneUp:'<path d="M24 41V9M11 21L24 8l13 13M11 41h26"/>',
+  artiPay:'<ellipse cx="24" cy="13" rx="14" ry="6"/><path d="M10 13v11c0 3 6 6 14 6s14-3 14-6V13M10 24v11c0 3 6 6 14 6s14-3 14-6V24"/>',
+  fatePay:'<rect x="9" y="9" width="21" height="29" rx="3" transform="rotate(-12 20 24)"/><rect x="19" y="9" width="21" height="29" rx="3" transform="rotate(12 30 24)"/>',
+  freediscard:'<path d="M38 20a14 14 0 0 0-26-4M10 28a14 14 0 0 0 26 4M12 7v9h9M36 41v-9h-9"/>'
+};
+const HIT_RING='<circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="9"/><circle cx="24" cy="24" r="2.5" fill="#fff6d6"/>';
+function itemCover(it){
+  const t=it.type;let m;
+  if(ART_SVG[t])return '<svg viewBox="0 0 48 48">'+ART_SVG[t]+'</svg>';
+  if(/^(red|orange|blue|green)Hit$/.test(t))return '<svg viewBox="0 0 48 48">'+HIT_RING+'</svg>';
+  if((m=/^dir([NESW])Hit$/.exec(t)))return dirSvg(m[1],'cvi');
+  if(t==='orangeN'||t==='north5')return dirSvg('N','cvi');
+  if(t==='redS'||t==='south5')return dirSvg('S','cvi');
+  if(t==='stone7W'||t==='west5')return dirSvg('W','cvi');
+  if(t==='stone7E'||t==='eastG')return dirSvg('E','cvi');
+  return '';
+}
+function setItemFace(el,it){
+  const cv=itemCover(it);
+  if(!cv){setItemLabel(el,it.label);return;}
+  el.style.fontSize='';
+  el.innerHTML='<div class="cov">'+cv+'</div>'+(['artiPay','fatePay','freediscard'].includes(it.type)?'':'<div class="lbl">'+it.label+'</div>');
+}
+function setItemLabel(el,label){
+  el.textContent=label;
+  const n=[...label].length;
+  el.style.fontSize=n<=2?'24px':n===3?'19px':n===4?'15px':n===5?'13px':'11px';
+}
+const artrow=document.getElementById('artrow');
+function updateCoins(){const t='🪙 '+fmt(coins);document.getElementById('coins').textContent=t;const sc=document.getElementById('shopCoins');if(sc)sc.textContent=t;}
+function buildSlots(box,onTap){
+  box.innerHTML='';
+  ITEMS.forEach((it,k)=>{
+    const d=document.createElement('div');
+    d.className='islot'+(it?' has '+it.color:'');
+    d.dataset.k=k;
+    if(it){setItemFace(d,it);d.onclick=()=>{if(dragMoved){dragMoved=false;return;}onTap(k);};d.addEventListener('pointerdown',e=>startDrag(e,box,d,k));}
+    box.appendChild(d);
+  });
+}
+let dragMoved=false;
+function startDrag(e,box,el,k){
+  if(busy&&!shopMode)return;
+  if(e.button!==undefined&&e.button>0)return;
+  const x0=e.clientX,y0=e.clientY,kk=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--k'))||1;
+  let on=false,tgt=-1;
+  const slots=[...box.children];
+  const mv=ev=>{
+    const dx=ev.clientX-x0,dy=ev.clientY-y0;
+    if(!on){if(Math.hypot(dx,dy)<8)return;on=true;dragMoved=true;el.classList.add('dragging');try{el.setPointerCapture(e.pointerId);}catch(_){}}
+    el.style.transform='translate('+dx/kk+'px,'+dy/kk+'px)';
+    const cx=ev.clientX,cy=ev.clientY;tgt=-1;
+    slots.forEach((sl,q)=>{sl.classList.remove('dropto');if(sl===el)return;const r=sl.getBoundingClientRect();if(cx>=r.left&&cx<=r.right&&cy>=r.top-20&&cy<=r.bottom+20){tgt=q;}});
+    if(tgt>=0)slots[tgt].classList.add('dropto');
+  };
+  const up=()=>{
+    el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);
+    document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);
+    if(!on)return;
+    slots.forEach(sl=>sl.classList.remove('dropto'));
+    el.classList.remove('dragging');el.style.transform='';
+    if(tgt>=0&&tgt!==k){const t=ITEMS[tgt];ITEMS[tgt]=ITEMS[k];ITEMS[k]=t;renderItems();}
+    setTimeout(()=>{dragMoved=false;},0);
+  };
+  document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+}
+function renderItems(){
+  renderChaos();
+  buildSlots(artrow,k=>openOwnedPop(k));
+  const so=document.getElementById('shopOwned');if(so)buildSlots(so,k=>openOwnedPop(k));
+  syncTotem(false);
+}
+function flashItem(k){const e=artrow.children[k];if(!e)return;e.classList.remove('itrig');void e.offsetWidth;e.classList.add('itrig');}
+/* popup */
+function closePop(){document.getElementById('pop').classList.remove('open');}
+function openPop(title,desc,acts){
+  document.getElementById('popTitle').textContent=title;
+  document.getElementById('popDesc').innerHTML=desc;
+  const box=document.getElementById('popAct');box.innerHTML='';
+  acts.concat([{label:'ปิด',fn:closePop,sec:true}]).forEach(a=>{
+    const b=document.createElement('button');
+    b.innerHTML=a.label;if(a.sec)b.className='sec';
+    if(a.off)b.disabled=true;else b.onclick=a.fn;
+    box.appendChild(b);
+  });
+  document.getElementById('pop').classList.add('open');
+}
+const hasFullSell=()=>ITEMS.some(it=>it&&it.type==='fullSell');
+function artSellVal(it){return hasFullSell()?it.price:Math.floor(it.price/3);}
+function chaosSellVal(c){if(!hasFullSell())return 1;const d=CHAOS_SHOP.find(x=>x.k===c.kind&&(x.a===undefined||x.a===c.col||x.a===c.dir));return d?d.price:1;}
+function openOwnedPop(k){
+  const it=ITEMS[k];if(!it)return;
+  const val=artSellVal(it),canSell=!busy||shopMode;
+  openPop(itemName(it),rarTag(it)+itemDesc(it),[{label:'ขาย 🪙 '+val,off:!canSell,fn:()=>{sellItem(k);}}]);
+}
+function sellItem(k){
+  const it=ITEMS[k];if(!it||(busy&&!shopMode))return;
+  coins+=artSellVal(it);ITEMS[k]=null;
+  closePop();updateCoins();renderItems();if(shopMode)renderShop();
+}
+function openShopPop(i){
+  const c=SHOP_CATALOG[i],sold=false,full=ITEMS.every(Boolean),poor=coins<c.price;
+  let label='ซื้อ 🪙 '+c.price,off=false;
+  if(c.off){label='ปิดไว้ก่อน';off=true;}
+  else if(sold){label='ซื้อแล้ว';off=true;}
+  else if(full){label='ช่อง Artifact เต็ม';off=true;}
+  else if(poor){label='เหรียญไม่พอ';off=true;}
+  const desc=rarTag(c)+itemDesc(c)+(c.off?'<div class="popoff">ปิดไว้ก่อน: '+c.off+'</div>':'');
+  openPop(itemName(c),desc,[{label,off,fn:()=>buyItem(i)}]);
+}
+function buyItem(i){
+  const c=SHOP_CATALOG[i],slot=ITEMS.findIndex(x=>!x);
+  if(c.off||slot<0||coins<c.price)return;
+  coins-=c.price;
+  ITEMS[slot]={type:c.type,label:c.label,color:c.color,price:c.price,m:c.m||0};
+  closePop();updateCoins();renderItems();renderShop();
+}
+/* shop page */
+function showReward(){
+  const r=rewardInfo;
+  document.getElementById('rewardRows').innerHTML=
+    '<div class="rrow"><span>ชนะศัตรู</span><span>🪙 +'+r.base+'</span></div>'+
+    '<div class="rrow"><span>เลือดที่เหลือ (รับได้อีก '+r.left+' ครั้ง) × 1</span><span>🪙 +'+r.left+'</span></div>'+
+    '<div class="rrow"><span>ดอกเบี้ย (มี '+fmt(r.held)+' ÷ 5 · สูงสุด 10)</span><span>🪙 +'+fmt(r.interest)+'</span></div>'+
+    (r.arti?'<div class="rrow"><span>รายได้ Artifact ('+r.artiN+' ใบ)</span><span>🪙 +'+fmt(r.arti)+'</span></div>':'')+
+    (r.fate?'<div class="rrow"><span>รายได้ Gem ('+r.fateN+' ใบ ÷ 10)</span><span>🪙 +'+fmt(r.fate)+'</span></div>':'')+
+    (r.cry?'<div class="rrow"><span>บอสทิ้ง ผลึก Gem</span><span>'+(r.cry>0?'เข้าช่อง Chaos':'ช่อง Chaos เต็ม · ไม่ได้รับ')+'</span></div>':'')+
+    (r.wc?'<div class="rrow"><span>เดินประหยัด (เลือดที่เหลือ)</span><span>🪙 +'+fmt(r.wc)+'</span></div>':'')+
+    '<div class="rrow tot"><span>รวม</span><span>🪙 +'+fmt(r.base+r.left+r.interest+r.arti+r.fate+(r.wc||0))+'</span></div>';
+  document.getElementById('reward').classList.add('open');
+}
+function afterReward(){document.getElementById('reward').classList.remove('open');openShop();}
+function openShop(){
+  shopBought=new Set();shopTab='game';shopMode=true;rerollCost=REROLL_START;genOffers();
+  document.getElementById('shop').classList.add('open');
+  renderItems();renderShop();
+}
+function leaveShop(){
+  closePop();
+  document.getElementById('shop').classList.remove('open');
+  shopMode=false;
+  spawnEnemy();
+}
+function setShopTab(k){shopTab=k;renderShop();}
+function renderShop(){
+  updateCoins();
+  document.querySelectorAll('.shoptabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===shopTab));
+  const box=document.getElementById('shopItems');box.innerHTML='';
+  const sec=t=>{const d=document.createElement('div');d.className='shsec';d.textContent=t;box.appendChild(d);};
+  if(shopTab==='game'){
+    const fullA=ITEMS.every(Boolean),freeC=chaos.includes(null);
+    const card=(o,k)=>{
+      let d;
+      if(o.kind==='art'){const c=SHOP_CATALOG[o.i];d=artCardEl(c,o.sold?'ซื้อแล้ว':'🪙 '+c.price,!o.sold&&(fullA||coins<c.price));
+        const r=RARITY[c.type];if(r&&r!=='common'){const t=document.createElement('i');t.className='rtag '+r;t.textContent=r==='rare'?'R':'U';d.appendChild(t);}}
+      else if(o.kind==='stone')d=stoneCardEl(o.i,o.sold?'ซื้อแล้ว':'🪙 '+STONE_PRICE,!o.sold&&coins<STONE_PRICE);
+      else if(o.kind==='upg')d=upgCardEl(o.k,o.sold?'ซื้อแล้ว':'🪙 '+upgPrice(o.k),!o.sold&&coins<upgPrice(o.k));
+      else d=chaosCardEl(o.def,o.sold?'ซื้อแล้ว':'🪙 '+o.def.price,!o.sold&&(!freeC||coins<o.def.price));
+      if(o.sold)d.classList.add('sold');else d.onclick=()=>openOfferPop(k);
+      tgt.appendChild(d);
+    };
+    const mkRow=t=>{const r=document.createElement('div');r.className='offrow';r.innerHTML='<div class="offlab">'+t+'</div>';box.appendChild(r);return r;};
+    let tgt=mkRow('ARTIFACT');
+    shopOffers.forEach((o,k)=>{if(o.row===1)card(o,k);});
+    const rr=document.createElement('div');rr.className='sitem reroll'+(coins<rerollCost?' off':'');
+    rr.innerHTML='<b>🎲<br>สุ่มใหม่</b><span>🪙 '+rerollCost+'</span>';if(coins>=rerollCost)rr.onclick=rerollShop;tgt.appendChild(rr);
+    tgt=mkRow('CHAOS<br>STONE<br>อัปเกรด');
+    shopOffers.forEach((o,k)=>{if(o.row===2)card(o,k);});
+  }else if(shopTab==='art'){
+    const full=ITEMS.every(Boolean);
+    ['common','uncommon','rare'].forEach(rr=>{
+    sec(RARLBL[rr]);
+    SHOP_CATALOG.forEach((c,i)=>{
+      if(c.off||RARITY[c.type]!==rr)return;
+      const sold=false,d=document.createElement('div');
+      d.className='sitem '+c.color+((sold||full||coins<c.price)?' off':'');
+      const nm=itemName(c);
+      const cv=itemCover(c);
+      d.innerHTML=(cv?'<div class="cov">'+cv+'</div><div class="nm">'+nm+'</div>':'<b>'+nm+'</b>')+'<span>'+(sold?'ซื้อแล้ว':'🪙 '+c.price)+'</span>';
+      if(!cv)d.querySelector('b').style.fontSize=([...nm].length<=4?22:[...nm].length<=7?17:14)+'px';
+      d.onclick=()=>openShopPop(i);
+      box.appendChild(d);
+    });
+    });
+    sec('ปิดไว้ก่อน (เสี่ยง bug จากการเปลี่ยนระบบเกม) · แตะดูเหตุผล');
+    SHOP_CATALOG.forEach((c,i)=>{
+      if(!c.off)return;
+      const d=document.createElement('div');
+      d.className='sitem closed '+c.color;
+      const nm=itemName(c);
+      d.innerHTML='<b>'+nm+'</b><span>ปิดไว้ก่อน</span>';
+      d.querySelector('b').style.fontSize=([...nm].length<=4?22:[...nm].length<=7?17:14)+'px';
+      d.onclick=()=>openShopPop(i);
+      box.appendChild(d);
+    });
+  }else if(shopTab==='chaos'){
+    sec('CHAOS · แตะดูรายละเอียด / ซื้อ');
+    const free=chaos.includes(null);
+    CHAOS_SHOP.forEach(def=>{
+      const c=chaosFromDef(def,0),d=document.createElement('div');
+      d.className='sitem '+(c.kind==='color'?c.col:c.kind==='goldify'?'gld':c.kind==='destroy'?'dst':c.kind==='tdir'?'tdr':'purple')+((!free||coins<def.price)?' off':'');
+      d.innerHTML='<div class="cov'+(c.kind==='xmult'||c.kind==='xatk'?' ct':'')+'">'+chaosCover(c)+'</div><div class="nm">'+chaosName(c)+'</div><span>🪙 '+def.price+'</span>';
+      d.onclick=()=>openChaosShopPop(def);
+      box.appendChild(d);
+    });
+  }else{
+    renderUpgrades(box,sec,true);
+  }
+}
+function renderUpgrades(box,sec,withStone){
+  {
+    sec('อัปเกรดพื้นฐาน');
+    const mk=(cls,html,off,fn)=>{const e=document.createElement('div');e.className='sitem '+cls+(off?' off':'');e.innerHTML=html;if(!off)e.onclick=fn;box.appendChild(e);};
+    const hb=shopBought.has('hand'),atCap=handMax>=HAND_CAP;
+    mk('hand','<b style="font-size:24px;line-height:1.1">Hand<br>+1</b><span>'+(hb?'ซื้อแล้ว':atCap?'สูงสุด':'🪙 '+HAND_PRICE)+'</span>',hb||atCap||coins<HAND_PRICE,()=>buyHand());
+    [['walk','HP<br>+'+Math.round(100/walkMax)+'%'],['disc','ทิ้ง<br>+1']].forEach(([k,lab])=>{
+      const bought=shopBought.has(k);
+      mk('upg','<b style="font-size:24px;line-height:1.1">'+lab+'</b><span>'+(bought?'ซื้อแล้ว':'🪙 '+STAT_PRICE)+'</span>',bought||coins<STAT_PRICE,()=>buyStat(k));
+    });
+    if(withStone){sec('STONE');
+    STONE_UP.forEach((v,i)=>{
+      if(!foundRows.has(i))return;
+      const r=FROWS[i],bought=shopBought.has('st'+i);
+      const spv=r.pv.map(([cl,dr])=>'<div class="mc '+cl+'">'+(dr?dirSvg(dr,'cdir'):'')+'</div>').join('');
+      mk('stone','<div class="snm">'+r.name+'</div><div class="spv">'+spv+'</div><div class="sup">+'+v+'</div><div class="slv">Lv'+r.lv+' → '+(r.lv+1)+'</div><span>'+(bought?'ซื้อแล้ว':'🪙 '+STONE_PRICE)+'</span>',bought||coins<STONE_PRICE,()=>buyStone(i));
+    });}
+  }
+}
+function buyHand(){
+  if(shopBought.has('hand')||handMax>=HAND_CAP||coins<HAND_PRICE)return;
+  coins-=HAND_PRICE;handMax++;shopBought.add('hand');renderShop();
+}
+function buyStat(k){
+  if(shopBought.has(k)||coins<STAT_PRICE)return;
+  coins-=STAT_PRICE;
+  if(k==='walk'){walkMax++;walks=walkMax;php=phpMax();updatePlayerHP();}else discardMax++;
+  shopBought.add(k);renderShop();
+}
+function buyStone(i){
+  if(shopBought.has('st'+i)||coins<STONE_PRICE)return;
+  coins-=STONE_PRICE;
+  FROWS[i].a+=STONE_UP[i];FROWS[i].lv++;
+  ITEMS.forEach(it=>{if(it&&it.type==='stoneUp'){it.m=Math.round((it.m+0.2)*10)/10;it.label='U×'+it.m;}});
+  shopBought.add('st'+i);
+  renderItems();renderShop();
+}
+
+/* ===== CHAOS ===== */
+let chaos=[null,null,null],selChaos=-1,chaosSeq=1;
+let deckMods=[],goldMods=[],deckRemovals=[];
+const tileChaos={mt:new Set(),xm:new Set(),xa:new Set()};
+let tileMultX=1,tileAtkX=1;
+const CCOLS=['red','green','orange','blue'];
+const CHAOS_SHOP=[
+  {k:'color',a:'red',price:5},{k:'color',a:'green',price:5},{k:'color',a:'orange',price:5},{k:'color',a:'blue',price:5},
+  {k:'dirc',a:'N',price:4},{k:'dirc',a:'E',price:4},{k:'dirc',a:'S',price:4},{k:'dirc',a:'W',price:4},
+  {k:'tdir',a:'N',price:4},{k:'tdir',a:'E',price:4},{k:'tdir',a:'S',price:4},{k:'tdir',a:'W',price:4},
+  {k:'mtile',price:5},{k:'xmult',price:6},{k:'xatk',price:6},{k:'goldify',price:6},{k:'destroy',price:5},{k:'crystal',price:6}
+];
+const CHAOS_POOL=CHAOS_SHOP.map(d=>d);
+function setTileDir(i,d){
+  TILE_DIR[i]=d;
+  const e=tiles[i].querySelector('.emb');if(e)e.innerHTML=EMBLEM[d];
+  tiles[i].classList.toggle('chaosd',d!==TILE_DIR0[i]);
+}
+const CRYSTAL_HP=5,CRYSTAL_GEMS=3;
+const crystals=new Map();
+function crystalSvg(){return '<svg viewBox="0 0 48 48"><path d="M15 5h18l11 13-20 26L4 18z" fill="#5fd4ff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M4 18h40M15 5l9 13 9-13M24 18v26" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6"/></svg>';}
+function addCrystal(i){
+  const d=document.createElement('div');d.className='crys';d.innerHTML=crystalSvg()+'<b>'+CRYSTAL_HP+'</b>';
+  tiles[i].appendChild(d);crystals.set(i,CRYSTAL_HP);
+}
+function clearCrystals(){crystals.clear();document.querySelectorAll('.crys').forEach(e=>e.remove());}
+function hitCrystal(t){
+  if(!crystals.has(t))return;
+  const hpc=crystals.get(t),use=Math.min(1+dmg,hpc),left=hpc-use;
+  dmg-=Math.min(Math.max(dmg,0),use);
+  popScore(t,'-'+use,'#e5484d');
+  const el=tiles[t].querySelector('.crys');
+  if(left>0){crystals.set(t,left);if(el){el.querySelector('b').textContent=left;el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');}refreshCalc();return;}
+  crystals.delete(t);
+  if(el){el.classList.add('out');setTimeout(()=>el.remove(),600);}
+  for(let q=0;q<CRYSTAL_GEMS;q++){
+    const type=COLOR_ORDER[Math.floor(Math.random()*4)],dir=DIR_ORDER[Math.floor(Math.random()*4)];
+    extraGem.push({type,dir});
+    const c={id:uid++,type,dir};hand.push(c);fresh.add(c.id);
+  }
+  popScore(t,'+'+CRYSTAL_GEMS+' Gem','#5fd4ff');
+  refreshCalc();renderTray();
+}
+function giveCrystalChaos(){const k=chaos.indexOf(null);if(k<0)return false;chaos[k]=chaosFromDef({k:'crystal'});renderChaos();return true;}
+function chaosFromDef(d,id){const c={id:id||chaosSeq++,kind:d.k};if(d.k==='color')c.col=d.a;if(d.k==='dirc'||d.k==='tdir')c.dir=d.a;return c;}
+const CHAOS_SVG={
+  color:'<path d="M24 5c8 10 13 16 13 23a13 13 0 0 1-26 0c0-7 5-13 13-23z"/>',
+  mtile:'<path d="M27 4L10 27h12l-3 17 19-25H26z"/>',
+  goldify:'<path d="M24 4c1 11 4 15 15 16-11 1-14 5-15 16-1-11-4-15-15-16 11-1 14-5 15-16z"/><path d="M39 31c.5 4 1.5 5 5 5.5-3.5.5-4.5 1.5-5 5.5-.5-4-1.5-5-5-5.5 3.5-.5 4.5-1.5 5-5.5z"/>',
+  crystal:'<path d="M15 5h18l11 13-20 26L4 18z"/>',
+  destroy:'<path d="M24 3l4 10 10-6-4 11 10 5-11 3 3 11-10-6-4 10-4-10-10 6 3-11-11-3 10-5-4-11 10 6z"/>'
+};
+const DIRTH={N:'เหนือ',E:'ตะวันออก',S:'ใต้',W:'ตะวันตก'};
+const COLTH={red:'แดง',green:'เขียว',orange:'ส้ม',blue:'น้ำเงิน'};
+function chaosCover(c){
+  if(c.kind==='dirc'||c.kind==='tdir')return dirSvg(c.dir,'cvi');
+  if(c.kind==='xmult')return '×1.2';
+  if(c.kind==='xatk')return '×1.2';
+  return '<svg viewBox="0 0 48 48">'+CHAOS_SVG[c.kind]+'</svg>';
+}
+function chaosLabel(c){
+  return {color:COLTH[c.col],dirc:DIRTH[c.dir],tdir:'ช่อง '+c.dir,mtile:'⚡+5',xmult:'MULT',xatk:'ATK',goldify:'ทอง',destroy:'ทำลาย',crystal:'ผลึก'}[c.kind];
+}
+function chaosName(c){
+  return {color:'Chaos เปลี่ยนสี'+(COLTH[c.col]||''),dirc:'Chaos เปลี่ยนทิศ Gem'+(DIRTH[c.dir]||''),tdir:'Chaos เปลี่ยนทิศช่อง'+(DIRTH[c.dir]||''),mtile:'Chaos ช่อง ⚡+5',xmult:'Chaos ช่อง ×1.2 มัลติ',xatk:'Chaos ช่อง ×1.2 ATK',goldify:'Chaos ทอง',destroy:'Chaos ทำลาย',crystal:'ผลึก Gem'}[c.kind];
+}
+function chaosDesc(c){
+  const tile='แตะการ์ดนี้แล้วแตะช่องบนกระดาน (อยู่ถาวรจนจบเกม) · ทำงานเมื่อเดินตกช่องที่มี Gem และทิศการ์ดตรงกับทิศช่อง';
+  return {
+    color:'เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสี'+(COLTH[c.col]||'')+' ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)',
+    dirc:'เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศ'+(DIRTH[c.dir]||'')+' ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)',
+    tdir:'แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็น'+(DIRTH[c.dir]||'')+' ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศ'+(DIRTH[c.dir]||'')+'ที่วางบนช่องนี้จะนับว่าตรงทิศ',
+    mtile:'ตัวคูณ +5 · '+tile,
+    xmult:'ตัวคูณ ×1.2 · '+tile,
+    xatk:'ATK ×1.2 · '+tile,
+    goldify:'เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: เป็นการ์ดทองถาวร ตกช่องแล้วทำงานซ้ำ 2 รอบ',
+    destroy:'เลือก Gem 2 ใบ แล้วแตะการ์ดนี้: ทำลายออกจากสำรับถาวร',
+    crystal:'แตะการ์ดนี้แล้วแตะช่องว่างบนกระดาน วางผลึก Gem (HP '+CRYSTAL_HP+') · ตอนเดินแวะช่องนี้ ATK ที่สะสมจะหักเลือดผลึก ผลึกแตกแล้วได้ Gem สุ่ม +'+CRYSTAL_GEMS+' ใบ (เข้ามือและเพิ่มในสำรับถาวร) · วาง Gem บนช่องนี้ไม่ได้'
+  }[c.kind];
+}
+function applyDeckMods(){
+  deckMods.forEach(m=>{const c=deck.find(x=>x.type===m.from&&x.dir===m.dir);if(c){c.type=m.to;c.dir=m.toDir;}});
+  goldMods.forEach(g=>{const c=deck.find(x=>x.type===g.type&&x.dir===g.dir&&!x.gold);if(c)c.gold=true;});
+  deckRemovals.forEach(g=>{let k=deck.findIndex(x=>x.type===g.type&&x.dir===g.dir&&!x.gold);if(k<0)k=deck.findIndex(x=>x.type===g.type&&x.dir===g.dir);if(k>=0)deck.splice(k,1);});
+}
+function resetChaos(){
+  clearCrystals();extraGem=[];TILE_DIR0.forEach((d,i)=>setTileDir(i,d));
+  chaos=[null,null,null];selChaos=-1;deckMods=[];goldMods=[];deckRemovals=[];
+  tileChaos.mt.clear();tileChaos.xm.clear();tileChaos.xa.clear();tileMultX=1;tileAtkX=1;
+}
+let ctoastT=0;
+function chaosMsg(t){const e=document.getElementById('ctoast');e.textContent=t;e.classList.add('on');clearTimeout(ctoastT);ctoastT=setTimeout(()=>e.classList.remove('on'),2200);}
+function giveRandChaos(){
+  const k=chaos.indexOf(null);if(k<0)return false;
+  chaos[k]=chaosFromDef(CHAOS_POOL[Math.floor(Math.random()*CHAOS_POOL.length)]);
+  renderChaos();return true;
+}
+function buildChaosSlots(box,onTap){
+  box.innerHTML='';
+  chaos.forEach((c,k)=>{
+    const d=document.createElement('div');
+    d.className='islot cs'+(c?' has '+(c.kind==='color'?c.col:c.kind==='goldify'?'gld':c.kind==='destroy'?'dst':c.kind==='tdir'?'tdr':'pur'):'')+(k===selChaos&&c?' sel':'');
+    if(c){
+      d.innerHTML='<div class="cov'+(c.kind==='xmult'||c.kind==='xatk'?' ct':'')+'">'+chaosCover(c)+'</div><div class="lbl">'+chaosLabel(c)+'</div>';
+      d.onclick=()=>onTap(k);
+    }
+    box.appendChild(d);
+  });
+}
+function renderChaos(){
+  buildChaosSlots(document.getElementById('chaosrow'),k=>useChaos(k));
+  const sc=document.getElementById('shopChaos');if(sc)buildChaosSlots(sc,k=>sellChaosPop(k));
+  tiles.forEach((t,i)=>{if(selChaos>=0&&!busy)t.classList.add('placeable');});
+}
+function sellChaosPop(k){
+  const c=chaos[k];if(!c)return;
+  const sv=chaosSellVal(c);
+  openPop(chaosName(c),chaosDesc(c),[{label:'ขาย 🪙 '+sv,fn:()=>{chaos[k]=null;if(selChaos===k)selChaos=-1;coins+=sv;closePop();updateCoins();renderChaos();if(shopMode)renderShop();}}]);
+}
+function openChaosShopPop(def){
+  const c=chaosFromDef(def,0),free=chaos.includes(null),poor=coins<def.price;
+  let label='ซื้อ 🪙 '+def.price,off=false;
+  if(!free){label='ช่อง Chaos เต็ม';off=true;}else if(poor){label='เหรียญไม่พอ';off=true;}
+  openPop(chaosName(c),chaosDesc(c),[{label,off,fn:()=>buyChaos(def)}]);
+}
+function buyChaos(def){
+  const k=chaos.indexOf(null);
+  if(k<0||coins<def.price)return;
+  coins-=def.price;chaos[k]=chaosFromDef(def);
+  closePop();updateCoins();renderChaos();renderShop();
+}
+function useChaos(k){
+  if(busy||shopMode)return;
+  const c=chaos[k];if(!c)return;
+  if(c.kind==='mtile'||c.kind==='xmult'||c.kind==='xatk'||c.kind==='crystal'||c.kind==='tdir'){
+    selChaos=(selChaos===k)?-1:k;
+    chaosMsg(selChaos>=0?'แตะช่องที่ต้องการวาง':'ยกเลิกแล้ว');
+    renderChaos();renderTray();return;
+  }
+  const picks=hand.filter(x=>selIds.has(x.id));
+  if(c.kind!=='destroy'&&picks.some(p=>p.type==='blank')){chaosMsg('การ์ดเปล่าใช้ Chaos ไม่ได้');return;}
+  const done=msg=>{chaos[k]=null;onChaosUsed();selChaos=-1;selIds.clear();chaosMsg(msg);renderChaos();renderTray();updateBtn();};
+  if(c.kind==='color'){
+    if(!picks.length){chaosMsg('เลือก Gem ในมือก่อน (สูงสุด 2 ใบ)');return;}
+    if(picks.length>2){chaosMsg('เปลี่ยนสีได้สูงสุด 2 ใบ');return;}
+    if(picks.every(p=>p.type===c.col)){chaosMsg('Gem ที่เลือกเป็นสี'+COLTH[c.col]+'อยู่แล้ว');return;}
+    picks.forEach(p=>{if(p.type===c.col)return;deckMods.push({from:p.type,dir:p.dir,to:c.col,toDir:p.dir});if(p.gold){const g=goldMods.find(x=>x.type===p.type&&x.dir===p.dir);if(g)g.type=c.col;}p.type=c.col;});
+    done('🎨 เปลี่ยนเป็นสี'+COLTH[c.col]+'ถาวร');return;
+  }
+  if(c.kind==='dirc'){
+    if(!picks.length){chaosMsg('เลือก Gem ในมือก่อน (1 ใบ)');return;}
+    if(picks.length>1){chaosMsg('เปลี่ยนทิศได้ทีละ 1 ใบ');return;}
+    if(picks.every(p=>p.dir===c.dir)){chaosMsg('Gem ที่เลือกเป็นทิศ'+DIRTH[c.dir]+'อยู่แล้ว');return;}
+    picks.forEach(p=>{if(p.dir===c.dir)return;deckMods.push({from:p.type,dir:p.dir,to:p.type,toDir:c.dir});if(p.gold){const g=goldMods.find(x=>x.type===p.type&&x.dir===p.dir);if(g)g.dir=c.dir;}p.dir=c.dir;});
+    done('🧭 เปลี่ยนเป็นทิศ'+DIRTH[c.dir]+'ถาวร');return;
+  }
+  if(c.kind==='goldify'){
+    if(picks.length!==1){chaosMsg('เลือก Gem ในมือ 1 ใบก่อน');return;}
+    const p=picks[0];
+    if(p.gold){chaosMsg('ใบนี้เป็นการ์ดทองอยู่แล้ว');return;}
+    p.gold=true;goldMods.push({type:p.type,dir:p.dir});
+    done('✨ เป็นการ์ดทองถาวร');return;
+  }
+  if(c.kind==='destroy'){
+    if(picks.length!==2){chaosMsg('เลือก Gem ในมือ 2 ใบก่อน');return;}
+    picks.forEach(p=>{
+      if(p.gold){const gi=goldMods.findIndex(x=>x.type===p.type&&x.dir===p.dir);if(gi>=0)goldMods.splice(gi,1);}
+      if(p.type!=='blank')deckRemovals.push({type:p.type,dir:p.dir});
+    });
+    hand=hand.filter(x=>!selIds.has(x.id));
+    done('💥 ทำลาย Gem 2 ใบถาวร');return;
+  }
+}
+function factorial(n){n=Math.min(170,Math.max(0,Math.floor(n)));let r=1;for(let i=2;i<=n;i++)r*=i;return r;}
+function onChaosUsed(){let ch=false;ITEMS.forEach((it,k)=>{if(it&&it.type==='chaosStack'){it.m=(it.m||0)+2;it.label='+'+it.m;ch=true;setTimeout(()=>flashItem(k),50);}});if(ch)renderItems();}
+function placeChaos(i){
+  const c=chaos[selChaos];if(!c||busy)return;
+  if(c.kind==='tdir'){
+    if(TILE_DIR[i]===c.dir){chaosMsg('ช่องนี้เป็นทิศ'+DIRTH[c.dir]+'อยู่แล้ว');return;}
+    setTileDir(i,c.dir);chaos[selChaos]=null;onChaosUsed();selChaos=-1;refreshCalc();renderChaos();renderTray();return;
+  }
+  if(c.kind==='crystal'){
+    if(placedCards.has(i)||crystals.has(i)){chaosMsg('วางผลึกได้เฉพาะช่องว่าง');return;}
+    addCrystal(i);chaos[selChaos]=null;onChaosUsed();selChaos=-1;refreshCalc();renderChaos();renderTray();return;
+  }
+  const set=c.kind==='mtile'?tileChaos.mt:c.kind==='xmult'?tileChaos.xm:tileChaos.xa;
+  if(set.has(i)){chaosMsg('ช่องนี้มี Chaos ชนิดนี้แล้ว');return;}
+  set.add(i);
+  chaos[selChaos]=null;selChaos=-1;onChaosUsed();
+  refreshCalc();renderChaos();renderTray();
+}
+/* ===== Enemy ===== */
+const BOSS_PICS=['👹','👺','👻','💀','🐲','🧟'];
+const isBoss=()=>bossN%3===2;
+const BOSS_BLANKS=15;
+function bossSkill(){
+  const sk=document.getElementById('eskill');
+  if(!isBoss()){sk.textContent='';return;}
+  for(let i=0;i<BOSS_BLANKS;i++)deck.push({id:uid++,type:'blank',dir:null,temp:true});
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  sk.textContent='สกิลบอส: ใส่การ์ดเปล่า '+BOSS_BLANKS+' ใบเข้าสำรับ (ชั่วคราว)';
+}
+function spawnEnemy(){
+  bossN++;
+  HPMAX=Math.round(HPMAX*1.5);hp=HPMAX;
+  walks=walkMax;discardsLeft=discardCap();multBonus=0;
+  EATK=EATK*PHP_GROW;php=phpMax();updatePlayerHP();
+  buildDeck();hand=[];
+  bossSkill();
+  const en=document.querySelector('.enemy');
+  en.classList.remove('dead','hit','spawn');void en.offsetWidth;en.classList.add('spawn');
+  document.getElementById('epic').textContent=BOSS_PICS[bossN%BOSS_PICS.length];
+  document.getElementById('ename').textContent=isBoss()?'👑 บอส':'ศัตรู';
+  document.getElementById('hp').textContent=fmt(hp);
+  document.getElementById('hpmax').textContent=fmt(HPMAX);
+  document.getElementById('hpfill').style.width='100%';
+  msgEl.textContent='';
+  newRound();busy=false;updateBtn();
+}
+/* ===== Game over / reset ===== */
+function showGameOver(){document.getElementById('goinfo').textContent='ผ่านศัตรู '+bossN+' ตัว';document.getElementById('gameover').classList.add('open');}
+function newGame(){document.getElementById('gameover').classList.remove('open');busy=false;resetGame();}
+function resetGame(){
+  if(busy)return;
+  cur=-1;dmg=0;multBonus=0;pendingHit=0;bossN=0;HPMAX=ENEMY_HP_START;hp=HPMAX;EATK=EATK_START;coins=0;walkMax=WALK_START;discardMax=DISCARD_START;handMax=HAND_START;walks=walkMax;php=EATK*walkMax;discardsLeft=DISCARD_START;
+  ITEMS.fill(null);resetChaos();FROWS.forEach((r,q)=>{r.a=FROWS_A0[q];r.lv=1;});foundRows=new Set(STONE_BASIC);shopBought=new Set();shopMode=false;
+  ['reward','shop','pop'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  hand=[];selIds.clear();clearBoardCards();buildDeck();
+  document.getElementById('epic').textContent=BOSS_PICS[0];document.getElementById('ename').textContent='ศัตรู';
+  document.getElementById('hp').textContent=fmt(hp);document.getElementById('hpmax').textContent=fmt(HPMAX);
+  document.getElementById('hpfill').style.width='100%';
+  document.querySelector('.enemy').classList.remove('dead','hit','spawn');
+  msgEl.textContent='';
+  document.getElementById('eskill').textContent='';
+  place(-1);drawUp();renderItems();renderTray();refreshCalc();updateBtn();updatePlayerHP();
+}
+buildDeck();drawUp();place(-1);renderItems();renderTray();refreshCalc();updateBtn();updatePlayerHP();
+document.getElementById('hp').textContent=fmt(hp);document.getElementById('hpmax').textContent=fmt(HPMAX);document.getElementById('hpfill').style.width='100%';
+</script>
+</body>
+</html>
