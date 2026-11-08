@@ -1,6 +1,50 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1xstarterscene"]
+[gd_scene load_steps=6 format=3 uid="uid://c1xstarterscene"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_board"]
+bg_color = Color(0.168627, 0.133333, 0.313726, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_calc"]
+bg_color = Color(0.08, 0.06, 0.15, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.827451, 0.65098, 0.290196, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 12.0
+expand_margin_top = 6.0
+expand_margin_right = 12.0
+expand_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_hero"]
+bg_color = Color(0.18, 0.62, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_enemy"]
+bg_color = Color(0.84, 0.23, 0.23, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -24,9 +68,9 @@ color = Color(0.121569, 0.0941176, 0.211765, 1)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 20.0
+offset_left = 24.0
 offset_top = 10.0
-offset_right = -20.0
+offset_right = -24.0
 offset_bottom = 50.0
 grow_horizontal = 2
 theme_override_constants/separation = 20
@@ -57,14 +101,15 @@ layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 40.0
-offset_top = 60.0
+offset_top = 56.0
 offset_right = -40.0
-offset_bottom = 220.0
+offset_bottom = 210.0
 grow_horizontal = 2
-theme_override_constants/separation = 30
+theme_override_constants/separation = 24
+alignment = 1
 
 [node name="HeroCol" type="VBoxContainer" parent="Preview"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 alignment = 1
 
@@ -76,12 +121,14 @@ horizontal_alignment = 1
 
 [node name="HeroHPText" type="Label" parent="Preview/HeroCol"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 0.85, 1)
 text = "HP: 30 / 30"
 horizontal_alignment = 1
 
 [node name="HeroHPBar" type="ProgressBar" parent="Preview/HeroCol"]
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_hero")
 value = 100.0
 show_percentage = false
 
@@ -93,21 +140,32 @@ alignment = 1
 [node name="Title" type="Label" parent="Preview/CenterCol"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.827451, 0.65098, 0.290196, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 text = "TO BEYOND"
 horizontal_alignment = 1
 
-[node name="CalcLabel" type="Label" parent="Preview"]
+[node name="SpacerC" type="Control" parent="Preview/CenterCol"]
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "ATK: 0  ×  ตัวคูณ: 1.00  =  ดาเมจ: 0"
+
+[node name="CalcLabel" type="Label" parent="Preview/CenterCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_calc")
+text = "ATK: 0   ×   ตัวคูณ: 1.00   =   ดาเมจ: 0"
 horizontal_alignment = 1
 
 [node name="EnemyCol" type="VBoxContainer" parent="Preview"]
-custom_minimum_size = Vector2(280, 0)
+custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 alignment = 1
+
+[node name="EnemyPic" type="Label" parent="Preview/EnemyCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "👹"
+horizontal_alignment = 1
 
 [node name="EnemyName" type="Label" parent="Preview/EnemyCol"]
 layout_mode = 2
@@ -116,62 +174,58 @@ theme_override_font_sizes/font_size = 18
 text = "ศัตรู ด่าน 1"
 horizontal_alignment = 1
 
-[node name="EnemyPic" type="Label" parent="Preview/EnemyCol"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "👹"
-horizontal_alignment = 1
-
 [node name="EnemyHPText" type="Label" parent="Preview/EnemyCol"]
 layout_mode = 2
 text = "HP: 50 / 50"
 horizontal_alignment = 1
 
 [node name="EnemyHPBar" type="ProgressBar" parent="Preview/EnemyCol"]
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_enemy")
 value = 100.0
 show_percentage = false
 
 [node name="EnemyAtkText" type="Label" parent="Preview/EnemyCol"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
+theme_override_colors/font_color = Color(1, 0.55, 0.55, 1)
 text = "⚔ โจมตี: 10"
 horizontal_alignment = 1
 
 [node name="MsgLabel" type="Label" parent="Preview/EnemyCol"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+text = "เตรียมพร้อมวางการ์ด..."
 horizontal_alignment = 1
 
 [node name="BoardSection" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 60.0
-offset_top = 230.0
-offset_right = -60.0
-offset_bottom = 400.0
+offset_left = 50.0
+offset_top = 220.0
+offset_right = -50.0
+offset_bottom = 390.0
 grow_horizontal = 2
 
-[node name="BoardBg" type="ColorRect" parent="BoardSection"]
+[node name="BoardBg" type="Panel" parent="BoardSection"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.168627, 0.133333, 0.313726, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_board")
 
 [node name="TilesContainer" type="HBoxContainer" parent="BoardSection"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 15.0
-offset_right = -20.0
-offset_bottom = -45.0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = -46.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 12
@@ -180,42 +234,42 @@ alignment = 1
 [node name="Tile1" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#1\n▲\n[ว่าง]"
+text = "1"
 
 [node name="Tile2" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#2\n▲\n[ว่าง]"
+text = "2"
 
 [node name="Tile3" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#3\n▶\n[ว่าง]"
+text = "3"
 
 [node name="Tile4" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#4\n▶\n[ว่าง]"
+text = "4"
 
 [node name="Tile5" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#5\n▼\n[ว่าง]"
+text = "5"
 
 [node name="Tile6" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#6\n▼\n[ว่าง]"
+text = "6"
 
 [node name="Tile7" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#7\n◀\n[ว่าง]"
+text = "7"
 
 [node name="Tile8" type="Button" parent="BoardSection/TilesContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "#8\n◀\n[ว่าง]"
+text = "8"
 
 [node name="GstripContainer" type="HBoxContainer" parent="BoardSection"]
 layout_mode = 1
@@ -223,10 +277,10 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -36.0
-offset_right = -20.0
-offset_bottom = -8.0
+offset_left = 18.0
+offset_top = -38.0
+offset_right = -18.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 12
@@ -235,60 +289,59 @@ alignment = 1
 [node name="G1" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G2" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G3" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G4" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G5" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G6" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G7" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
 [node name="G8" type="Label" parent="BoardSection/GstripContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "-"
+text = "•"
 horizontal_alignment = 1
 
-[node name="Token" type="Label" parent="BoardSection"]
+[node name="Token" type="Control" parent="BoardSection"]
 visible = false
-layout_mode = 0
+layout_mode = 3
+anchors_preset = 0
 offset_left = 30.0
-offset_top = 40.0
-offset_right = 70.0
-offset_bottom = 80.0
-theme_override_font_sizes/font_size = 32
-text = "🔥"
+offset_top = 30.0
+offset_right = 78.0
+offset_bottom = 94.0
 
 [node name="BottomSection" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -297,7 +350,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = -300.0
+offset_top = -310.0
 offset_right = -40.0
 offset_bottom = -15.0
 grow_horizontal = 2
@@ -320,7 +373,7 @@ alignment = 1
 
 [node name="DeckCountLabel" type="Label" parent="BottomSection/ControlsRow/ToolCol"]
 layout_mode = 2
-text = "กองการ์ด: 48 ใบ"
+text = "🂠 กองการ์ด: 48 ใบ"
 
 [node name="StoneBtn" type="Button" parent="BottomSection/ControlsRow/ToolCol"]
 layout_mode = 2
