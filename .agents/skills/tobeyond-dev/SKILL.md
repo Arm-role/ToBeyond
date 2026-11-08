@@ -75,6 +75,13 @@ graph TD
     Main --> StoneModal["StoneModal (PanelContainer)\n$StoneModal"]
     StoneModal --> StoneList["$StoneModal/VBox/Scroll/List"]
     StoneModal --> CloseBtn["$StoneModal/VBox/CloseBtn"]
+
+    %% Effects Layer
+    Main --> EffectsLayer["EffectsLayer (Control)\n$EffectsLayer"]
+    EffectsLayer --> BeamLine["BeamLine (Line2D)\n$EffectsLayer/BeamLine"]
+    EffectsLayer --> EnemyBeamLine["EnemyBeamLine (Line2D)\n$EffectsLayer/EnemyBeamLine"]
+    EffectsLayer --> Toast["Toast (PanelContainer)\n$EffectsLayer/Toast"]
+    Toast --> ToastLabel["ToastLabel (Label)\n$EffectsLayer/Toast/ToastLabel"]
 ```
 
 ---
@@ -98,6 +105,11 @@ graph TD
 | **Board Tiles** | `$BoardSection/TilesContainer` | `HBoxContainer` | Holds the 8 Board Tile buttons |
 | **Gstrip Badges** | `$BoardSection/GstripContainer` | `HBoxContainer` | Holds the 8 Combo ATK score labels |
 | **Flame Token** | `$BoardSection/Token` | `Control` | Moving token traversing active tiles |
+| **Effects Layer** | `$EffectsLayer` | `Control` | Top-level effect layer for VFX |
+| **Hero Laser** | `$EffectsLayer/BeamLine` | `Line2D` | Animated laser beam shot by Hero |
+| **Enemy Laser** | `$EffectsLayer/EnemyBeamLine` | `Line2D` | Counter-attack laser shot by Enemy |
+| **Toast Box** | `$EffectsLayer/Toast` | `PanelContainer` | Stone formula discovery toast |
+| **Toast Label** | `$EffectsLayer/Toast/ToastLabel` | `Label` | Toast notification text |
 | **Hand Container** | `$BottomSection/HandContainer` | `HBoxContainer` | Dynamic hand cards |
 | **Deck Count** | `$BottomSection/ControlsRow/ToolCol/DeckCountLabel` | `Label` | Remaining deck cards count |
 | **Stone Formulas** | `$BottomSection/ControlsRow/ToolCol/StoneBtn` | `Button` | Opens formula guide popup |
@@ -176,3 +188,4 @@ func init_textures() -> void:
 | `twin` | ฝาแฝด | Identical card (same color AND same direction) | 2 | 4 | 4 |
 
 **Formula:** $\text{ATK} = a + g \times (n - 1)$ where $n$ is number of cards in contiguous group.
+

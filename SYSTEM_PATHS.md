@@ -62,6 +62,13 @@ graph TD
     Main --> RewardModal["RewardModal (PanelContainer)\n$RewardModal"]
     Main --> GameOverModal["GameOverModal (PanelContainer)\n$GameOverModal"]
     Main --> StoneModal["StoneModal (PanelContainer)\n$StoneModal"]
+
+    %% Effects Layer
+    Main --> EffectsLayer["EffectsLayer (Control)\n$EffectsLayer"]
+    EffectsLayer --> BeamLine["BeamLine (Line2D)\n$EffectsLayer/BeamLine"]
+    EffectsLayer --> EnemyBeamLine["EnemyBeamLine (Line2D)\n$EffectsLayer/EnemyBeamLine"]
+    EffectsLayer --> Toast["Toast (PanelContainer)\n$EffectsLayer/Toast"]
+    Toast --> ToastLabel["ToastLabel (Label)\n$EffectsLayer/Toast/ToastLabel"]
 ```
 
 ---
@@ -96,6 +103,11 @@ graph TD
 | `reward_modal` | `$RewardModal` | `PanelContainer` | ป๊อปอัปเมื่อชนะด่าน |
 | `gameover_modal` | `$GameOverModal` | `PanelContainer` | ป๊อปอัปเมื่อพ่ายแพ้ |
 | `stone_modal` | `$StoneModal` | `PanelContainer` | ป๊อปอัปสูตรการผสมการ์ด Stone |
+| `effects_layer` | `$EffectsLayer` | `Control` | เลเยอร์เอฟเฟกต์แสดงผลด้านบนสุด |
+| `beam_line` | `$EffectsLayer/BeamLine` | `Line2D` | ลำแสงเลเซอร์ฮีโร่ยิงใส่ศัตรู |
+| `enemy_beam_line`| `$EffectsLayer/EnemyBeamLine`| `Line2D` | ลำแสงเลเซอร์ศัตรูยิงสวนกลับ |
+| `toast` | `$EffectsLayer/Toast` | `PanelContainer` | กล่องแจ้งเตือน Toast ค้นพบสูตรใหม่ |
+| `toast_label` | `$EffectsLayer/Toast/ToastLabel` | `Label` | ข้อความในกล่องแจ้งเตือน Toast |
 
 ---
 
@@ -117,3 +129,4 @@ func init_textures() -> void:
         if ResourceLoader.exists(p):
             textures[d] = load(p)
 ```
+

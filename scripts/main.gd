@@ -66,6 +66,7 @@ var walks_left: int = 3
 var discards_left: int = 3
 var is_busy: bool = false
 var speed_multiplier: float = 1.0
+var discovered_formulas: Array[String] = ["col"]
 
 # --- Node References ---
 @onready var stage_label: Label = $TopBar/StageLabel
@@ -83,6 +84,13 @@ var speed_multiplier: float = 1.0
 @onready var enemy_hp_label: Label = $Preview/EnemyCol/EnemyHPText
 @onready var enemy_atk_label: Label = $Preview/EnemyCol/EnemyAtkText
 @onready var msg_label: Label = $Preview/EnemyCol/MsgLabel
+
+# Effects Layer References
+@onready var effects_layer: Control = $EffectsLayer
+@onready var beam_line: Line2D = $EffectsLayer/BeamLine
+@onready var enemy_beam_line: Line2D = $EffectsLayer/EnemyBeamLine
+@onready var toast: PanelContainer = $EffectsLayer/Toast
+@onready var toast_label: Label = $EffectsLayer/Toast/ToastLabel
 
 @onready var tiles_container: HBoxContainer = $BoardSection/TilesContainer
 @onready var gstrip_container: HBoxContainer = $BoardSection/GstripContainer
@@ -168,12 +176,17 @@ func start_new_game() -> void:
 	discards_left = 3
 	walks_left = 3
 	is_busy = false
+	hand.clear()
 	placed_cards.clear()
 	selected_card_ids.clear()
 	reward_modal.visible = false
 	gameover_modal.visible = false
 	stone_modal.visible = false
 	token.visible = false
+	enemy_pic.modulate = Color.WHITE
+	enemy_pic.scale = Vector2.ONE
+	hero_pic.modulate = Color.WHITE
+	hero_pic.scale = Vector2.ONE
 
 	build_deck()
 	draw_up_to_hand(8)
@@ -521,6 +534,13 @@ func refresh_calc() -> void:
 	var final_dmg = int(result["atk"] * result["mult"])
 	calc_label.text = "ATK: %d   ×   ตัวคูณ: %.2f   =   ดาเมจ: %d" % [result["atk"], result["mult"], final_dmg]
 
+	# Check for new Stone formula discoveries
+	for g in result["groups"]:
+		var key = g["key"]
+		if not discovered_formulas.has(key):
+			discovered_formulas.append(key)
+			show_discovery_toast(key)
+
 	# Update Gstrip badges & group connecting bars
 	for i in range(N_TILES):
 		var lbl = gstrip_container.get_child(i) as Label
@@ -610,93 +630,170 @@ func _on_walk_pressed() -> void:
 	# Animate token dashing through active tiles
 	token.visible = true
 	var tween = create_tween()
-	var step_duration = 0.28 / speed_multiplier
+	var step_duration = 0.26 / speed_multiplier
 
 	# Collect stops (Tile 0 + all tiles with placed cards)
-	var active_tiles = [0]
+	var active_tiles: Array[int] = [0]
 	for i in range(1, N_TILES):
 		if placed_cards.has(i):
 			active_tiles.append(i)
 
-	# Token positions relative to board
 	var tile_btn_sample = tiles_container.get_child(0) as Button
 	var tile_w = tile_btn_sample.size.x + 12.0
 
 	for idx in active_tiles:
-		var target_x = 20.0 + idx * tile_w + (tile_btn_sample.size.x - 48.0) * 0.5
-		var target_pos = Vector2(target_x, 30.0)
+		var target_x = 16.0 + idx * tile_w + (tile_btn_sample.size.x - token.size.x) * 0.5
+		var target_pos = Vector2(target_x, 26.0)
 		tween.tween_property(token, "position", target_pos, step_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(func():
 			if placed_cards.has(idx):
 				_spawn_tile_popup(idx)
 		)
-		tween.tween_interval(0.08 / speed_multiplier)
+		tween.tween_interval(0.06 / speed_multiplier)
 
 	tween.finished.connect(_on_walk_finished)
 
 
 func _spawn_tile_popup(tile_idx: int) -> void:
 	var tile_btn = tiles_container.get_child(tile_idx) as Button
+	var card = placed_cards.get(tile_idx)
+	if card == null: return
+
+	var is_gold = (card["dir"] == TILE_DIR[tile_idx])
 	var pop = Label.new()
-	var is_gold = (placed_cards[tile_idx]["dir"] == TILE_DIR[tile_idx])
-	pop.text = "★ GOLD" if is_gold else "HIT"
-	pop.modulate = COLORS["gold"] if is_gold else Color.CYAN
-	pop.position = tile_btn.global_position + Vector2(20, -10)
-	add_child(pop)
+
+	var group_atk = 1
+	var calc = calculate_groups()
+	for g in calc["groups"]:
+		if g["idxs"].has(tile_idx):
+			group_atk = g["atk_per_card"]
+			break
+
+	if is_gold:
+		pop.text = "★ GOLD +0.25x"
+		pop.modulate = COLORS["gold"]
+	else:
+		pop.text = "+%d ATK" % group_atk
+		pop.modulate = COLORS.get(card["color"], Color.CYAN)
+
+	pop.add_theme_font_size_override("font_size", 16 if is_gold else 20)
+	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
+	pop.add_theme_constant_override("shadow_offset_x", 1)
+	pop.add_theme_constant_override("shadow_offset_y", 1)
+	pop.add_theme_constant_override("shadow_outline_size", 3)
+	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	effects_layer.add_child(pop)
+	var start_pos = effects_layer.to_local(tile_btn.global_position) + Vector2(tile_btn.size.x * 0.5 - 60.0, -10.0)
+	pop.position = start_pos
+	pop.size = Vector2(120, 36)
+	pop.pivot_offset = Vector2(60, 18)
+	pop.scale = Vector2(0.5, 0.5)
 
 	var pop_tween = create_tween()
-	pop_tween.tween_property(pop, "position:y", pop.position.y - 30, 0.4 / speed_multiplier)
-	pop_tween.tween_property(pop, "modulate:a", 0.0, 0.2 / speed_multiplier)
+	pop_tween.tween_property(pop, "scale", Vector2(1.15, 1.15), 0.12 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop_tween.parallel().tween_property(pop, "position:y", start_pos.y - 30.0, 0.3 / speed_multiplier)
+	pop_tween.tween_property(pop, "scale", Vector2(0.9, 0.9), 0.12 / speed_multiplier)
+	pop_tween.parallel().tween_property(pop, "modulate:a", 0.0, 0.18 / speed_multiplier)
+	pop_tween.parallel().tween_property(pop, "position:y", start_pos.y - 50.0, 0.18 / speed_multiplier)
 	pop_tween.tween_callback(pop.queue_free)
 
 
 func _on_walk_finished() -> void:
+	# 1. Fireball flies up to Hero along a curved Bézier path
+	msg_label.text = "✨ ลูกไฟพุ่งรวมพลังเข้าสู่ฮีโร่!"
+	var start_global = token.global_position + token.size * 0.5
+	var hero_center = hero_pic.global_position + hero_pic.size * 0.5
+	var mid_global = (start_global + hero_center) * 0.5 + Vector2(-60.0, -100.0)
+
+	var fly_tween = create_tween()
+	fly_tween.tween_method(func(t: float):
+		var omt = 1.0 - t
+		token.global_position = omt * omt * start_global + 2.0 * omt * t * mid_global + t * t * hero_center - token.size * 0.5
+	, 0.0, 1.0, 0.35 / speed_multiplier).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+
+	await fly_tween.finished
 	token.visible = false
+	token.position = Vector2(20.0, 26.0)
+
+	# 2. Hero cast charge (pulse scale & glow)
+	hero_pic.pivot_offset = hero_pic.size * 0.5
+	var charge_tween = create_tween()
+	charge_tween.tween_property(hero_pic, "scale", Vector2(1.35, 1.35), 0.2 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	charge_tween.parallel().tween_property(hero_pic, "modulate", Color(1.4, 1.25, 0.5), 0.2 / speed_multiplier)
+	charge_tween.tween_interval(0.12 / speed_multiplier)
+	charge_tween.tween_property(hero_pic, "scale", Vector2.ONE, 0.15 / speed_multiplier)
+	charge_tween.parallel().tween_property(hero_pic, "modulate", Color.WHITE, 0.15 / speed_multiplier)
+	await charge_tween.finished
+
+	# 3. Calculate Damage & Fire Hero Laser Beam!
 	var result = calculate_groups()
 	var dmg = int(result["atk"] * result["mult"])
 	if dmg <= 0: dmg = 1
 
-	msg_label.text = "🧙 ฮีโร่ยิงเวทโจมตี %d ดาเมจ!" % dmg
+	msg_label.text = "🧙 ฮีโร่ยิงลำแสงเวท %d ดาเมจ!" % dmg
+	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
 
-	# Animate Hero Cast
-	var hero_tween = create_tween()
-	hero_tween.tween_property(hero_pic, "scale", Vector2(1.3, 1.3), 0.2 / speed_multiplier)
-	hero_tween.tween_property(hero_pic, "scale", Vector2(1.0, 1.0), 0.2 / speed_multiplier)
+	fire_laser_beam(beam_line, hero_center, enemy_center, Color(1.0, 0.78, 0.25), 24.0, 0.28)
 
-	# Damage Enemy
-	var enemy_tween = create_tween()
-	enemy_tween.tween_interval(0.3 / speed_multiplier)
-	enemy_tween.tween_property(enemy_pic, "modulate", Color.RED, 0.15 / speed_multiplier)
-	enemy_tween.tween_property(enemy_pic, "modulate", Color.WHITE, 0.2 / speed_multiplier)
+	await get_tree().create_timer(0.08 / speed_multiplier).timeout
 
+	# 4. Enemy takes damage, shakes, flashes red, damage popup
 	enemy_hp = maxi(0, enemy_hp - dmg)
-	update_all_ui()
+	enemy_hp_label.text = "HP %d / %d" % [enemy_hp, enemy_max_hp]
+	create_tween().tween_property(enemy_hp_bar, "value", float(enemy_hp), 0.35 / speed_multiplier)
+
+	shake_node(enemy_pic, 18.0, 0.42)
+	enemy_pic.modulate = Color(1.6, 0.2, 0.2)
+	var enemy_hurt = create_tween()
+	enemy_hurt.tween_property(enemy_pic, "modulate", Color.WHITE, 0.25 / speed_multiplier)
+
+	spawn_damage_number("-%d" % dmg, enemy_center, Color("#ff4d5e"), true)
+
+	await get_tree().create_timer(0.6 / speed_multiplier).timeout
 
 	if enemy_hp <= 0:
-		await get_tree().create_timer(0.6 / speed_multiplier).timeout
 		on_victory()
 	else:
-		await get_tree().create_timer(0.6 / speed_multiplier).timeout
 		_enemy_counter_attack()
 
 
 func _enemy_counter_attack() -> void:
 	msg_label.text = "👹 ศัตรูโจมตีสวนกลับ!"
 
-	var enemy_lunge = create_tween()
-	enemy_lunge.tween_property(enemy_pic, "position:x", enemy_pic.position.x - 20, 0.15 / speed_multiplier)
-	enemy_lunge.tween_property(enemy_pic, "position:x", enemy_pic.position.x, 0.15 / speed_multiplier)
+	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
+	var hero_center = hero_pic.global_position + hero_pic.size * 0.5
 
-	var hero_hurt = create_tween()
-	hero_hurt.tween_interval(0.15 / speed_multiplier)
-	hero_hurt.tween_property(hero_pic, "modulate", Color.RED, 0.15 / speed_multiplier)
-	hero_hurt.tween_property(hero_pic, "modulate", Color.WHITE, 0.2 / speed_multiplier)
+	# 1. Enemy lunges forward
+	enemy_pic.pivot_offset = enemy_pic.size * 0.5
+	var orig_pos = enemy_pic.position
+	var lunge_tween = create_tween()
+	lunge_tween.tween_property(enemy_pic, "position:x", orig_pos.x - 35.0, 0.16 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	lunge_tween.tween_property(enemy_pic, "position:x", orig_pos.x, 0.14 / speed_multiplier)
 
+	await get_tree().create_timer(0.18 / speed_multiplier).timeout
+
+	# 2. Enemy fires dark purple/magenta laser beam
+	fire_laser_beam(enemy_beam_line, enemy_center, hero_center, Color(0.9, 0.25, 0.95), 22.0, 0.28)
+
+	await get_tree().create_timer(0.08 / speed_multiplier).timeout
+
+	# 3. Hero gets hit!
 	player_hp = maxi(0, player_hp - enemy_atk)
-	update_all_ui()
+	hero_hp_label.text = "HP %d / %d" % [player_hp, player_max_hp]
+	create_tween().tween_property(hero_hp_bar, "value", float(player_hp), 0.3 / speed_multiplier)
+
+	shake_node(hero_pic, 15.0, 0.38)
+	hero_pic.modulate = Color.RED
+	var hurt_tween = create_tween()
+	hurt_tween.tween_property(hero_pic, "modulate", Color.WHITE, 0.25 / speed_multiplier)
+
+	spawn_damage_number("-%d" % enemy_atk, hero_center, Color("#ff3355"), true)
+
+	await get_tree().create_timer(0.5 / speed_multiplier).timeout
 
 	if player_hp <= 0:
-		await get_tree().create_timer(0.5 / speed_multiplier).timeout
 		on_game_over()
 	else:
 		is_busy = false
@@ -707,8 +804,120 @@ func _enemy_counter_attack() -> void:
 			update_all_ui()
 
 
+func fire_laser_beam(line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Color, beam_w: float = 20.0, duration: float = 0.25) -> void:
+	var p0 = effects_layer.to_local(from_pos)
+	var p1 = effects_layer.to_local(to_pos)
+	line.clear_points()
+	line.add_point(p0)
+	line.add_point(p0)
+	line.default_color = col
+	line.width = beam_w
+	line.modulate.a = 1.0
+	line.visible = true
+
+	var tween = create_tween()
+	# Beam shoots quickly from p0 to p1
+	tween.tween_method(func(pos: Vector2):
+		if line.get_point_count() >= 2:
+			line.set_point_position(1, pos)
+	, p0, p1, 0.07 / speed_multiplier)
+
+	# Hold beam
+	tween.tween_interval(duration / speed_multiplier)
+
+	# Dissolve beam width and fade out
+	tween.tween_property(line, "width", 0.0, 0.12 / speed_multiplier)
+	tween.parallel().tween_property(line, "modulate:a", 0.0, 0.12 / speed_multiplier)
+	tween.tween_callback(func():
+		line.visible = false
+		line.clear_points()
+	)
+
+
+func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38) -> void:
+	node.pivot_offset = node.size * 0.5
+	var orig_pos = node.position
+	var orig_rot = node.rotation
+	var tween = create_tween()
+	var steps = int(duration / 0.04)
+	for i in range(steps):
+		var decay = 1.0 - (float(i) / float(steps))
+		var offset = Vector2(randf_range(-intensity, intensity) * decay, randf_range(-intensity * 0.35, intensity * 0.35) * decay)
+		var rot_offset = deg_to_rad(randf_range(-6.0, 6.0) * decay)
+		tween.tween_property(node, "position", orig_pos + offset, 0.04 / speed_multiplier)
+		tween.parallel().tween_property(node, "rotation", orig_rot + rot_offset, 0.04 / speed_multiplier)
+	tween.tween_property(node, "position", orig_pos, 0.04 / speed_multiplier)
+	tween.parallel().tween_property(node, "rotation", orig_rot, 0.04 / speed_multiplier)
+
+
+func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = Color("#ff4d5e"), is_big: bool = true) -> void:
+	var pop = Label.new()
+	pop.text = text
+	pop.add_theme_font_size_override("font_size", 34 if is_big else 22)
+	pop.add_theme_color_override("font_color", col)
+	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
+	pop.add_theme_constant_override("shadow_offset_x", 2)
+	pop.add_theme_constant_override("shadow_offset_y", 2)
+	pop.add_theme_constant_override("shadow_outline_size", 4)
+	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pop.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	effects_layer.add_child(pop)
+	var start_pos = effects_layer.to_local(target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
+	pop.position = start_pos - Vector2(50.0, 20.0)
+	pop.size = Vector2(100.0, 40.0)
+	pop.pivot_offset = Vector2(50.0, 20.0)
+	pop.scale = Vector2(0.5, 0.5)
+	pop.modulate.a = 0.0
+
+	var tween = create_tween()
+	# Pop in & scale up to 1.3
+	tween.tween_property(pop, "scale", Vector2(1.3, 1.3), 0.14 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(pop, "modulate:a", 1.0, 0.12 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 45.0, 0.14 / speed_multiplier)
+
+	# Float up and settle to scale 1.0
+	tween.tween_property(pop, "scale", Vector2.ONE, 0.2 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 75.0, 0.35 / speed_multiplier)
+
+	# Fade out
+	tween.tween_property(pop, "modulate:a", 0.0, 0.22 / speed_multiplier)
+	tween.parallel().tween_property(pop, "position:y", start_pos.y - 95.0, 0.22 / speed_multiplier)
+	tween.tween_callback(pop.queue_free)
+
+
+func show_discovery_toast(formula_key: String) -> void:
+	var f_info = null
+	for f in stone_formulas:
+		if f["key"] == formula_key:
+			f_info = f
+			break
+	if f_info == null: return
+
+	toast_label.text = "✨ ค้นพบสูตรใหม่! · %s (%s) · ATK +%d" % [f_info["name"], f_info["desc"], f_info["a"]]
+	toast.visible = true
+	toast.modulate.a = 0.0
+	var orig_y = 70.0
+	toast.position.y = orig_y - 25.0
+
+	var tween = create_tween()
+	tween.tween_property(toast, "position:y", orig_y, 0.28 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(toast, "modulate:a", 1.0, 0.25 / speed_multiplier)
+	tween.tween_interval(2.2 / speed_multiplier)
+	tween.tween_property(toast, "position:y", orig_y - 20.0, 0.25 / speed_multiplier)
+	tween.parallel().tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
+	tween.tween_callback(func(): toast.visible = false)
+
+
 func on_victory() -> void:
 	is_busy = false
+	msg_label.text = "🏆 ชนะศัตรูแล้ว!"
+	var fade_tween = create_tween()
+	fade_tween.tween_property(enemy_pic, "modulate:a", 0.0, 0.4 / speed_multiplier)
+	fade_tween.tween_property(enemy_pic, "scale", Vector2(0.5, 0.5), 0.4 / speed_multiplier)
+
+	await fade_tween.finished
 	var reward_coins = 15 + stage * 5
 	coins += reward_coins
 	reward_info.text = "เอาชนะศัตรูด่านที่ %d สำเร็จ!\n\nได้รับ: +%d 🪙 เหรียญ\nพลังชีวิตฟื้นฟูเต็มเปี่ยม" % [stage, reward_coins]
@@ -718,6 +927,8 @@ func on_victory() -> void:
 func _on_next_stage_pressed() -> void:
 	stage += 1
 	reward_modal.visible = false
+	enemy_pic.modulate = Color.WHITE
+	enemy_pic.scale = Vector2.ONE
 	enemy_max_hp = int(enemy_max_hp * 1.35)
 	enemy_hp = enemy_max_hp
 	enemy_atk = int(enemy_atk * 1.25)
@@ -729,6 +940,7 @@ func _on_next_stage_pressed() -> void:
 
 func on_game_over() -> void:
 	is_busy = false
+	msg_label.text = "💀 คุณพ่ายแพ้..."
 	gameover_info.text = "คุณพ่ายแพ้ในด่านที่ %d!\nคะแนนเหรียญสะสม: %d 🪙" % [stage, coins]
 	gameover_modal.visible = true
 
