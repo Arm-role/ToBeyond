@@ -26,14 +26,60 @@ const COLORS = {
 	"text_bright": Color("#f3ead7")
 }
 
-var EMBLEMS = {}
+var EMBLEMS = {}           # dir -> Texture2D (white)
+var EMBLEMS_GOLD = {}      # dir -> Texture2D (gold, matched)
+var ART_TEX = {}           # artifact type -> Texture2D
+var CHAOS_TEX = {}         # chaos kind -> Texture2D
+var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
+var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
+var CRYSTAL_TEX: Texture2D = null
 var BALL_TEXTURE: Texture2D = null
 
 func init_textures() -> void:
+	# Emblems (white & gold variants)
 	for d in ["N", "E", "S", "W"]:
-		var p = "res://assets/emblems/emblem_%s.svg" % d.to_lower()
+		var dl = d.to_lower()
+		var pw = "res://assets/emblems/emblem_%s.svg" % dl
+		var pg = "res://assets/emblems/emblem_%s_gold.svg" % dl
+		if ResourceLoader.exists(pw):
+			EMBLEMS[d] = load(pw)
+		if ResourceLoader.exists(pg):
+			EMBLEMS_GOLD[d] = load(pg)
+
+	# Artifact SVGs
+	var art_keys = ["add5","mult2","atk15","isoGem","firstGem","emptyAtk","chaosStack",
+		"discardStack","walkCoin","chaosAtk","equalG","reverse","totem","helperOdd",
+		"helperEven","greenCoin","fullSell","tileAtk","stone3","stoneUp","artiPay",
+		"fatePay","freediscard","hitRing"]
+	for key in art_keys:
+		var p = "res://assets/artifacts/%s.svg" % key
 		if ResourceLoader.exists(p):
-			EMBLEMS[d] = load(p)
+			ART_TEX[key] = load(p)
+
+	# Chaos SVGs
+	var chaos_keys = ["color","mtile","goldify","crystal","destroy"]
+	for key in chaos_keys:
+		var p = "res://assets/chaos/%s.svg" % key
+		if ResourceLoader.exists(p):
+			CHAOS_TEX[key] = load(p)
+
+	# Gem frames (placed card)
+	for col in ["red","green","orange","blue","blank"]:
+		var p = "res://assets/frames/gem_frame_%s.svg" % col
+		if ResourceLoader.exists(p):
+			GEM_FRAME_TEX[col] = load(p)
+
+	# Tile empty SVGs (per slot)
+	for i in range(N_TILES):
+		var p = "res://assets/tiles/tile_empty_%d.svg" % i
+		if ResourceLoader.exists(p):
+			TILE_EMPTY_TEX[i] = load(p)
+
+	# Crystal
+	if ResourceLoader.exists("res://assets/crystal.svg"):
+		CRYSTAL_TEX = load("res://assets/crystal.svg")
+
+	# Ball
 	if ResourceLoader.exists("res://assets/ball.svg"):
 		BALL_TEXTURE = load("res://assets/ball.svg")
 
@@ -371,61 +417,92 @@ func render_tiles() -> void:
 		var tile_btn = tiles_container.get_child(i) as Button
 		var t_dir = TILE_DIR[i]
 
-		var sb = StyleBoxFlat.new()
-		sb.set_corner_radius_all(10)
-		sb.border_width_top = 3
-		sb.border_width_bottom = 3
-		sb.border_width_left = 3
-		sb.border_width_right = 3
-
 		if placed_cards.has(i):
 			var card = placed_cards[i]
 			var is_blank = card.get("is_blank", false)
 
 			if is_blank:
-				sb.bg_color = Color("#3a3a48")
-				sb.border_color = Color("#777788")
-				tile_btn.icon = null
-				tile_btn.text = "%d\n\n[การ์ดเปล่า]" % (i + 1)
-				tile_btn.modulate = Color(0.8, 0.8, 0.8)
+				# Blank card: use tile_empty with grey tint
+				var sb = StyleBoxFlat.new()
+				sb.set_corner_radius_all(10)
+				sb.set_border_width_all(3)
+				sb.bg_color = Color("#cfcfda")
+				sb.border_color = Color("#888899")
+				tile_btn.add_theme_stylebox_override("normal", sb)
+				tile_btn.add_theme_stylebox_override("hover", sb)
+				tile_btn.add_theme_stylebox_override("pressed", sb)
+				# Use empty tile frame as base; overlay blank text
+				if TILE_EMPTY_TEX.has(i):
+					tile_btn.icon = TILE_EMPTY_TEX[i]
+					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					tile_btn.expand_icon = true
+					tile_btn.text = ""
+				else:
+					tile_btn.icon = null
+					tile_btn.text = "%d\n[เปล่า]" % (i + 1)
+				tile_btn.modulate = Color(0.75, 0.75, 0.75)
 			else:
 				var c_dir = card["dir"]
 				var c_col = card["color"]
 				var is_match = (c_dir == t_dir)
 
-				sb.bg_color = COLORS.get(c_col, COLORS["empty_tile"]).darkened(0.2)
-				sb.border_color = COLORS["gold"] if is_match else COLORS["brass"]
-
-				var icon_tex = EMBLEMS.get(c_dir)
-				if icon_tex != null:
+				# Use gem_frame SVG as icon (placed card diamond frame)
+				var frame_tex = GEM_FRAME_TEX.get(c_col)
+				if frame_tex != null:
+					tile_btn.icon = frame_tex
+					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					tile_btn.expand_icon = true
+					tile_btn.text = ""
+				else:
+					# Fallback: emblem icon + stylebox
+					var sb = StyleBoxFlat.new()
+					sb.set_corner_radius_all(10)
+					sb.set_border_width_all(3)
+					sb.bg_color = COLORS.get(c_col, COLORS["empty_tile"]).darkened(0.2)
+					sb.border_color = COLORS["gold"] if is_match else COLORS["brass"]
+					tile_btn.add_theme_stylebox_override("normal", sb)
+					tile_btn.add_theme_stylebox_override("hover", sb)
+					tile_btn.add_theme_stylebox_override("pressed", sb)
+					var icon_tex = EMBLEMS_GOLD.get(c_dir) if is_match else EMBLEMS.get(c_dir)
 					tile_btn.icon = icon_tex
 					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 					tile_btn.expand_icon = true
-					tile_btn.text = "%d\n\n%s" % [i + 1, "★ GOLD" if is_match else ""]
-				else:
-					tile_btn.icon = null
-					tile_btn.text = "#%d\n%s\n%s" % [i + 1, c_dir, "★ GOLD" if is_match else ""]
+					tile_btn.text = "%d\n%s" % [i + 1, "★" if is_match else ""]
+
+				# Gold glow tint when direction matches
 				tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
 
-			tile_btn.add_theme_stylebox_override("normal", sb)
-			tile_btn.add_theme_stylebox_override("hover", sb)
-			tile_btn.add_theme_stylebox_override("pressed", sb)
+				# Style border highlight
+				var sb2 = StyleBoxFlat.new()
+				sb2.set_corner_radius_all(10)
+				sb2.set_border_width_all(3 if is_match else 2)
+				sb2.bg_color = Color.TRANSPARENT
+				sb2.border_color = COLORS["gold"] if is_match else COLORS["brass"]
+				tile_btn.add_theme_stylebox_override("normal", sb2)
+				tile_btn.add_theme_stylebox_override("hover", sb2)
+				tile_btn.add_theme_stylebox_override("pressed", sb2)
 		else:
-			sb.bg_color = COLORS["empty_tile"]
-			sb.border_color = COLORS["brass"]
-			var icon_tex = EMBLEMS.get(t_dir)
-			if icon_tex != null:
-				tile_btn.icon = icon_tex
+			# Empty tile: use SVG per slot with direction emblem
+			if TILE_EMPTY_TEX.has(i):
+				tile_btn.icon = TILE_EMPTY_TEX[i]
 				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				tile_btn.expand_icon = true
-				tile_btn.text = "%d\n\n" % (i + 1)
+				tile_btn.text = ""
 			else:
-				tile_btn.icon = null
-				tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
-			tile_btn.modulate = Color(0.65, 0.65, 0.75)
-			tile_btn.add_theme_stylebox_override("normal", sb)
-			tile_btn.add_theme_stylebox_override("hover", sb)
-			tile_btn.add_theme_stylebox_override("pressed", sb)
+				# Fallback stylebox + emblem icon
+				var sb = StyleBoxFlat.new()
+				sb.set_corner_radius_all(10)
+				sb.set_border_width_all(3)
+				sb.bg_color = COLORS["empty_tile"]
+				sb.border_color = COLORS["brass"]
+				tile_btn.add_theme_stylebox_override("normal", sb)
+				tile_btn.add_theme_stylebox_override("hover", sb)
+				tile_btn.add_theme_stylebox_override("pressed", sb)
+				tile_btn.icon = EMBLEMS.get(t_dir)
+				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				tile_btn.expand_icon = true
+				tile_btn.text = "%d" % (i + 1)
+			tile_btn.modulate = Color.WHITE
 
 
 func render_hand() -> void:
@@ -469,22 +546,29 @@ func render_hand() -> void:
 		else:
 			var c_col = card["color"]
 			var c_dir = card["dir"]
-			sb.bg_color = COLORS.get(c_col, Color.GRAY)
-			sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
-
-			var icon_tex = EMBLEMS.get(c_dir)
-			if icon_tex != null:
-				btn.icon = icon_tex
+			# Use gem_frame SVG as card face (matches draft placedSvg)
+			var frame_tex = GEM_FRAME_TEX.get(c_col)
+			if frame_tex != null:
+				sb.bg_color = Color.TRANSPARENT
+				sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
+				btn.icon = frame_tex
 				btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				btn.expand_icon = true
-				if is_sel:
-					btn.text = "▲ เลือก"
-					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-				else:
-					btn.text = ""
+				btn.text = ""
 			else:
-				btn.icon = null
-				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
+				# Fallback: color background + emblem icon
+				sb.bg_color = COLORS.get(c_col, Color.GRAY)
+				sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
+				var icon_tex = EMBLEMS.get(c_dir)
+				if icon_tex != null:
+					btn.icon = icon_tex
+					btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					btn.expand_icon = true
+					btn.text = "▲ เลือก" if is_sel else ""
+					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP if is_sel else VERTICAL_ALIGNMENT_CENTER
+				else:
+					btn.icon = null
+					btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
 
 		btn.add_theme_stylebox_override("normal", sb)
 		btn.add_theme_stylebox_override("hover", sb)
@@ -1025,8 +1109,17 @@ func _render_shop_owned() -> void:
 		slot_btn.custom_minimum_size = Vector2(72, 84)
 		slot_btn.add_theme_font_size_override("font_size", 28)
 		if art != null:
-			slot_btn.text = art["icon"]
-			slot_btn.tooltip_text = "%s\n%s\n(แตะเพื่อขาย 🪙%d)" % [art["name"], art["desc"], int(art["price"] / 3.0)]
+			# Use SVG icon if available
+			var art_tex = ART_TEX.get(art["type"])
+			if art_tex != null:
+				slot_btn.icon = art_tex
+				slot_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				slot_btn.expand_icon = true
+				slot_btn.text = ""
+			else:
+				slot_btn.icon = null
+				slot_btn.text = art["icon"]
+			slot_btn.tooltip_text = "%s\n%s\n(แตะเพื่อขาย 🪙%d)" % [art["name"], art.get("desc",""), int(art["price"] / 3.0)]
 			var sell_idx = i
 			slot_btn.pressed.connect(func(): _sell_artifact(sell_idx))
 		else:
@@ -1105,7 +1198,16 @@ func _render_shop_offers() -> void:
 		btn.add_theme_color_override("font_color", item["color"])
 		var is_full = not artifacts.has(null)
 		var can_buy = not is_full and coins >= item["price"]
-		btn.text = "%s\n%s\n🪙%d" % [item["icon"], item["name"], item["price"]]
+		# Use SVG icon if available
+		var art_tex = ART_TEX.get(item["type"])
+		if art_tex != null:
+			btn.icon = art_tex
+			btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			btn.expand_icon = true
+			btn.text = "%s\n🪙%d" % [item["name"], item["price"]]
+		else:
+			btn.icon = null
+			btn.text = "%s\n%s\n🪙%d" % [item["icon"], item["name"], item["price"]]
 		btn.disabled = not can_buy
 		btn.tooltip_text = item["desc"]
 		var capture = item
@@ -1209,9 +1311,18 @@ func render_artifact_row() -> void:
 		if slot == null: continue
 		var art = artifacts[i]
 		if art != null:
-			slot.text = art["icon"]
-			slot.tooltip_text = art["name"]
+			var art_tex = ART_TEX.get(art["type"])
+			if art_tex != null:
+				slot.icon = art_tex
+				slot.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				slot.expand_icon = true
+				slot.text = ""
+			else:
+				slot.icon = null
+				slot.text = art["icon"]
+			slot.tooltip_text = art["name"] + "\n" + art.get("desc", "")
 		else:
+			slot.icon = null
 			slot.text = ""
 			slot.tooltip_text = ""
 

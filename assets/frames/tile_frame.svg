@@ -1,0 +1,10 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="20,4 236,4 252,20 252,236 236,252 20,252 4,236 4,20" fill="#2A2160"/>
+  <polygon points="20,4 236,4 252,20 252,236 236,252 20,252 4,236 4,20" fill="none" stroke="#C9A66B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="30,18 226,18 238,30 238,226 226,238 30,238 18,226 18,30" fill="none" stroke="#C9A66B" stroke-width="3" opacity=".7" stroke-linejoin="round"/>
+  <polygon points="128,34 222,128 128,222 34,128" fill="#3B2F82" stroke="#C9A66B" stroke-width="3" stroke-opacity=".5" stroke-linejoin="round"/>
+  <polygon points="128,52 204,128 128,204 52,128" fill="#33296F" stroke="#C9A66B" stroke-width="2" stroke-opacity=".45" stroke-linejoin="round"/>
+  <circle cx="128" cy="128" r="66" fill="#14121C" stroke="#C9A66B" stroke-width="5"/>
+  <circle cx="128" cy="128" r="58" fill="none" stroke="#C9A66B" stroke-width="2" opacity=".5"/>
+  <path transform="translate(210,46) scale(.667)" fill="#C9A66B" opacity=".85" d="M0,-24 C2,-6 6,-2 24,0 C6,2 2,6 0,24 C-2,6 -6,2 -24,0 C-6,-2 -2,-6 0,-24Z"/><path transform="translate(46,210) scale(.667)" fill="#C9A66B" opacity=".85" d="M0,-24 C2,-6 6,-2 24,0 C6,2 2,6 0,24 C-2,6 -6,2 -24,0 C-6,-2 -2,-6 0,-24Z"/><path transform="translate(210,210) scale(.667)" fill="#C9A66B" opacity=".85" d="M0,-24 C2,-6 6,-2 24,0 C6,2 2,6 0,24 C-2,6 -6,2 -24,0 C-6,-2 -2,-6 0,-24Z"/>
+</svg>

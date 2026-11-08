@@ -1,0 +1,11 @@
+<svg viewBox="0 0 229 229" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17.1 2.7H211.5L225.9 17.1V211.5L211.5 225.9H17.1L2.7 211.5V17.1L17.1 2.7Z" fill="#2A2160" stroke="#C9A66B" stroke-width="5.4" stroke-linejoin="round"/>
+  <path opacity=".7" d="M26.1 15.3H202.5L213.3 26.1V202.5L202.5 213.3H26.1L15.3 202.5V26.1L26.1 15.3Z" stroke="#C9A66B" stroke-width="2.7" stroke-linejoin="round"/>
+  <path d="M114.3 29.7L198.9 114.3L114.3 198.9L29.7 114.3L114.3 29.7Z" fill="#CC7420" stroke="#C9A66B" stroke-opacity=".5" stroke-width="2.7" stroke-linejoin="round"/>
+  <path d="M114.3 45.9L182.7 114.3L114.3 182.7L45.9 114.3L114.3 45.9Z" fill="#CC7420" stroke="#C9A66B" stroke-opacity=".45" stroke-width="1.8" stroke-linejoin="round"/>
+  <circle cx="114.3" cy="114.3" r="52.2" fill="#14121C" stroke="#C9A66B" stroke-width="4.5"/>
+  <circle opacity=".6" cx="114.3" cy="114.3" r="45" stroke="#C9A66B" stroke-width="1.8"/>
+  <path opacity=".85" d="M188.1 26.1C189.3 36.9 191.7 39.3 202.5 40.5C191.7 41.7 189.3 44.1 188.1 54.9C186.9 44.1 184.5 41.7 173.7 40.5C184.5 39.3 186.9 36.9 188.1 26.1Z" fill="#C9A66B"/>
+  <path opacity=".85" d="M40.5 173.7C41.7 184.5 44.1 186.9 54.9 188.1C44.1 189.3 41.7 191.7 40.5 202.5C39.3 191.7 36.9 189.3 26.1 188.1C36.9 186.9 39.3 184.5 40.5 173.7Z" fill="#C9A66B"/>
+  <path opacity=".85" transform="translate(0,147.6)" d="M188.1 26.1C189.3 36.9 191.7 39.3 202.5 40.5C191.7 41.7 189.3 44.1 188.1 54.9C186.9 44.1 184.5 41.7 173.7 40.5C184.5 39.3 186.9 36.9 188.1 26.1Z" fill="#C9A66B"/>
+</svg>
