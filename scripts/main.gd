@@ -229,6 +229,7 @@ var artifacts: Array = []  # Array of null or Dict
 # Shop Modal
 @onready var shop_modal: PanelContainer = $ShopModal
 @onready var shop_coins_label: Label = $ShopModal/ShopVBox/ShopHeader/ShopCoinsLabel
+@onready var shop_reroll_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopRerollBtn
 @onready var shop_leave_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopLeaveBtn
 @onready var shop_game_tab: Button = $ShopModal/ShopVBox/ShopTabs/GameTab
 @onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopTabs/ArtifactTab
@@ -289,11 +290,15 @@ func connect_ui_signals() -> void:
 	discard_btn.pressed.connect(_on_discard_pressed)
 	sort_color_btn.pressed.connect(func(): set_sort_mode("color"))
 	sort_dir_btn.pressed.connect(func(): set_sort_mode("dir"))
-	stone_btn.pressed.connect(func(): stone_modal.visible = true)
+	stone_btn.pressed.connect(func():
+		setup_stone_modal_content()
+		stone_modal.visible = true
+	)
 	stone_close_btn.pressed.connect(func(): stone_modal.visible = false)
 	reward_next_btn.pressed.connect(_on_reward_shop_pressed)
 	gameover_btn.pressed.connect(start_new_game)
 	shop_leave_btn.pressed.connect(_on_shop_leave)
+	shop_reroll_btn.pressed.connect(func(): shop_mgr.reroll_shop())
 	shop_game_tab.pressed.connect(func(): shop_mgr.set_tab("game"))
 	shop_artifact_tab.pressed.connect(func(): shop_mgr.set_tab("artifact"))
 	shop_chaos_tab.pressed.connect(func(): shop_mgr.set_tab("chaos"))
@@ -415,6 +420,8 @@ func _finish_slot_drag(mouse_pos: Vector2) -> void:
 # ==============================================================================
 
 func start_new_game() -> void:
+	if is_busy:
+		return
 	stage = 1
 	coins = 0
 	walk_max = WALK_START
@@ -443,6 +450,7 @@ func start_new_game() -> void:
 	first_gem_triggered = false
 	first_gem_tile = -1
 	stone_up_multiplier = 1.0
+	stone_formulas = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
 	totem_tiles.clear()
 	reset_chaos()
 
@@ -1251,6 +1259,7 @@ func on_game_over() -> void:
 	is_busy = false
 	msg_label.text = "💀 คุณพ่ายแพ้..."
 	gameover_info.text = "คุณพ่ายแพ้ในด่านที่ %d!\nคะแนนเหรียญสะสม: %d 🪙" % [stage, coins]
+	update_all_ui()
 	gameover_modal.visible = true
 
 
@@ -1259,15 +1268,8 @@ func setup_stone_modal_content() -> void:
 
 
 func _on_speed_toggle() -> void:
-	if speed_multiplier == 1.0:
-		speed_multiplier = 2.0
-		speed_btn.text = "⏩ x2"
-	elif speed_multiplier == 2.0:
-		speed_multiplier = 3.0
-		speed_btn.text = "⏩ x3"
-	else:
-		speed_multiplier = 1.0
-		speed_btn.text = "▶ x1"
+	speed_multiplier = 1.0 if speed_multiplier >= 5.0 else speed_multiplier + 1.0
+	speed_btn.text = "▶ x1" if speed_multiplier == 1.0 else "⏩ x%d" % int(speed_multiplier)
 
 
 func open_deck_modal() -> void:

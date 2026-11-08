@@ -28,6 +28,7 @@ func update_all_ui() -> void:
 	_main.enemy_atk_label.text = "⚔ %d" % _main.enemy_atk
 
 	_main.walk_btn.disabled = _main.is_busy or (_main.walks_left <= 0 and _main.selected_card_ids.is_empty())
+	_main.restart_btn.disabled = _main.is_busy
 	if _main.selected_card_ids.size() > 0:
 		_main.walk_btn.text = "วาง (%d)" % _main.selected_card_ids.size()
 	else:
@@ -500,4 +501,3 @@ func _make_deck_panel(title: String, detail: String, bg_col: Color, border_col: 
 
 	pnl.add_child(vbox)
 	return pnl
-
