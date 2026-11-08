@@ -446,10 +446,17 @@ func render_tiles() -> void:
 				var c_col = card["color"]
 				var is_match = (c_dir == t_dir)
 
-				# Use gem_frame SVG as icon (placed card diamond frame)
+				# Placed card diamond frame as background + direction emblem as centered icon
 				var frame_tex = GEM_FRAME_TEX.get(c_col)
 				if frame_tex != null:
-					tile_btn.icon = frame_tex
+					var sbt = StyleBoxTexture.new()
+					sbt.texture = frame_tex
+					tile_btn.add_theme_stylebox_override("normal", sbt)
+					tile_btn.add_theme_stylebox_override("hover", sbt)
+					tile_btn.add_theme_stylebox_override("pressed", sbt)
+
+					var icon_tex = EMBLEMS_GOLD.get(c_dir) if is_match else EMBLEMS.get(c_dir)
+					tile_btn.icon = icon_tex
 					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 					tile_btn.expand_icon = true
 					tile_btn.text = ""
@@ -471,18 +478,13 @@ func render_tiles() -> void:
 
 				# Gold glow tint when direction matches
 				tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
-
-				# Style border highlight
-				var sb2 = StyleBoxFlat.new()
-				sb2.set_corner_radius_all(10)
-				sb2.set_border_width_all(3 if is_match else 2)
-				sb2.bg_color = Color.TRANSPARENT
-				sb2.border_color = COLORS["gold"] if is_match else COLORS["brass"]
-				tile_btn.add_theme_stylebox_override("normal", sb2)
-				tile_btn.add_theme_stylebox_override("hover", sb2)
-				tile_btn.add_theme_stylebox_override("pressed", sb2)
 		else:
 			# Empty tile: use SVG per slot with direction emblem
+			var sb_empty = StyleBoxEmpty.new()
+			tile_btn.add_theme_stylebox_override("normal", sb_empty)
+			tile_btn.add_theme_stylebox_override("hover", sb_empty)
+			tile_btn.add_theme_stylebox_override("pressed", sb_empty)
+
 			if TILE_EMPTY_TEX.has(i):
 				tile_btn.icon = TILE_EMPTY_TEX[i]
 				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -546,29 +548,22 @@ func render_hand() -> void:
 		else:
 			var c_col = card["color"]
 			var c_dir = card["dir"]
-			# Use gem_frame SVG as card face (matches draft placedSvg)
-			var frame_tex = GEM_FRAME_TEX.get(c_col)
-			if frame_tex != null:
-				sb.bg_color = Color.TRANSPARENT
-				sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
-				btn.icon = frame_tex
+			sb.bg_color = COLORS.get(c_col, Color.GRAY)
+			sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
+
+			var icon_tex = EMBLEMS.get(c_dir)
+			if icon_tex != null:
+				btn.icon = icon_tex
 				btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				btn.expand_icon = true
-				btn.text = ""
-			else:
-				# Fallback: color background + emblem icon
-				sb.bg_color = COLORS.get(c_col, Color.GRAY)
-				sb.border_color = COLORS["brass_bright"] if is_sel else COLORS["brass"]
-				var icon_tex = EMBLEMS.get(c_dir)
-				if icon_tex != null:
-					btn.icon = icon_tex
-					btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-					btn.expand_icon = true
-					btn.text = "▲ เลือก" if is_sel else ""
-					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP if is_sel else VERTICAL_ALIGNMENT_CENTER
+				if is_sel:
+					btn.text = "▲"
+					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 				else:
-					btn.icon = null
-					btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
+					btn.text = ""
+			else:
+				btn.icon = null
+				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
 
 		btn.add_theme_stylebox_override("normal", sb)
 		btn.add_theme_stylebox_override("hover", sb)

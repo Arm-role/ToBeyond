@@ -75,3 +75,4 @@ for (const svgPath of svgFiles) {
 }
 
 console.log('\nTotal .import files created:', created);
+
