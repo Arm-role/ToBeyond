@@ -685,7 +685,7 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	effects_layer.add_child(pop)
-	var start_pos = effects_layer.to_local(tile_btn.global_position) + Vector2(tile_btn.size.x * 0.5 - 60.0, -10.0)
+	var start_pos = (effects_layer.get_global_transform().affine_inverse() * tile_btn.global_position) + Vector2(tile_btn.size.x * 0.5 - 60.0, -10.0)
 	pop.position = start_pos
 	pop.size = Vector2(120, 36)
 	pop.pivot_offset = Vector2(60, 18)
@@ -805,8 +805,8 @@ func _enemy_counter_attack() -> void:
 
 
 func fire_laser_beam(line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Color, beam_w: float = 20.0, duration: float = 0.25) -> void:
-	var p0 = effects_layer.to_local(from_pos)
-	var p1 = effects_layer.to_local(to_pos)
+	var p0 = (effects_layer.get_global_transform().affine_inverse() * from_pos)
+	var p1 = (effects_layer.get_global_transform().affine_inverse() * to_pos)
 	line.clear_points()
 	line.add_point(p0)
 	line.add_point(p0)
@@ -864,7 +864,7 @@ func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = 
 	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	effects_layer.add_child(pop)
-	var start_pos = effects_layer.to_local(target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
+	var start_pos = (effects_layer.get_global_transform().affine_inverse() * target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
 	pop.position = start_pos - Vector2(50.0, 20.0)
 	pop.size = Vector2(100.0, 40.0)
 	pop.pivot_offset = Vector2(50.0, 20.0)
