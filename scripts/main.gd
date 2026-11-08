@@ -24,14 +24,16 @@ const COLORS = {
 	"text_bright": Color("#f3ead7")
 }
 
-var EMBLEMS = {
-	"N": preload("res://assets/emblems/emblem_n.svg"),
-	"E": preload("res://assets/emblems/emblem_e.svg"),
-	"S": preload("res://assets/emblems/emblem_s.svg"),
-	"W": preload("res://assets/emblems/emblem_w.svg")
-}
+var EMBLEMS = {}
+var BALL_TEXTURE: Texture2D = null
 
-var BALL_TEXTURE = preload("res://assets/ball.svg")
+func init_textures() -> void:
+	for d in ["N", "E", "S", "W"]:
+		var p = "res://assets/emblems/emblem_%s.svg" % d.to_lower()
+		if ResourceLoader.exists(p):
+			EMBLEMS[d] = load(p)
+	if ResourceLoader.exists("res://assets/ball.svg"):
+		BALL_TEXTURE = load("res://assets/ball.svg")
 
 # --- Stone Formulas ---
 var stone_formulas = [
@@ -109,6 +111,7 @@ var speed_multiplier: float = 1.0
 
 
 func _ready() -> void:
+	init_textures()
 	setup_token_visual()
 	connect_ui_signals()
 	setup_stone_modal_content()
@@ -117,13 +120,19 @@ func _ready() -> void:
 
 func setup_token_visual() -> void:
 	token.custom_minimum_size = Vector2(48, 64)
-	var tex_rect = TextureRect.new()
-	tex_rect.name = "BallTexture"
-	tex_rect.texture = BALL_TEXTURE
-	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tex_rect.custom_minimum_size = Vector2(44, 60)
-	token.add_child(tex_rect)
+	if BALL_TEXTURE != null:
+		var tex_rect = TextureRect.new()
+		tex_rect.name = "BallTexture"
+		tex_rect.texture = BALL_TEXTURE
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.custom_minimum_size = Vector2(44, 60)
+		token.add_child(tex_rect)
+	else:
+		var lbl = Label.new()
+		lbl.text = "🔥"
+		lbl.add_theme_font_size_override("font_size", 34)
+		token.add_child(lbl)
 
 
 func connect_ui_signals() -> void:
@@ -258,10 +267,15 @@ func render_tiles() -> void:
 			tile_btn.add_theme_stylebox_override("hover", sb)
 			tile_btn.add_theme_stylebox_override("pressed", sb)
 
-			tile_btn.icon = EMBLEMS.get(c_dir)
-			tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			tile_btn.expand_icon = true
-			tile_btn.text = "%d\n\n%s" % [i + 1, "★ GOLD" if is_match else ""]
+			var icon_tex = EMBLEMS.get(c_dir)
+			if icon_tex != null:
+				tile_btn.icon = icon_tex
+				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				tile_btn.expand_icon = true
+				tile_btn.text = "%d\n\n%s" % [i + 1, "★ GOLD" if is_match else ""]
+			else:
+				tile_btn.icon = null
+				tile_btn.text = "#%d\n%s\n%s" % [i + 1, c_dir, "★ GOLD" if is_match else ""]
 			tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
 		else:
 			sb.bg_color = COLORS["empty_tile"]
@@ -270,10 +284,15 @@ func render_tiles() -> void:
 			tile_btn.add_theme_stylebox_override("hover", sb)
 			tile_btn.add_theme_stylebox_override("pressed", sb)
 
-			tile_btn.icon = EMBLEMS.get(t_dir)
-			tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			tile_btn.expand_icon = true
-			tile_btn.text = "%d\n\n" % (i + 1)
+			var icon_tex = EMBLEMS.get(t_dir)
+			if icon_tex != null:
+				tile_btn.icon = icon_tex
+				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				tile_btn.expand_icon = true
+				tile_btn.text = "%d\n\n" % (i + 1)
+			else:
+				tile_btn.icon = null
+				tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
 			tile_btn.modulate = Color(0.65, 0.65, 0.75)
 
 
@@ -318,15 +337,19 @@ func render_hand() -> void:
 		btn.add_theme_stylebox_override("hover", sb)
 		btn.add_theme_stylebox_override("pressed", sb)
 
-		btn.icon = EMBLEMS.get(c_dir)
-		btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn.expand_icon = true
-
-		if is_sel:
-			btn.text = "▲ เลือก"
-			btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		var icon_tex = EMBLEMS.get(c_dir)
+		if icon_tex != null:
+			btn.icon = icon_tex
+			btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			btn.expand_icon = true
+			if is_sel:
+				btn.text = "▲ เลือก"
+				btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+			else:
+				btn.text = ""
 		else:
-			btn.text = ""
+			btn.icon = null
+			btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
 
 		var card_id = card["id"]
 		btn.pressed.connect(func(): _on_hand_card_clicked(card_id))
