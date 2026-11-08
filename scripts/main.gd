@@ -67,6 +67,10 @@ var discards_left: int = 3
 var is_busy: bool = false
 var speed_multiplier: float = 1.0
 var discovered_formulas: Array[String] = ["col"]
+var boss_crystal_tile: int = -1
+
+func is_boss() -> bool:
+	return stage % 3 == 0
 
 # --- Phase 4: Artifact System ---
 const MAX_ARTIFACTS: int = 5
@@ -92,6 +96,7 @@ var stone_upgrade_levels: Array[int] = [0, 0, 0, 0, 0, 0]  # one per formula
 # --- Node References ---
 @onready var stage_label: Label = $TopBar/StageLabel
 @onready var coins_label: Label = $TopBar/CoinsLabel
+@onready var speed_btn: Button = $TopBar/SpeedBtn
 @onready var restart_btn: Button = $TopBar/RestartBtn
 
 @onready var hero_hp_bar: ProgressBar = $Preview/HeroCol/HeroHPBar
@@ -121,7 +126,7 @@ var stone_upgrade_levels: Array[int] = [0, 0, 0, 0, 0, 0]  # one per formula
 @onready var token: Control = $BoardSection/Token
 
 @onready var hand_container: HBoxContainer = $BottomSection/HandContainer
-@onready var deck_count_label: Label = $BottomSection/ControlsRow/ToolCol/DeckCountLabel
+@onready var deck_count_btn: Button = $BottomSection/ControlsRow/ToolCol/DeckCountBtn
 @onready var stone_btn: Button = $BottomSection/ControlsRow/ToolCol/StoneBtn
 @onready var sort_color_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortColorBtn
 @onready var sort_dir_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortDirBtn
@@ -140,6 +145,11 @@ var stone_upgrade_levels: Array[int] = [0, 0, 0, 0, 0, 0]  # one per formula
 @onready var stone_modal: PanelContainer = $StoneModal
 @onready var stone_list: VBoxContainer = $StoneModal/VBox/Scroll/List
 @onready var stone_close_btn: Button = $StoneModal/VBox/CloseBtn
+
+# Deck Modal
+@onready var deck_modal: PanelContainer = $DeckModal
+@onready var deck_modal_list: VBoxContainer = $DeckModal/VBox/Scroll/List
+@onready var deck_modal_close_btn: Button = $DeckModal/VBox/CloseBtn
 
 # Shop Modal
 @onready var shop_modal: PanelContainer = $ShopModal
@@ -176,6 +186,9 @@ func setup_token_visual() -> void:
 
 func connect_ui_signals() -> void:
 	restart_btn.pressed.connect(start_new_game)
+	speed_btn.pressed.connect(_on_speed_toggle)
+	deck_count_btn.pressed.connect(open_deck_modal)
+	deck_modal_close_btn.pressed.connect(func(): deck_modal.visible = false)
 	walk_btn.pressed.connect(_on_walk_pressed)
 	discard_btn.pressed.connect(_on_discard_pressed)
 	sort_color_btn.pressed.connect(func(): set_sort_mode("color"))
@@ -225,6 +238,8 @@ func start_new_game() -> void:
 	gameover_modal.visible = false
 	stone_modal.visible = false
 	shop_modal.visible = false
+	deck_modal.visible = false
+	boss_crystal_tile = -1
 	token.visible = false
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
@@ -262,6 +277,19 @@ func start_new_round() -> void:
 	placed_cards.clear()
 	selected_card_ids.clear()
 	draw_up_to_hand(8)
+
+	if is_boss():
+		enemy_pic.text = "👑👹"
+		enemy_name.text = "👑 บอสใหญ่ ด่าน %d" % stage
+		boss_crystal_tile = randi_range(1, N_TILES - 1)
+		if hand.size() > 0:
+			hand[0]["cursed"] = true
+		msg_label.text = "⚠️ บอสใหญ่คำราม! มีผลึกคริสตัลขวางและคำสาป!"
+	else:
+		enemy_pic.text = "👹"
+		enemy_name.text = "ศัตรู ด่าน %d" % stage
+		boss_crystal_tile = -1
+
 	update_all_ui()
 	refresh_calc()
 
@@ -273,7 +301,7 @@ func start_new_round() -> void:
 func update_all_ui() -> void:
 	stage_label.text = "ด่านที่: %d" % stage
 	coins_label.text = "🪙 เหรียญ: %d" % coins
-	deck_count_label.text = "🂠 กองการ์ด: %d ใบ" % deck.size()
+	deck_count_btn.text = "🂠 กองการ์ด: %d ใบ 🔍" % deck.size()
 
 	hero_hp_label.text = "HP %d / %d" % [player_hp, player_max_hp]
 	hero_hp_bar.max_value = player_max_hp
@@ -335,22 +363,29 @@ func render_tiles() -> void:
 				tile_btn.text = "#%d\n%s\n%s" % [i + 1, c_dir, "★ GOLD" if is_match else ""]
 			tile_btn.modulate = COLORS["gold"] if is_match else Color.WHITE
 		else:
-			sb.bg_color = COLORS["empty_tile"]
-			sb.border_color = COLORS["brass"]
+			var is_crystal = (i == boss_crystal_tile)
+			if is_crystal:
+				sb.bg_color = Color("#42155e")
+				sb.border_color = Color("#c866ff")
+				tile_btn.icon = null
+				tile_btn.text = "%d\n💎\n[ผลึก]" % (i + 1)
+				tile_btn.modulate = Color(1.3, 0.9, 1.5)
+			else:
+				sb.bg_color = COLORS["empty_tile"]
+				sb.border_color = COLORS["brass"]
+				var icon_tex = EMBLEMS.get(t_dir)
+				if icon_tex != null:
+					tile_btn.icon = icon_tex
+					tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					tile_btn.expand_icon = true
+					tile_btn.text = "%d\n\n" % (i + 1)
+				else:
+					tile_btn.icon = null
+					tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
+				tile_btn.modulate = Color(0.65, 0.65, 0.75)
 			tile_btn.add_theme_stylebox_override("normal", sb)
 			tile_btn.add_theme_stylebox_override("hover", sb)
 			tile_btn.add_theme_stylebox_override("pressed", sb)
-
-			var icon_tex = EMBLEMS.get(t_dir)
-			if icon_tex != null:
-				tile_btn.icon = icon_tex
-				tile_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				tile_btn.expand_icon = true
-				tile_btn.text = "%d\n\n" % (i + 1)
-			else:
-				tile_btn.icon = null
-				tile_btn.text = "#%d\n%s\n" % [i + 1, t_dir]
-			tile_btn.modulate = Color(0.65, 0.65, 0.75)
 
 
 func render_hand() -> void:
@@ -394,19 +429,27 @@ func render_hand() -> void:
 		btn.add_theme_stylebox_override("hover", sb)
 		btn.add_theme_stylebox_override("pressed", sb)
 
-		var icon_tex = EMBLEMS.get(c_dir)
-		if icon_tex != null:
-			btn.icon = icon_tex
-			btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn.expand_icon = true
-			if is_sel:
-				btn.text = "▲ เลือก"
-				btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-			else:
-				btn.text = ""
-		else:
+		var is_cursed = card.get("cursed", false)
+		if is_cursed:
+			sb.bg_color = Color("#2e1236")
+			sb.border_color = Color("#ff3b69")
 			btn.icon = null
-			btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
+			btn.text = "💀 %s\n[คำสาป]%s" % [c_dir, "\n▲ เลือก" if is_sel else ""]
+			btn.tooltip_text = "การ์ดติดคำสาป! บล็อกคอมโบ Stone (แนะนำให้เลือกทิ้งการ์ด Discard)"
+		else:
+			var icon_tex = EMBLEMS.get(c_dir)
+			if icon_tex != null:
+				btn.icon = icon_tex
+				btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				btn.expand_icon = true
+				if is_sel:
+					btn.text = "▲ เลือก"
+					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+				else:
+					btn.text = ""
+			else:
+				btn.icon = null
+				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
 
 		var card_id = card["id"]
 		btn.pressed.connect(func(): _on_hand_card_clicked(card_id))
@@ -504,6 +547,11 @@ func calculate_groups() -> Dictionary:
 
 			for idx in idxs:
 				var c = placed_cards[idx]
+				if c.get("cursed", false):
+					same_col = false
+					same_dir = false
+					tile_match = false
+					break
 				if c["color"] != first_col: same_col = false
 				if c["dir"] != first_dir: same_dir = false
 				if c["dir"] != TILE_DIR[idx]: tile_match = false
@@ -727,6 +775,10 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 	var tile_btn = tiles_container.get_child(tile_idx) as Button
 	var card = placed_cards.get(tile_idx)
 	if card == null: return
+
+	if tile_idx == boss_crystal_tile:
+		boss_crystal_tile = -1
+		spawn_damage_number("💎 ทำลายผลึก! +10", tile_btn.global_position, Color.MAGENTA, true)
 
 	var is_gold = (card["dir"] == TILE_DIR[tile_idx])
 	var pop = Label.new()
@@ -1139,9 +1191,11 @@ func _on_shop_leave() -> void:
 	stage += 1
 	enemy_pic.modulate = Color.WHITE
 	enemy_pic.scale = Vector2.ONE
-	enemy_max_hp = int(enemy_max_hp * 1.35)
+	var boss_mult = 1.6 if is_boss() else 1.35
+	var atk_mult = 1.4 if is_boss() else 1.25
+	enemy_max_hp = int(enemy_max_hp * boss_mult)
 	enemy_hp = enemy_max_hp
-	enemy_atk = int(enemy_atk * 1.25)
+	enemy_atk = int(enemy_atk * atk_mult)
 	player_hp = player_max_hp
 	walks_left = 3
 	# freediscard artifact: extra discard each stage
@@ -1203,3 +1257,68 @@ func setup_stone_modal_content() -> void:
 		var lbl = Label.new()
 		lbl.text = "• %s (%s)\n  ขั้นต่ำ: %d ใบ | เริ่มต้น: %d ATK (+%d ต่อใบ)" % [r["name"], r["desc"], r["min"], r["a"], r["g"]]
 		stone_list.add_child(lbl)
+
+
+func _on_speed_toggle() -> void:
+	if speed_multiplier == 1.0:
+		speed_multiplier = 2.0
+		speed_btn.text = "⏩ x2"
+	elif speed_multiplier == 2.0:
+		speed_multiplier = 3.0
+		speed_btn.text = "⏩ x3"
+	else:
+		speed_multiplier = 1.0
+		speed_btn.text = "▶ x1"
+
+
+func open_deck_modal() -> void:
+	for child in deck_modal_list.get_children():
+		child.queue_free()
+
+	var counts = {
+		"red": {"N": 0, "E": 0, "S": 0, "W": 0},
+		"green": {"N": 0, "E": 0, "S": 0, "W": 0},
+		"orange": {"N": 0, "E": 0, "S": 0, "W": 0},
+		"blue": {"N": 0, "E": 0, "S": 0, "W": 0}
+	}
+	for card in deck:
+		var c = card["color"]
+		var d = card["dir"]
+		if counts.has(c) and counts[c].has(d):
+			counts[c][d] += 1
+
+	var color_names = {
+		"red": "🔴 สีแดง",
+		"green": "🟢 สีเขียว",
+		"orange": "🟠 สีส้ม",
+		"blue": "🔵 สีน้ำเงิน"
+	}
+
+	for col in COLOR_ORDER:
+		var total_col = counts[col]["N"] + counts[col]["E"] + counts[col]["S"] + counts[col]["W"]
+		var pnl = PanelContainer.new()
+		var pnl_sb = StyleBoxFlat.new()
+		pnl_sb.bg_color = COLORS[col].darkened(0.7)
+		pnl_sb.border_color = COLORS[col]
+		pnl_sb.border_width_left = 4
+		pnl_sb.set_corner_radius_all(6)
+		pnl.add_theme_stylebox_override("panel", pnl_sb)
+
+		var vbox = VBoxContainer.new()
+		var lbl_title = Label.new()
+		lbl_title.text = "%s (เหลือทั้งหมด %d ใบ):" % [color_names[col], total_col]
+		lbl_title.modulate = COLORS[col].lightened(0.3)
+		lbl_title.add_theme_font_size_override("font_size", 16)
+		vbox.add_child(lbl_title)
+
+		var lbl_detail = Label.new()
+		lbl_detail.text = "   N: %d ใบ  |  E: %d ใบ  |  S: %d ใบ  |  W: %d ใบ" % [
+			counts[col]["N"], counts[col]["E"], counts[col]["S"], counts[col]["W"]
+		]
+		lbl_detail.add_theme_font_size_override("font_size", 14)
+		vbox.add_child(lbl_detail)
+
+		pnl.add_child(vbox)
+		deck_modal_list.add_child(pnl)
+
+	deck_modal.visible = true

@@ -14,6 +14,7 @@ graph TD
     Main --> TopBar["TopBar (HBoxContainer)"]
     TopBar --> StageLabel["StageLabel (Label)\n$TopBar/StageLabel"]
     TopBar --> CoinsLabel["CoinsLabel (Label)\n$TopBar/CoinsLabel"]
+    TopBar --> SpeedBtn["SpeedBtn (Button)\n$TopBar/SpeedBtn"]
     TopBar --> RestartBtn["RestartBtn (Button)\n$TopBar/RestartBtn"]
     
     %% Preview Area
@@ -51,7 +52,7 @@ graph TD
     BottomSection --> ControlsRow["ControlsRow (HBoxContainer)"]
     
     ControlsRow --> ToolCol["ToolCol (VBoxContainer)"]
-    ToolCol --> DeckCountLabel["DeckCountLabel (Label)\n$BottomSection/ControlsRow/ToolCol/DeckCountLabel"]
+    ToolCol --> DeckCountBtn["DeckCountBtn (Button)\n$BottomSection/ControlsRow/ToolCol/DeckCountBtn"]
     ToolCol --> StoneBtn["StoneBtn (Button)\n$BottomSection/ControlsRow/ToolCol/StoneBtn"]
     
     ControlsRow --> ActionCol["ActionCol (HBoxContainer)"]
@@ -65,6 +66,7 @@ graph TD
     Main --> RewardModal["RewardModal (PanelContainer)\n$RewardModal"]
     Main --> GameOverModal["GameOverModal (PanelContainer)\n$GameOverModal"]
     Main --> StoneModal["StoneModal (PanelContainer)\n$StoneModal"]
+    Main --> DeckModal["DeckModal (PanelContainer)\n$DeckModal"]
     Main --> ShopModal["ShopModal (PanelContainer)\n$ShopModal"]
 
     %% Effects Layer
@@ -83,6 +85,7 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | `stage_label` | `$TopBar/StageLabel` | `Label` | แสดงเลขด่านปัจจุบัน |
 | `coins_label` | `$TopBar/CoinsLabel` | `Label` | แสดงเหรียญสะสม |
+| `speed_btn` | `$TopBar/SpeedBtn` | `Button` | ปุ่มเร่งความเร็วแอนิเมชัน (x1 / x2 / x3) |
 | `restart_btn` | `$TopBar/RestartBtn` | `Button` | ปุ่มเริ่มเกมใหม่ |
 | `hero_hp_bar` | `$Preview/HeroCol/HeroHPBar` | `ProgressBar` | หลอดเลือดฮีโร่ |
 | `hero_hp_label` | `$Preview/HeroCol/HeroHPText` | `Label` | ข้อความเลือดฮีโร่ |
@@ -98,7 +101,7 @@ graph TD
 | `gstrip_container` | `$BoardSection/GstripContainer` | `HBoxContainer` | บรรจุป้ายแต้มคอมโบ 8 ช่อง (`G1` .. `G8`) |
 | `token` | `$BoardSection/Token` | `Control` | ลูกไฟเคลื่อนที่บนกระดาน |
 | `hand_container` | `$BottomSection/HandContainer` | `HBoxContainer` | บรรจุการ์ดบนมือของผู้เล่น |
-| `deck_count_label`| `$BottomSection/ControlsRow/ToolCol/DeckCountLabel` | `Label` | แสดงจำนวนการ์ดคงเหลือในกอง |
+| `deck_count_btn`| `$BottomSection/ControlsRow/ToolCol/DeckCountBtn` | `Button` | แสดงจำนวนการ์ดคงเหลือในกอง และกดเพื่อเปิดดูการ์ด |
 | `stone_btn` | `$BottomSection/ControlsRow/ToolCol/StoneBtn` | `Button` | ปุ่มเปิดหน้าต่างดูสูตร Stone |
 | `walk_btn` | `$BottomSection/ControlsRow/ActionCol/WalkBtn` | `Button` | ปุ่มเดิน / วางการ์ดอัตโนมัติ |
 | `sort_color_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortColorBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามสี |
@@ -107,6 +110,7 @@ graph TD
 | `reward_modal` | `$RewardModal` | `PanelContainer` | ป๊อปอัปเมื่อชนะด่าน |
 | `gameover_modal` | `$GameOverModal` | `PanelContainer` | ป๊อปอัปเมื่อพ่ายแพ้ |
 | `stone_modal` | `$StoneModal` | `PanelContainer` | ป๊อปอัปสูตรการผสมการ์ด Stone |
+| `deck_modal` | `$DeckModal` | `PanelContainer` | ป๊อปอัปส่องแจกแจงการ์ดที่เหลือในกอง |
 | `shop_modal` | `$ShopModal` | `PanelContainer` | หน้าต่างร้านค้าหลังจบด่าน ซื้อ Artifact และอัปเกรด Stone |
 | `artifact_row` | `$ArtifactRow` | `HBoxContainer` | แถบแสดง Artifact 5 ช่อง |
 | `effects_layer` | `$EffectsLayer` | `Control` | เลเยอร์เอฟเฟกต์แสดงผลด้านบนสุด |
