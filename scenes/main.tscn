@@ -372,7 +372,7 @@ grow_horizontal = 0
 theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
 theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_circle_btn")
-text = "↻"
+text = "🔄"
 
 [node name="ArtifactRow" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -658,7 +658,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
 theme_override_colors/font_hover_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_vbtn")
-text = "🂠 กอง 48 ใบ · กดดู"
+text = "🃏 กอง 48 ใบ · กดดู"
 alignment = 0
 
 [node name="StoneBtn" type="Button" parent="BottomSection/ControlsRow/ToolCol"]
@@ -875,7 +875,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 22
-text = "🂠 การ์ดที่เหลือในกอง"
+text = "🃏 การ์ดที่เหลือในกอง"
 horizontal_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="DeckModal/VBox"]

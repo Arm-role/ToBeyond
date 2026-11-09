@@ -16,7 +16,7 @@ func _init(main: Node) -> void:
 func update_all_ui() -> void:
 	_main.stage_label.text = "ด่าน %d" % _main.stage
 	_main.coins_label.text = "🪙 %d" % _main.coins
-	_main.deck_count_btn.text = "🂠 กอง %d ใบ · กดดู" % _main.deck.size()
+	_main.deck_count_btn.text = "🃏 กอง %d ใบ · กดดู" % _main.deck.size()
 
 	_main.hero_hp_label.text = "HP %d / %d" % [_main.player_hp, _main.player_max_hp]
 	_main.hero_hp_bar.max_value = _main.player_max_hp
@@ -342,7 +342,7 @@ func render_hand() -> void:
 					btn.text = ""
 			else:
 				btn.icon = null
-				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✓ เลือก" if is_sel else ""]
+				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✔ เลือก" if is_sel else ""]
 
 		btn.add_theme_stylebox_override("normal", sb)
 		var hover = sb.duplicate()
@@ -407,7 +407,7 @@ func render_chaos_row() -> void:
 			slot.tooltip_text = "ช่อง Chaos ว่าง"
 			continue
 		var kind: String = chaos_card["kind"]
-		var icon: String = str({"color":"🎨", "dirc":"🧭", "tdir":"🧭", "mtile":"⚡", "xmult":"×", "xatk":"✦", "goldify":"✨", "destroy":"💥", "crystal":"💎"}.get(kind, "?"))
+		var icon: String = str({"color":"🎨", "dirc":"🧭", "tdir":"🧭", "mtile":"⚡", "xmult":"×", "xatk":"✴", "goldify":"✨", "destroy":"💥", "crystal":"💎"}.get(kind, "?"))
 		var label: String = str({"color":"เปลี่ยนสี", "dirc":"เปลี่ยนทิศ", "tdir":"ทิศช่อง", "mtile":"MULT +5", "xmult":"MULT ×1.2", "xatk":"ATK ×1.2", "goldify":"Gem ทอง", "destroy":"ทำลาย", "crystal":"ผลึก"}.get(kind, kind))
 		if chaos_card.has("col"):
 			label += " " + chaos_card["col"]

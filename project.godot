@@ -30,6 +30,10 @@ window/stretch/aspect="keep"
 
 project/assembly_name="ToBeyond"
 
+[gui]
+
+theme/custom="res://assets/fonts/main_theme.tres"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

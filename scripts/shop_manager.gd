@@ -40,7 +40,7 @@ const ARTIFACT_CATALOG: Array[Dictionary] = [
 	{"type": "atk15",       "name": "Power Core",       "icon": "⚡", "desc": "ATK รวมทั้งหมด ×1.5",                    "color": Color("#2f7fd6"), "price": 6},
 	{"type": "greenCoin",   "name": "Coin Hoard",       "icon": "🪙", "desc": "ตก Gem สีเขียวมีโอกาส 1/3 ได้ 1🪙",            "color": Color("#2e9e5b"), "price": 6},
 	{"type":"stone3", "name":"โบนัสกลุ่มสี", "icon":"💠", "desc":"โบนัส Stone กลุ่มสี", "color":Color("#2f7fd6"), "price":6},
-	{"type":"tileAtk", "name":"พลังช่องพิเศษ", "icon":"✦", "desc":"เพิ่มพลังตามช่องพิเศษ", "color":Color("#a66cf2"), "price":6},
+	{"type":"tileAtk", "name":"พลังช่องพิเศษ", "icon":"✴", "desc":"เพิ่มพลังตามช่องพิเศษ", "color":Color("#a66cf2"), "price":6},
 	{"type":"north5", "name":"แนวเหนือ", "icon":"N5", "desc":"โบนัสเมื่อทิศเหนือเรียงกัน", "color":Color("#f08a24"), "price":6},
 	{"type":"eastG", "name":"แนวตะวันออก", "icon":"E×2", "desc":"โบนัสแนวตะวันออก", "color":Color("#2e9e5b"), "price":6},
 	{"type":"west5", "name":"แนวตะวันตก", "icon":"W+", "desc":"โบนัสแนวตะวันตก", "color":Color("#2f7fd6"), "price":6},
@@ -85,7 +85,7 @@ const CHAOS_CATALOG: Array[Dictionary] = [
 	{"kind":"tdir", "dir":"W", "name":"Chaos ทิศช่องตะวันตก", "icon":"🧭", "price":4, "color":Color("#38c4b8")},
 	{"kind":"mtile", "name":"Chaos MULT +5", "icon":"⚡", "price":5, "color":Color("#a66cf2")},
 	{"kind":"xmult", "name":"Chaos MULT ×1.2", "icon":"×", "price":6, "color":Color("#a66cf2")},
-	{"kind":"xatk", "name":"Chaos ATK ×1.2", "icon":"✦", "price":6, "color":Color("#a66cf2")},
+	{"kind":"xatk", "name":"Chaos ATK ×1.2", "icon":"✴", "price":6, "color":Color("#a66cf2")},
 	{"kind":"goldify", "name":"Chaos Gem ทอง", "icon":"✨", "price":6, "color":Color("#f2b63c")},
 	{"kind":"destroy", "name":"Chaos ทำลาย Gem", "icon":"💥", "price":5, "color":Color("#e0605e")},
 	{"kind":"crystal", "name":"ผลึก Gem", "icon":"💎", "price":6, "color":Color("#72d8ff")},
@@ -407,7 +407,7 @@ func get_chaos_icon(chaos_card: Dictionary) -> String:
 			continue
 		if definition.get("col", "") == chaos_card.get("col", "") and definition.get("dir", "") == chaos_card.get("dir", ""):
 			return definition["icon"]
-	return "✦"
+	return "✴"
 
 
 func get_chaos_sell_price(chaos_card: Dictionary) -> int:
