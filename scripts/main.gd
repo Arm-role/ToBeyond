@@ -235,14 +235,16 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopTabs/ArtifactTab
 @onready var shop_chaos_tab: Button = $ShopModal/ShopVBox/ShopTabs/ChaosTab
 @onready var shop_upgrade_tab: Button = $ShopModal/ShopVBox/ShopTabs/UpgradeTab
-@onready var shop_items_container: Container = $ShopModal/ShopVBox/ShopItemsScroll/ShopItemsContainer
+@onready var shop_items_container: Container = $ShopModal/ShopVBox/ShopOwnedRow/ShopItemsContainer
+@onready var shop_chaos_container: Container = $ShopModal/ShopVBox/ShopOwnedRow/ShopChaosContainer
+@onready var shop_offer_frame: PanelContainer = $ShopModal/ShopVBox/ShopOfferFrame
 @onready var shop_offer_container: Container = $ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
 
 
 var battle_mgr: BattleManager
 var shop_mgr: ShopManager
 var ui_renderer: UiRenderer
-var action_dialog: ConfirmationDialog
+var action_dialog: Control
 var pending_dialog_action: Callable
 var drag_kind: String = ""
 var drag_from: int = -1
@@ -326,26 +328,127 @@ func connect_ui_signals() -> void:
 		chaos_slot.pressed.connect(func(): _on_chaos_slot_pressed(chaos_idx))
 
 
+## Buy/sell popup styled like the draft's `.pop` / `.popbox`:
+## title, description, action button and a "ปิด" button.
 func _setup_action_dialog() -> void:
-	action_dialog = ConfirmationDialog.new()
-	action_dialog.title = "ยืนยัน"
-	action_dialog.min_size = Vector2i(570, 280)
-	action_dialog.ok_button_text = "ยืนยัน"
-	action_dialog.cancel_button_text = "ยกเลิก"
-	action_dialog.confirmed.connect(func():
+	action_dialog = Control.new()
+	action_dialog.name = "ActionPopup"
+	action_dialog.visible = false
+	action_dialog.z_index = 200
+	action_dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	action_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.6)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.gui_input.connect(func(e: InputEvent):
+		if e is InputEventMouseButton and e.pressed:
+			action_dialog.visible = false
+	)
+	action_dialog.add_child(dim)
+	var center := CenterContainer.new()
+	center.name = "Center"
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	action_dialog.add_child(center)
+	var box := PanelContainer.new()
+	box.name = "Box"
+	box.custom_minimum_size = Vector2(660, 0)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("#2d2450")
+	sb.border_color = COLORS["brass"]
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(21)
+	sb.content_margin_left = 33.0
+	sb.content_margin_right = 33.0
+	sb.content_margin_top = 27.0
+	sb.content_margin_bottom = 27.0
+	box.add_theme_stylebox_override("panel", sb)
+	center.add_child(box)
+	var vb := VBoxContainer.new()
+	vb.name = "VB"
+	vb.add_theme_constant_override("separation", 15)
+	box.add_child(vb)
+	var title := Label.new()
+	title.name = "Title"
+	title.theme_type_variation = &"BoldLabel"
+	title.add_theme_font_size_override("font_size", 33)
+	title.add_theme_color_override("font_color", COLORS["brass_bright"])
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vb.add_child(title)
+	var rar := Label.new()
+	rar.name = "Rar"
+	rar.theme_type_variation = &"BoldLabel"
+	rar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	rar.add_theme_font_size_override("font_size", 18)
+	vb.add_child(rar)
+	var desc := Label.new()
+	desc.name = "Desc"
+	desc.add_theme_font_size_override("font_size", 22)
+	desc.add_theme_color_override("font_color", COLORS["text_bright"])
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vb.add_child(desc)
+	var acts := HBoxContainer.new()
+	acts.name = "Acts"
+	acts.add_theme_constant_override("separation", 12)
+	vb.add_child(acts)
+	var ok := Button.new()
+	ok.name = "Ok"
+	var close := Button.new()
+	close.name = "Close"
+	close.text = "ปิด"
+	for b in [ok, close]:
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size = Vector2(0, 66)
+		b.add_theme_font_size_override("font_size", 22)
+		var bs := StyleBoxFlat.new()
+		bs.bg_color = COLORS["brass_bright"] if b == ok else Color("#c9c0e6")
+		if b == ok:
+			bs.border_width_bottom = 66
+			bs.border_color = COLORS["brass"]
+			bs.border_blend = true
+			bs.content_margin_top = 0.0
+			bs.content_margin_bottom = 0.0
+		bs.set_corner_radius_all(15)
+		for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+			b.add_theme_stylebox_override(st, bs)
+		for c in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color", "font_focus_color"]:
+			b.add_theme_color_override(c, Color("#2a2140"))
+		acts.add_child(b)
+	ok.pressed.connect(func():
+		action_dialog.visible = false
 		if pending_dialog_action.is_valid():
 			pending_dialog_action.call()
 		pending_dialog_action = Callable()
 	)
+	close.pressed.connect(func(): action_dialog.visible = false)
 	add_child(action_dialog)
 
 
-func show_action_dialog(title_text: String, detail: String, confirm_text: String, action: Callable) -> void:
+func show_action_dialog(title_text: String, detail: String, confirm_text: String, action: Callable, disabled: bool = false, rarity: String = "") -> void:
 	pending_dialog_action = action
-	action_dialog.title = title_text
-	action_dialog.dialog_text = detail
-	action_dialog.ok_button_text = confirm_text
-	action_dialog.popup_centered(Vector2i(570, 280))
+	var rar := action_dialog.get_node("Center/Box/VB/Rar") as Label
+	rar.visible = rarity != ""
+	if rarity != "":
+		# Draft `.rar` pill: COMMON / UNCOMMON / RARE.
+		var pal := {"common": [Color("#3a3560"), Color("#d6d9ea")], "uncommon": [Color("#1e4a37"), Color("#6df0a8")], "rare": [Color("#4a3a10"), Color("#ffcf5a")]}
+		var colors: Array = pal.get(rarity, pal["common"])
+		var pill := StyleBoxFlat.new()
+		pill.bg_color = colors[0]
+		pill.set_corner_radius_all(99)
+		pill.content_margin_left = 15.0
+		pill.content_margin_right = 15.0
+		pill.content_margin_top = 3.0
+		pill.content_margin_bottom = 3.0
+		rar.add_theme_stylebox_override("normal", pill)
+		rar.add_theme_color_override("font_color", colors[1])
+		rar.text = rarity.to_upper()
+	action_dialog.get_node("Center/Box/VB/Title").text = title_text
+	action_dialog.get_node("Center/Box/VB/Desc").text = detail
+	var ok := action_dialog.get_node("Center/Box/VB/Acts/Ok") as Button
+	ok.text = confirm_text
+	ok.disabled = disabled
+	ok.modulate.a = 0.4 if disabled else 1.0
+	action_dialog.visible = true
 
 
 func _input(event: InputEvent) -> void:
@@ -1148,7 +1251,7 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 
 func on_victory() -> void:
 	is_busy = false
-	msg_label.text = "🏆 ชนะศัตรูแล้ว!"
+	msg_label.text = "ชนะ!"
 	var fade_tween = create_tween()
 	fade_tween.tween_property(enemy_pic, "modulate:a", 0.0, 0.4 / speed_multiplier)
 	fade_tween.parallel().tween_property(enemy_pic, "scale", Vector2(0.5, 0.5), 0.4 / speed_multiplier)
@@ -1204,13 +1307,14 @@ func _add_reward_row(left_text: String, right_text: String, is_total: bool = fal
 	var row := PanelContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var row_style := StyleBoxFlat.new()
+	row_style.bg_color = Color(0, 0, 0, 0)
 	if not is_total:
 		row_style.border_width_bottom = 1
 		row_style.border_color = Color(0.827451, 0.65098, 0.290196, 0.3)
 	row_style.content_margin_left = 6.0
-	row_style.content_margin_top = 9.0
+	row_style.content_margin_top = 12.0
 	row_style.content_margin_right = 6.0
-	row_style.content_margin_bottom = 9.0
+	row_style.content_margin_bottom = 12.0
 	row.add_theme_stylebox_override("panel", row_style)
 
 	var hbox := HBoxContainer.new()
@@ -1219,12 +1323,16 @@ func _add_reward_row(left_text: String, right_text: String, is_total: bool = fal
 	left.text = left_text
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	left.add_theme_color_override("font_color", Color("#f0d085") if is_total else Color("#fff6e2"))
+	if is_total:
+		left.theme_type_variation = &"BoldLabel"
+	left.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
 	hbox.add_child(left)
 	var right := Label.new()
 	right.text = right_text
 	right.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	right.add_theme_color_override("font_color", Color("#f0d085") if is_total else Color("#fff6e2"))
+	if is_total:
+		right.theme_type_variation = &"BoldLabel"
+	right.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
 	right.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(right)
 	reward_info.add_child(row)

@@ -452,13 +452,13 @@ func render_artifact_row() -> void:
 		_style_item_slot(slot, art != null, art.get("color", _main.COLORS["brass"]) if art != null else Color.BLACK, _main.COLORS["brass"], "art")
 		if art != null:
 			# Use the draft SVG cover when imported, with the text icon as a safe fallback.
-			slot.icon = _main.ART_TEX.get(art.get("type"))
+			slot.icon = _main.shop_mgr.art_cover(art)
 			slot.expand_icon = slot.icon != null
 			var counter = art.get("m", null)
 			var has_counter: bool = counter != null and not (art.get("type") == "stoneUp" and float(counter) == 1.0)
 			slot.text = str(counter) if has_counter else ("" if slot.icon != null else art["icon"])
 			slot.add_theme_font_size_override("font_size", 18 if has_counter and slot.icon != null else (25 if has_counter else 42))
-			slot.tooltip_text = art["name"] + "\n" + art.get("desc", "")
+			slot.tooltip_text = ShopManager.display_name(art) + "\n" + ShopManager.display_desc(art)
 		else:
 			slot.icon = null
 			slot.expand_icon = false

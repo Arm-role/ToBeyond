@@ -185,7 +185,7 @@ shadow_color = Color(0, 0, 0, 0.6)
 shadow_size = 16
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop_panel"]
-bg_color = Color(0.082353, 0.054902, 0.145098, 0.98)
+bg_color = Color(0.082353, 0.058824, 0.14902, 1)
 border_width_top = 3
 border_color = Color(0.827451, 0.65098, 0.290196, 1)
 content_margin_left = 54.0
@@ -868,6 +868,7 @@ alignment = 0
 
 [node name="RewardModal" type="PanelContainer" parent="."]
 visible = false
+z_index = 100
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -885,6 +886,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 39
+theme_type_variation = &"BoldLabel"
 text = "ชนะ!"
 horizontal_alignment = 1
 
@@ -895,16 +897,21 @@ size_flags_horizontal = 4
 theme_override_constants/separation = 0
 
 [node name="NextBtn" type="Button" parent="RewardModal/VBox"]
-custom_minimum_size = Vector2(300, 63)
+custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
 theme_override_font_sizes/font_size = 27
 theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
 text = "เข้าร้านค้า"
 
 [node name="GameOverModal" type="PanelContainer" parent="."]
 visible = false
+z_index = 100
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -947,6 +954,7 @@ text = "เริ่มเกมใหม่"
 
 [node name="StoneModal" type="PanelContainer" parent="."]
 visible = false
+z_index = 100
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -991,6 +999,7 @@ text = "ปิด"
 
 [node name="DeckModal" type="PanelContainer" parent="."]
 visible = false
+z_index = 100
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -1035,6 +1044,7 @@ text = "ปิด"
 
 [node name="ShopModal" type="PanelContainer" parent="."]
 visible = false
+z_index = 100
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1046,121 +1056,125 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_shop_panel")
 
 [node name="ShopVBox" type="VBoxContainer" parent="ShopModal"]
 layout_mode = 2
-theme_override_constants/separation = 15
+theme_override_constants/separation = 12
 
 [node name="ShopHeader" type="HBoxContainer" parent="ShopModal/ShopVBox"]
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 0
 
 [node name="ShopTitle" type="Label" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
+theme_type_variation = &"BoldLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 39
 text = "ร้านค้า"
+vertical_alignment = 1
+
+[node name="SpacerL" type="Control" parent="ShopModal/ShopVBox/ShopHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="ShopCoinsLabel" type="Label" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_type_variation = &"BoldLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 36
 text = "🪙 0"
+vertical_alignment = 1
 
-[node name="ShopRerollBtn" type="Button" parent="ShopModal/ShopVBox/ShopHeader"]
-custom_minimum_size = Vector2(220, 63)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
-text = "🎲 สุ่มใหม่ · 🪙 5"
-
-[node name="ShopLeaveBtn" type="Button" parent="ShopModal/ShopVBox/ShopHeader"]
-custom_minimum_size = Vector2(300, 63)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_font_sizes/font_size = 27
-theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
-text = "เล่นต่อ ▶"
-
-[node name="ShopOwnedLabel" type="Label" parent="ShopModal/ShopVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_font_sizes/font_size = 18
-text = "ARTIFACT / CHAOS ที่มี  •  แตะเพื่อขาย"
-
-[node name="ShopItemsScroll" type="ScrollContainer" parent="ShopModal/ShopVBox"]
-custom_minimum_size = Vector2(0, 132)
-layout_mode = 2
-
-[node name="ShopItemsContainer" type="HFlowContainer" parent="ShopModal/ShopVBox/ShopItemsScroll"]
-custom_minimum_size = Vector2(0, 120)
+[node name="SpacerR" type="Control" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
+mouse_filter = 2
+
+[node name="ShopRerollBtn" type="Button" parent="ShopModal/ShopVBox/ShopHeader"]
+visible = false
+layout_mode = 2
+text = "🎲 สุ่มใหม่"
+
+[node name="ShopLeaveBtn" type="Button" parent="ShopModal/ShopVBox/ShopHeader"]
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
+text = "เล่นต่อ ▶"
+
+[node name="ShopOwnedRow" type="HBoxContainer" parent="ShopModal/ShopVBox"]
+layout_mode = 2
+theme_override_constants/separation = 21
+alignment = 1
+
+[node name="ArtOwnedLabel" type="Label" parent="ShopModal/ShopVBox/ShopOwnedRow"]
+layout_mode = 2
+theme_type_variation = &"BoldLabel"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 18
+text = "ARTIFACT ที่มี (แตะเพื่อดู / ขาย)"
+
+[node name="ShopItemsContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopOwnedRow"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ChaosOwnedLabel" type="Label" parent="ShopModal/ShopVBox/ShopOwnedRow"]
+layout_mode = 2
+theme_type_variation = &"BoldLabel"
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 18
+text = "CHAOS ที่มี (แตะเพื่อขาย)"
+
+[node name="ShopChaosContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopOwnedRow"]
+layout_mode = 2
+theme_override_constants/separation = 12
 
 [node name="ShopTabs" type="HBoxContainer" parent="ShopModal/ShopVBox"]
+custom_minimum_size = Vector2(1140, 69)
 layout_mode = 2
-custom_minimum_size = Vector2(760, 48)
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
 
 [node name="GameTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
-custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
+theme_override_font_sizes/font_size = 22
 text = "ในเกม"
 
 [node name="ArtifactTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
-custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_shop_tab")
+theme_override_font_sizes/font_size = 19
 text = "TEST · ARTIFACT"
 
 [node name="ChaosTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
-custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_shop_tab")
+theme_override_font_sizes/font_size = 19
 text = "TEST · CHAOS"
 
 [node name="UpgradeTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
-custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_shop_tab")
+theme_override_font_sizes/font_size = 19
 text = "TEST · อัปเกรด"
-
-[node name="ShopSectionLabel" type="Label" parent="ShopModal/ShopVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_font_sizes/font_size = 18
-text = "ข้อเสนอร้านค้า"
 
 [node name="ShopOfferFrame" type="PanelContainer" parent="ShopModal/ShopVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_shop_scroll")
 
 [node name="ShopOfferScroll" type="ScrollContainer" parent="ShopModal/ShopVBox/ShopOfferFrame"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="ShopOfferContainer" type="HFlowContainer" parent="ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll"]
+[node name="ShopOfferContainer" type="VBoxContainer" parent="ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
+theme_override_constants/separation = 15
 
 [node name="EffectsLayer" type="Control" parent="."]
 layout_mode = 1
