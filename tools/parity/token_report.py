@@ -5,7 +5,7 @@
 
 Default: the newest transcript of this project in ~/.claude/projects/.
 Most cost is the context re-read on every turn (cache read), so watch
-"turns" and "avg ctx": fewer turns and a smaller context = cheaper.
+"turns" (API calls) and "avg ctx": fewer turns and a smaller context = cheaper.
 """
 import glob, json, os, statistics, sys
 
@@ -18,7 +18,7 @@ def find_transcript():
 
 path = sys.argv[1] if len(sys.argv) > 1 else find_transcript()
 rows = [json.loads(l) for l in open(path, encoding="utf8") if l.strip()]
-tasks, cur, ctx_all, model_prev, switches = [], None, [], None, []
+tasks, cur, ctx_all, model_prev, switches, seen = [], None, [], None, [], set()
 for r in rows:
     m = r.get("message") or {}
     if r.get("type") == "user" and isinstance(m.get("content"), str) and not m["content"].startswith("<"):
@@ -34,7 +34,11 @@ for r in rows:
         if model_prev and model != model_prev:
             switches.append(f"{model_prev} -> {model} during \"{cur['ask']}\"")
         model_prev = model
-    if u:
+    # One API response is written as several lines (thinking, text, tool use)
+    # that repeat the same usage: count it once per message id.
+    mid = m.get("id")
+    if u and mid not in seen:
+        seen.add(mid)
         ctx = (u.get("input_tokens") or 0) + (u.get("cache_read_input_tokens") or 0) + (u.get("cache_creation_input_tokens") or 0)
         cur["turns"] += 1
         cur["cr"] += u.get("cache_read_input_tokens") or 0
