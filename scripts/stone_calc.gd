@@ -2,6 +2,9 @@ class_name StoneCalc
 extends RefCounted
 
 # Same data as FROWS in To_Beyond_Draft.html; `pv` = preview cards [colour, dir or ""].
+const COLOR_ORDER: Array = ["red", "green", "orange", "blue"]
+const DIR_ORDER: Array = ["N", "E", "S", "W"]
+
 const DEFAULT_FORMULAS: Array[Dictionary] = [
 	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1, "pv": [["red", ""], ["red", ""], ["red", ""]]},
 	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)", "min": 2, "a": 2, "g": 1, "pv": [["red", "E"], ["blue", "E"], ["green", "E"]]},
@@ -107,85 +110,125 @@ static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formula
 		"base_dmg": total_base_dmg
 	}
 
-## Searches placement without blocking the gameplay frame. Exact enumeration is
-## useful for a small hand, but grows as (free slots)!; an 8-card placement can
-## otherwise invoke Stone calculation tens of thousands of times synchronously.
+## Port of the draft's autoPlace(): the selected cards (first n in hand order,
+## sorted by colour then direction) go on the free tiles that maximise
+## [sum of group ATK x cards, 1 + sum of group ATK per card].
+## Up to 15000 permutations are searched exhaustively, otherwise rotations +
+## 40 random layouts, then hill climbing (swap two cards / move one card) on
+## the best 8 within a 900 ms budget, like the draft.
 static func solve_best_placement(cards_to_place: Array, placed_cards: Dictionary, tile_dirs: Array, formulas: Array, max_tiles: int = 8) -> Dictionary:
-	var free_slots: Array[int] = []
+	var free: Array[int] = []
 	for i in range(max_tiles):
 		if not placed_cards.has(i):
-			free_slots.append(i)
-
-	var n = mini(cards_to_place.size(), free_slots.size())
-	if n <= 0:
+			free.append(i)
+	var n := mini(cards_to_place.size(), free.size())
+	if n < 1:
 		return {"cards": [], "slots": []}
+	var use: Array = cards_to_place.slice(0, n)
+	use.sort_custom(func(a, b):
+		var ca := _rank(COLOR_ORDER, str(a["color"]))
+		var cb := _rank(COLOR_ORDER, str(b["color"]))
+		if ca != cb:
+			return ca < cb
+		return _rank(DIR_ORDER, str(a["dir"])) < _rank(DIR_ORDER, str(b["dir"])))
+	var ctx := {"use": use, "placed": placed_cards, "dirs": tile_dirs, "formulas": formulas, "max": max_tiles}
+	var perms := 1
+	for i in range(n):
+		perms *= (free.size() - i)
+	var best: Array = []
+	var best_sc: Array = []
+	if perms <= 15000:
+		var st := {"best": [], "sc": [], "as": [], "used": {}}
+		_rec(0, n, free, ctx, st)
+		best = st["best"]
+	else:
+		var t0 := Time.get_ticks_msec()
+		var cand: Array = []
+		for off in range(free.size()):
+			var as_: Array = []
+			for j in range(n):
+				as_.append(free[(off + j) % free.size()])
+			cand.append([_score(as_, ctx), as_])
+		for r in range(40):
+			var f: Array = free.duplicate()
+			f.shuffle()
+			var as_: Array = f.slice(0, n)
+			cand.append([_score(as_, ctx), as_])
+		cand.sort_custom(func(x, y): return _cmp(x[0], y[0]) > 0)
+		for ci in range(mini(8, cand.size())):
+			var as_: Array = cand[ci][1].duplicate()
+			var v: Array = cand[ci][0]
+			var imp := true
+			while imp and Time.get_ticks_msec() - t0 < 900:
+				imp = false
+				for a in range(n):
+					for b in range(a + 1, n):
+						var t: Array = as_.duplicate()
+						var tmp = t[a]
+						t[a] = t[b]
+						t[b] = tmp
+						var w := _score(t, ctx)
+						if _cmp(w, v) > 0:
+							as_ = t
+							v = w
+							imp = true
+					for f2 in free:
+						if as_.has(f2):
+							continue
+						var t2: Array = as_.duplicate()
+						t2[a] = f2
+						var w2 := _score(t2, ctx)
+						if _cmp(w2, v) > 0:
+							as_ = t2
+							v = w2
+							imp = true
+			if best_sc.is_empty() or _cmp(v, best_sc) > 0:
+				best_sc = v
+				best = as_
+	if best.is_empty():
+		return {"cards": [], "slots": []}
+	return {"cards": use, "slots": best}
 
-	# Three cards stays comfortably below a frame even when all eight board slots
-	# are free. Larger selections use bounded candidates below.
-	if n > 3:
-		return _solve_sampled_placement(cards_to_place.slice(0, n), free_slots, placed_cards, tile_dirs, formulas, max_tiles)
 
-	var state = {
-		"best_score": -1,
-		"best_cards": [],
-		"best_slots": [],
-		"temp_placed": placed_cards.duplicate(),
-		"used_slots": [],
-		"used_card_indices": [],
-		"chosen_cards": [],
-		"chosen_slots": []
-	}
-	_search_placements(cards_to_place, free_slots, n, tile_dirs, formulas, max_tiles, state)
-	return {"cards": state["best_cards"], "slots": state["best_slots"]}
+static func _rank(order: Array, v: String) -> int:
+	var i := order.find(v)
+	return 99 if i < 0 else i
 
 
-static func _solve_sampled_placement(cards: Array, free_slots: Array[int], placed_cards: Dictionary, tile_dirs: Array, formulas: Array, max_tiles: int) -> Dictionary:
-	const CANDIDATE_LIMIT := 96
-	var best_score := -1
-	var best_cards: Array = []
-	var best_slots: Array = []
-	for trial in range(CANDIDATE_LIMIT):
-		var candidate_cards = cards.duplicate()
-		var candidate_slots = free_slots.duplicate()
-		if trial > 0:
-			candidate_cards.shuffle()
-			candidate_slots.shuffle()
-		var temp_placed = placed_cards.duplicate()
-		for i in range(candidate_cards.size()):
-			temp_placed[candidate_slots[i]] = candidate_cards[i]
-		var score = int(calculate_groups(temp_placed, tile_dirs, formulas, max_tiles)["base_dmg"])
-		if score > best_score:
-			best_score = score
-			best_cards = candidate_cards
-			best_slots = candidate_slots.slice(0, candidate_cards.size())
-	return {"cards": best_cards, "slots": best_slots}
+static func _score(slots: Array, ctx: Dictionary) -> Array:
+	var temp: Dictionary = ctx["placed"].duplicate()
+	var use: Array = ctx["use"]
+	for j in range(slots.size()):
+		temp[slots[j]] = use[j]
+	var g := calculate_groups(temp, ctx["dirs"], ctx["formulas"], ctx["max"])
+	var total := 0
+	var per_card := 0
+	for grp in g["groups"]:
+		total += int(grp["res"]["a"]) * grp["idxs"].size()
+		per_card += int(grp["res"]["a"])
+	return [total, 1 + per_card]
 
 
-static func _search_placements(cards_to_place: Array, free_slots: Array[int], target_count: int, tile_dirs: Array, formulas: Array, max_tiles: int, state: Dictionary) -> void:
-	if state["chosen_cards"].size() == target_count:
-		var score = int(calculate_groups(state["temp_placed"], tile_dirs, formulas, max_tiles)["base_dmg"])
-		if score > state["best_score"]:
-			state["best_score"] = score
-			state["best_cards"] = state["chosen_cards"].duplicate()
-			state["best_slots"] = state["chosen_slots"].duplicate()
+static func _cmp(x: Array, y: Array) -> int:
+	if x[0] != y[0]:
+		return int(x[0]) - int(y[0])
+	return int(x[1]) - int(y[1])
+
+
+static func _rec(j: int, n: int, free: Array, ctx: Dictionary, st: Dictionary) -> void:
+	if j == n:
+		var sc := _score(st["as"], ctx)
+		if st["sc"].is_empty() or _cmp(sc, st["sc"]) > 0:
+			st["sc"] = sc
+			st["best"] = st["as"].duplicate()
 		return
-
-	for card_index in range(cards_to_place.size()):
-		if state["used_card_indices"].has(card_index):
+	for f in free:
+		if st["used"].has(f):
 			continue
-		state["used_card_indices"].append(card_index)
-		var card = cards_to_place[card_index]
-		state["chosen_cards"].append(card)
-		for slot in free_slots:
-			if state["used_slots"].has(slot):
-				continue
-			state["used_slots"].append(slot)
-			state["chosen_slots"].append(slot)
-			state["temp_placed"][slot] = card
-			_search_placements(cards_to_place, free_slots, target_count, tile_dirs, formulas, max_tiles, state)
-			state["temp_placed"].erase(slot)
-			state["chosen_slots"].pop_back()
-			state["used_slots"].pop_back()
-		state["chosen_cards"].pop_back()
-		state["used_card_indices"].pop_back()
-
+		st["used"][f] = true
+		if st["as"].size() > j:
+			st["as"][j] = f
+		else:
+			st["as"].append(f)
+		_rec(j + 1, n, free, ctx, st)
+		st["used"].erase(f)
