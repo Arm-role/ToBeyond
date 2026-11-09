@@ -1103,7 +1103,10 @@ func passive_chaos_tile_count() -> int:
 	return chaos_mult_tiles.size() + chaos_xmult_tiles.size() + chaos_xatk_tiles.size()
 
 
-func compute_attack() -> Dictionary:
+## Final attack. `steps` (optional, passed by the caller) is filled like the
+## draft's attackSeq(): steps[0] is the raw walk total, then one entry per
+## artifact that fired: {"slot": artifact slot, "atk": float, "mult": float}.
+func compute_attack(steps: Array = []) -> Dictionary:
 	var calc = calculate_groups()
 	var atk: float = 1 + (walk_base_damage if is_busy else calc["base_dmg"])
 	var mult: float = 1.0 + (walk_mult_bonus if is_busy else 0.0)
@@ -1117,30 +1120,85 @@ func compute_attack() -> Dictionary:
 		if group["idxs"].size() >= 2 and group["col"] != null:
 			color_stone_groups += 1
 
+	steps.append({"slot": -1, "atk": atk, "mult": mult})
+
 	# Source order: South-five resolves before all other attack artifacts.
 	if has_artifact("south5") and tile_direction_run("S") >= 5:
 		atk *= mult
 		mult = 1.0
-	if has_artifact("add5"): atk += 10 * artifact_count("add5")
-	if has_artifact("mult2"): mult += 5.0 * artifact_count("mult2")
-	if has_artifact("atk15"): atk *= pow(1.5, artifact_count("atk15"))
-	if has_artifact("stone3") and color_stone_groups > 0: atk += 40 * color_stone_groups * artifact_count("stone3")
-	if has_artifact("emptyAtk") and empty_tiles > 0: atk += 2 * empty_tiles * artifact_count("emptyAtk")
-	if has_artifact("chaosStack"): atk += artifact_value("chaosStack")
-	if has_artifact("discardStack"): mult += artifact_value("discardStack")
-	if has_artifact("chaosAtk") and chaos_count > 0: atk += 10 * chaos_count * artifact_count("chaosAtk")
+		_record_step(steps, "south5", atk, mult)
+	if has_artifact("add5"):
+		atk += 10 * artifact_count("add5")
+		_record_step(steps, "add5", atk, mult)
+	if has_artifact("mult2"):
+		mult += 5.0 * artifact_count("mult2")
+		_record_step(steps, "mult2", atk, mult)
+	if has_artifact("atk15"):
+		atk *= pow(1.5, artifact_count("atk15"))
+		_record_step(steps, "atk15", atk, mult)
+	if has_artifact("stone3") and color_stone_groups > 0:
+		atk += 40 * color_stone_groups * artifact_count("stone3")
+		_record_step(steps, "stone3", atk, mult)
+	if has_artifact("emptyAtk") and empty_tiles > 0:
+		atk += 2 * empty_tiles * artifact_count("emptyAtk")
+		_record_step(steps, "emptyAtk", atk, mult)
+	if has_artifact("chaosStack") and artifact_value("chaosStack") != 0.0:
+		atk += artifact_value("chaosStack")
+		_record_step(steps, "chaosStack", atk, mult)
+	if has_artifact("discardStack") and artifact_value("discardStack") != 0.0:
+		mult += artifact_value("discardStack")
+		_record_step(steps, "discardStack", atk, mult)
+	if has_artifact("chaosAtk") and chaos_count > 0:
+		atk += 10 * chaos_count * artifact_count("chaosAtk")
+		_record_step(steps, "chaosAtk", atk, mult)
 	if has_artifact("north5"):
 		var n_count := tile_direction_count("N")
 		if n_count > 0:
 			mult = pow(mult, 2.0 if n_count >= N_TILES else 1.0 + 0.12 * n_count)
+			_record_step(steps, "north5", atk, mult)
 	if has_artifact("tileAtk"):
 		atk *= 1.0 + 0.5 * passive_chaos_tile_count() * artifact_count("tileAtk")
+		_record_step(steps, "tileAtk", atk, mult)
 	if has_artifact("stoneUp"):
 		mult *= artifact_value("stoneUp", stone_up_multiplier)
-	if has_artifact("redS"): mult *= artifact_value("redS", 1.0)
-	if has_artifact("stone7W"): atk += artifact_value("stone7W")
-	if has_artifact("stone7E"): mult += artifact_value("stone7E")
+		_record_step(steps, "stoneUp", atk, mult)
+	if has_artifact("redS"):
+		mult *= artifact_value("redS", 1.0)
+		_record_step(steps, "redS", atk, mult)
+	if has_artifact("stone7W"):
+		atk += artifact_value("stone7W")
+		_record_step(steps, "stone7W", atk, mult)
+	if has_artifact("stone7E"):
+		mult += artifact_value("stone7E")
+		_record_step(steps, "stone7E", atk, mult)
 	return {"atk": int(round(atk)), "mult": mult, "dmg": int(round(atk * mult))}
+
+
+func _record_step(steps: Array, type_key: String, atk: float, mult: float) -> void:
+	steps.append({"slot": artifact_slot(type_key), "atk": atk, "mult": mult})
+
+
+func artifact_slot(type_key: String) -> int:
+	for i in range(artifacts.size()):
+		if artifacts[i] != null and artifacts[i].get("type") == type_key:
+			return i
+	return -1
+
+
+## Draft `.islot.itrig`: the slot pops to ×1.3 with a glow for 0.5 s.
+func flash_artifact(slot_idx: int) -> void:
+	if slot_idx < 0 or slot_idx + 1 >= artifact_row.get_child_count():
+		return
+	var slot := artifact_row.get_child(slot_idx + 1) as Control
+	slot.pivot_offset = slot.size * 0.5
+	slot.z_index = 10
+	var d := 0.5 / speed_multiplier
+	var t := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(slot, "scale", Vector2(1.3, 1.3), d * 0.4)
+	t.parallel().tween_property(slot, "modulate", Color(1.5, 1.4, 0.9), d * 0.4)
+	t.tween_property(slot, "scale", Vector2.ONE, d * 0.6)
+	t.parallel().tween_property(slot, "modulate", Color.WHITE, d * 0.6)
+	t.tween_callback(func(): slot.z_index = 0)
 
 
 func begin_walk_damage() -> void:
@@ -1211,10 +1269,20 @@ static func fmt_num(v: float) -> String:
 	return txt
 
 
+## Draft showCalc(): `ATK × MULT = TOTAL`.
+func show_calc(atk: float, mult: float) -> void:
+	calc_label.text = "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01)), fmt_num(round(atk * mult))]
+
+
 func refresh_calc() -> void:
 	var result = calculate_groups()
-	var r = compute_attack()
-	calc_label.text = "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(float(r["atk"])), fmt_num(snappedf(float(r["mult"]), 0.01)), fmt_num(float(r["dmg"]))]
+	# Draft refreshCalc(): `1 × 1 = 1` while placing; during the walk the totals
+	# the fireball has collected so far. Artifacts are applied one by one after
+	# the walk (BattleManager), not in this preview.
+	if is_busy:
+		show_calc(1.0 + walk_base_damage, 1.0 + walk_mult_bonus)
+	else:
+		show_calc(1.0, 1.0)
 
 	# Check for new Stone formula discoveries
 	for g in result["groups"]:

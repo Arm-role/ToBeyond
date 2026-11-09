@@ -195,6 +195,16 @@ func _on_walk_finished() -> void:
 	var enemy_pic: Control = _main.enemy_pic
 	var layer: Control = _main.effects_layer
 
+	# 0. Artifacts resolve one by one (draft attackSeq()): the calc shows the raw
+	#    walk total, then each artifact flashes and updates it, 450 ms apart.
+	var steps: Array = []
+	_main.compute_attack(steps)
+	_main.show_calc(steps[0]["atk"], steps[0]["mult"])
+	await _timer(0.35)
+	for i in range(1, steps.size()):
+		_main.flash_artifact(int(steps[i]["slot"]))
+		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
+		await _timer(0.45)
 	await _timer(0.25)
 
 	# 1. Fireball (draft strike()): cubic Bézier from the token to the hero —
