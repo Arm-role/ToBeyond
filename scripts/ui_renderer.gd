@@ -34,6 +34,23 @@ func set_card_template(control: Control, enabled: bool = true, tint: Color = Col
 	frame.modulate = tint
 
 
+const CARD_SHINE_SHADER: Shader = preload("res://assets/shaders/card_shine.gdshader")
+var _card_shine_mat: ShaderMaterial = null
+
+
+## Light band sweeping across a selected hand card (assets/shaders/card_shine.gdshader).
+func _add_card_shine(control: Control) -> void:
+	if _card_shine_mat == null:
+		_card_shine_mat = ShaderMaterial.new()
+		_card_shine_mat.shader = CARD_SHINE_SHADER
+	var shine := ColorRect.new()
+	shine.name = "Shine"
+	shine.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shine.material = _card_shine_mat
+	control.add_child(shine)
+
+
 func update_all_ui() -> void:
 	_main.stage_label.text = "ด่าน %d" % _main.stage
 	_main.coins_label.text = "🪙 %d" % _main.coins
@@ -463,6 +480,8 @@ func render_hand() -> void:
 		btn.add_theme_stylebox_override("hover", hover)
 		btn.add_theme_stylebox_override("pressed", sb)
 		set_card_template(btn, true, Color("#ffd966") if is_sel else Color.WHITE)
+		if is_sel:
+			_add_card_shine(btn)
 
 		var card_id = card["id"]
 		btn.pressed.connect(func(): _main._on_hand_card_clicked(card_id))
