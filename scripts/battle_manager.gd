@@ -39,7 +39,7 @@ func run_walk() -> void:
 	_main.is_busy = true
 	_main.begin_walk_damage()
 	_main.update_all_ui()
-	_main.msg_label.text = "🔥 กำลังเดินสำรวจกระดาน..."
+	_main.msg_label.text = "กำลังเดิน..."
 
 	var token: Control          = _main.token
 	var tiles_container         = _main.tiles_container
@@ -48,7 +48,8 @@ func run_walk() -> void:
 
 	token.visible = true
 	var tween = _ct()
-	var step_duration = 0.26 / _spd()
+	# Draft: one stop every 500 ms (0.45 s slide + short pause).
+	var step_duration = 0.45 / _spd()
 
 	# Collect stops (Tile 0 + all cards + Chaos crystals + Totems)
 	var active_tiles: Array[int] = [0]
@@ -86,7 +87,7 @@ func run_walk() -> void:
 		var target_pos = tile_btn.position + (tile_btn.size - token.size) * 0.5
 		tween.tween_property(token, "position", target_pos, step_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_visit_tile.bind(idx, helper_pass))
-		tween.tween_interval(0.06 / _spd())
+		tween.tween_interval(0.05 / _spd())
 
 	tween.finished.connect(_on_walk_finished)
 
@@ -187,7 +188,7 @@ func _on_walk_finished() -> void:
 	var enemy_pic = _main.enemy_pic
 
 	# 1. Fireball flies to Hero along curved Bézier path
-	_main.msg_label.text = "✨ รวมพลังเวทเข้าสู่ฮีโร่!"
+	_main.msg_label.text = "✨"
 	var start_global = token.global_position + token.size * 0.5
 	var hero_center  = hero_pic.global_position + hero_pic.size * 0.5
 	var mid_global   = (start_global + hero_center) * 0.5 + Vector2(-60.0, -100.0)
@@ -217,7 +218,7 @@ func _on_walk_finished() -> void:
 	var dmg = atk_result["dmg"]
 	if dmg <= 0: dmg = 1
 
-	_main.msg_label.text = "🧙 ฮีโร่ยิงลำแสงเวท %d ดาเมจ!" % dmg
+	_main.msg_label.text = "🔥"
 	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
 
 	_main.fire_laser_beam(_main.beam_line, hero_center, enemy_center, Color(1.0, 0.78, 0.25), 24.0, 0.28)
@@ -249,7 +250,7 @@ func _enemy_counter_attack() -> void:
 	var enemy_pic = _main.enemy_pic
 	var hero_pic  = _main.hero_pic
 
-	_main.msg_label.text = "👹 ศัตรูโจมตีสวนกลับ!"
+	_main.msg_label.text = "ศัตรูโจมตี!"
 
 	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
 	var hero_center  = hero_pic.global_position + hero_pic.size * 0.5
@@ -284,5 +285,6 @@ func _enemy_counter_attack() -> void:
 		_main.on_game_over()
 	else:
 		_main.is_busy = false
+		_main.msg_label.text = ""
 		_main.start_new_round()
 

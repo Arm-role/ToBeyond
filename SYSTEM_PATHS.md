@@ -87,10 +87,10 @@ graph TD
 | `coins_label` | `$TopBar/CoinsLabel` | `Label` | แสดงเหรียญสะสม |
 | `speed_btn` | `$TopBar/SpeedBtn` | `Button` | ปุ่มเร่งความเร็วแอนิเมชัน (x1 / x2 / x3) |
 | `restart_btn` | `$TopBar/RestartBtn` | `Button` | ปุ่มเริ่มเกมใหม่ |
-| `hero_hp_bar` | `$Preview/PreviewHBox/HeroCol/HeroHPBar` | `ProgressBar` | หลอดเลือดฮีโร่ |
-| `hero_hp_label` | `$Preview/PreviewHBox/HeroCol/HeroHPText` | `Label` | ข้อความเลือดฮีโร่ |
+| `hero_hp_bar` | `$Preview/PreviewHBox/HeroCol/PhpBox/HeroHPBar` | `ProgressBar` | หลอดเลือดฮีโร่ |
+| `hero_hp_label` | `$Preview/PreviewHBox/HeroCol/PhpBox/HeroHPText` | `Label` | ข้อความเลือดฮีโร่ |
 | `hero_pic` | `$Preview/PreviewHBox/HeroCol/HeroPic` | `Label` | รูปอวาตาร์ฮีโร่ (`🧙`) |
-| `calc_label` | `$Preview/PreviewHBox/CenterCol/CalcLabel` | `RichTextLabel` | แสดงสูตรดาเมจ `ATK × MULT = TOTAL` แบบ BBCode |
+| `calc_label` | `$Preview/PreviewHBox/HeroCol/CalcLabel` | `RichTextLabel` | แสดงสูตรดาเมจ `ATK × MULT = TOTAL` แบบ BBCode |
 | `enemy_name` | `$Preview/PreviewHBox/EnemyCol/EnemyName` | `Label` | ชื่อศัตรู |
 | `enemy_pic` | `$Preview/PreviewHBox/EnemyCol/EnemyPic` | `Label` | รูปศัตรู (`👹`) |
 | `enemy_hp_bar` | `$Preview/PreviewHBox/EnemyCol/EnemyHPBar` | `ProgressBar` | หลอดเลือดศัตรู |
@@ -101,8 +101,8 @@ graph TD
 | `gstrip_container` | `$BoardSection/GstripContainer` | `HBoxContainer` | บรรจุป้ายแต้มคอมโบ 8 ช่อง (`G1` .. `G8`) |
 | `token` | `$BoardSection/Token` | `Control` | ลูกไฟเคลื่อนที่บนกระดาน |
 | `hand_container` | `$BottomSection/HandContainer` | `HBoxContainer` | บรรจุการ์ดบนมือของผู้เล่น |
-| `deck_count_btn`| `$BottomSection/ControlsRow/ToolCol/DeckCountBtn` | `Button` | แสดงจำนวนการ์ดคงเหลือในกอง และกดเพื่อเปิดดูการ์ด |
-| `stone_btn` | `$BottomSection/ControlsRow/ToolCol/StoneBtn` | `Button` | ปุ่มเปิดหน้าต่างดูสูตร Stone |
+| `deck_count_btn`| `$ToolCol/DeckCountBtn` | `Button` | แสดงจำนวนการ์ดคงเหลือในกอง และกดเพื่อเปิดดูการ์ด |
+| `stone_btn` | `$ToolCol/StoneBtn` | `Button` | ปุ่มเปิดหน้าต่างดูสูตร Stone |
 | `walk_btn` | `$BottomSection/ControlsRow/ActionCol/WalkBtn` | `Button` | ปุ่มเดิน / วางการ์ดอัตโนมัติ |
 | `sort_color_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortColorBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามสี |
 | `sort_dir_btn` | `$BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortDirBtn` | `Button` | ปุ่มสลับโหมดจัดเรียงตามทิศ |

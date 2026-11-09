@@ -173,10 +173,10 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var speed_btn: Button = $TopBar/SpeedBtn
 @onready var restart_btn: Button = $TopBar/RestartBtn
 
-@onready var hero_hp_bar: ProgressBar = $Preview/PreviewHBox/HeroCol/HeroHPBar
-@onready var hero_hp_label: Label = $Preview/PreviewHBox/HeroCol/HeroHPText
+@onready var hero_hp_bar: ProgressBar = $Preview/PreviewHBox/HeroCol/PhpBox/HeroHPBar
+@onready var hero_hp_label: Label = $Preview/PreviewHBox/HeroCol/PhpBox/HeroHPText
 @onready var hero_pic: Label = $Preview/PreviewHBox/HeroCol/HeroPic
-@onready var calc_label: RichTextLabel = $Preview/PreviewHBox/CenterCol/CalcLabel
+@onready var calc_label: RichTextLabel = $Preview/PreviewHBox/HeroCol/CalcLabel
 
 @onready var enemy_name: Label = $Preview/PreviewHBox/EnemyCol/EnemyName
 @onready var enemy_pic: Label = $Preview/PreviewHBox/EnemyCol/EnemyPic
@@ -201,8 +201,8 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var token: Control = $BoardSection/Token
 
 @onready var hand_container: Control = $BottomSection/HandContainer
-@onready var deck_count_btn: Button = $BottomSection/ControlsRow/ToolCol/DeckCountBtn
-@onready var stone_btn: Button = $BottomSection/ControlsRow/ToolCol/StoneBtn
+@onready var deck_count_btn: Button = $ToolCol/DeckCountBtn
+@onready var stone_btn: Button = $ToolCol/StoneBtn
 @onready var sort_color_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortColorBtn
 @onready var sort_dir_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortDirBtn
 @onready var walk_btn: Button = $BottomSection/ControlsRow/ActionCol/WalkBtn
@@ -259,6 +259,9 @@ func _ready() -> void:
 	ui_renderer = UiRenderer.new(self)
 	_setup_action_dialog()
 	setup_stone_modal_content()
+	_style_sort_button(sort_color_btn, sort_mode == "color")
+	_style_sort_button(sort_dir_btn, sort_mode == "dir")
+	hand_container.resized.connect(render_hand)
 	start_new_game()
 
 
@@ -474,10 +477,10 @@ func spawn_current_enemy() -> void:
 	var boss_idx = (stage - 1) % BOSS_PICS.size()
 	enemy_pic.text = BOSS_PICS[boss_idx]
 	if is_boss():
-		enemy_name.text = "👑 บอสใหญ่ ด่าน %d" % stage
+		enemy_name.text = "👑 บอส"
 		boss_skill()
 	else:
-		enemy_name.text = "ศัตรู ด่าน %d" % stage
+		enemy_name.text = "ศัตรู"
 
 	start_new_round()
 
@@ -584,15 +587,21 @@ func render_hand() -> void:
 
 func set_sort_mode(mode: String) -> void:
 	sort_mode = mode
-	sort_color_btn.button_pressed = (mode == "color")
-	sort_dir_btn.button_pressed = (mode == "dir")
-	if mode == "color":
-		sort_color_btn.add_theme_color_override("font_color", Color("#2a2140"))
-		sort_dir_btn.add_theme_color_override("font_color", Color("#a79fc4"))
-	else:
-		sort_color_btn.add_theme_color_override("font_color", Color("#a79fc4"))
-		sort_dir_btn.add_theme_color_override("font_color", Color("#2a2140"))
+	_style_sort_button(sort_color_btn, mode == "color")
+	_style_sort_button(sort_dir_btn, mode == "dir")
 	render_hand()
+
+
+func _style_sort_button(btn: Button, active: bool) -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = COLORS["brass"] if active else Color(0, 0, 0, 0)
+	sb.content_margin_left = 27.0
+	sb.content_margin_right = 27.0
+	for state in ["normal", "hover", "pressed", "focus"]:
+		btn.add_theme_stylebox_override(state, sb)
+	var font_col := Color("#2a2140") if active else Color("#a79fc4")
+	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		btn.add_theme_color_override(c, font_col)
 
 
 # ==============================================================================
@@ -1038,10 +1047,29 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 	return {"gain": gain, "extra": extra}
 
 
+## Number formatting from the HTML draft: integers without decimals,
+## at most two decimals otherwise, thousands separators from 1,000.
+static func fmt_num(v: float) -> String:
+	var txt: String
+	if is_equal_approx(v, round(v)):
+		txt = str(int(round(v)))
+	else:
+		txt = ("%.2f" % v).rstrip("0").rstrip(".")
+	if absf(v) >= 1000.0:
+		var parts := txt.split(".")
+		var digits: String = parts[0].trim_prefix("-")
+		var grouped := ""
+		while digits.length() > 3:
+			grouped = "," + digits.right(3) + grouped
+			digits = digits.left(digits.length() - 3)
+		txt = ("-" if v < 0 else "") + digits + grouped + ("." + parts[1] if parts.size() > 1 else "")
+	return txt
+
+
 func refresh_calc() -> void:
 	var result = calculate_groups()
 	var r = compute_attack()
-	calc_label.text = "[center][color=#5fb0ff]%d[/color] [color=#a79fc4]×[/color] [color=#ff6b6b]%.2f[/color] [color=#a79fc4]=[/color] [b][color=#f0cf86]%d[/color][/b][/center]" % [r["atk"], r["mult"], r["dmg"]]
+	calc_label.text = "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(float(r["atk"])), fmt_num(snappedf(float(r["mult"]), 0.01)), fmt_num(float(r["dmg"]))]
 
 	# Check for new Stone formula discoveries
 	for g in result["groups"]:

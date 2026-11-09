@@ -25,25 +25,30 @@ func update_all_ui() -> void:
 	_main.enemy_hp_label.text = "HP %d / %d" % [_main.enemy_hp, _main.enemy_max_hp]
 	_main.enemy_hp_bar.max_value = _main.enemy_max_hp
 	_main.enemy_hp_bar.value = _main.enemy_hp
-	_main.enemy_atk_label.text = "⚔ %d" % _main.enemy_atk
+	_main.enemy_atk_label.text = "⚔ โจมตี %s" % _main.fmt_num(_main.enemy_atk)
 
 	_main.walk_btn.disabled = _main.is_busy or (_main.walks_left <= 0 and _main.selected_card_ids.is_empty())
 	_main.restart_btn.disabled = _main.is_busy
 	if _main.selected_card_ids.size() > 0:
 		_main.walk_btn.text = "วาง (%d)" % _main.selected_card_ids.size()
 	else:
-		_main.walk_btn.text = "เดิน %d รอบ" % _main.walks_left
+		_main.walk_btn.text = "เดิน"
 
 	# Rule: If board has cards, cannot discard unless freediscard artifact is owned
 	var blocked = (_main.placed_cards.size() > 0) and (not _main.has_artifact("freediscard"))
 	_main.discard_btn.disabled = _main.is_busy or _main.discards_left <= 0 or _main.selected_card_ids.is_empty() or blocked
 
-	if blocked:
-		_main.discard_btn.text = "วาง Gem แล้วทิ้งไม่ได้"
-	elif _main.selected_card_ids.size() > 0:
+	# Same wording as the HTML draft: main line + small second line.
+	if _main.selected_card_ids.size() > 0 and not blocked:
 		_main.discard_btn.text = "ทิ้ง Gem (%d)" % _main.selected_card_ids.size()
 	else:
 		_main.discard_btn.text = "ทิ้ง Gem"
+	var discard_sub := _main.discard_btn.get_node_or_null("SubLabel") as Label
+	if discard_sub != null:
+		discard_sub.text = "วาง Gem แล้วทิ้งไม่ได้" if blocked else "เหลือ %d รอบ" % _main.discards_left
+	# Draft buttons fade to 40% when disabled.
+	for b in [_main.walk_btn, _main.discard_btn, _main.restart_btn]:
+		b.modulate.a = 0.5 if b.disabled else 1.0
 
 	render_tiles()
 	render_hand()
@@ -96,24 +101,66 @@ func render_tiles() -> void:
 			tile_btn.modulate = Color.WHITE
 
 		_apply_tile_state(tile_btn, i, calc)
+		_render_tile_number(tile_btn, i)
 		_render_crystal(tile_btn, i)
 		_render_totem(tile_btn, i)
 
-		# The strip under each tile is the player's quick Stone readout.  Render it
-		# as a colored, connected-looking score badge rather than a plain label.
-		var score = _main.gstrip_container.get_child(i) as Label
-		var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
-		if not has_gem:
-			score.text = "•"
-			score.modulate = Color("#68627a")
-			score.remove_theme_stylebox_override("normal")
-			continue
+		_render_gstrip_cell(i, calc)
 
-		var value = int(calc["grp_val"].get(i, 1))
-		var group_color = _group_color_for_tile(i, calc)
-		score.text = "+%d" % value
-		score.modulate = group_color
-		score.add_theme_stylebox_override("normal", _make_gstrip_badge(group_color))
+
+## Group strip under the board, like the draft's `.gstrip`: a coloured bar
+## spanning the group's tiles plus a black value chip under each placed Gem.
+func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
+	var cell = _main.gstrip_container.get_child(i) as Label
+	cell.text = ""
+	cell.modulate = Color.WHITE
+	var chip := cell.get_node_or_null("Chip") as Label
+	if chip == null:
+		chip = Label.new()
+		chip.name = "Chip"
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.theme_type_variation = &"BoldLabel"
+		chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		chip.add_theme_font_size_override("font_size", 28)
+		chip.add_theme_color_override("font_color", Color("#5fb0ff"))
+		var chip_sb := StyleBoxFlat.new()
+		chip_sb.bg_color = Color.BLACK
+		chip_sb.corner_radius_bottom_left = 12
+		chip_sb.corner_radius_bottom_right = 12
+		chip_sb.content_margin_left = 15.0
+		chip_sb.content_margin_right = 15.0
+		chip.add_theme_stylebox_override("normal", chip_sb)
+		chip.custom_minimum_size = Vector2(66, 36)
+		cell.add_child(chip)
+
+	var group = null
+	for g in calc["groups"]:
+		if g["idxs"].has(i):
+			group = g
+			break
+	if group == null:
+		cell.remove_theme_stylebox_override("normal")
+		chip.visible = false
+		return
+
+	var bar := StyleBoxFlat.new()
+	bar.bg_color = Color(0, 0, 0, 0)
+	bar.border_width_top = 10
+	bar.border_color = _group_color_for_tile(i, calc)
+	if i == group["idxs"].min():
+		bar.expand_margin_left = -4.5
+		bar.corner_radius_bottom_left = 9
+	if i == group["idxs"].max():
+		bar.expand_margin_right = -4.5
+		bar.corner_radius_bottom_right = 9
+	cell.add_theme_stylebox_override("normal", bar)
+
+	var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
+	chip.visible = has_gem
+	if has_gem:
+		chip.text = _main.fmt_num(float(calc["grp_val"].get(i, 1)))
+		chip.reset_size()
+		chip.position = Vector2((cell.size.x - chip.size.x) * 0.5, 15.0)
 
 
 func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> void:
@@ -124,8 +171,9 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 	var matches_tile = is_empty == false and card.get("dir", "") == _main.TILE_DIR[tile_idx]
 	var is_gold = is_empty == false and card.get("gold", false)
 
-	var accent = Color("#514a68")
-	var width = 2
+	# Draft tiles have no frame of their own; only special states are outlined.
+	var accent = Color(0, 0, 0, 0)
+	var width = 0
 	var glow_alpha = 0.0
 	var hint = "ช่อง %d · ทิศ %s" % [tile_idx + 1, _main.TILE_DIR[tile_idx]]
 	if can_place:
@@ -139,14 +187,8 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		glow_alpha = 0.75
 		hint += " · Gem ทอง: ทำงานสองครั้ง"
 	elif matches_tile:
-		accent = _main.COLORS["brass_bright"]
-		width = 5
-		glow_alpha = 0.45
 		hint += " · ทิศตรงช่อง"
 	elif has_group:
-		accent = _group_color_for_tile(tile_idx, calc)
-		width = 4
-		glow_alpha = 0.30
 		hint += " · Stone +%d" % int(calc["grp_val"].get(tile_idx, 1))
 	if _main.chaos_mult_tiles.has(tile_idx):
 		hint += " · Chaos MULT +5"
@@ -168,9 +210,30 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 	tile_btn.tooltip_text = hint
 	var normal = _make_tile_frame(accent, width, glow_alpha)
 	tile_btn.add_theme_stylebox_override("normal", normal)
-	var hover = _make_tile_frame(accent.lightened(0.18), width + 1, minf(0.85, glow_alpha + 0.20))
+	var hover = normal if width == 0 else _make_tile_frame(accent.lightened(0.18), width + 1, minf(0.85, glow_alpha + 0.20))
 	tile_btn.add_theme_stylebox_override("hover", hover)
 	tile_btn.add_theme_stylebox_override("pressed", hover)
+
+
+## The tile SVGs draw the number badge circle, but Godot's SVG importer
+## ignores <text>, so the number is overlaid here (same spot/colour as the draft).
+func _render_tile_number(tile_btn: Button, tile_idx: int) -> void:
+	var num := tile_btn.get_node_or_null("TileNumber") as Label
+	if num == null:
+		num = Label.new()
+		num.name = "TileNumber"
+		num.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		num.theme_type_variation = &"BoldLabel"
+		num.add_theme_font_size_override("font_size", 22)
+		num.add_theme_color_override("font_color", Color("#F0CF86"))
+		tile_btn.add_child(num)
+	# Badge centre is at (46, 46) of the 256-unit tile artwork.
+	var c := 46.0 / 256.0 * minf(tile_btn.size.x, tile_btn.size.y)
+	num.position = Vector2(c - 20.0, c - 20.0)
+	num.size = Vector2(40, 40)
+	num.text = str(tile_idx + 1)
 
 
 func _render_crystal(tile_btn: Button, tile_idx: int) -> void:
@@ -235,15 +298,19 @@ func _make_tile_frame(accent: Color, border_width: int, glow_alpha: float) -> St
 	frame.corner_radius_bottom_right = 8
 	frame.shadow_color = Color(accent.r, accent.g, accent.b, glow_alpha)
 	frame.shadow_size = 8 if glow_alpha > 0.0 else 0
+	frame.set_content_margin_all(0)
 	return frame
 
 
 func _group_color_for_tile(tile_idx: int, calc: Dictionary) -> Color:
+	const GCOL := {"red": Color("#e5484d"), "green": Color("#5fd48a"), "orange": Color("#f08a24"), "blue": Color("#2f7fd6")}
 	for group in calc["groups"]:
 		if group["idxs"].has(tile_idx):
 			if group["col"] != null:
-				return _main.COLORS.get(group["col"], _main.COLORS["brass_bright"])
-			return Color("#e040fb")
+				return GCOL.get(group["col"], _main.COLORS["brass_bright"])
+			if group.get("type", "") == "alt":
+				return Color("#f0cf86")
+			return Color("#E040FB")
 	return _main.COLORS["brass_bright"]
 
 
@@ -311,8 +378,12 @@ func render_hand() -> void:
 			live_selected_ids[card["id"]] = true
 
 		var sb = StyleBoxFlat.new()
-		sb.set_corner_radius_all(12)
-		var border_width = 5 if is_sel else 3
+		sb.set_corner_radius_all(20)
+		var border_width = 3
+		if is_sel:
+			sb.shadow_color = Color(0, 0, 0, 0.5)
+			sb.shadow_size = 12
+			sb.shadow_offset = Vector2(0, 12)
 		sb.border_width_top = border_width
 		sb.border_width_bottom = border_width
 		sb.border_width_left = border_width
@@ -328,18 +399,16 @@ func render_hand() -> void:
 			var c_col = card["color"]
 			var c_dir = card["dir"]
 			sb.bg_color = _main.COLORS.get(c_col, Color.GRAY)
-			sb.border_color = _main.COLORS["brass_bright"] if is_sel else _main.COLORS["brass"]
+			sb.border_color = Color("#ffd966") if is_sel else _main.COLORS["brass"]
 
 			var icon_tex = _main.EMBLEMS.get(c_dir)
 			if icon_tex != null:
 				btn.icon = icon_tex
 				btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				btn.expand_icon = true
-				if is_sel:
-					btn.text = "▲"
-					btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-				else:
-					btn.text = ""
+				# Draft: emblem is 70% of the card width.
+				btn.add_theme_constant_override("icon_max_width", 72)
+				btn.text = ""
 			else:
 				btn.icon = null
 				btn.text = "%s\n%s%s" % [c_col.to_upper(), c_dir, "\n✔ เลือก" if is_sel else ""]
@@ -380,6 +449,7 @@ func render_artifact_row() -> void:
 		var slot = _main.artifact_row.get_child(i + 1) as Button
 		if slot == null: continue
 		var art = _main.artifacts[i]
+		_style_item_slot(slot, art != null, art.get("color", _main.COLORS["brass"]) if art != null else Color.BLACK, _main.COLORS["brass"], "art")
 		if art != null:
 			# Use the draft SVG cover when imported, with the text icon as a safe fallback.
 			slot.icon = _main.ART_TEX.get(art.get("type"))
@@ -396,12 +466,45 @@ func render_artifact_row() -> void:
 			slot.tooltip_text = ""
 
 
+## Empty item slots keep the dashed texture from the scene; filled slots get a
+## solid colour card like the draft's `.islot.has`.
+func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind: String) -> void:
+	if not filled:
+		for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+			slot.remove_theme_stylebox_override(state)
+		var tex := StyleBoxTexture.new()
+		tex.texture = load("res://assets/ui/slot_dashed_%s.svg" % ("purple" if kind == "chaos" else "brass"))
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			slot.add_theme_stylebox_override(state, tex)
+		slot.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		return
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(12)
+	sb.shadow_color = Color(0, 0, 0, 0.4)
+	sb.shadow_size = 5
+	sb.shadow_offset = Vector2(0, 3)
+	var hover := sb.duplicate() as StyleBoxFlat
+	hover.border_color = border.lightened(0.25)
+	slot.add_theme_stylebox_override("normal", sb)
+	slot.add_theme_stylebox_override("hover", hover)
+	slot.add_theme_stylebox_override("pressed", hover)
+	slot.add_theme_stylebox_override("disabled", sb)
+	slot.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+
 func render_chaos_row() -> void:
 	for i in range(_main.chaos_slots.get_child_count()):
 		var slot := _main.chaos_slots.get_child(i) as Button
 		var chaos_card = _main.chaos[i]
 		slot.disabled = chaos_card == null
 		slot.icon = null
+		var chaos_bg := Color("#7b4fc9")
+		if chaos_card != null:
+			chaos_bg = {"goldify": Color("#e8bf4c"), "tdir": Color("#23978e"), "destroy": Color("#b73e3d")}.get(chaos_card["kind"], chaos_bg)
+		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#c79bff"), "chaos")
 		if chaos_card == null:
 			slot.text = ""
 			slot.tooltip_text = "ช่อง Chaos ว่าง"
