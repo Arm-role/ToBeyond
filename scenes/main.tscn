@@ -184,6 +184,29 @@ corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.6)
 shadow_size = 16
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_view_panel"]
+bg_color = Color(0.176471, 0.141176, 0.313726, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.827451, 0.65098, 0.290196, 1)
+corner_radius_top_left = 21
+corner_radius_top_right = 21
+corner_radius_bottom_right = 21
+corner_radius_bottom_left = 21
+content_margin_left = 33.0
+content_margin_top = 27.0
+content_margin_right = 33.0
+content_margin_bottom = 27.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sec_btn"]
+bg_color = Color(0.788235, 0.752941, 0.901961, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop_panel"]
 bg_color = Color(0.082353, 0.058824, 0.14902, 1)
 border_width_top = 3
@@ -909,137 +932,211 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
 text = "เข้าร้านค้า"
 
-[node name="GameOverModal" type="PanelContainer" parent="."]
+[node name="GameOverModal" type="Control" parent="."]
 visible = false
 z_index = 100
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -150.0
-offset_right = 240.0
-offset_bottom = 150.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
-[node name="VBox" type="VBoxContainer" parent="GameOverModal"]
-layout_mode = 2
-theme_override_constants/separation = 16
+[node name="Dim" type="ColorRect" parent="GameOverModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
 
-[node name="Title" type="Label" parent="GameOverModal/VBox"]
+[node name="Center" type="CenterContainer" parent="GameOverModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="GameOverModal/Center"]
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_styles/panel = SubResource("StyleBoxFlat_view_panel")
+
+[node name="VBox" type="VBoxContainer" parent="GameOverModal/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 21
+
+[node name="Title" type="Label" parent="GameOverModal/Center/Panel/VBox"]
+layout_mode = 2
+theme_type_variation = &"BoldLabel"
+theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
+theme_override_font_sizes/font_size = 42
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="GameOverInfo" type="Label" parent="GameOverModal/VBox"]
+[node name="GameOverInfo" type="Label" parent="GameOverModal/Center/Panel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "คุณพ่ายแพ้ในด่านที่ 1"
+theme_override_font_sizes/font_size = 24
+text = "ผ่านศัตรู 0 ตัว"
 horizontal_alignment = 1
 
-[node name="RetryBtn" type="Button" parent="GameOverModal/VBox"]
-custom_minimum_size = Vector2(150, 40)
+[node name="RetryBtn" type="Button" parent="GameOverModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
-text = "เริ่มเกมใหม่"
+theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
+text = "New Game"
 
-[node name="StoneModal" type="PanelContainer" parent="."]
+[node name="StoneModal" type="Control" parent="."]
 visible = false
 z_index = 100
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -240.0
-offset_right = 300.0
-offset_bottom = 240.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
-[node name="VBox" type="VBoxContainer" parent="StoneModal"]
-layout_mode = 2
-theme_override_constants/separation = 12
+[node name="Dim" type="ColorRect" parent="StoneModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
 
-[node name="Title" type="Label" parent="StoneModal/VBox"]
+[node name="Center" type="CenterContainer" parent="StoneModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="StoneModal/Center"]
+custom_minimum_size = Vector2(960, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_view_panel")
+
+[node name="VBox" type="VBoxContainer" parent="StoneModal/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="StoneModal/Center/Panel/VBox"]
+layout_mode = 2
+theme_type_variation = &"BoldLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "Stone (สูตรเรียง Gem)"
 horizontal_alignment = 1
 
-[node name="Scroll" type="ScrollContainer" parent="StoneModal/VBox"]
+[node name="Note" type="Label" parent="StoneModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(916, 0)
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
+theme_override_font_sizes/font_size = 18
+text = "ATK ต่อ Gem = ค่าเริ่ม + ค่าเพิ่ม × (จำนวนใบ − 1) · สูตรยากได้ค่าเพิ่มต่อใบสูงกว่า · อัปเกรดในร้านเพิ่มค่าเริ่ม · ระบบเลือกกลุ่มที่ได้ ATK รวมสูงสุดให้เอง"
+autowrap_mode = 3
 
-[node name="List" type="VBoxContainer" parent="StoneModal/VBox/Scroll"]
+[node name="Scroll" type="ScrollContainer" parent="StoneModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="StoneModal/Center/Panel/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 15
 
-[node name="CloseBtn" type="Button" parent="StoneModal/VBox"]
-custom_minimum_size = Vector2(120, 36)
+[node name="CloseBtn" type="Button" parent="StoneModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_pill_btn")
+theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/focus = SubResource("StyleBoxFlat_sec_btn")
 text = "ปิด"
 
-[node name="DeckModal" type="PanelContainer" parent="."]
+[node name="DeckModal" type="Control" parent="."]
 visible = false
 z_index = 100
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -280.0
-offset_top = -220.0
-offset_right = 280.0
-offset_bottom = 220.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
-[node name="VBox" type="VBoxContainer" parent="DeckModal"]
-layout_mode = 2
-theme_override_constants/separation = 12
+[node name="Dim" type="ColorRect" parent="DeckModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
 
-[node name="Title" type="Label" parent="DeckModal/VBox"]
+[node name="Center" type="CenterContainer" parent="DeckModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="DeckModal/Center"]
+custom_minimum_size = Vector2(960, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_view_panel")
+
+[node name="VBox" type="VBoxContainer" parent="DeckModal/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="DeckModal/Center/Panel/VBox"]
+layout_mode = 2
+theme_type_variation = &"BoldLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 22
-text = "🃏 การ์ดที่เหลือในกอง"
+theme_override_font_sizes/font_size = 30
+text = "ไพ่ที่เหลือในกอง"
 horizontal_alignment = 1
 
-[node name="Scroll" type="ScrollContainer" parent="DeckModal/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="DeckModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
-size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="List" type="VBoxContainer" parent="DeckModal/VBox/Scroll"]
+[node name="List" type="VBoxContainer" parent="DeckModal/Center/Panel/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 15
 
-[node name="CloseBtn" type="Button" parent="DeckModal/VBox"]
-custom_minimum_size = Vector2(120, 36)
+[node name="CloseBtn" type="Button" parent="DeckModal/Center/Panel/VBox"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_pill_btn")
+theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sec_btn")
+theme_override_styles/focus = SubResource("StyleBoxFlat_sec_btn")
 text = "ปิด"
 
 [node name="ShopModal" type="PanelContainer" parent="."]

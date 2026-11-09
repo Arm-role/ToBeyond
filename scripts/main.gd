@@ -213,18 +213,18 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var reward_info: VBoxContainer = $RewardModal/VBox/RewardInfo
 @onready var reward_next_btn: Button = $RewardModal/VBox/NextBtn
 
-@onready var gameover_modal: PanelContainer = $GameOverModal
-@onready var gameover_info: Label = $GameOverModal/VBox/GameOverInfo
-@onready var gameover_btn: Button = $GameOverModal/VBox/RetryBtn
+@onready var gameover_modal: Control = $GameOverModal
+@onready var gameover_info: Label = $GameOverModal/Center/Panel/VBox/GameOverInfo
+@onready var gameover_btn: Button = $GameOverModal/Center/Panel/VBox/RetryBtn
 
-@onready var stone_modal: PanelContainer = $StoneModal
-@onready var stone_list: VBoxContainer = $StoneModal/VBox/Scroll/List
-@onready var stone_close_btn: Button = $StoneModal/VBox/CloseBtn
+@onready var stone_modal: Control = $StoneModal
+@onready var stone_list: VBoxContainer = $StoneModal/Center/Panel/VBox/Scroll/List
+@onready var stone_close_btn: Button = $StoneModal/Center/Panel/VBox/CloseBtn
 
 # Deck Modal
-@onready var deck_modal: PanelContainer = $DeckModal
-@onready var deck_modal_list: VBoxContainer = $DeckModal/VBox/Scroll/List
-@onready var deck_modal_close_btn: Button = $DeckModal/VBox/CloseBtn
+@onready var deck_modal: Control = $DeckModal
+@onready var deck_modal_list: VBoxContainer = $DeckModal/Center/Panel/VBox/Scroll/List
+@onready var deck_modal_close_btn: Button = $DeckModal/Center/Panel/VBox/CloseBtn
 
 # Shop Modal
 @onready var shop_modal: PanelContainer = $ShopModal
@@ -300,6 +300,13 @@ func connect_ui_signals() -> void:
 		stone_modal.visible = true
 	)
 	stone_close_btn.pressed.connect(func(): stone_modal.visible = false)
+	# Like the draft's `.vw`: tapping outside the panel closes the view.
+	for view in [stone_modal, deck_modal]:
+		var v: Control = view
+		v.get_node("Dim").gui_input.connect(func(e: InputEvent):
+			if e is InputEventMouseButton and e.pressed:
+				v.visible = false
+		)
 	reward_next_btn.pressed.connect(_on_reward_shop_pressed)
 	gameover_btn.pressed.connect(start_new_game)
 	shop_leave_btn.pressed.connect(_on_shop_leave)
@@ -1393,8 +1400,8 @@ func has_artifact(type_key: String) -> bool:
 
 func on_game_over() -> void:
 	is_busy = false
-	msg_label.text = "💀 คุณพ่ายแพ้..."
-	gameover_info.text = "คุณพ่ายแพ้ในด่านที่ %d!\nคะแนนเหรียญสะสม: %d 🪙" % [stage, coins]
+	msg_label.text = ""
+	gameover_info.text = "ผ่านศัตรู %d ตัว" % (stage - 1)
 	update_all_ui()
 	gameover_modal.visible = true
 

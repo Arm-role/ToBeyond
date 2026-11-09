@@ -506,7 +506,14 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	if opts.has("stone"):
 		var st: Dictionary = opts["stone"]
 		vb.add_child(_card_label(st["name"], 16, text_color))
-		vb.add_child(_card_label("+%d" % st["up"], 39, text_color))
+		var spv := HBoxContainer.new()
+		spv.alignment = BoxContainer.ALIGNMENT_CENTER
+		spv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		spv.add_theme_constant_override("separation", 3)
+		for c in st.get("pv", []):
+			spv.add_child(_main.ui_renderer.make_mini_card(c[0], c[1], Vector2(29, 39)))
+		vb.add_child(spv)
+		vb.add_child(_card_label("+%d" % st["up"], 33, text_color))
 		vb.add_child(_card_label("Lv%d → %d" % [st["lv"], st["lv"] + 1], 15, Color(1, 1, 1, 0.8)))
 	elif opts.has("cover_text"):
 		var ct := _card_label(opts["cover_text"], 28, Color("#fff6d6"))
@@ -782,7 +789,7 @@ func _render_offer(index: int) -> void:
 		var stone_level: int = int(stone.get("lv", 1))
 		var stone_key := "stone:%d" % stone_idx
 		var is_sold: bool = sold or shop_bought.has(stone_key)
-		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], stone_level, stone_level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + stone_bonus], -2 if is_sold else stone_cost, Color("#b8741f"), not is_sold and _main.coins >= stone_cost, func(): buy_game_offer(captured_index), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": stone_bonus, "lv": stone_level}})
+		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], stone_level, stone_level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + stone_bonus], -2 if is_sold else stone_cost, Color("#b8741f"), not is_sold and _main.coins >= stone_cost, func(): buy_game_offer(captured_index), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": stone_bonus, "lv": stone_level, "pv": stone.get("pv", [])}})
 	elif kind == "stat":
 		var stat: String = offer["stat"]
 		var stat_info := _get_stat_offer_info(stat)
@@ -846,7 +853,7 @@ func _render_upgrade_catalog() -> void:
 		var level: int = int(stone.get("lv", 1))
 		var captured_idx := idx
 		var captured_cost := cost
-		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], level, level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + bonus], -2 if shop_bought.has(key) else cost, Color("#b8741f"), not shop_bought.has(key) and _main.coins >= cost, func(): buy_stone_upgrade(captured_idx, captured_cost), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": bonus, "lv": level}})
+		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], level, level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + bonus], -2 if shop_bought.has(key) else cost, Color("#b8741f"), not shop_bought.has(key) and _main.coins >= cost, func(): buy_stone_upgrade(captured_idx, captured_cost), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": bonus, "lv": level, "pv": stone.get("pv", [])}})
 
 
 func buy_game_offer(index: int) -> void:

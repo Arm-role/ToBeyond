@@ -525,59 +525,150 @@ func render_chaos_row() -> void:
 			slot.modulate = Color.WHITE
 
 
+## Small card like the draft's `.mc` (colour + direction emblem).
+func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
+	var card := Panel.new()
+	card.custom_minimum_size = size
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("#cfcfda") if col == "blank" else _main.COLORS.get(col, Color.GRAY)
+	sb.border_color = _main.COLORS["brass"]
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(int(round(size.x * 0.18)))
+	card.add_theme_stylebox_override("panel", sb)
+	if dir != "" and _main.EMBLEMS.has(dir):
+		var em := TextureRect.new()
+		em.texture = _main.EMBLEMS[dir]
+		em.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		em.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		em.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		em.set_anchors_preset(Control.PRESET_FULL_RECT)
+		em.offset_left = size.x * 0.19
+		em.offset_right = -size.x * 0.19
+		em.offset_top = size.y * 0.19
+		em.offset_bottom = -size.y * 0.19
+		card.add_child(em)
+	return card
+
+
+func _fit_view_scroll(list: Control, max_h: float) -> void:
+	await _main.get_tree().process_frame
+	var scroll := list.get_parent() as ScrollContainer
+	scroll.custom_minimum_size.y = minf(list.get_combined_minimum_size().y, max_h)
+
+
+func _rich(text: String, size: int) -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_font_size_override("bold_font_size", size)
+	r.add_theme_color_override("default_color", _main.COLORS["text_bright"])
+	r.text = text
+	return r
+
+
+## Stone view like the draft's openStoneView(): one row per discovered formula.
 func setup_stone_modal_content() -> void:
 	for child in _main.stone_list.get_children():
 		child.queue_free()
-
+	var hidden := 0
 	for r in _main.stone_formulas:
-		var lbl = Label.new()
-		lbl.text = "• %s (%s)\n  ขั้นต่ำ: %d ใบ | เริ่มต้น: %d ATK (+%d ต่อใบ)" % [r["name"], r["desc"], r["min"], r["a"], r["g"]]
-		_main.stone_list.add_child(lbl)
+		if not _main.discovered_formulas.has(r["key"]):
+			hidden += 1
+			continue
+		var row := PanelContainer.new()
+		var rs := StyleBoxFlat.new()
+		rs.bg_color = Color(1, 1, 1, 0.05)
+		rs.set_corner_radius_all(12)
+		rs.content_margin_left = 12.0
+		rs.content_margin_right = 12.0
+		rs.content_margin_top = 9.0
+		rs.content_margin_bottom = 9.0
+		row.add_theme_stylebox_override("panel", rs)
+		var hb := HBoxContainer.new()
+		hb.add_theme_constant_override("separation", 18)
+		row.add_child(hb)
+		var pv := HBoxContainer.new()
+		pv.custom_minimum_size = Vector2(225, 0)
+		pv.add_theme_constant_override("separation", 4)
+		for c in r.get("pv", []):
+			var mc := make_mini_card(c[0], c[1], Vector2(36, 48))
+			mc.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			pv.add_child(mc)
+		hb.add_child(pv)
+		var lv := int(r.get("lv", 1))
+		var counts: Array[String] = []
+		for n in [2, 3, 5]:
+			if n >= int(r["min"]):
+				counts.append("%d ใบ = ใบละ %d" % [n, int(r["a"]) + int(r["g"]) * (n - 1)])
+		var txt := _rich("[b][font_size=21]%s [color=#f0cf86]Lv%d[/color][/font_size][/b]\n%s\n[color=#a79fc4]%s[/color]" % [r["name"], lv, r["desc"], " · ".join(counts)], 18)
+		txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hb.add_child(txt)
+		var at := _rich("[right][b][color=#5fb0ff][font_size=30]%d[/font_size] +%d/ใบ[/color][/b][/right]" % [r["a"], r["g"]], 21)
+		at.custom_minimum_size = Vector2(120, 0)
+		at.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		hb.add_child(at)
+		_main.stone_list.add_child(row)
+	if hidden > 0:
+		var h := Label.new()
+		h.text = "ยังไม่ค้นพบอีก %d สูตร · วางให้ได้เพื่อค้นพบ" % hidden
+		h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		h.add_theme_font_size_override("font_size", 21)
+		h.add_theme_color_override("font_color", _main.COLORS["text_dim"])
+		var hs := StyleBoxFlat.new()
+		hs.bg_color = Color(1, 1, 1, 0.05)
+		hs.set_corner_radius_all(12)
+		hs.content_margin_top = 12.0
+		hs.content_margin_bottom = 12.0
+		h.add_theme_stylebox_override("normal", hs)
+		_main.stone_list.add_child(h)
+	_fit_view_scroll(_main.stone_list, 690.0)
 
 
+## Deck view like the draft's openDeckView(): every remaining card, grouped by colour.
 func open_deck_modal() -> void:
 	for child in _main.deck_modal_list.get_children():
 		child.queue_free()
-
-	var counts = {
-		"red": {"N": 0, "E": 0, "S": 0, "W": 0},
-		"green": {"N": 0, "E": 0, "S": 0, "W": 0},
-		"orange": {"N": 0, "E": 0, "S": 0, "W": 0},
-		"blue": {"N": 0, "E": 0, "S": 0, "W": 0}
-	}
-	var blank_count = 0
-
-	for card in _main.deck:
-		if card.get("is_blank", false):
-			blank_count += 1
-		else:
-			var c = card["color"]
-			var d = card["dir"]
-			if counts.has(c) and counts[c].has(d):
-				counts[c][d] += 1
-
-	var color_names = {
-		"red": "🔴 สีแดง",
-		"green": "🟢 สีเขียว",
-		"orange": "🟠 สีส้ม",
-		"blue": "🔵 สีน้ำเงิน"
-	}
-
-	for col in _main.COLOR_ORDER:
-		var total_col = counts[col]["N"] + counts[col]["E"] + counts[col]["S"] + counts[col]["W"]
-		var title = "%s (เหลือทั้งหมด %d ใบ):" % [color_names[col], total_col]
-		var detail = "   N: %d ใบ  |  E: %d ใบ  |  S: %d ใบ  |  W: %d ใบ" % [
-			counts[col]["N"], counts[col]["E"], counts[col]["S"], counts[col]["W"]
-		]
-		var pnl = _make_deck_panel(title, detail, _main.COLORS[col].darkened(0.7), _main.COLORS[col])
-		_main.deck_modal_list.add_child(pnl)
-
-	if blank_count > 0:
-		var title = "⬜ การ์ดเปล่า (ชั่วคราวจากสกิลบอส): %d ใบ" % blank_count
-		var pnl = _make_deck_panel(title, "", Color("#3a3a48"), Color("#aaaaaa"))
-		_main.deck_modal_list.add_child(pnl)
-
+	var title := _main.deck_modal.get_node("Center/Panel/VBox/Title") as Label
+	title.text = "ไพ่ที่เหลือในกอง (%d)" % _main.deck.size()
+	const NAMES := {"red": "แดง", "green": "เขียว", "orange": "ส้ม", "blue": "น้ำเงิน", "blank": "เปล่า (ชั่วคราว จากสกิลบอส)"}
+	if _main.deck.is_empty():
+		var empty := Label.new()
+		empty.text = "กองหมดแล้ว"
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.add_theme_color_override("font_color", _main.COLORS["text_dim"])
+		empty.add_theme_font_size_override("font_size", 21)
+		_main.deck_modal_list.add_child(empty)
+	var order: Array = _main.COLOR_ORDER + ["blank"]
+	for col in order:
+		var cards: Array = []
+		for c in _main.deck:
+			var c_col: String = "blank" if c.get("is_blank", false) else c["color"]
+			if c_col == col:
+				cards.append(c)
+		if cards.is_empty():
+			continue
+		cards.sort_custom(func(x, y): return _main.DIR_ORDER.find(x.get("dir", "")) < _main.DIR_ORDER.find(y.get("dir", "")))
+		var grp := VBoxContainer.new()
+		grp.add_theme_constant_override("separation", 6)
+		var head := Label.new()
+		head.text = "%s × %d" % [NAMES[col], cards.size()]
+		head.theme_type_variation = &"BoldLabel"
+		head.add_theme_font_size_override("font_size", 21)
+		head.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+		grp.add_child(head)
+		var row := HFlowContainer.new()
+		row.add_theme_constant_override("h_separation", 7)
+		row.add_theme_constant_override("v_separation", 7)
+		for c in cards:
+			row.add_child(make_mini_card(col, "" if col == "blank" else c.get("dir", ""), Vector2(57, 75)))
+		grp.add_child(row)
+		_main.deck_modal_list.add_child(grp)
 	_main.deck_modal.visible = true
+	_fit_view_scroll(_main.deck_modal_list, 690.0)
 
 
 func _make_deck_panel(title: String, detail: String, bg_col: Color, border_col: Color) -> PanelContainer:
