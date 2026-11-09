@@ -173,8 +173,42 @@ static func display_name(item: Dictionary) -> String:
 	return item.get("name", t)
 
 
+## Main node, so descriptions can show live values like the draft's "ตอนนี้ ×1.3".
+static var live_main: Node = null
+
+
+static func _r2(v: float) -> String:
+	var r := snappedf(v, 0.01)
+	return str(int(r)) if is_equal_approx(r, floorf(r)) else String.num(r, 2)
+
+
 static func display_desc(item: Dictionary) -> String:
 	var t: String = item.get("type", "")
+	var m: Variant = item.get("m", null)
+	var mv: float = float(m) if m != null else 0.0
+	var dc := func(d: String) -> int:
+		return live_main.tile_direction_count(d) if live_main != null else 0
+	match t:
+		"chaosStack":
+			return "ทุกครั้งที่ใช้การ์ด Chaos: ATK ของการ์ดนี้ +2 ถาวร · ตอนโจมตี ATK +%s" % _r2(mv)
+		"discardStack":
+			return "ตอนชนะศัตรู: ตัวคูณของการ์ดนี้ + จำนวนครั้งที่ทิ้งได้ที่เหลือ ถาวร · ตอนโจมตี ตัวคูณ +%s" % _r2(mv)
+		"stoneUp":
+			return "ทุกครั้งที่อัปเกรด stone (ซื้อในร้าน): ตัวสะสมของการ์ดนี้ +0.2 ถาวร · ตอนโจมตี ตัวคูณ × %s" % _r2(mv if m != null else 1.0)
+		"redS":
+			return "ตอนเดิน ถ้ามีสูตรที่การ์ดสีแดงทิศ S วางบนช่องทิศ S ครบทั้ง 2 ช่อง: ตัวสะสมของการ์ดนี้ +0.5 ถาวร · ตอนโจมตี ตัวคูณ × %s" % _r2(mv if m != null else 1.0)
+		"stone7W":
+			return "ตอนเดิน ทุก Gem สีน้ำเงินทิศตะวันตกที่วางบนช่องทิศตะวันตก (นับทีละใบ): ATK ของการ์ดนี้ +3 ต่อใบ ถาวร · ตอนโจมตี ATK +%s" % _r2(mv)
+		"stone7E":
+			return "ตอนเดิน ทุก Gem สีเขียวทิศตะวันออกที่วางบนช่องทิศตะวันออก (นับทีละใบ): ตัวคูณของการ์ดนี้ +1 ต่อใบ ถาวร · ตอนโจมตี ตัวคูณ +%s" % _r2(mv)
+		"eastG":
+			var n: int = dc.call("E")
+			var f: float = 2.0 if n >= 8 else 1.0 + 0.1 * n
+			return "ทุกครั้งที่เดินตกช่องที่วาง Gem ทิศตะวันออก (สีไหนก็ได้ ช่องไหนก็ได้): ตัวคูณ × (1 + 0.1 ต่อช่องทิศ E บนกระดาน) · ตอนนี้ ×%s · ทั้งกระดานเป็นทิศ E (8 ช่อง) ได้โบนัสเป็น ×2" % _r2(f)
+		"north5":
+			var n2: int = dc.call("N")
+			var e: float = 2.0 if n2 >= 8 else 1.0 + 0.12 * n2
+			return "ตอนโจมตี: ตัวคูณยกกำลัง (1 + 0.12 ต่อช่องทิศ N บนกระดาน) · ตอนนี้ ^%s · ทั้งกระดานเป็นทิศ N (8 ช่อง) ได้โบนัสเป็นยกกำลัง 2 พอดี" % _r2(e)
 	if DRAFT_DESCS.has(t):
 		return DRAFT_DESCS[t]
 	if t.begins_with("dir") and t.ends_with("Hit"):
@@ -258,6 +292,8 @@ var reroll_cost: int = REROLL_START
 
 func _init(main: Node = null) -> void:
 	_main = main
+	if main != null:
+		live_main = main
 
 static func has_artifact(artifacts: Array, type_key: String) -> bool:
 	for it in artifacts:
