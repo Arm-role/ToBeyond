@@ -18,7 +18,7 @@ static func fire_laser_beam(effects_layer: Control, line: Line2D, from_pos: Vect
 	tween.tween_method(func(pos: Vector2):
 		if line.get_point_count() >= 2:
 			line.set_point_position(1, pos)
-	, p0, p1, 0.07 / speed_multiplier)
+	, p0, p1, 0.25 / speed_multiplier)
 
 	tween.tween_interval(duration / speed_multiplier)
 	tween.tween_property(line, "width", 0.0, 0.12 / speed_multiplier)
@@ -50,35 +50,39 @@ static func spawn_damage_number(effects_layer: Control, text: String, target_glo
 	if not effects_layer: return
 	var pop = Label.new()
 	pop.text = text
-	pop.add_theme_font_size_override("font_size", 34 if is_big else 22)
+	# Draft `.dmgpop`: 900-weight 34px (×1.5) red number with a black shadow;
+	# pops from ×0.5 to ×1.3, then rises ~1.4× its height while fading.
+	pop.theme_type_variation = &"BoldLabel"
+	pop.add_theme_font_size_override("font_size", 51 if is_big else 33)
 	pop.add_theme_color_override("font_color", col)
 	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
-	pop.add_theme_constant_override("shadow_offset_x", 2)
-	pop.add_theme_constant_override("shadow_offset_y", 2)
-	pop.add_theme_constant_override("shadow_outline_size", 4)
+	pop.add_theme_constant_override("shadow_offset_x", 0)
+	pop.add_theme_constant_override("shadow_offset_y", 3)
+	pop.add_theme_constant_override("shadow_outline_size", 9)
 	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pop.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pop.z_index = 120
 
 	effects_layer.add_child(pop)
-	var start_pos = (effects_layer.get_global_transform().affine_inverse() * target_global_pos) + Vector2(randf_range(-15.0, 15.0), -10.0)
-	pop.position = start_pos - Vector2(50.0, 20.0)
-	pop.size = Vector2(100.0, 40.0)
-	pop.pivot_offset = Vector2(50.0, 20.0)
+	var box := Vector2(240.0, 80.0)
+	var center = effects_layer.get_global_transform().affine_inverse() * target_global_pos
+	pop.size = box
+	pop.pivot_offset = box * 0.5
+	pop.position = center - box * 0.5
 	pop.scale = Vector2(0.5, 0.5)
 	pop.modulate.a = 0.0
 
-	var tween = effects_layer.create_tween()
-	tween.tween_property(pop, "scale", Vector2(1.3, 1.3), 0.14 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(pop, "modulate:a", 1.0, 0.12 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 45.0, 0.14 / speed_multiplier)
-
-	tween.tween_property(pop, "scale", Vector2.ONE, 0.2 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 75.0, 0.35 / speed_multiplier)
-
-	tween.tween_property(pop, "modulate:a", 0.0, 0.22 / speed_multiplier)
-	tween.parallel().tween_property(pop, "position:y", start_pos.y - 95.0, 0.22 / speed_multiplier)
+	var total := 0.9 / speed_multiplier
+	var tween = effects_layer.create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(pop, "scale", Vector2(1.3, 1.3), total * 0.2)
+	tween.parallel().tween_property(pop, "modulate:a", 1.0, total * 0.2)
+	tween.parallel().tween_property(pop, "position:y", pop.position.y - 15.0, total * 0.2)
+	tween.tween_property(pop, "scale", Vector2.ONE, total * 0.8)
+	tween.parallel().tween_property(pop, "modulate:a", 0.0, total * 0.8)
+	tween.parallel().tween_property(pop, "position:y", pop.position.y - 70.0, total * 0.8)
 	tween.tween_callback(pop.queue_free)
+
 
 ## Displays formula discovery toast banner
 static func show_discovery_toast(toast: PanelContainer, toast_label: Label, f_info: Dictionary, speed_multiplier: float = 1.0) -> void:
@@ -95,6 +99,25 @@ static func show_discovery_toast(toast: PanelContainer, toast_label: Label, f_in
 	tween.tween_interval(2.2 / speed_multiplier)
 	tween.tween_property(toast, "position:y", orig_y - 20.0, 0.25 / speed_multiplier)
 	tween.parallel().tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
+	tween.tween_callback(func(): toast.visible = false)
+
+## Draft `.disc-toast`: centred at 36% height, fades in rising 15 px,
+## holds, then fades out rising another 15 px.
+static func show_center_toast(toast: PanelContainer, duration: float = 2.6) -> void:
+	if not toast: return
+	toast.visible = true
+	toast.reset_size()
+	var parent_size: Vector2 = toast.get_parent_area_size()
+	var x := (parent_size.x - toast.size.x) * 0.5
+	var y := parent_size.y * 0.36 - toast.size.y * 0.5
+	toast.position = Vector2(x, y + 15.0)
+	toast.modulate.a = 0.0
+	var tween = toast.create_tween()
+	tween.tween_property(toast, "position:y", y, duration * 0.1)
+	tween.parallel().tween_property(toast, "modulate:a", 1.0, duration * 0.1)
+	tween.tween_interval(duration * 0.7)
+	tween.tween_property(toast, "position:y", y - 15.0, duration * 0.2)
+	tween.parallel().tween_property(toast, "modulate:a", 0.0, duration * 0.2)
 	tween.tween_callback(func(): toast.visible = false)
 
 ## Quick pop bounce when placing or moving a tile card (.tile.tplace)

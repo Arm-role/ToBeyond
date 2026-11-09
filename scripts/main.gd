@@ -184,6 +184,7 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var enemy_hp_label: Label = $Preview/PreviewHBox/EnemyCol/EnemyHPText
 @onready var enemy_atk_label: Label = $Preview/PreviewHBox/EnemyCol/EnemyAtkText
 @onready var msg_label: Label = $Preview/PreviewHBox/EnemyCol/MsgLabel
+@onready var enemy_skill_label: Label = $Preview/PreviewHBox/EnemyCol/EnemySkill
 
 # Artifact Row
 @onready var artifact_row: HBoxContainer = $ArtifactRow
@@ -255,6 +256,7 @@ var drag_moved: bool = false
 func _ready() -> void:
 	init_textures()
 	setup_token_visual()
+	_setup_beams()
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
 	shop_mgr = ShopManager.new(self)
@@ -270,20 +272,38 @@ func _ready() -> void:
 func setup_token_visual() -> void:
 	# Gameplay is authored against the 1920×1080 canvas (the HTML draft scaled
 	# from 1280×720 at 1.5×), so keep the travelling token proportional.
-	token.custom_minimum_size = Vector2(72, 96)
+	# Draft: ball height = tile × 0.7, aspect 98:168 → about 84×143 here.
+	token.custom_minimum_size = Vector2(84, 143)
+	token.size = Vector2(84, 143)
 	if BALL_TEXTURE != null:
 		var tex_rect = TextureRect.new()
 		tex_rect.name = "BallTexture"
 		tex_rect.texture = BALL_TEXTURE
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.custom_minimum_size = Vector2(66, 90)
+		tex_rect.custom_minimum_size = Vector2(84, 143)
+		tex_rect.size = Vector2(84, 143)
 		token.add_child(tex_rect)
 	else:
 		var lbl = Label.new()
 		lbl.text = "🔥"
 		lbl.add_theme_font_size_override("font_size", 51)
 		token.add_child(lbl)
+
+
+func _setup_beams() -> void:
+	# Draft `.beam` / `.beam.ebeam` gradients.
+	var hero_g := Gradient.new()
+	hero_g.offsets = PackedFloat32Array([0.0, 0.4, 1.0])
+	hero_g.colors = PackedColorArray([Color("#fff6c0"), Color("#ffb22e"), Color("#ff5a1f")])
+	beam_line.gradient = hero_g
+	var enemy_g := Gradient.new()
+	enemy_g.offsets = PackedFloat32Array([0.0, 0.4, 1.0])
+	enemy_g.colors = PackedColorArray([Color("#ffd0f0"), Color("#c03aff"), Color("#ff2e5a")])
+	enemy_beam_line.gradient = enemy_g
+	for l in [beam_line, enemy_beam_line]:
+		l.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		l.end_cap_mode = Line2D.LINE_CAP_ROUND
 
 
 func connect_ui_signals() -> void:
@@ -586,16 +606,14 @@ func start_new_game() -> void:
 func spawn_current_enemy() -> void:
 	var boss_idx = (stage - 1) % BOSS_PICS.size()
 	enemy_pic.text = BOSS_PICS[boss_idx]
-	if is_boss():
-		enemy_name.text = "👑 บอส"
-		boss_skill()
-	else:
-		enemy_name.text = "ศัตรู"
+	boss_skill()
+	enemy_name.text = "👑 บอส" if is_boss() else "ศัตรู"
 
 	start_new_round()
 
 
 func boss_skill() -> void:
+	enemy_skill_label.visible = false
 	if not is_boss(): return
 	for i in range(BOSS_BLANKS):
 		deck.append({
@@ -607,7 +625,8 @@ func boss_skill() -> void:
 		})
 		card_uid_counter += 1
 	deck.shuffle()
-	msg_label.text = "⚠️ บอสใส่การ์ดเปล่า 15 ใบเข้าสำรับ (ชั่วคราว)!"
+	enemy_skill_label.text = "สกิลบอส: ใส่การ์ดเปล่า %d ใบเข้าสำรับ (ชั่วคราว)" % BOSS_BLANKS
+	enemy_skill_label.visible = true
 
 
 func build_deck() -> void:
@@ -737,7 +756,7 @@ func _on_chaos_slot_pressed(slot_idx: int) -> void:
 	var kind: String = chaos_card["kind"]
 	if kind in ["tdir", "mtile", "xmult", "xatk", "crystal"]:
 		selected_chaos_slot = -1 if selected_chaos_slot == slot_idx else slot_idx
-		msg_label.text = "แตะช่องที่ต้องการวาง Chaos" if selected_chaos_slot >= 0 else "ยกเลิก Chaos แล้ว"
+		chaos_msg("แตะช่องที่ต้องการวาง" if selected_chaos_slot >= 0 else "ยกเลิกแล้ว")
 		update_all_ui()
 		return
 	_apply_hand_chaos(slot_idx)
@@ -752,43 +771,58 @@ func _apply_hand_chaos(slot_idx: int) -> void:
 		if selected_card_ids.has(card["id"]):
 			picked.append(card)
 	var kind: String = chaos_card["kind"]
+	if kind != "destroy" and picked.any(func(c): return c.get("is_blank", false)):
+		chaos_msg("การ์ดเปล่าใช้ Chaos ไม่ได้")
+		return
 	if kind == "color":
-		if picked.is_empty() or picked.size() > 2:
-			msg_label.text = "เลือก Gem 1–2 ใบก่อนใช้ Chaos เปลี่ยนสี"
+		if picked.is_empty():
+			chaos_msg("เลือก Gem ในมือก่อน (สูงสุด 2 ใบ)")
+			return
+		if picked.size() > 2:
+			chaos_msg("เปลี่ยนสีได้สูงสุด 2 ใบ")
+			return
+		if picked.all(func(c): return c["color"] == chaos_card["col"]):
+			chaos_msg("Gem ที่เลือกเป็นสี%sอยู่แล้ว" % ShopManager.COL_TH.get(chaos_card["col"], ""))
 			return
 		for card in picked:
 			if card.get("is_blank", false):
 				continue
 			deck_mods.append({"from": card["color"], "dir": card["dir"], "to": chaos_card["col"], "to_dir": card["dir"]})
 			card["color"] = chaos_card["col"]
-		_finish_chaos(slot_idx, "🎨 เปลี่ยนสี Gem ถาวรแล้ว")
+		_finish_chaos(slot_idx, "🎨 เปลี่ยนเป็นสี%sถาวร" % ShopManager.COL_TH.get(chaos_card["col"], ""))
 	elif kind == "dirc":
-		if picked.size() != 1 or picked[0].get("is_blank", false):
-			msg_label.text = "เลือก Gem 1 ใบก่อนใช้ Chaos เปลี่ยนทิศ"
+		if picked.is_empty():
+			chaos_msg("เลือก Gem ในมือก่อน (1 ใบ)")
+			return
+		if picked.size() > 1:
+			chaos_msg("เปลี่ยนทิศได้ทีละ 1 ใบ")
+			return
+		if picked[0]["dir"] == chaos_card["dir"]:
+			chaos_msg("Gem ที่เลือกเป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
 			return
 		var card = picked[0]
 		deck_mods.append({"from": card["color"], "dir": card["dir"], "to": card["color"], "to_dir": chaos_card["dir"]})
 		card["dir"] = chaos_card["dir"]
-		_finish_chaos(slot_idx, "🧭 เปลี่ยนทิศ Gem ถาวรแล้ว")
+		_finish_chaos(slot_idx, "🧭 เปลี่ยนเป็นทิศ%sถาวร" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
 	elif kind == "goldify":
-		if picked.size() != 1 or picked[0].get("is_blank", false):
-			msg_label.text = "เลือก Gem 1 ใบก่อนทำเป็น Gem ทอง"
+		if picked.size() != 1:
+			chaos_msg("เลือก Gem ในมือ 1 ใบก่อน")
 			return
 		if picked[0].get("gold", false):
-			msg_label.text = "Gem ใบนี้เป็นทองอยู่แล้ว"
+			chaos_msg("ใบนี้เป็นการ์ดทองอยู่แล้ว")
 			return
 		picked[0]["gold"] = true
 		gold_mods.append({"color": picked[0]["color"], "dir": picked[0]["dir"]})
-		_finish_chaos(slot_idx, "✨ Gem ทองจะทำงานซ้ำ 2 รอบ")
+		_finish_chaos(slot_idx, "✨ เป็นการ์ดทองถาวร")
 	elif kind == "destroy":
 		if picked.size() != 2:
-			msg_label.text = "เลือก Gem 2 ใบก่อนทำลาย"
+			chaos_msg("เลือก Gem ในมือ 2 ใบก่อน")
 			return
 		for card in picked:
 			if not card.get("is_blank", false):
 				deck_removals.append({"color": card["color"], "dir": card["dir"]})
 			hand.erase(card)
-		_finish_chaos(slot_idx, "💥 ทำลาย Gem 2 ใบถาวรแล้ว")
+		_finish_chaos(slot_idx, "💥 ทำลาย Gem 2 ใบถาวร")
 
 
 func _apply_chaos_to_tile(tile_idx: int) -> void:
@@ -801,32 +835,32 @@ func _apply_chaos_to_tile(tile_idx: int) -> void:
 	var kind: String = chaos_card["kind"]
 	if kind == "tdir":
 		if TILE_DIR[tile_idx] == chaos_card["dir"]:
-			msg_label.text = "ช่องนี้เป็นทิศนั้นอยู่แล้ว"
+			chaos_msg("ช่องนี้เป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
 			return
 		TILE_DIR[tile_idx] = chaos_card["dir"]
 	elif kind == "mtile":
 		if chaos_mult_tiles.has(tile_idx):
-			msg_label.text = "ช่องนี้มี Chaos MULT +5 อยู่แล้ว"
+			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
 			return
 		chaos_mult_tiles[tile_idx] = true
 	elif kind == "xmult":
 		if chaos_xmult_tiles.has(tile_idx):
-			msg_label.text = "ช่องนี้มี Chaos ×MULT อยู่แล้ว"
+			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
 			return
 		chaos_xmult_tiles[tile_idx] = true
 	elif kind == "xatk":
 		if chaos_xatk_tiles.has(tile_idx):
-			msg_label.text = "ช่องนี้มี Chaos ×ATK อยู่แล้ว"
+			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
 			return
 		chaos_xatk_tiles[tile_idx] = true
 	elif kind == "crystal":
 		if placed_cards.has(tile_idx) or chaos_crystals.has(tile_idx):
-			msg_label.text = "วางผลึกได้เฉพาะช่องว่าง"
+			chaos_msg("วางผลึกได้เฉพาะช่องว่าง")
 			return
 		chaos_crystals[tile_idx] = CRYSTAL_HP
 	else:
 		return
-	_finish_chaos(selected_chaos_slot, "✨ วาง Chaos บนช่องแล้ว")
+	_finish_chaos(selected_chaos_slot, "")
 
 
 func _finish_chaos(slot_idx: int, message: String) -> void:
@@ -836,7 +870,8 @@ func _finish_chaos(slot_idx: int, message: String) -> void:
 	for artifact in artifacts:
 		if artifact != null and artifact.get("type") == "chaosStack":
 			artifact["m"] = int(artifact.get("m", 0)) + 2
-	msg_label.text = message
+	if message != "":
+		chaos_msg(message)
 	update_all_ui()
 	refresh_calc()
 
@@ -875,13 +910,13 @@ func _on_tile_clicked(tile_idx: int) -> void:
 		_apply_chaos_to_tile(tile_idx)
 		return
 	if chaos_crystals.has(tile_idx):
-		msg_label.text = "⚠️ มีผลึก Gem อยู่บนช่องนี้"
+		msg_label.text = "ช่องนี้มีผลึก Gem วาง Gem ไม่ได้"
 		return
 
 	# Rule: If tile already has card, return it to hand!
 	if placed_cards.has(tile_idx):
 		if hand.size() >= hand_max:
-			msg_label.text = "⚠️ มือเต็ม เอา Gem กลับไม่ได้"
+			msg_label.text = "มือเต็ม เอา Gem กลับไม่ได้"
 			return
 		var card = placed_cards[tile_idx]
 		placed_cards.erase(tile_idx)
@@ -1259,11 +1294,6 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 func on_victory() -> void:
 	is_busy = false
 	msg_label.text = "ชนะ!"
-	var fade_tween = create_tween()
-	fade_tween.tween_property(enemy_pic, "modulate:a", 0.0, 0.4 / speed_multiplier)
-	fade_tween.parallel().tween_property(enemy_pic, "scale", Vector2(0.5, 0.5), 0.4 / speed_multiplier)
-
-	await fade_tween.finished
 
 	# Matching draft reward: base + walks + interest + reward artifacts.
 	var base_reward = 4
@@ -1436,6 +1466,48 @@ func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = 
 
 
 func show_discovery_toast(formula_key: String) -> void:
-	var f_info = stone_formulas.filter(func(f): return f["key"] == formula_key)
-	if f_info.is_empty(): return
-	VfxManager.show_discovery_toast(toast, toast_label, f_info[0], speed_multiplier)
+	for k in range(stone_formulas.size()):
+		var f: Dictionary = stone_formulas[k]
+		if f["key"] == formula_key:
+			# Draft disc-toast: "✨ ค้นพบสูตรใหม่ · stone N name · ATK a"
+			toast_label.text = "✨ ค้นพบสูตรใหม่ · stone %d %s · ATK %d" % [k + 1, f["name"], f["a"]]
+			VfxManager.show_center_toast(toast, 2.6)
+			return
+
+
+var _chaos_toast: PanelContainer
+var _chaos_toast_tween: Tween
+
+## Draft `.ctoast`: purple-bordered message at the top while using Chaos.
+func chaos_msg(text: String) -> void:
+	if _chaos_toast == null:
+		_chaos_toast = PanelContainer.new()
+		_chaos_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_chaos_toast.z_index = 150
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("#241a3d")
+		sb.border_color = Color("#a66cf2")
+		sb.set_border_width_all(3)
+		sb.set_corner_radius_all(18)
+		sb.content_margin_left = 27.0
+		sb.content_margin_right = 27.0
+		sb.content_margin_top = 15.0
+		sb.content_margin_bottom = 15.0
+		_chaos_toast.add_theme_stylebox_override("panel", sb)
+		var l := Label.new()
+		l.theme_type_variation = &"BoldLabel"
+		l.add_theme_font_size_override("font_size", 22)
+		l.add_theme_color_override("font_color", Color.WHITE)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_chaos_toast.add_child(l)
+		effects_layer.add_child(_chaos_toast)
+	(_chaos_toast.get_child(0) as Label).text = text
+	_chaos_toast.reset_size()
+	_chaos_toast.position = Vector2((size.x - _chaos_toast.size.x) * 0.5, 105.0)
+	if _chaos_toast_tween != null:
+		_chaos_toast_tween.kill()
+	_chaos_toast.modulate.a = 0.0
+	_chaos_toast_tween = create_tween()
+	_chaos_toast_tween.tween_property(_chaos_toast, "modulate:a", 1.0, 0.2)
+	_chaos_toast_tween.tween_interval(2.0)
+	_chaos_toast_tween.tween_property(_chaos_toast, "modulate:a", 0.0, 0.2)

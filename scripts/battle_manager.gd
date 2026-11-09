@@ -122,40 +122,47 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 		applied["extra"] = int(applied["extra"]) + int(repeated["extra"])
 		gain += int(repeated["gain"])
 
-	var pop = Label.new()
-	if card.get("is_blank", false):
-		pop.text = "+0"
-		pop.modulate = Color.GRAY
-	else:
-		pop.text = "+%d ATK" % gain
-		pop.modulate = _main.COLORS.get(card["color"], Color.CYAN)
-
-	pop.add_theme_font_size_override("font_size", 18)
-	pop.add_theme_color_override("font_shadow_color", Color.BLACK)
-	pop.add_theme_constant_override("shadow_offset_x", 1)
-	pop.add_theme_constant_override("shadow_offset_y", 1)
-	pop.add_theme_constant_override("shadow_outline_size", 3)
-	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	effects_layer.add_child(pop)
-	var start_pos = (effects_layer.get_global_transform().affine_inverse() * tile_btn.global_position) + Vector2(tile_btn.size.x * 0.5 - 60.0, -10.0)
-	pop.position = start_pos
-	pop.size = Vector2(120, 36)
-	pop.pivot_offset = Vector2(60, 18)
-	pop.scale = Vector2(0.5, 0.5)
-
-	var pop_tween = _ct()
-	pop_tween.tween_property(pop, "scale", Vector2(1.15, 1.15), 0.12 / _spd()).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	pop_tween.parallel().tween_property(pop, "position:y", start_pos.y - 30.0, 0.3 / _spd())
-	pop_tween.tween_property(pop, "scale", Vector2(0.9, 0.9), 0.12 / _spd())
-	pop_tween.parallel().tween_property(pop, "modulate:a", 0.0, 0.18 / _spd())
-	pop_tween.parallel().tween_property(pop, "position:y", start_pos.y - 50.0, 0.18 / _spd())
-	pop_tween.tween_callback(pop.queue_free)
+	if gain > 0 and not card.get("is_blank", false):
+		_tile_pop(tile_idx, "+%d" % gain)
 
 	if int(applied["extra"]) > 0:
 		_main.spawn_damage_number("+%d" % int(applied["extra"]), tile_btn.global_position + tile_btn.size * 0.5, Color("#ffd966"), false)
 	_main.refresh_calc()
+
+
+## Draft `.spop`: big blue number with a white glow above the tile,
+## pops to ×1.25 then drifts up and fades (0.9 s).
+func _tile_pop(tile_idx: int, text: String, col: Color = Color("#1f7ae0")) -> void:
+	var tile_btn = _main.tiles_container.get_child(tile_idx) as Control
+	var layer: Control = _main.effects_layer
+	var pop := Label.new()
+	pop.text = text
+	pop.theme_type_variation = &"BoldLabel"
+	pop.add_theme_font_size_override("font_size", 74 if text.length() <= 4 else 44)
+	pop.add_theme_color_override("font_color", col)
+	pop.add_theme_color_override("font_outline_color", Color.WHITE)
+	pop.add_theme_constant_override("outline_size", 9)
+	pop.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pop.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pop.z_index = 60
+	layer.add_child(pop)
+	var box := Vector2(320, 100)
+	var center: Vector2 = layer.get_global_transform().affine_inverse() * (tile_btn.global_position + Vector2(tile_btn.size.x * 0.5, tile_btn.size.y * 0.42))
+	pop.size = box
+	pop.pivot_offset = box * 0.5
+	pop.position = center - box * 0.5
+	pop.scale = Vector2(0.6, 0.6)
+	pop.modulate.a = 0.0
+	var total := 0.9 / _spd()
+	var t := _ct().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(pop, "scale", Vector2(1.25, 1.25), total * 0.2)
+	t.parallel().tween_property(pop, "modulate:a", 1.0, total * 0.2)
+	t.parallel().tween_property(pop, "position:y", pop.position.y - 9.0, total * 0.2)
+	t.tween_property(pop, "scale", Vector2.ONE, total * 0.8)
+	t.parallel().tween_property(pop, "modulate:a", 0.0, total * 0.8)
+	t.parallel().tween_property(pop, "position:y", pop.position.y - 33.0, total * 0.8)
+	t.tween_callback(pop.queue_free)
 
 
 func _hit_crystal(tile_idx: int) -> void:
@@ -174,7 +181,7 @@ func _hit_totem(tile_idx: int) -> void:
 	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
 	var gain: int = _main.totem_attack(tile_idx)
 	_main.walk_base_damage += gain
-	_main.spawn_damage_number("🗿 +%d" % gain, tile_btn.global_position + tile_btn.size * 0.5, Color("#7fd0ff"), false)
+	_tile_pop(tile_idx, "🗿+%d" % gain, Color("#7fd0ff"))
 	_main.refresh_calc()
 
 
@@ -183,108 +190,200 @@ func _hit_totem(tile_idx: int) -> void:
 # ---------------------------------------------------------------------------
 
 func _on_walk_finished() -> void:
-	var token     = _main.token
-	var hero_pic  = _main.hero_pic
-	var enemy_pic = _main.enemy_pic
+	var token: Control = _main.token
+	var hero_pic: Control = _main.hero_pic
+	var enemy_pic: Control = _main.enemy_pic
+	var layer: Control = _main.effects_layer
 
-	# 1. Fireball flies to Hero along curved Bézier path
-	_main.msg_label.text = "✨"
-	var start_global = token.global_position + token.size * 0.5
-	var hero_center  = hero_pic.global_position + hero_pic.size * 0.5
-	var mid_global   = (start_global + hero_center) * 0.5 + Vector2(-60.0, -100.0)
+	await _timer(0.25)
 
-	var fly_tween = _ct()
-	fly_tween.tween_method(func(t: float):
-		var omt = 1.0 - t
-		token.global_position = omt * omt * start_global + 2.0 * omt * t * mid_global + t * t * hero_center - token.size * 0.5
-	, 0.0, 1.0, 0.35 / _spd()).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-
-	await fly_tween.finished
+	# 1. Fireball (draft strike()): cubic Bézier from the token to the hero —
+	#    keeps heading right first, then curves in from below; 750 ms.
+	_main.msg_label.text = "🔥"
+	var p0: Vector2 = token.global_position + token.size * 0.5
+	var p3: Vector2 = hero_pic.global_position + hero_pic.size * 0.5
+	var L := maxf(1.0, p0.distance_to(p3))
+	var c1 := p0 + Vector2(maxf(210.0, L * 0.5), 0.0)
+	var c2 := p3 + Vector2(0.0, maxf(240.0, L * 0.5))
+	token.pivot_offset = token.size * 0.5
+	var fly := _ct()
+	fly.tween_method(func(q: float):
+		var e := pow(q, 1.6)
+		var u := 1.0 - e
+		var pos := u * u * u * p0 + 3.0 * u * u * e * c1 + 3.0 * u * e * e * c2 + e * e * e * p3
+		var tan := 3.0 * u * u * (c1 - p0) + 6.0 * u * e * (c2 - c1) + 3.0 * e * e * (p3 - c2)
+		token.global_position = pos - token.size * 0.5
+		token.rotation = tan.angle()
+	, 0.0, 1.0, 0.75 / _spd())
+	await fly.finished
 	token.visible = false
+	token.rotation = 0.0
 	token.position = Vector2(20.0, 26.0)
+	_burst(p3)
 
-	# 2. Hero charge pulse
-	hero_pic.pivot_offset = hero_pic.size * 0.5
-	var charge_tween = _ct()
-	charge_tween.tween_property(hero_pic, "scale", Vector2(1.35, 1.35), 0.2 / _spd()).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	charge_tween.parallel().tween_property(hero_pic, "modulate", Color(1.4, 1.25, 0.5), 0.2 / _spd())
-	charge_tween.tween_interval(0.12 / _spd())
-	charge_tween.tween_property(hero_pic, "scale", Vector2.ONE, 0.15 / _spd())
-	charge_tween.parallel().tween_property(hero_pic, "modulate", Color.WHITE, 0.15 / _spd())
-	await charge_tween.finished
+	# 2. Hero casts (.hero.cast 0.7 s) inside a shrinking charge ring.
+	_main.msg_label.text = "✨"
+	_hero_cast(hero_pic)
+	_charge_ring(p3)
+	await _timer(0.7)
 
-	# 3. Calculate Attack & Final Damage
+	# 3. Beam hero → enemy grows for 0.25 s, then a burst on the enemy.
+	_main.msg_label.text = "🔥"
 	var atk_result = _main.compute_attack()
 	var dmg = atk_result["dmg"]
 	if dmg <= 0: dmg = 1
+	var enemy_center: Vector2 = enemy_pic.global_position + enemy_pic.size * 0.5
+	_main.fire_laser_beam(_main.beam_line, p3, enemy_center, Color.WHITE, 15.0, 0.05)
+	await _timer(0.3)
+	_burst(enemy_center)
+	_main.msg_label.text = ""
 
-	_main.msg_label.text = "🔥"
-	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
-
-	_main.fire_laser_beam(_main.beam_line, hero_center, enemy_center, Color(1.0, 0.78, 0.25), 24.0, 0.28)
-	await _timer(0.08)
-
-	# 4. Enemy takes damage
+	# 4. Enemy takes damage and shakes (.enemy.hit).
 	_main.enemy_hp = maxi(0, _main.enemy_hp - dmg)
-	_main.enemy_hp_label.text = "HP %d / %d" % [_main.enemy_hp, _main.enemy_max_hp]
-	_ct().tween_property(_main.enemy_hp_bar, "value", float(_main.enemy_hp), 0.35 / _spd())
-
-	_main.shake_node(enemy_pic, 18.0, 0.42)
-	enemy_pic.modulate = Color(1.6, 0.2, 0.2)
-	_ct().tween_property(enemy_pic, "modulate", Color.WHITE, 0.25 / _spd())
-
-	_main.spawn_damage_number("-%d" % dmg, enemy_center, Color("#ff4d5e"), true)
-	await _timer(0.6)
-
+	_main.enemy_hp_label.text = "HP %s / %s" % [_main.fmt_num(_main.enemy_hp), _main.fmt_num(_main.enemy_max_hp)]
+	_ct().tween_property(_main.enemy_hp_bar, "value", float(_main.enemy_hp), 0.4 / _spd())
+	_main.shake_node(enemy_pic, 18.0, 0.5)
 	if _main.enemy_hp <= 0:
+		await _timer(0.35)
+		_ct().tween_property(enemy_pic, "modulate:a", 0.0, 0.5 / _spd())
+		await _timer(0.55)
+		_main.msg_label.text = "ชนะ!"
+		await _timer(0.7)
 		_main.on_victory()
 	else:
+		await _timer(0.9)
 		_enemy_counter_attack()
 
 
+func _burst(at_global: Vector2) -> void:
+	# Draft `.burst`: radial glow 60 px that scales ×0.3 → ×3.2 and fades (0.45 s).
+	var layer: Control = _main.effects_layer
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.4, 0.72, 1.0])
+	g.colors = PackedColorArray([Color("#fff6c0"), Color("#ffb22e"), Color(1.0, 0.31, 0.08, 0.0), Color(1.0, 0.31, 0.08, 0.0)])
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 128
+	tex.height = 128
+	var r := TextureRect.new()
+	r.texture = tex
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.size = Vector2(90, 90)
+	r.pivot_offset = r.size * 0.5
+	r.position = layer.get_global_transform().affine_inverse() * at_global - r.size * 0.5
+	r.scale = Vector2(0.3, 0.3)
+	r.z_index = 110
+	layer.add_child(r)
+	var t := _ct().set_ease(Tween.EASE_OUT)
+	t.tween_property(r, "scale", Vector2(3.2, 3.2), 0.45 / _spd())
+	t.parallel().tween_property(r, "modulate:a", 0.0, 0.45 / _spd())
+	t.tween_callback(r.queue_free)
+
+
+func _charge_ring(at_global: Vector2) -> void:
+	# Draft `.charge`: 96 px gold ring, scale ×2.4 → ×0.3 (ease-in, 0.65 s).
+	var layer: Control = _main.effects_layer
+	var ring := Panel.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(1.0, 0.78, 0.35, 0.18)
+	sb.border_color = Color("#ffd36a")
+	sb.set_border_width_all(6)
+	sb.set_corner_radius_all(72)
+	sb.shadow_color = Color(1.0, 0.59, 0.16, 0.8)
+	sb.shadow_size = 24
+	ring.add_theme_stylebox_override("panel", sb)
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.size = Vector2(144, 144)
+	ring.pivot_offset = ring.size * 0.5
+	ring.position = layer.get_global_transform().affine_inverse() * at_global - ring.size * 0.5
+	ring.scale = Vector2(2.4, 2.4)
+	ring.modulate.a = 0.0
+	ring.z_index = 105
+	layer.add_child(ring)
+	var t := _ct().set_ease(Tween.EASE_IN)
+	t.tween_property(ring, "scale", Vector2(0.3, 0.3), 0.65 / _spd())
+	t.parallel().tween_property(ring, "modulate:a", 1.0, 0.2 / _spd())
+	t.tween_callback(ring.queue_free)
+
+
+func _hero_cast(hero: Control) -> void:
+	# Draft `@keyframes cast` (0.7 s): rise, grow to ×1.35, wobble ±7°, glow.
+	hero.pivot_offset = hero.size * 0.5
+	var y0 := hero.position.y
+	var h := hero.size.y
+	var d := 0.7 / _spd()
+	var t := _ct().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(hero, "position:y", y0 - h * 0.06, d * 0.25)
+	t.parallel().tween_property(hero, "scale", Vector2(1.1, 1.1), d * 0.25)
+	t.parallel().tween_property(hero, "rotation", deg_to_rad(-7), d * 0.25)
+	t.tween_property(hero, "position:y", y0 - h * 0.12, d * 0.30)
+	t.parallel().tween_property(hero, "scale", Vector2(1.3, 1.3), d * 0.30)
+	t.parallel().tween_property(hero, "rotation", deg_to_rad(7), d * 0.30)
+	t.parallel().tween_property(hero, "modulate", Color(1.35, 1.15, 0.7), d * 0.30)
+	t.tween_property(hero, "position:y", y0 - h * 0.08, d * 0.25)
+	t.parallel().tween_property(hero, "scale", Vector2(1.35, 1.35), d * 0.25)
+	t.parallel().tween_property(hero, "rotation", 0.0, d * 0.25)
+	t.tween_property(hero, "position:y", y0, d * 0.20)
+	t.parallel().tween_property(hero, "scale", Vector2.ONE, d * 0.20)
+	t.parallel().tween_property(hero, "modulate", Color.WHITE, d * 0.20)
+
+
+func _hero_ouch(hero: Control) -> void:
+	# Draft `@keyframes ouch` (0.45 s): knocked back with a red flash.
+	hero.pivot_offset = hero.size * 0.5
+	var x0 := hero.position.x
+	var d := 0.45 / _spd()
+	var t := _ct()
+	t.tween_property(hero, "position:x", x0 - 15.0, d * 0.2)
+	t.parallel().tween_property(hero, "rotation", deg_to_rad(-8), d * 0.2)
+	t.parallel().tween_property(hero, "modulate", Color(1.6, 0.45, 0.45), d * 0.2)
+	t.tween_property(hero, "position:x", x0 + 12.0, d * 0.3)
+	t.parallel().tween_property(hero, "rotation", deg_to_rad(5), d * 0.3)
+	t.parallel().tween_property(hero, "modulate", Color.WHITE, d * 0.3)
+	t.tween_property(hero, "position:x", x0 - 6.0, d * 0.25)
+	t.parallel().tween_property(hero, "rotation", 0.0, d * 0.25)
+	t.tween_property(hero, "position:x", x0, d * 0.25)
+
+
 # ---------------------------------------------------------------------------
-# Enemy counter-attack sequence
+# Enemy counter-attack sequence (draft enemyStrike())
 # ---------------------------------------------------------------------------
 
 func _enemy_counter_attack() -> void:
-	var enemy_pic = _main.enemy_pic
-	var hero_pic  = _main.hero_pic
-
+	var enemy_pic: Control = _main.enemy_pic
+	var hero_pic: Control = _main.hero_pic
 	_main.msg_label.text = "ศัตรูโจมตี!"
+	var enemy_center: Vector2 = enemy_pic.global_position + enemy_pic.size * 0.5
+	var hero_center: Vector2 = hero_pic.global_position + hero_pic.size * 0.5
 
-	var enemy_center = enemy_pic.global_position + enemy_pic.size * 0.5
-	var hero_center  = hero_pic.global_position + hero_pic.size * 0.5
-
-	# 1. Enemy lunges forward
+	# Lunge (0.35 s): forward 45 px and ×1.15 at 40 %.
 	enemy_pic.pivot_offset = enemy_pic.size * 0.5
-	var orig_pos = enemy_pic.position
-	var lunge_tween = _ct()
-	lunge_tween.tween_property(enemy_pic, "position:x", orig_pos.x - 35.0, 0.16 / _spd()).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	lunge_tween.tween_property(enemy_pic, "position:x", orig_pos.x, 0.14 / _spd())
+	var x0 := enemy_pic.position.x
+	var lunge := _ct()
+	lunge.tween_property(enemy_pic, "position:x", x0 - 45.0, 0.14 / _spd())
+	lunge.parallel().tween_property(enemy_pic, "scale", Vector2(1.15, 1.15), 0.14 / _spd())
+	lunge.tween_property(enemy_pic, "position:x", x0, 0.21 / _spd())
+	lunge.parallel().tween_property(enemy_pic, "scale", Vector2.ONE, 0.21 / _spd())
+	await _timer(0.25)
 
-	await _timer(0.18)
+	_main.fire_laser_beam(_main.enemy_beam_line, enemy_center, hero_center, Color.WHITE, 15.0, 0.05)
+	await _timer(0.3)
 
-	# 2. Enemy fires counter-attack beam
-	_main.fire_laser_beam(_main.enemy_beam_line, enemy_center, hero_center, Color(0.9, 0.25, 0.95), 22.0, 0.28)
-	await _timer(0.08)
-
-	# 3. Hero HP tied to walks_left
+	var before: int = _main.player_hp
 	_main.player_hp = _main.enemy_atk * _main.walks_left
-	_main.hero_hp_label.text = "HP %d / %d" % [_main.player_hp, _main.player_max_hp]
-	_ct().tween_property(_main.hero_hp_bar, "value", float(_main.player_hp), 0.3 / _spd())
+	_main.spawn_damage_number("-%s" % _main.fmt_num(before - _main.player_hp), hero_center, Color("#ff4d5e"), true)
+	_hero_ouch(hero_pic)
+	_main.hero_hp_label.text = "HP %s / %s" % [_main.fmt_num(_main.player_hp), _main.fmt_num(_main.player_max_hp)]
+	_ct().tween_property(_main.hero_hp_bar, "value", float(_main.player_hp), 0.4 / _spd())
+	await _timer(0.55)
 
-	_main.shake_node(hero_pic, 15.0, 0.38)
-	hero_pic.modulate = Color.RED
-	_ct().tween_property(hero_pic, "modulate", Color.WHITE, 0.25 / _spd())
-
-	_main.spawn_damage_number("-%d" % _main.enemy_atk, hero_center, Color("#ff3355"), true)
-	await _timer(0.5)
-
-	# 4. Check defeat
 	if _main.walks_left <= 0 or _main.player_hp <= 0:
+		_main.msg_label.text = ""
 		_main.on_game_over()
 	else:
 		_main.is_busy = false
 		_main.msg_label.text = ""
 		_main.start_new_round()
-

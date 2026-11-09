@@ -182,6 +182,54 @@ static func display_desc(item: Dictionary) -> String:
 	return item.get("desc", "")
 
 
+const COL_TH: Dictionary = {"red": "แดง", "green": "เขียว", "orange": "ส้ม", "blue": "น้ำเงิน"}
+
+
+## Chaos texts from the draft (chaosLabel / chaosName / chaosDesc).
+static func chaos_label(c: Dictionary) -> String:
+	match c.get("kind", ""):
+		"color": return COL_TH.get(c.get("col", ""), "")
+		"dirc": return DIR_TH.get(c.get("dir", ""), "")
+		"tdir": return "ช่อง " + str(c.get("dir", ""))
+		"mtile": return "⚡+5"
+		"xmult": return "MULT"
+		"xatk": return "ATK"
+		"goldify": return "ทอง"
+		"destroy": return "ทำลาย"
+		"crystal": return "ผลึก"
+	return ""
+
+
+static func chaos_name(c: Dictionary) -> String:
+	match c.get("kind", ""):
+		"color": return "Chaos เปลี่ยนสี" + COL_TH.get(c.get("col", ""), "")
+		"dirc": return "Chaos เปลี่ยนทิศ Gem" + DIR_TH.get(c.get("dir", ""), "")
+		"tdir": return "Chaos เปลี่ยนทิศช่อง" + DIR_TH.get(c.get("dir", ""), "")
+		"mtile": return "Chaos ช่อง ⚡+5"
+		"xmult": return "Chaos ช่อง ×1.2 มัลติ"
+		"xatk": return "Chaos ช่อง ×1.2 ATK"
+		"goldify": return "Chaos ทอง"
+		"destroy": return "Chaos ทำลาย"
+		"crystal": return "ผลึก Gem"
+	return "Chaos"
+
+
+static func chaos_desc(c: Dictionary) -> String:
+	var tile := "แตะการ์ดนี้แล้วแตะช่องบนกระดาน (อยู่ถาวรจนจบเกม) · ทำงานเมื่อเดินตกช่องที่มี Gem และทิศการ์ดตรงกับทิศช่อง"
+	var d: String = DIR_TH.get(c.get("dir", ""), "")
+	match c.get("kind", ""):
+		"color": return "เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสี%s ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)" % COL_TH.get(c.get("col", ""), "")
+		"dirc": return "เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศ%s ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)" % d
+		"tdir": return "แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็น%s ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศ%sที่วางบนช่องนี้จะนับว่าตรงทิศ" % [d, d]
+		"mtile": return "ตัวคูณ +5 · " + tile
+		"xmult": return "ตัวคูณ ×1.2 · " + tile
+		"xatk": return "ATK ×1.2 · " + tile
+		"goldify": return "เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: เป็นการ์ดทองถาวร ตกช่องแล้วทำงานซ้ำ 2 รอบ"
+		"destroy": return "เลือก Gem 2 ใบ แล้วแตะการ์ดนี้: ทำลายออกจากสำรับถาวร"
+		"crystal": return "แตะการ์ดนี้แล้วแตะช่องว่างบนกระดาน วางผลึก Gem (HP 5) · ตอนเดินแวะช่องนี้ ATK ที่สะสมจะหักเลือดผลึก ผลึกแตกแล้วได้ Gem สุ่ม +3 ใบ (เข้ามือและเพิ่มในสำรับถาวร) · วาง Gem บนช่องนี้ไม่ได้"
+	return ""
+
+
 ## Cover art like the draft's itemCover(): SVG art, else the direction emblem.
 func art_cover(item: Dictionary) -> Texture2D:
 	var t: String = item.get("type", "")
@@ -589,11 +637,11 @@ func _chaos_card_look(chaos_def: Dictionary) -> Dictionary:
 
 func _add_chaos_card(chaos_def: Dictionary, price: int, available: bool, on_buy: Callable) -> void:
 	var look := _chaos_card_look(chaos_def)
-	var title: String = chaos_def["name"]
+	var title: String = chaos_name(chaos_def)
 	var extra := {"text_color": look["text"]}
 	if look["cover"] == null:
 		extra["cover_text"] = {"xmult": "×1.2", "xatk": "×1.2"}.get(chaos_def["kind"], chaos_def.get("icon", ""))
-	_add_shop_card("CHAOS", title, "เก็บในช่อง Chaos แล้วแตะเพื่อใช้", price, look["bg"], available, on_buy, title, look["cover"], extra)
+	_add_shop_card("CHAOS", title, chaos_desc(chaos_def), price, look["bg"], available, on_buy, title, look["cover"], extra)
 
 
 func _add_offer_row(label_text: String) -> HBoxContainer:
@@ -649,10 +697,14 @@ func render_shop_owned() -> void:
 		var slot := _owned_slot(_main.shop_chaos_container, "chaos", chaos_card != null, look["bg"])
 		if chaos_card == null:
 			continue
-		var chaos_title := get_chaos_title(chaos_card)
-		slot.text = "%s\n%s" % [get_chaos_icon(chaos_card), chaos_title.trim_prefix("Chaos ")]
-		slot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		slot.add_theme_font_size_override("font_size", 14)
+		var chaos_title := chaos_name(chaos_card)
+		slot.icon = look["cover"]
+		slot.expand_icon = true
+		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		slot.add_theme_constant_override("icon_max_width", 60)
+		slot.text = chaos_label(chaos_card) if look["cover"] != null else "×1.2\n" + chaos_label(chaos_card)
+		slot.add_theme_font_size_override("font_size", 19)
+		slot.add_theme_color_override("font_color", look["text"])
 		slot.tooltip_text = "%s\nแตะเพื่อขาย 🪙 %d" % [chaos_title, get_chaos_sell_price(chaos_card)]
 		var sell_chaos_idx: int = i
 		slot.pressed.connect(func(): confirm_sell_chaos(sell_chaos_idx))
@@ -684,7 +736,7 @@ func get_chaos_sell_price(chaos_card: Dictionary) -> int:
 		if definition["kind"] != chaos_card.get("kind"):
 			continue
 		if definition.get("col", "") == chaos_card.get("col", "") and definition.get("dir", "") == chaos_card.get("dir", ""):
-			return int(definition["price"]) if _main.has_artifact("fullSell") else maxi(1, int(definition["price"] / 3.0))
+			return int(definition["price"]) if _main.has_artifact("fullSell") else 1
 	return 1
 
 
@@ -695,7 +747,8 @@ func confirm_sell_artifact(slot_idx: int) -> void:
 	if art == null:
 		return
 	var price: int = get_sell_price(art)
-	_main.show_action_dialog(display_name(art), display_desc(art), "ขาย 🪙 %d" % price, func(): sell_artifact(slot_idx))
+	var can_sell: bool = not _main.is_busy or _main.shop_modal.visible
+	_main.show_action_dialog(display_name(art), display_desc(art), "ขาย 🪙 %d" % price, func(): sell_artifact(slot_idx), not can_sell, ARTIFACT_RARITY.get(art.get("type", ""), ""))
 
 
 func confirm_sell_chaos(slot_idx: int) -> void:
@@ -704,9 +757,8 @@ func confirm_sell_chaos(slot_idx: int) -> void:
 	var chaos_card = _main.chaos[slot_idx]
 	if chaos_card == null:
 		return
-	var title := get_chaos_title(chaos_card)
 	var price: int = get_chaos_sell_price(chaos_card)
-	_main.show_action_dialog(title, "คืนช่อง Chaos", "ขาย 🪙 %d" % price, func(): sell_chaos(slot_idx))
+	_main.show_action_dialog(chaos_name(chaos_card), chaos_desc(chaos_card), "ขาย 🪙 %d" % price, func(): sell_chaos(slot_idx))
 
 
 func render_shop_offers() -> void:
@@ -995,17 +1047,5 @@ func on_shop_leave() -> void:
 
 
 func on_artifact_slot_pressed(slot_idx: int) -> void:
-	var art = _main.artifacts[slot_idx]
-	if art == null: return
-	_main.toast_label.text = "%s %s\n%s" % [art["icon"], art["name"], art["desc"]]
-	_main.toast.visible = true
-	_main.toast.modulate.a = 0.0
-	var orig_y = 70.0
-	_main.toast.position.y = orig_y - 25.0
-	var tween = _main.create_tween()
-	tween.tween_property(_main.toast, "position:y", orig_y, 0.28 / _main.speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(_main.toast, "modulate:a", 1.0, 0.25 / _main.speed_multiplier)
-	tween.tween_interval(2.5 / _main.speed_multiplier)
-	tween.tween_property(_main.toast, "position:y", orig_y - 20.0, 0.25 / _main.speed_multiplier)
-	tween.parallel().tween_property(_main.toast, "modulate:a", 0.0, 0.25 / _main.speed_multiplier)
-	tween.tween_callback(func(): _main.toast.visible = false)
+	# Draft openOwnedPop(): name, rarity, description and a sell button.
+	confirm_sell_artifact(slot_idx)

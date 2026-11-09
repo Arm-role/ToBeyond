@@ -110,28 +110,44 @@ func render_tiles() -> void:
 
 ## Group strip under the board, like the draft's `.gstrip`: a coloured bar
 ## spanning the group's tiles plus a black value chip under each placed Gem.
+func _gstrip_chip(text: String, col: Color, size: int) -> Label:
+	var chip := Label.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.theme_type_variation = &"BoldLabel"
+	chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chip.add_theme_font_size_override("font_size", size)
+	chip.add_theme_color_override("font_color", col)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color.BLACK
+	sb.corner_radius_bottom_left = 12
+	sb.corner_radius_bottom_right = 12
+	sb.content_margin_left = 15.0 if size >= 28 else 10.0
+	sb.content_margin_right = sb.content_margin_left
+	chip.add_theme_stylebox_override("normal", sb)
+	chip.text = text
+	return chip
+
+
+## Group strip under the board, like the draft's `.gstrip`: a coloured bar
+## spanning the group's tiles, a black value chip under each placed Gem and
+## extra chips for Totem / Chaos tiles (🗿+N, ⚡+5, ×1.2).
 func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 	var cell = _main.gstrip_container.get_child(i) as Label
 	cell.text = ""
 	cell.modulate = Color.WHITE
-	var chip := cell.get_node_or_null("Chip") as Label
-	if chip == null:
-		chip = Label.new()
-		chip.name = "Chip"
-		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.theme_type_variation = &"BoldLabel"
-		chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		chip.add_theme_font_size_override("font_size", 28)
-		chip.add_theme_color_override("font_color", Color("#5fb0ff"))
-		var chip_sb := StyleBoxFlat.new()
-		chip_sb.bg_color = Color.BLACK
-		chip_sb.corner_radius_bottom_left = 12
-		chip_sb.corner_radius_bottom_right = 12
-		chip_sb.content_margin_left = 15.0
-		chip_sb.content_margin_right = 15.0
-		chip.add_theme_stylebox_override("normal", chip_sb)
-		chip.custom_minimum_size = Vector2(66, 36)
-		cell.add_child(chip)
+	var row := cell.get_node_or_null("ChipRow") as HBoxContainer
+	if row == null:
+		row = HBoxContainer.new()
+		row.name = "ChipRow"
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 4)
+		row.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		row.offset_top = 15.0
+		row.offset_bottom = 51.0
+		cell.add_child(row)
+	for child in row.get_children():
+		child.queue_free()
 
 	var group = null
 	for g in calc["groups"]:
@@ -140,27 +156,32 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 			break
 	if group == null:
 		cell.remove_theme_stylebox_override("normal")
-		chip.visible = false
-		return
+	else:
+		var bar := StyleBoxFlat.new()
+		bar.bg_color = Color(0, 0, 0, 0)
+		bar.border_width_top = 10
+		bar.border_color = _group_color_for_tile(i, calc)
+		if i == group["idxs"].min():
+			bar.expand_margin_left = -4.5
+			bar.corner_radius_bottom_left = 9
+		if i == group["idxs"].max():
+			bar.expand_margin_right = -4.5
+			bar.corner_radius_bottom_right = 9
+		cell.add_theme_stylebox_override("normal", bar)
+		var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
+		if has_gem:
+			var v := _gstrip_chip(_main.fmt_num(float(calc["grp_val"].get(i, 1))), Color("#5fb0ff"), 28)
+			v.custom_minimum_size = Vector2(66, 0)
+			row.add_child(v)
 
-	var bar := StyleBoxFlat.new()
-	bar.bg_color = Color(0, 0, 0, 0)
-	bar.border_width_top = 10
-	bar.border_color = _group_color_for_tile(i, calc)
-	if i == group["idxs"].min():
-		bar.expand_margin_left = -4.5
-		bar.corner_radius_bottom_left = 9
-	if i == group["idxs"].max():
-		bar.expand_margin_right = -4.5
-		bar.corner_radius_bottom_right = 9
-	cell.add_theme_stylebox_override("normal", bar)
-
-	var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
-	chip.visible = has_gem
-	if has_gem:
-		chip.text = _main.fmt_num(float(calc["grp_val"].get(i, 1)))
-		chip.reset_size()
-		chip.position = Vector2((cell.size.x - chip.size.x) * 0.5, 15.0)
+	if _main.totem_tiles.has(i):
+		row.add_child(_gstrip_chip("🗿+%d" % _main.totem_attack(i), Color("#7fd0ff"), 22))
+	if _main.chaos_mult_tiles.has(i):
+		row.add_child(_gstrip_chip("⚡+5", Color("#c79bff"), 22))
+	if _main.chaos_xmult_tiles.has(i):
+		row.add_child(_gstrip_chip("×1.2", Color("#ff6b6b"), 22))
+	if _main.chaos_xatk_tiles.has(i):
+		row.add_child(_gstrip_chip("×1.2", Color("#5fb0ff"), 22))
 
 
 func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> void:
@@ -190,18 +211,13 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · ทิศตรงช่อง"
 	elif has_group:
 		hint += " · Stone +%d" % int(calc["grp_val"].get(tile_idx, 1))
+	# Draft shows tile Chaos only as chips in the strip below the board.
 	if _main.chaos_mult_tiles.has(tile_idx):
 		hint += " · Chaos MULT +5"
-		accent = Color("#c88aff")
-		glow_alpha = maxf(glow_alpha, 0.55)
 	if _main.chaos_xmult_tiles.has(tile_idx):
 		hint += " · Chaos MULT ×1.2"
-		accent = Color("#c88aff")
-		glow_alpha = maxf(glow_alpha, 0.55)
 	if _main.chaos_xatk_tiles.has(tile_idx):
 		hint += " · Chaos ATK ×1.2"
-		accent = Color("#72d8ff")
-		glow_alpha = maxf(glow_alpha, 0.55)
 	if _main.chaos_crystals.has(tile_idx):
 		hint += " · ผลึก Gem HP %d" % int(_main.chaos_crystals[tile_idx])
 		accent = Color("#72d8ff")
@@ -270,18 +286,15 @@ func _render_totem(tile_btn: Button, tile_idx: int) -> void:
 	if existing == null:
 		existing = Label.new()
 		existing.name = "ArtifactTotem"
-		existing.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		existing.offset_left = 5.0
-		existing.offset_top = 3.0
-		existing.offset_right = 78.0
-		existing.offset_bottom = 34.0
 		existing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		existing.add_theme_font_size_override("font_size", 16)
-		existing.add_theme_color_override("font_color", Color("#7fd0ff"))
-		existing.add_theme_color_override("font_outline_color", Color("#120d22"))
-		existing.add_theme_constant_override("outline_size", 3)
+		existing.add_theme_font_size_override("font_size", 39)
+		existing.add_theme_color_override("font_shadow_color", Color(0.5, 0.82, 1.0, 0.8))
+		existing.add_theme_constant_override("shadow_outline_size", 6)
+		existing.text = "🗿"
 		tile_btn.add_child(existing)
-	existing.text = "🗿 +%d" % _main.totem_attack(tile_idx)
+	# Draft `.totm`: right 6%, top 4%.
+	existing.reset_size()
+	existing.position = Vector2(tile_btn.size.x * 0.94 - existing.size.x, tile_btn.size.y * 0.04)
 
 
 func _make_tile_frame(accent: Color, border_width: int, glow_alpha: float) -> StyleBoxFlat:
@@ -333,17 +346,18 @@ func _make_gstrip_badge(group_color: Color) -> StyleBoxFlat:
 func render_hand() -> void:
 	if _main.sort_mode == "color":
 		_main.hand.sort_custom(func(a, b):
-			var ca = _main.COLOR_ORDER.find(a["color"])
-			var cb = _main.COLOR_ORDER.find(b["color"])
+			# Draft colorRank: unknown colours (blank cards) sort last.
+			var ca = _main.COLOR_ORDER.find(a["color"]) if _main.COLOR_ORDER.has(a["color"]) else 99
+			var cb = _main.COLOR_ORDER.find(b["color"]) if _main.COLOR_ORDER.has(b["color"]) else 99
 			if ca != cb: return ca < cb
-			return _main.DIR_ORDER.find(a["dir"]) < _main.DIR_ORDER.find(b["dir"])
+			return (_main.DIR_ORDER.find(a["dir"]) if _main.DIR_ORDER.has(a["dir"]) else 99) < (_main.DIR_ORDER.find(b["dir"]) if _main.DIR_ORDER.has(b["dir"]) else 99)
 		)
 	else:
 		_main.hand.sort_custom(func(a, b):
-			var da = _main.DIR_ORDER.find(a["dir"])
-			var db = _main.DIR_ORDER.find(b["dir"])
+			var da = _main.DIR_ORDER.find(a["dir"]) if _main.DIR_ORDER.has(a["dir"]) else 99
+			var db = _main.DIR_ORDER.find(b["dir"]) if _main.DIR_ORDER.has(b["dir"]) else 99
 			if da != db: return da < db
-			return _main.COLOR_ORDER.find(a["color"]) < _main.COLOR_ORDER.find(b["color"])
+			return (_main.COLOR_ORDER.find(a["color"]) if _main.COLOR_ORDER.has(a["color"]) else 99) < (_main.COLOR_ORDER.find(b["color"]) if _main.COLOR_ORDER.has(b["color"]) else 99)
 		)
 
 	for child in _main.hand_container.get_children():
@@ -390,10 +404,23 @@ func render_hand() -> void:
 		sb.border_width_right = border_width
 
 		if is_blank:
-			sb.bg_color = Color("#40404e")
-			sb.border_color = Color("#ffd966") if is_sel else Color("#888899")
+			# Draft `.tcard.blank`: light grey card with a dashed square.
+			sb.bg_color = Color("#cfcfda")
+			sb.border_color = Color("#ffd966") if is_sel else _main.COLORS["brass"]
 			btn.icon = null
-			btn.text = "⬜\n[การ์ดเปล่า]%s" % ["\n▲ เลือก" if is_sel else ""]
+			btn.text = ""
+			var bk := Panel.new()
+			bk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			var dash := DashedStyleBox.new()
+			dash.border_color = Color("#6b6b78")
+			dash.border_width = 4.0
+			dash.dash = 9.0
+			dash.gap = 6.0
+			dash.corner_radius = 12.0
+			bk.add_theme_stylebox_override("panel", dash)
+			bk.position = CARD_SIZE * 0.26
+			bk.size = CARD_SIZE * 0.48
+			btn.add_child(bk)
 			btn.tooltip_text = "การ์ดเปล่าจากสกิลบอส ไม่มีสีไม่มีทิศ (แนะนำให้เลือกทิ้ง Discard)"
 		else:
 			var c_col = card["color"]
@@ -504,25 +531,27 @@ func render_chaos_row() -> void:
 		var chaos_bg := Color("#7b4fc9")
 		if chaos_card != null:
 			chaos_bg = {"goldify": Color("#e8bf4c"), "tdir": Color("#23978e"), "destroy": Color("#b73e3d")}.get(chaos_card["kind"], chaos_bg)
-		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#c79bff"), "chaos")
+			if chaos_card["kind"] == "color":
+				chaos_bg = _main.COLORS.get(chaos_card.get("col", ""), chaos_bg)
+		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#ffd966") if i == _main.selected_chaos_slot and chaos_card != null else Color("#c79bff"), "chaos")
 		if chaos_card == null:
 			slot.text = ""
 			slot.tooltip_text = "ช่อง Chaos ว่าง"
 			continue
-		var kind: String = chaos_card["kind"]
-		var icon: String = str({"color":"🎨", "dirc":"🧭", "tdir":"🧭", "mtile":"⚡", "xmult":"×", "xatk":"✴", "goldify":"✨", "destroy":"💥", "crystal":"💎"}.get(kind, "?"))
-		var label: String = str({"color":"เปลี่ยนสี", "dirc":"เปลี่ยนทิศ", "tdir":"ทิศช่อง", "mtile":"MULT +5", "xmult":"MULT ×1.2", "xatk":"ATK ×1.2", "goldify":"Gem ทอง", "destroy":"ทำลาย", "crystal":"ผลึก"}.get(kind, kind))
-		if chaos_card.has("col"):
-			label += " " + chaos_card["col"]
-		if chaos_card.has("dir"):
-			label += " " + chaos_card["dir"]
-		slot.text = "%s\n%s" % [icon, label]
-		slot.add_theme_font_size_override("font_size", 14)
-		slot.tooltip_text = "Chaos: %s\nแตะเพื่อใช้" % label
-		if i == _main.selected_chaos_slot:
-			slot.modulate = Color("#f5d48e")
-		else:
-			slot.modulate = Color.WHITE
+		var look: Dictionary = _main.shop_mgr._chaos_card_look(chaos_card)
+		var label: String = ShopManager.chaos_label(chaos_card)
+		slot.icon = look["cover"]
+		slot.expand_icon = true
+		slot.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		slot.add_theme_constant_override("icon_max_width", 60)
+		slot.text = label if look["cover"] != null else "×1.2\n" + label
+		slot.add_theme_font_size_override("font_size", 19 if look["cover"] != null else 22)
+		slot.add_theme_color_override("font_color", look["text"])
+		slot.add_theme_color_override("font_hover_color", look["text"])
+		slot.add_theme_color_override("font_pressed_color", look["text"])
+		slot.tooltip_text = "%s\n%s" % [ShopManager.chaos_name(chaos_card), ShopManager.chaos_desc(chaos_card)]
+		slot.modulate = Color.WHITE
 
 
 ## Small card like the draft's `.mc` (colour + direction emblem).
