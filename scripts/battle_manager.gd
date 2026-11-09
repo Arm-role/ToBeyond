@@ -382,11 +382,11 @@ func _enemy_counter_attack() -> void:
 	_main.fire_laser_beam(_main.enemy_beam_line, enemy_center, hero_center, Color.WHITE, 15.0, 0.05)
 	await _timer(0.3)
 
-	var before: int = _main.player_hp
+	var before: float = _main.player_hp
 	_main.player_hp = _main.enemy_atk * _main.walks_left
-	_main.spawn_damage_number("-%s" % _main.fmt_num(before - _main.player_hp), hero_center, Color("#ff4d5e"), true)
+	_main.spawn_damage_number("-%s" % _main.fmt_num(roundi(before - _main.player_hp)), hero_center, Color("#ff4d5e"), true)
 	_hero_ouch(hero_pic)
-	_main.hero_hp_label.text = "HP %s / %s" % [_main.fmt_num(_main.player_hp), _main.fmt_num(_main.player_max_hp)]
+	_main.hero_hp_label.text = "HP %s / %s" % [_main.fmt_num(roundi(_main.player_hp)), _main.fmt_num(roundi(_main.player_max_hp))]
 	_ct().tween_property(_main.hero_hp_bar, "value", float(_main.player_hp), 0.4 / _spd())
 	await _timer(0.55)
 

@@ -390,7 +390,7 @@ alignment = 1
 
 [node name="EnemyName" type="Label" parent="Preview/PreviewHBox/EnemyCol"]
 layout_mode = 2
-theme_type_variation = &"BoldLabel"
+theme_type_variation = &"SerifLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 30
 text = "ศัตรู"
@@ -954,7 +954,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 39
-theme_type_variation = &"BoldLabel"
+theme_type_variation = &"SerifLabel"
 text = "ชนะ!"
 horizontal_alignment = 1
 
@@ -1207,7 +1207,7 @@ theme_override_constants/separation = 0
 
 [node name="ShopTitle" type="Label" parent="ShopModal/ShopVBox/ShopHeader"]
 layout_mode = 2
-theme_type_variation = &"BoldLabel"
+theme_type_variation = &"SerifLabel"
 theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
 theme_override_font_sizes/font_size = 39
 text = "ร้านค้า"

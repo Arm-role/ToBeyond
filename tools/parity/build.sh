@@ -6,7 +6,7 @@
 # Full logs: build/import.log, build/export.log
 set -uo pipefail
 cd "$(dirname "$0")/../.."
-GODOT=$(command -v godot || bash tools/parity/setup_godot.sh)
+GODOT=${GODOT:-$(command -v godot || bash tools/parity/setup_godot.sh)}
 mkdir -p build
 fail=0
 for f in scripts/*.gd; do

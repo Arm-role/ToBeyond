@@ -1,6 +1,8 @@
 class_name UiRenderer
 extends RefCounted
 
+const CARD_WIDTH_TO_HEIGHT: float = 5.0 / 7.0
+
 # ==============================================================================
 # UiRenderer — Handles board tiles, hand cards, artifact row, and modals UI
 # ==============================================================================
@@ -13,19 +15,38 @@ func _init(main: Node) -> void:
 	_main = main
 
 
+func set_card_template(control: Control, enabled: bool = true, tint: Color = Color.WHITE) -> void:
+	var frame := control.get_node_or_null("CardTemplate") as TextureRect
+	if not enabled or _main.CARD_TEMPLATE_TEX == null:
+		if frame != null:
+			frame.visible = false
+		return
+	if frame == null:
+		frame = TextureRect.new()
+		frame.name = "CardTemplate"
+		frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		control.add_child(frame)
+	frame.visible = true
+	frame.texture = _main.CARD_TEMPLATE_TEX
+	frame.modulate = tint
+
+
 func update_all_ui() -> void:
 	_main.stage_label.text = "ด่าน %d" % _main.stage
 	_main.coins_label.text = "🪙 %d" % _main.coins
-	_main.deck_count_btn.text = "🃏 กอง %d ใบ · กดดู" % _main.deck.size()
+	_main.deck_count_btn.text = "🂠 กอง %d ใบ · กดดู" % _main.deck.size()
 
-	_main.hero_hp_label.text = "HP %d / %d" % [_main.player_hp, _main.player_max_hp]
+	_main.hero_hp_label.text = "HP %d / %d" % [roundi(_main.player_hp), roundi(_main.player_max_hp)]
 	_main.hero_hp_bar.max_value = _main.player_max_hp
 	_main.hero_hp_bar.value = _main.player_hp
 
 	_main.enemy_hp_label.text = "HP %d / %d" % [_main.enemy_hp, _main.enemy_max_hp]
 	_main.enemy_hp_bar.max_value = _main.enemy_max_hp
 	_main.enemy_hp_bar.value = _main.enemy_hp
-	_main.enemy_atk_label.text = "⚔ โจมตี %s" % _main.fmt_num(_main.enemy_atk)
+	_main.enemy_atk_label.text = "⚔ โจมตี %s" % _main.fmt_num(roundi(_main.enemy_atk))
 
 	_main.walk_btn.disabled = _main.is_busy or (_main.walks_left <= 0 and _main.selected_card_ids.is_empty())
 	_main.restart_btn.disabled = _main.is_busy
@@ -363,7 +384,7 @@ func render_hand() -> void:
 	for child in _main.hand_container.get_children():
 		child.queue_free()
 
-	const CARD_SIZE := Vector2(108, 140)
+	const CARD_SIZE := Vector2(100, 140)
 	const IDEAL_GAP := 9.0
 	const MIN_STEP := 18.0
 	var card_count = _main.hand.size()
@@ -393,15 +414,11 @@ func render_hand() -> void:
 
 		var sb = StyleBoxFlat.new()
 		sb.set_corner_radius_all(20)
-		var border_width = 3
 		if is_sel:
 			sb.shadow_color = Color(0, 0, 0, 0.5)
 			sb.shadow_size = 12
 			sb.shadow_offset = Vector2(0, 12)
-		sb.border_width_top = border_width
-		sb.border_width_bottom = border_width
-		sb.border_width_left = border_width
-		sb.border_width_right = border_width
+		sb.set_border_width_all(0)
 
 		if is_blank:
 			# Draft `.tcard.blank`: light grey card with a dashed square.
@@ -442,9 +459,10 @@ func render_hand() -> void:
 
 		btn.add_theme_stylebox_override("normal", sb)
 		var hover = sb.duplicate()
-		hover.border_color = _main.COLORS["brass_bright"]
+		hover.bg_color = sb.bg_color.lightened(0.08)
 		btn.add_theme_stylebox_override("hover", hover)
 		btn.add_theme_stylebox_override("pressed", sb)
+		set_card_template(btn, true, Color("#ffd966") if is_sel else Color.WHITE)
 
 		var card_id = card["id"]
 		btn.pressed.connect(func(): _main._on_hand_card_clicked(card_id))
@@ -496,7 +514,9 @@ func render_artifact_row() -> void:
 ## Empty item slots keep the dashed texture from the scene; filled slots get a
 ## solid colour card like the draft's `.islot.has`.
 func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind: String) -> void:
+	slot.custom_minimum_size.x = roundf(slot.custom_minimum_size.y * CARD_WIDTH_TO_HEIGHT)
 	if not filled:
+		set_card_template(slot, false)
 		for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 			slot.remove_theme_stylebox_override(state)
 		var tex := StyleBoxTexture.new()
@@ -507,19 +527,19 @@ func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind
 		return
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg
-	sb.border_color = border
-	sb.set_border_width_all(3)
+	sb.set_border_width_all(0)
 	sb.set_corner_radius_all(12)
 	sb.shadow_color = Color(0, 0, 0, 0.4)
 	sb.shadow_size = 5
 	sb.shadow_offset = Vector2(0, 3)
 	var hover := sb.duplicate() as StyleBoxFlat
-	hover.border_color = border.lightened(0.25)
+	hover.bg_color = bg.lightened(0.08)
 	slot.add_theme_stylebox_override("normal", sb)
 	slot.add_theme_stylebox_override("hover", hover)
 	slot.add_theme_stylebox_override("pressed", hover)
 	slot.add_theme_stylebox_override("disabled", sb)
 	slot.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	set_card_template(slot, true, Color("#ffd966") if border == Color("#ffd966") else Color.WHITE)
 
 
 func render_chaos_row() -> void:
@@ -556,6 +576,7 @@ func render_chaos_row() -> void:
 
 ## Small card like the draft's `.mc` (colour + direction emblem).
 func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
+	size.x = size.y * CARD_WIDTH_TO_HEIGHT
 	var card := Panel.new()
 	card.custom_minimum_size = size
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -577,6 +598,7 @@ func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
 		em.offset_top = size.y * 0.19
 		em.offset_bottom = -size.y * 0.19
 		card.add_child(em)
+	set_card_template(card)
 	return card
 
 

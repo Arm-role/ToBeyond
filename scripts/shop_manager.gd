@@ -483,17 +483,9 @@ var _offer_target: Container = null
 var _card_height: float = 183.0
 
 
-func _card_box(bg: Color, border: Color = Color("#d3a64a"), dashed: bool = false) -> StyleBox:
-	if dashed:
-		var d := DashedStyleBox.new()
-		d.bg_color = bg
-		d.border_color = border
-		d.corner_radius = 15.0
-		return d
+func _card_box(bg: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(3)
 	style.set_corner_radius_all(15)
 	style.shadow_color = Color(0, 0, 0, 0.4)
 	style.shadow_size = 8
@@ -528,10 +520,11 @@ func _card_label(text: String, size: int, color: Color = Color.WHITE) -> Label:
 
 ## Builds one shop card.  `opts`: cover (Texture2D), big (String, shown large
 ## when there is no cover), rarity ("uncommon"/"rare"), stone (Dictionary with
-## name/up/lv), text_color, dashed (bool), sold (bool), on_click (Callable).
+## name/up/lv), text_color, sold (bool), on_click (Callable).
 func _add_shop_card(category: String, title: String, detail: String, price: int, color: Color, available: bool, on_buy: Callable, tooltip: String = "", icon_texture: Texture2D = null, opts: Dictionary = {}) -> void:
 	var card := Control.new()
-	card.custom_minimum_size = Vector2(156, _card_height)
+	var card_width := roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * _card_height)
+	card.custom_minimum_size = Vector2(card_width, _card_height)
 	card.tooltip_text = tooltip
 	var sold: bool = price == -2
 	if sold:
@@ -544,8 +537,8 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	action.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	action.tooltip_text = tooltip
 	action.disabled = sold
-	var box := _card_box(color, Color("#d3a64a"), opts.get("dashed", false))
-	var hover := _card_box(color.lightened(0.08), Color("#f0cf86"), opts.get("dashed", false))
+	var box := _card_box(color)
+	var hover := _card_box(color.lightened(0.08))
 	action.add_theme_stylebox_override("normal", box)
 	action.add_theme_stylebox_override("hover", hover)
 	action.add_theme_stylebox_override("pressed", hover)
@@ -641,9 +634,10 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 		tag_sb.content_margin_left = 7.0
 		tag_sb.content_margin_right = 7.0
 		tag.add_theme_stylebox_override("normal", tag_sb)
-		tag.position = Vector2(156 - 34, 6)
+		tag.position = Vector2(card_width - 34, 6)
 		card.add_child(tag)
 
+	_main.ui_renderer.set_card_template(card)
 	(_offer_target if _offer_target != null else _main.shop_offer_container).add_child(card)
 
 
@@ -700,7 +694,7 @@ func _add_offer_row(label_text: String) -> HBoxContainer:
 
 func _owned_slot(parent: Container, kind: String, filled: bool, bg: Color) -> Button:
 	var slot := Button.new()
-	slot.custom_minimum_size = Vector2(96, 126)
+	slot.custom_minimum_size = Vector2(roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * 126), 126)
 	slot.clip_text = true
 	_main.ui_renderer._style_item_slot(slot, filled, bg, _main.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
 	slot.disabled = not filled
@@ -851,7 +845,7 @@ func _render_game_offers() -> void:
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] == "artifact":
 			_render_offer(index)
-	_add_shop_card("REROLL", "🎲\nสุ่มใหม่", "", reroll_cost, Color("#473b78"), _main.coins >= reroll_cost, reroll_shop, "สุ่มสินค้าใหม่", null, {"big": "🎲\nสุ่มใหม่", "dashed": true})
+	_add_shop_card("REROLL", "🎲\nสุ่มใหม่", "", reroll_cost, Color("#473b78"), _main.coins >= reroll_cost, reroll_shop, "สุ่มสินค้าใหม่", null, {"big": "🎲\nสุ่มใหม่"})
 	_offer_target = _add_offer_row("CHAOS\nSTONE\nอัปเกรด")
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] != "artifact":
@@ -1067,9 +1061,9 @@ func on_shop_leave() -> void:
 	_main.enemy_pic.scale = Vector2.ONE
 
 	# Enemy scaling per draft
-	_main.enemy_max_hp = int(_main.enemy_max_hp * 1.5)
+	_main.enemy_max_hp = roundi(_main.enemy_max_hp * 1.5)
 	_main.enemy_hp = _main.enemy_max_hp
-	_main.enemy_atk = int(_main.enemy_atk * _main.PHP_GROW)
+	_main.enemy_atk = _main.enemy_atk * _main.PHP_GROW
 
 	_main.walks_left = _main.walk_max
 	_main.player_max_hp = _main.enemy_atk * _main.walk_max
@@ -1079,6 +1073,7 @@ func on_shop_leave() -> void:
 	_main.discards_left = maxi(0, _main.discard_max - (1 if _main.has_artifact("freediscard") else 0))
 
 	_main.build_deck()
+	_main.hand.clear()
 	_main.spawn_current_enemy()
 
 

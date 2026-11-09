@@ -87,7 +87,7 @@ async function godotWebInfo(page, els) {
 function godotHeadlessInfo(name, els) {
   const tmp = path.join(os.tmpdir(), `tb_rects_${process.pid}.json`);
   fs.writeFileSync(tmp, JSON.stringify(godotPaths(els)));
-  const r = spawnSync('godot', ['--headless', '--path', ROOT, '--', `--dbg=${name}`, `--rects=${tmp}`], { encoding: 'utf8', timeout: 60000 });
+  const r = spawnSync(process.env.GODOT || 'godot', ['--headless', '--path', ROOT, '--', `--dbg=${name}`, `--rects=${tmp}`], { encoding: 'utf8', timeout: 60000 });
   const out = (r.stdout || '') + (r.stderr || '');
   const errs = out.split('\n').filter(l => /SCRIPT ERROR|Parse Error|^ERROR/.test(l));
   const line = out.split('\n').find(l => l.startsWith('TB_RECTS '));

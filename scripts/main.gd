@@ -34,10 +34,14 @@ var CHAOS_TEX = {}         # chaos kind -> Texture2D
 var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
 var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
 var PLACED_TILE_TEX = {}   # "idx_color_dir" or "idx_blank" -> Texture2D
+var CARD_TEMPLATE_TEX: Texture2D = null
 var CRYSTAL_TEX: Texture2D = null
 var BALL_TEXTURE: Texture2D = null
 
 func init_textures() -> void:
+	if ResourceLoader.exists("res://assets/frames/card_template.svg"):
+		CARD_TEMPLATE_TEX = load("res://assets/frames/card_template.svg")
+
 	# Emblems (white & gold variants)
 	for d in ["N", "E", "S", "W"]:
 		var dl = d.to_lower()
@@ -112,12 +116,12 @@ var walk_max: int = WALK_START
 var discard_max: int = DISCARD_START
 var hand_max: int = HAND_START
 
-var enemy_atk: int = EATK_START
+var enemy_atk: float = EATK_START
 var walks_left: int = WALK_START
 var discards_left: int = DISCARD_START
 
-var player_max_hp: int = enemy_atk * walk_max
-var player_hp: int = player_max_hp
+var player_max_hp: float = enemy_atk * walk_max
+var player_hp: float = player_max_hp
 
 var enemy_max_hp: int = 50
 var enemy_hp: int = 50
