@@ -267,6 +267,8 @@ func _ready() -> void:
 	_style_sort_button(sort_dir_btn, sort_mode == "dir")
 	hand_container.resized.connect(render_hand)
 	start_new_game()
+	# Test states for tools/parity (only active with ?dbg= / --dbg=).
+	add_child(preload("res://scripts/debug_scenarios.gd").new())
 
 
 func setup_token_visual() -> void:
