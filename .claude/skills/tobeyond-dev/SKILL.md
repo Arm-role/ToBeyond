@@ -5,20 +5,19 @@ description: Work on ToBeyond, the Godot 4.7 GDScript port of To_Beyond_Draft.ht
 
 # ToBeyond development
 
-The HTML draft `To_Beyond_Draft.html` is the source of truth. The Godot game must look and behave like it.
+The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searched only when the user orders it (a hook asks them); `reference/map.md` is history only. Change behaviour from the Godot code and what the user asks for.
 
 ## Rules that keep a task cheap (read first)
 
 1. **Context is the cost.** Every turn re-reads the whole conversation. Batch shell work into one call, keep outputs short, and finish one task per session (the user starts a new session or runs `/clear` after a push).
-2. **Never read big files whole.** The draft is 155 KB with lines up to 15k chars; `main.gd` ~1.6k lines, `shop_manager.gd` ~1.1k. Find with `grep -n`, then read a range: `sed -n 'a,bp' file | cut -c1-220` (≤150 lines). Start from `reference/map.md`.
+2. **Never read big files whole.** `main.gd` ~1.6k lines, `shop_manager.gd` ~1.1k. Find with `grep -n`, then read a range: `sed -n 'a,bp' file | cut -c1-220` (≤150 lines). Start from `reference/map.md`.
 3. **Check before building, build once per batch.** `tools/parity/build.sh --check` (seconds) after edits; full `build.sh` only before a visual check. Put several fixes in one build. Budget: ≤3 builds and ≤40 turns per task; past that, stop, summarise and ask.
 4. **Numbers before pictures.** `parity.js` prints what differs as text. Don't open screenshots in the main session; when pixels matter, use the `parity-check` skill (the `parity-checker` agent looks at the images and returns a short list).
 5. **Model roles.** The main session (Sonnet) does the work: reads, edits, decides, commits. Agents start cold (~20–90k tokens each), so call them only when they save more than they cost:
    - `advisor` (Opus, read-only) at checkpoints only: before a major decision (architecture, data format, a change across several systems), when the same error survives two fix attempts, and before declaring a large task done. At most ~4 calls per task; skip it for small, clear fixes. Give it the task, what you did or plan, the files/functions, and one concrete question. Follow its "Do next", or tell the user why not.
    - `runner` (Haiku) for commands with long output: full `build.sh`, `parity.js` over several scenarios, `setup_godot.sh`. Run short ones (`build.sh --check`, `git`) yourself.
-   - `draft-scout` (Haiku) when a feature's draft code is unknown or spans several functions; for a known spot, read it yourself.
    - `parity-checker` (Sonnet) via the `parity-check` skill when pixels matter.
-6. **Port, don't redesign.** Copy the draft's numbers, wording (Thai text verbatim), timings and rounding (`Math.round` → `roundi`, not `int()`).
+6. **Keep what exists.** Keep current numbers, Thai wording, timings and rounding (`roundi`, not `int()`) unless the user asks to change them.
 
 ## Facts
 
@@ -30,7 +29,7 @@ The HTML draft `To_Beyond_Draft.html` is the source of truth. The Godot game mus
 ## The loop
 
 1. **Locate**: `reference/map.md` → draft function + Godot function → `grep -n`.
-2. **Spec**: read the draft code for exact behaviour (or ask `draft-scout`).
+2. **Spec**: read the Godot code and the user's request. Don't open the draft unless the user orders it.
 3. **Edit** the GDScript / scene.
 4. **Check**: `tools/parity/build.sh --check`.
 5. **Compare**: `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
