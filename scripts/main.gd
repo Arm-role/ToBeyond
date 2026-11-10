@@ -162,6 +162,7 @@ var artifacts: Array = []  # Array of null or Dict
 var battle_mgr: BattleManager
 var shop_mgr: ShopManager
 var ui_renderer: UiRenderer
+var board_calc: BoardCalc
 var action_dialog: Control
 var pending_dialog_action: Callable
 var drag_kind: String = ""
@@ -184,6 +185,7 @@ func _ready() -> void:
 	artifact_sys = ArtifactSystem.new(self)
 	shop_mgr = ShopManager.new(self)
 	ui_renderer = UiRenderer.new(self)
+	board_calc = BoardCalc.new(self)
 	_setup_action_dialog()
 	setup_stone_modal_content()
 	_style_sort_button(sort_color_btn, sort_mode == "color")
@@ -968,63 +970,23 @@ func _on_discard_pressed() -> void:
 # ==============================================================================
 
 func calculate_groups() -> Dictionary:
-	var result: Dictionary = StoneCalc.calculate_groups(placed_cards, TILE_DIR, stone_formulas, N_TILES)
-	# Equalizer lifts every completed Stone group to the highest group value.
-	# This mirrors the draft's updateGroups() rule and changes real walk damage,
-	# not merely the number printed under a tile.
-	if artifact_sys.has_rule(&"equal_groups") and result["groups"].size() >= 2:
-		var highest := 0
-		for group in result["groups"]:
-			highest = maxi(highest, int(group["res"]["a"]))
-		for group in result["groups"]:
-			group["res"]["a"] = highest
-			for tile_idx in group["idxs"]:
-				result["grp_val"][tile_idx] = highest
-		var total := 0
-		for tile_idx in range(N_TILES):
-			if placed_cards.has(tile_idx) and not placed_cards[tile_idx].get("is_blank", false):
-				total += int(result["grp_val"].get(tile_idx, 1))
-		result["base_dmg"] = total
-	return result
+	return board_calc.calculate_groups()
 
 
 func tile_direction_count(direction: String) -> int:
-	var count := 0
-	for tile_direction in TILE_DIR:
-		if tile_direction == direction:
-			count += 1
-	return count
+	return board_calc.tile_direction_count(direction)
 
 
 func tile_direction_run(direction: String) -> int:
-	var best := 0
-	var run := 0
-	for tile_direction in TILE_DIR:
-		run = run + 1 if tile_direction == direction else 0
-		best = maxi(best, run)
-	return best
+	return board_calc.tile_direction_run(direction)
 
 
 func matching_group_count(direction: String, color: String) -> int:
-	var count := 0
-	for group in calculate_groups()["groups"]:
-		var matches := 0
-		for tile_idx in group["idxs"]:
-			var card = placed_cards.get(tile_idx)
-			if card != null and TILE_DIR[tile_idx] == direction and card.get("dir") == direction and (color.is_empty() or card.get("color") == color):
-				matches += 1
-		if matches >= 2:
-			count += 1
-	return count
+	return board_calc.matching_group_count(direction, color)
 
 
 func matching_card_count(direction: String, color: String) -> int:
-	var count := 0
-	for tile_idx in placed_cards:
-		var card = placed_cards[tile_idx]
-		if TILE_DIR[tile_idx] == direction and card.get("dir") == direction and card.get("color") == color:
-			count += 1
-	return count
+	return board_calc.matching_card_count(direction, color)
 
 
 func give_random_chaos() -> bool:
@@ -1048,38 +1010,19 @@ func prepare_walk_artifacts() -> void:
 
 
 func sync_totems() -> void:
-	var desired := mini(N_TILES, artifact_sys.rule_count(&"totem"))
-	while totem_tiles.size() > desired:
-		totem_tiles.pop_back()
-	while totem_tiles.size() < desired:
-		for tile_idx in range(N_TILES):
-			if not totem_tiles.has(tile_idx):
-				totem_tiles.append(tile_idx)
-				break
+	board_calc.sync_totems()
 
 
 func totem_attack(tile_idx: int) -> int:
-	return int(round(20.0 + 40.0 * pow(float(N_TILES - 1 - tile_idx) / float(N_TILES - 1), 2.0)))
+	return board_calc.totem_attack(tile_idx)
 
 
 func passive_chaos_tile_count() -> int:
-	return chaos_mult_tiles.size() + chaos_xmult_tiles.size() + chaos_xatk_tiles.size()
+	return board_calc.passive_chaos_tile_count()
 
 
-## Final attack. `steps` (optional, passed by the caller) is filled like the
-## draft's attackSeq(): steps[0] is the raw walk total, then one entry per
-## artifact that fired: {"slot": artifact slot, "atk": float, "mult": float}.
 func compute_attack(steps: Array = []) -> Dictionary:
-	var calc = calculate_groups()
-	var atk: float = 1 + (walk_base_damage if is_busy else calc["base_dmg"])
-	var mult: float = 1.0 + (walk_mult_bonus if is_busy else 0.0)
-	steps.append({"slot": -1, "atk": atk, "mult": mult})
-
-	# Artifacts in slot order like the draft's attackSeq() (South-five first).
-	var result: Dictionary = artifact_sys.attack(calc, atk, mult, steps)
-	atk = result["atk"]
-	mult = result["mult"]
-	return {"atk": int(round(atk)), "mult": mult, "dmg": int(round(atk * mult))}
+	return board_calc.compute_attack(steps)
 
 
 func artifact_slot(type_key: String) -> int:
@@ -1106,23 +1049,7 @@ func begin_walk_damage() -> void:
 
 
 func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictionary:
-	var card = placed_cards.get(tile_idx)
-	if card == null or card.get("is_blank", false):
-		return {"gain": 0, "extra": 0, "fired": []}
-
-	var gain = int(calculate_groups()["grp_val"].get(tile_idx, 1))
-	walk_base_damage += gain
-	if chaos_mult_tiles.has(tile_idx):
-		walk_mult_bonus += 5.0
-	if chaos_xmult_tiles.has(tile_idx):
-		walk_mult_bonus = (1.0 + walk_mult_bonus) * 1.2 - 1.0
-	if chaos_xatk_tiles.has(tile_idx):
-		walk_base_damage = int(round(walk_base_damage * 1.2))
-	var landed: Dictionary = artifact_sys.land(tile_idx, card, gain, helper_pass)
-	var extra: int = landed["extra"]
-	var fired: Array = landed["fired"]  # landing artifacts that took effect (for the flash + sparks)
-	var coin_won: bool = landed["coin_won"]
-	return {"gain": gain, "extra": extra, "fired": fired, "coin_won": coin_won}
+	return board_calc.apply_tile_walk_effects(tile_idx, helper_pass)
 
 
 ## Number formatting from the HTML draft: integers without decimals,

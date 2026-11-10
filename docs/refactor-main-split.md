@@ -16,7 +16,7 @@ Goal: `main.gd` (1543 lines, 55 KB) under 40 KB / ~700 lines so it can be read i
 | # | New file | Moves from `main.gd` | Status |
 |---|---|---|---|
 | 1 | `game_assets.gd` | `COLORS`, texture tables, `init_textures()` -> `GameAssets.load_all(n)` (static) | done, `aa038ac` |
-| 2 | `board_calc.gd` | group/direction counting (`calculate_groups`, `tile_direction_*`, `matching_*`), walk/attack maths (`compute_attack`, `apply_tile_walk_effects`, totems) | todo |
+| 2 | `board_calc.gd` | group/direction counting (`calculate_groups`, `tile_direction_*`, `matching_*`), walk/attack maths (`compute_attack`, `apply_tile_walk_effects`, totems) | done |
 | 3 | `toolbar_controls.gd` | fullscreen, audio and sort buttons (`_setup_fullscreen_button`, `_setup_audio_button`, `_style_sort_button`, ...) | todo |
 | 4 | `action_dialog.gd` + `slot_drag.gd` | confirm dialog (`_setup_action_dialog`, `show_action_dialog`), artifact/chaos slot drag (`_input`, `_begin_slot_drag`, `_finish_slot_drag`) | todo |
 | 5 | `chaos_controller.gd` | Chaos use (`_apply_hand_chaos`, `_apply_chaos_to_tile`, `hit_crystal`), tile click, discard | todo |
@@ -48,6 +48,8 @@ main/arts/boss/win/shop/lose/deck/stone, errors: none. Those differences against
 
 ## Done so far
 - Block 1 (`aa038ac`): 57 references in `main.gd`, `shop_manager.gd`, `ui_renderer.gd` now use `GameAssets.*`. `main.gd` 1543 -> 1466 lines.
+
+- Block 2: `BoardCalc` (10 functions, `main` keeps one-line wrappers). `main.gd` 1466 -> 1393 lines. Checks equal to baseline. Advisor not consulted yet.
 
 ## Found (not fixed, outside the refactor)
 - `scripts/game_assets.gd`: `load_all` starts with a string "docstring" (a no-op statement); use a `##` comment if touched again.
