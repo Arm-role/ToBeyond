@@ -17,7 +17,7 @@ For any game work load the `tobeyond-dev` skill (rules, draft↔Godot map, pitfa
 
 ## Keep sessions cheap
 - One task per session; `/clear` or a new session after pushing.
-- Choose the model when the session starts: switching mid-session re-caches the whole context.
+- Model roles: the main session runs on Sonnet (project default in `.claude/settings.json`) and does the work; the `advisor` agent (Opus) is consulted at checkpoints; `runner` and `draft-scout` (Haiku) take repetitive or long-output work. Don't `/model` mid-session: it re-caches the whole context. Delegate to an agent instead.
 - Don't read big files whole (the draft is 155 KB with 15k-char lines): `grep -n`, then `sed -n 'a,bp' | cut -c1-220`.
 - Screenshots go to the `parity-checker` agent (`parity-check` skill); the main session reads text reports.
 

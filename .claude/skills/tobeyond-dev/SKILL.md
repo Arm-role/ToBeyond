@@ -13,7 +13,11 @@ The HTML draft `To_Beyond_Draft.html` is the source of truth. The Godot game mus
 2. **Never read big files whole.** The draft is 155 KB with lines up to 15k chars; `main.gd` ~1.6k lines, `shop_manager.gd` ~1.1k. Find with `grep -n`, then read a range: `sed -n 'a,bp' file | cut -c1-220` (≤150 lines). Start from `reference/map.md`.
 3. **Check before building, build once per batch.** `tools/parity/build.sh --check` (seconds) after edits; full `build.sh` only before a visual check. Put several fixes in one build. Budget: ≤3 builds and ≤40 turns per task; past that, stop, summarise and ask.
 4. **Numbers before pictures.** `parity.js` prints what differs as text. Don't open screenshots in the main session; when pixels matter, use the `parity-check` skill (the `parity-checker` agent looks at the images and returns a short list).
-5. **Use agents only for heavy work.** Each agent run costs ~60–90k tokens. Use `draft-scout` when a feature's code is unknown or spans several functions; for a known spot, read it yourself.
+5. **Model roles.** The main session (Sonnet) does the work: reads, edits, decides, commits. Agents start cold (~20–90k tokens each), so call them only when they save more than they cost:
+   - `advisor` (Opus, read-only) at checkpoints only: before a major decision (architecture, data format, a change across several systems), when the same error survives two fix attempts, and before declaring a large task done. At most ~4 calls per task; skip it for small, clear fixes. Give it the task, what you did or plan, the files/functions, and one concrete question. Follow its "Do next", or tell the user why not.
+   - `runner` (Haiku) for commands with long output: full `build.sh`, `parity.js` over several scenarios, `setup_godot.sh`. Run short ones (`build.sh --check`, `git`) yourself.
+   - `draft-scout` (Haiku) when a feature's draft code is unknown or spans several functions; for a known spot, read it yourself.
+   - `parity-checker` (Sonnet) via the `parity-check` skill when pixels matter.
 6. **Port, don't redesign.** Copy the draft's numbers, wording (Thai text verbatim), timings and rounding (`Math.round` → `roundi`, not `int()`).
 
 ## Facts
@@ -31,7 +35,8 @@ The HTML draft `To_Beyond_Draft.html` is the source of truth. The Godot game mus
 4. **Check**: `tools/parity/build.sh --check`.
 5. **Compare**: `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
 6. **Visual pass** when the change is visual: `parity-check` skill with the scenario (and `--region`).
-7. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
+7. **Review** (large or risky tasks only): ask `advisor` with the diff summary before calling it done.
+8. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
 
 ## parity.js
 
