@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_85ffh"]
+
+[resource]
+script = ExtResource("1_85ffh")
+kind = "mtile"
+name = "Chaos MULT +5"
+icon = "⚡"
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+catalog_order = 12

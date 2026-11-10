@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/rule_effect.gd" id="1_btd0g"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_vi3pp"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/equalG.svg" id="3_a8mgc"]
+
+[sub_resource type="Resource" id="Resource_u52ro"]
+script = ExtResource("1_btd0g")
+rule = &"equal_groups"
+
+[resource]
+script = ExtResource("2_vi3pp")
+id = "equalG"
+name = "ยกระดับกลุ่ม"
+icon = "="
+desc = "กลุ่ม Stone ต่ำสุดเท่ากลุ่มสูงสุด"
+color = Color(0.18431373, 0.49803922, 0.8392157, 1)
+rarity = "uncommon"
+draft_name = "ยกระดับกลุ่ม"
+draft_desc = "กลุ่ม Stone ที่ได้ ATK น้อยที่สุดบนกระดาน จะได้ ATK เท่ากับกลุ่มที่ได้มากที่สุด (ต้องมีอย่างน้อย 2 กลุ่ม)"
+texture = ExtResource("3_a8mgc")
+catalog_order = 16
+effects = Array[Resource]([SubResource("Resource_u52ro")])

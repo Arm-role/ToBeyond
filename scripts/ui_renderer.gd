@@ -93,7 +93,7 @@ func update_all_ui() -> void:
 		_main.walk_btn.text = "เดิน"
 
 	# Rule: If board has cards, cannot discard unless freediscard artifact is owned
-	var blocked = (_main.placed_cards.size() > 0) and (not _main.has_artifact("freediscard"))
+	var blocked = (_main.placed_cards.size() > 0) and (not _main.artifact_sys.has_rule(&"free_discard"))
 	_main.discard_btn.disabled = _main.is_busy or _main.discards_left <= 0 or _main.selected_card_ids.is_empty() or blocked
 
 	# Same wording as the HTML draft: main line + small second line.

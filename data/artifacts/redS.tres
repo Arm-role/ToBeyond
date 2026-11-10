@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/counter_effect.gd" id="1_dnv4r"]
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="2_n0nga"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="3_fmm1b"]
+
+[sub_resource type="Resource" id="Resource_jj0r1"]
+script = ExtResource("1_dnv4r")
+hook = "pre_walk"
+amount = 0.5
+source = "matching_groups"
+dir = "S"
+color = "red"
+start = 1.0
+snap = 0.1
+
+[sub_resource type="Resource" id="Resource_bjbak"]
+script = ExtResource("2_n0nga")
+stat = "mult"
+op = "mul"
+source = "counter"
+counter_fallback = 1.0
+
+[resource]
+script = ExtResource("3_fmm1b")
+id = "redS"
+name = "คูณแดงใต้"
+icon = "S×1"
+desc = "โบนัสแดงใต้"
+color = Color(0.8392157, 0.22745098, 0.22745098, 1)
+rarity = "uncommon"
+draft_name = "คูณแดงใต้"
+emblem_dir = "S"
+catalog_order = 32
+effects = Array[Resource]([SubResource("Resource_jj0r1"), SubResource("Resource_bjbak")])

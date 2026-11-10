@@ -14,12 +14,12 @@ Draft sections start with a comment like `/* ===== Token / walk ===== */`; jump 
 | Auto place | Auto place: `autoPlace` | stone_calc: `solve_best_placement`; main: `auto_place_selected` |
 | Damage formula text | Calc display: `showCalc refreshCalc`; State: `fmt` | main: `show_calc refresh_calc fmt_num` |
 | Walk (token path, per-tile effects) | Token / walk: `walk placeRun arrive dash startPass endPass westCardAtk greenEastOk dirCount dirRun northExp eastFactor passiveTileCount` | battle_manager: `run_walk _visit_tile _tile_pop _spawn_tile_popup`; main: `begin_walk_damage apply_tile_walk_effects tile_direction_count tile_direction_run passive_chaos_tile_count prepare_walk_artifacts` |
-| Attack sequence (artifacts one by one, fireball, beam) | Token / walk: `attackSeq strike finish popScore` | main: `compute_attack(steps) _record_step artifact_slot flash_artifact`; battle_manager: `_on_walk_finished _burst _charge_ring _hero_cast` |
+| Attack sequence (artifacts one by one, fireball, beam) | Token / walk: `attackSeq strike finish popScore` | main: `compute_attack(steps) artifact_slot flash_artifact`; ArtifactSystem: `attack` (per copy, slot order); battle_manager: `_on_walk_finished _burst _charge_ring _hero_cast` |
 | Enemy counter attack, player HP | Token / walk: `enemyStrike updatePlayerHP`; State: `phpMax` | battle_manager: `_enemy_counter_attack _hero_ouch`; main: `player_hp player_max_hp` |
 | Enemy spawn, boss, boss skill, scaling | Enemy: `isBoss bossSkill spawnEnemy`; `BOSS_PICS BOSS_BLANKS` | main: `is_boss spawn_current_enemy boss_skill`; shop_manager: `on_shop_leave` (stage++, HP ×1.5, ATK × PHP_GROW) |
 | Victory summary | `showReward afterReward` (`rewardInfo`) | main: `on_victory render_reward_summary _add_reward_row _on_reward_shop_pressed` |
 | Shop: offers, tabs, reroll, buy | Artifact / Shop: `genOffers rerollShop buyOffer openOfferPop artCardEl stoneCardEl chaosCardEl upgCardEl upgPrice`; `openShop leaveShop setShopTab renderShop renderUpgrades buyHand buyStat buyStone` | shop_manager: `open_shop set_tab generate_game_offers reroll_shop render_shop_offers _render_game_offers _render_artifact_catalog _render_chaos_catalog _render_upgrade_catalog _add_shop_card _add_offer_row buy_* on_shop_leave` |
-| Artifact slots, names, descriptions, sell | `itemName itemDesc itemCover setItemFace setItemLabel renderItems flashItem openOwnedPop sellItem artSellVal hasFullSell`; `ITEMS` | shop_manager: `DRAFT_NAMES DRAFT_DESCS display_name display_desc art_cover get_sell_price confirm_sell_artifact sell_artifact`; ui_renderer: `render_artifact_row _style_item_slot`; main: `artifacts flash_artifact` |
+| Artifact slots, names, descriptions, sell | `itemName itemDesc itemCover setItemFace setItemLabel renderItems flashItem openOwnedPop sellItem artSellVal hasFullSell`; `ITEMS` | shop_manager: `display_name display_desc art_cover get_sell_price confirm_sell_artifact sell_artifact`; ui_renderer: `render_artifact_row _style_item_slot`; main: `artifacts flash_artifact` |
 | Popup (title, text, buttons) | `openPop closePop` | main: `_setup_action_dialog show_action_dialog` |
 | Chaos cards | CHAOS: `chaosFromDef chaosLabel chaosName chaosDesc chaosCover useChaos placeChaos onChaosUsed giveRandChaos renderChaos chaosMsg setTileDir applyDeckMods resetChaos`; `CHAOS_SHOP` | shop_manager: `CHAOS_CATALOG chaos_label chaos_name chaos_desc buy_chaos sell_chaos`; main: `_on_chaos_slot_pressed _apply_hand_chaos _apply_chaos_to_tile _finish_chaos give_random_chaos apply_deck_mods reset_chaos chaos_msg`; ui_renderer: `render_chaos_row` |
 | Crystal (boss obstacle) | CHAOS: `crystalSvg addCrystal hitCrystal giveCrystalChaos clearCrystals` | main: `hit_crystal`; battle_manager: `_hit_crystal`; ui_renderer: `_render_crystal` |
@@ -35,8 +35,9 @@ Draft sections start with a comment like `/* ===== Token / walk ===== */`; jump 
 | Draft | Godot |
 |---|---|
 | `ITEMS` (owned artifacts) | `main.artifacts` |
-| artifact catalog in `genOffers` / `itemName` / `itemDesc` | `ShopManager.ARTIFACT_CATALOG`, `ARTIFACT_RARITY`, `DRAFT_NAMES`, `DRAFT_DESCS` |
-| `CHAOS_SHOP` | `ShopManager.CHAOS_CATALOG` |
+| artifact catalog in `genOffers` / `itemName` / `itemDesc`, `RARITY`, attack/landing code per type | `data/artifacts/<id>.tres` (`ArtifactData`: shop fields, rarity, draft name/desc, cover, effects). `ShopManager.ARTIFACT_CATALOG` / `ARTIFACT_RARITY` are views built from it |
+| artifact effects and trigger points | `scripts/artifacts/`: `ArtifactSystem` (hooks: round_start, chaos_used, pre_walk, land, attack_early, attack, victory, reward, stone_upgrade, rules), `ArtifactEffect` (hook table), data-only `StatEffect CounterEffect RewardEffect RuleEffect`, custom ones in `effects/*_effect.gd`. Game code asks `artifact_sys.has_rule(&"…")`, never an artifact id. Check numbers: `godot --headless --path . --script res://tools/parity/artifact_regress.gd` and diff with a run before the change |
+| `CHAOS_SHOP` | `data/chaos/*.tres` (`ChaosData`) → `ShopManager.CHAOS_CATALOG` |
 | `FROWS` (Stone rows: key, name, desc, min, a, g, pv) | `StoneCalc.DEFAULT_FORMULAS` |
 | `UPG_INFO` | shop_manager `_get_stat_offer_info` |
 | `BOSS_PICS BOSS_BLANKS ENEMY_HP_START EATK_START PHP_GROW` | same names in main.gd (grep) |

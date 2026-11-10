@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/counter_effect.gd" id="1_yb6os"]
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="2_rgrus"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="3_ysag4"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/discardStack.svg" id="4_he82p"]
+
+[sub_resource type="Resource" id="Resource_p5rhi"]
+script = ExtResource("1_yb6os")
+hook = "victory"
+source = "discards_left"
+
+[sub_resource type="Resource" id="Resource_yb6fo"]
+script = ExtResource("2_rgrus")
+stat = "mult"
+source = "counter"
+skip_if_zero = true
+
+[resource]
+script = ExtResource("3_ysag4")
+id = "discardStack"
+name = "เก็บไพ่ทิ้ง"
+icon = "+0"
+desc = "ชนะแล้วเพิ่มตัวคูณตามการทิ้ง"
+color = Color(0.8392157, 0.22745098, 0.22745098, 1)
+draft_name = "เก็บไพ่ทิ้ง"
+has_counter = true
+texture = ExtResource("4_he82p")
+catalog_order = 19
+effects = Array[Resource]([SubResource("Resource_p5rhi"), SubResource("Resource_yb6fo")])

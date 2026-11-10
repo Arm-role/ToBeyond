@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/rule_effect.gd" id="1_k3ctu"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_cgwbj"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/helperEven.svg" id="3_ugt3s"]
+
+[sub_resource type="Resource" id="Resource_nmfmg"]
+script = ExtResource("1_k3ctu")
+rule = &"helper_even"
+
+[resource]
+script = ExtResource("2_cgwbj")
+id = "helperEven"
+name = "ผู้ช่วยเลขคู่"
+icon = "คู่"
+desc = "ผู้ช่วยช่องคู่"
+color = Color(0.18431373, 0.49803922, 0.8392157, 1)
+rarity = "uncommon"
+draft_name = "ผู้ช่วยเลขคู่"
+draft_desc = "ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคู่ (2, 4, 6, 8) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ"
+texture = ExtResource("3_ugt3s")
+catalog_order = 31
+effects = Array[Resource]([SubResource("Resource_nmfmg")])

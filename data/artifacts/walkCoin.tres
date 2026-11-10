@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/reward_effect.gd" id="1_lckfl"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_2umwu"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/walkCoin.svg" id="3_x2iw1"]
+
+[sub_resource type="Resource" id="Resource_n2341"]
+script = ExtResource("1_lckfl")
+source = "walks_left"
+row = "walk"
+
+[resource]
+script = ExtResource("2_2umwu")
+id = "walkCoin"
+name = "Gold Step"
+icon = "👟"
+desc = "รับ 🪙 1 เหรียญต่อรอบเดินที่เหลือเมื่อชนะ"
+color = Color(0.9411765, 0.5411765, 0.14117648, 1)
+draft_name = "เดินประหยัด"
+draft_desc = "ตอนชนะศัตรู: ได้เหรียญเพิ่ม +1 ต่อครั้งที่ยังรับการโจมตีได้ (เลือดที่เหลือ)"
+texture = ExtResource("3_x2iw1")
+catalog_order = 5
+order = 30
+effects = Array[Resource]([SubResource("Resource_n2341")])

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_vi4tc"]
+
+[resource]
+script = ExtResource("1_vi4tc")
+kind = "destroy"
+name = "Chaos ทำลาย Gem"
+icon = "💥"
+color = Color(0.8784314, 0.3764706, 0.36862746, 1)
+catalog_order = 16

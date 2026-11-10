@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/iso_gem_effect.gd" id="1_ai7k7"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_jvdvg"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/isoGem.svg" id="3_eykxn"]
+
+[sub_resource type="Resource" id="Resource_3m6qw"]
+script = ExtResource("1_ai7k7")
+
+[resource]
+script = ExtResource("2_jvdvg")
+id = "isoGem"
+name = "โดดเดี่ยว"
+icon = "M+"
+desc = "โบนัสเมื่อ Gem อยู่โดดเดี่ยว"
+color = Color(0.18431373, 0.49803922, 0.8392157, 1)
+draft_name = "โดดเดี่ยว"
+draft_desc = "ทุกครั้งที่เดินตกช่อง Gem ที่ทั้งสองข้างเป็นช่องว่าง (ไม่มี Gem · ขอบกระดานนับเป็นช่องว่าง): ตัวคูณ + ATK ของกลุ่ม (สูตร Stone) ของใบนั้น"
+texture = ExtResource("3_eykxn")
+catalog_order = 17
+order = 30
+effects = Array[Resource]([SubResource("Resource_3m6qw")])

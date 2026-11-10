@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="1_m5ljf"]
+
+[resource]
+script = ExtResource("1_m5ljf")
+id = "moneybox"
+name = "กล่องเงิน"
+icon = "💰"
+desc = "กล่องเงินบนกระดาน"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+price = 8
+rarity = ""
+draft_name = "กล่องเงิน"
+draft_desc = "ทุกครั้งที่เริ่มศัตรูใหม่ เกิดกล่องเงินที่ช่องว่างแบบสุ่ม 1 กล่องต่อการ์ด"
+in_draft_pool = false
+catalog_order = 38

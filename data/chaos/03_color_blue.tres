@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_e6haj"]
+
+[resource]
+script = ExtResource("1_e6haj")
+col = "blue"
+name = "Chaos เปลี่ยนสีน้ำเงิน"
+icon = "🎨"
+color = Color(0.18431373, 0.49803922, 0.8392157, 1)
+catalog_order = 3

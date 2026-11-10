@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/east_g_effect.gd" id="1_epbhv"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_t7y4j"]
+
+[sub_resource type="Resource" id="Resource_d6dj2"]
+script = ExtResource("1_epbhv")
+
+[resource]
+script = ExtResource("2_t7y4j")
+id = "eastG"
+name = "แนวตะวันออก"
+icon = "E×2"
+desc = "โบนัสแนวตะวันออก"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+rarity = "rare"
+draft_name = "แนวตะวันออก"
+emblem_dir = "E"
+catalog_order = 13
+order = 40
+effects = Array[Resource]([SubResource("Resource_d6dj2")])

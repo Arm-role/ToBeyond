@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_ytqfe"]
+
+[resource]
+script = ExtResource("1_ytqfe")
+kind = "dirc"
+dir = "S"
+name = "Chaos เปลี่ยนทิศใต้"
+icon = "🧭"
+price = 4
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+catalog_order = 6

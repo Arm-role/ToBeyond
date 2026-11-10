@@ -60,44 +60,12 @@ func run_walk() -> void:
 
 	var token: Control          = _main.token
 	var tiles_container         = _main.tiles_container
-	var placed_cards: Dictionary = _main.placed_cards
-	var N_TILES: int            = _main.N_TILES
-
 	token.visible = true
 	var tween = _ct()
 	# Draft: one stop every 500 ms (0.45 s slide + short pause).
 	var step_duration = 0.45 / _spd()
 
-	# Collect stops (Tile 0 + all cards + Chaos crystals + Totems)
-	var active_tiles: Array[int] = [0]
-	for i in range(1, N_TILES):
-		if placed_cards.has(i) or _main.chaos_crystals.has(i) or _main.totem_tiles.has(i):
-			active_tiles.append(i)
-
-	var forward_tiles: Array[int] = active_tiles.duplicate()
-	if _main.has_artifact("reverse") and active_tiles.size() > 1:
-		var rev = active_tiles.duplicate()
-		rev.reverse()
-		rev.pop_front()
-		for idx in rev:
-			active_tiles.append(idx)
-
-	# Odd/Even helpers take their own pass before the fireball. Their pass
-	# triggers landing effects but intentionally does not consume First Strike.
-	var walk_steps: Array[Dictionary] = []
-	for helper_type in ["helperOdd", "helperEven"]:
-		if not _main.has_artifact(helper_type):
-			continue
-		var wants_odd: bool = helper_type == "helperOdd"
-		var first_helper_step := true
-		for tile_idx in forward_tiles:
-			if ((tile_idx + 1) % 2 == 1) == wants_odd:
-				walk_steps.append({"tile": tile_idx, "helper": true, "fx": helper_type if first_helper_step else ""})
-				first_helper_step = false
-	for k in range(active_tiles.size()):
-		# The first stop after the last forward tile is where the ball turns back.
-		walk_steps.append({"tile": active_tiles[k], "helper": false, "fx": "reverse" if (k == forward_tiles.size() and k > 0) else ""})
-
+	var walk_steps: Array[Dictionary] = build_walk_steps()
 	for step in walk_steps:
 		var idx: int = step["tile"]
 		var helper_pass: bool = step["helper"]
@@ -112,6 +80,46 @@ func run_walk() -> void:
 		tween.tween_interval(0.05 / _spd())
 
 	tween.finished.connect(_on_walk_finished)
+
+
+## Every stop of one walk, in order: {"tile", "helper", "fx"}.
+## Helper passes come first, then the fireball (with the way back for Mirror Walk).
+func build_walk_steps() -> Array[Dictionary]:
+	var placed_cards: Dictionary = _main.placed_cards
+	var N_TILES: int = _main.N_TILES
+	# Collect stops (Tile 0 + all cards + Chaos crystals + Totems)
+	var active_tiles: Array[int] = [0]
+	for i in range(1, N_TILES):
+		if placed_cards.has(i) or _main.chaos_crystals.has(i) or _main.totem_tiles.has(i):
+			active_tiles.append(i)
+
+	var forward_tiles: Array[int] = active_tiles.duplicate()
+	var back_type: String = _main.artifact_sys.rule_type(&"walk_back")
+	if back_type != "" and active_tiles.size() > 1:
+		var rev = active_tiles.duplicate()
+		rev.reverse()
+		rev.pop_front()
+		for idx in rev:
+			active_tiles.append(idx)
+
+	# Odd/Even helpers take their own pass before the fireball. Their pass
+	# triggers landing effects but intentionally does not consume First Strike.
+	var walk_steps: Array[Dictionary] = []
+	for helper_rule in [&"helper_odd", &"helper_even"]:
+		var helper_type: String = _main.artifact_sys.rule_type(helper_rule)
+		if helper_type == "":
+			continue
+		var wants_odd: bool = helper_rule == &"helper_odd"
+		var first_helper_step := true
+		for tile_idx in forward_tiles:
+			if ((tile_idx + 1) % 2 == 1) == wants_odd:
+				walk_steps.append({"tile": tile_idx, "helper": true, "fx": helper_type if first_helper_step else ""})
+				first_helper_step = false
+	for k in range(active_tiles.size()):
+		# The first stop after the last forward tile is where the ball turns back.
+		walk_steps.append({"tile": active_tiles[k], "helper": false, "fx": back_type if (k == forward_tiles.size() and k > 0) else ""})
+
+	return walk_steps
 
 
 func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
@@ -277,7 +285,7 @@ func _hit_totem(tile_idx: int) -> void:
 	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
 	var gain: int = _main.totem_attack(tile_idx)
 	_main.walk_base_damage += gain
-	_artifact_pop(_main.artifact_slot("totem"), _step_i)
+	_artifact_pop(_main.artifact_slot(_main.artifact_sys.rule_type(&"totem")), _step_i)
 	_tile_pop(tile_idx, "🗿+%d" % gain, Color("#7fd0ff"))
 	_main.refresh_calc()
 

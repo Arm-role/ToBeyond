@@ -29,7 +29,6 @@ const COLORS = {
 
 var EMBLEMS = {}           # dir -> Texture2D (white)
 var EMBLEMS_GOLD = {}      # dir -> Texture2D (gold, matched)
-var ART_TEX = {}           # artifact type -> Texture2D
 var CHAOS_TEX = {}         # chaos kind -> Texture2D
 var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
 var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
@@ -51,16 +50,6 @@ func init_textures() -> void:
 			EMBLEMS[d] = load(pw)
 		if ResourceLoader.exists(pg):
 			EMBLEMS_GOLD[d] = load(pg)
-
-	# Artifact SVGs
-	var art_keys = ["add5","mult2","atk15","isoGem","firstGem","emptyAtk","chaosStack",
-		"discardStack","walkCoin","chaosAtk","equalG","reverse","totem","helperOdd",
-		"helperEven","greenCoin","fullSell","tileAtk","stone3","stoneUp","artiPay",
-		"fatePay","freediscard","hitRing"]
-	for key in art_keys:
-		var p = "res://assets/artifacts/%s.svg" % key
-		if ResourceLoader.exists(p):
-			ART_TEX[key] = load(p)
 
 	# Chaos SVGs
 	var chaos_keys = ["color","mtile","goldify","crystal","destroy"]
@@ -149,7 +138,7 @@ var walk_base_damage: int = 0
 var walk_mult_bonus: float = 0.0
 var first_gem_triggered: bool = false
 var first_gem_tile: int = -1
-var stone_up_multiplier: float = 1.0
+var artifact_sys: ArtifactSystem
 var totem_tiles: Array[int] = []
 
 # --- Chaos System (ported from the web draft) ---
@@ -269,6 +258,7 @@ func _ready() -> void:
 	_setup_beams()
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
+	artifact_sys = ArtifactSystem.new(self)
 	shop_mgr = ShopManager.new(self)
 	ui_renderer = UiRenderer.new(self)
 	_setup_action_dialog()
@@ -596,7 +586,6 @@ func start_new_game() -> void:
 	walk_mult_bonus = 0.0
 	first_gem_triggered = false
 	first_gem_tile = -1
-	stone_up_multiplier = 1.0
 	stone_formulas = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
 	totem_tiles.clear()
 	reset_chaos()
@@ -958,13 +947,7 @@ func _finish_chaos(slot_idx: int, message: String) -> void:
 	chaos[slot_idx] = null
 	selected_chaos_slot = -1
 	selected_card_ids.clear()
-	var stacked := false
-	for artifact in artifacts:
-		if artifact != null and artifact.get("type") == "chaosStack":
-			artifact["m"] = int(artifact.get("m", 0)) + 2
-			stacked = true
-	if stacked:
-		battle_mgr.fx_artifact_types(["chaosStack"])
+	artifact_sys.chaos_used()
 	if message != "":
 		chaos_msg(message)
 	update_all_ui()
@@ -1040,7 +1023,7 @@ func _on_tile_clicked(tile_idx: int) -> void:
 func _on_discard_pressed() -> void:
 	if is_busy or selected_card_ids.is_empty() or discards_left <= 0:
 		return
-	if placed_cards.size() > 0 and not has_artifact("freediscard"):
+	if placed_cards.size() > 0 and not artifact_sys.has_rule(&"free_discard"):
 		msg_label.text = "⚠️ วาง Gem แล้วทิ้งไม่ได้ (ดึง Gem กลับก่อน)"
 		return
 
@@ -1066,7 +1049,7 @@ func calculate_groups() -> Dictionary:
 	# Equalizer lifts every completed Stone group to the highest group value.
 	# This mirrors the draft's updateGroups() rule and changes real walk damage,
 	# not merely the number printed under a tile.
-	if has_artifact("equalG") and result["groups"].size() >= 2:
+	if artifact_sys.has_rule(&"equal_groups") and result["groups"].size() >= 2:
 		var highest := 0
 		for group in result["groups"]:
 			highest = maxi(highest, int(group["res"]["a"]))
@@ -1080,21 +1063,6 @@ func calculate_groups() -> Dictionary:
 				total += int(result["grp_val"].get(tile_idx, 1))
 		result["base_dmg"] = total
 	return result
-
-
-func artifact_count(type_key: String) -> int:
-	var count := 0
-	for artifact in artifacts:
-		if artifact != null and artifact.get("type") == type_key:
-			count += 1
-	return count
-
-
-func artifact_value(type_key: String, fallback: float = 0.0) -> float:
-	for artifact in artifacts:
-		if artifact != null and artifact.get("type") == type_key:
-			return float(artifact.get("m", fallback))
-	return fallback
 
 
 func tile_direction_count(direction: String) -> int:
@@ -1151,43 +1119,13 @@ func give_random_chaos() -> bool:
 
 
 func prepare_walk_artifacts() -> void:
-	# These artifacts gain permanent counters or Chaos immediately before the
-	# walk, matching the draft's pre-route trigger timing.
-	var south_red: int = matching_group_count("S", "red")
-	var east_green: int = matching_card_count("E", "green")
-	var west_blue: int = matching_card_count("W", "blue")
-	var north_orange: int = matching_group_count("N", "orange")
-	var triggered: Array = []  # artifacts to flash (draft flashItem)
-	for artifact in artifacts:
-		if artifact == null:
-			continue
-		match artifact.get("type"):
-			"redS":
-				if south_red > 0:
-					artifact["m"] = snappedf(float(artifact.get("m", 1.0)) + 0.5 * south_red, 0.1)
-					triggered.append("redS")
-			"stone7E":
-				if east_green > 0:
-					artifact["m"] = int(artifact.get("m", 0)) + east_green
-					triggered.append("stone7E")
-			"stone7W":
-				if west_blue > 0:
-					artifact["m"] = int(artifact.get("m", 0)) + 3 * west_blue
-					triggered.append("stone7W")
-			"orangeN":
-				for _i in range(north_orange):
-					give_random_chaos()
-				if north_orange > 0:
-					triggered.append("orangeN")
-	if north_orange > 0:
-		msg_label.text = "✨ Gem ส้มทิศเหนือสร้าง Chaos"
-	render_artifact_row()
-	render_chaos_row()
-	battle_mgr.fx_artifact_types(triggered)
+	# Counters fed by the board and Chaos makers trigger right before the
+	# walk, matching the draft's pre-route timing.
+	artifact_sys.pre_walk()
 
 
 func sync_totems() -> void:
-	var desired := mini(N_TILES, artifact_count("totem"))
+	var desired := mini(N_TILES, artifact_sys.rule_count(&"totem"))
 	while totem_tiles.size() > desired:
 		totem_tiles.pop_back()
 	while totem_tiles.size() < desired:
@@ -1212,72 +1150,13 @@ func compute_attack(steps: Array = []) -> Dictionary:
 	var calc = calculate_groups()
 	var atk: float = 1 + (walk_base_damage if is_busy else calc["base_dmg"])
 	var mult: float = 1.0 + (walk_mult_bonus if is_busy else 0.0)
-	var empty_tiles: int = N_TILES - placed_cards.size() - chaos_crystals.size()
-	var chaos_count := 0
-	for chaos_card in chaos:
-		if chaos_card != null:
-			chaos_count += 1
-	var color_stone_groups := 0
-	for group in calc["groups"]:
-		if group["idxs"].size() >= 2 and group["col"] != null:
-			color_stone_groups += 1
-
 	steps.append({"slot": -1, "atk": atk, "mult": mult})
 
-	# Source order: South-five resolves before all other attack artifacts.
-	if has_artifact("south5") and tile_direction_run("S") >= 5:
-		atk *= mult
-		mult = 1.0
-		_record_step(steps, "south5", atk, mult)
-	if has_artifact("add5"):
-		atk += 10 * artifact_count("add5")
-		_record_step(steps, "add5", atk, mult)
-	if has_artifact("mult2"):
-		mult += 5.0 * artifact_count("mult2")
-		_record_step(steps, "mult2", atk, mult)
-	if has_artifact("atk15"):
-		atk *= pow(1.5, artifact_count("atk15"))
-		_record_step(steps, "atk15", atk, mult)
-	if has_artifact("stone3") and color_stone_groups > 0:
-		atk += 40 * color_stone_groups * artifact_count("stone3")
-		_record_step(steps, "stone3", atk, mult)
-	if has_artifact("emptyAtk") and empty_tiles > 0:
-		atk += 2 * empty_tiles * artifact_count("emptyAtk")
-		_record_step(steps, "emptyAtk", atk, mult)
-	if has_artifact("chaosStack") and artifact_value("chaosStack") != 0.0:
-		atk += artifact_value("chaosStack")
-		_record_step(steps, "chaosStack", atk, mult)
-	if has_artifact("discardStack") and artifact_value("discardStack") != 0.0:
-		mult += artifact_value("discardStack")
-		_record_step(steps, "discardStack", atk, mult)
-	if has_artifact("chaosAtk") and chaos_count > 0:
-		atk += 10 * chaos_count * artifact_count("chaosAtk")
-		_record_step(steps, "chaosAtk", atk, mult)
-	if has_artifact("north5"):
-		var n_count := tile_direction_count("N")
-		if n_count > 0:
-			mult = pow(mult, 2.0 if n_count >= N_TILES else 1.0 + 0.12 * n_count)
-			_record_step(steps, "north5", atk, mult)
-	if has_artifact("tileAtk"):
-		atk *= 1.0 + 0.5 * passive_chaos_tile_count() * artifact_count("tileAtk")
-		_record_step(steps, "tileAtk", atk, mult)
-	if has_artifact("stoneUp"):
-		mult *= artifact_value("stoneUp", stone_up_multiplier)
-		_record_step(steps, "stoneUp", atk, mult)
-	if has_artifact("redS"):
-		mult *= artifact_value("redS", 1.0)
-		_record_step(steps, "redS", atk, mult)
-	if has_artifact("stone7W"):
-		atk += artifact_value("stone7W")
-		_record_step(steps, "stone7W", atk, mult)
-	if has_artifact("stone7E"):
-		mult += artifact_value("stone7E")
-		_record_step(steps, "stone7E", atk, mult)
+	# Artifacts in slot order like the draft's attackSeq() (South-five first).
+	var result: Dictionary = artifact_sys.attack(calc, atk, mult, steps)
+	atk = result["atk"]
+	mult = result["mult"]
 	return {"atk": int(round(atk)), "mult": mult, "dmg": int(round(atk * mult))}
-
-
-func _record_step(steps: Array, type_key: String, atk: float, mult: float) -> void:
-	steps.append({"slot": artifact_slot(type_key), "atk": atk, "mult": mult})
 
 
 func artifact_slot(type_key: String) -> int:
@@ -1316,41 +1195,10 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 		walk_mult_bonus = (1.0 + walk_mult_bonus) * 1.2 - 1.0
 	if chaos_xatk_tiles.has(tile_idx):
 		walk_base_damage = int(round(walk_base_damage * 1.2))
-	var extra = 0
-	var fired: Array = []  # landing artifacts that took effect (for the flash + sparks)
-	# First Strike applies to the first Gem reached, rather than board slot zero.
-	if has_artifact("firstGem") and not helper_pass and (not first_gem_triggered or first_gem_tile == tile_idx):
-		first_gem_triggered = true
-		first_gem_tile = tile_idx
-		extra = int(gain * (gain + 1) / 2) - gain
-		walk_base_damage += extra
-		fired.append("firstGem")
-	var coin_won := false
-	if has_artifact("greenCoin") and card.get("color") == "green":
-		fired.append("greenCoin")
-		if randf() < (1.0 / 3.0):
-			coins += 1
-			coin_won = true
-			update_all_ui()
-	# Landing artifacts resolve once per landing (twice for a gold Gem because
-	# BattleManager calls this function twice).
-	var direction: String = card.get("dir", "")
-	if has_artifact("isoGem") and not placed_cards.has(tile_idx - 1) and not placed_cards.has(tile_idx + 1):
-		walk_mult_bonus += gain
-		extra += gain
-		fired.append("isoGem")
-	if has_artifact("eastG") and direction == "E":
-		var east_count := tile_direction_count("E")
-		var east_factor := 2.0 if east_count >= N_TILES else 1.0 + 0.1 * east_count
-		walk_mult_bonus = (1.0 + walk_mult_bonus) * east_factor - 1.0
-		fired.append("eastG")
-	if has_artifact("west5") and direction == "W" and gain > 0 and tile_direction_run("W") >= 5:
-		walk_mult_bonus += gain
-		fired.append("west5")
-	var direction_hit := "dir%sHit" % direction
-	if has_artifact(direction_hit):
-		walk_mult_bonus += 3.0 * artifact_count(direction_hit)
-		fired.append(direction_hit)
+	var landed: Dictionary = artifact_sys.land(tile_idx, card, gain, helper_pass)
+	var extra: int = landed["extra"]
+	var fired: Array = landed["fired"]  # landing artifacts that took effect (for the flash + sparks)
+	var coin_won: bool = landed["coin_won"]
 	return {"gain": gain, "extra": extra, "fired": fired, "coin_won": coin_won}
 
 
@@ -1475,26 +1323,15 @@ func on_victory() -> void:
 	var base_reward = 4
 	var interest = mini(10, int(coins / 5))
 	var walk_reward = walks_left
-	var owned_artifacts := artifact_count_any()
-	var arti_pay = artifact_count("artiPay") * owned_artifacts
-	var fate_pay = artifact_count("fatePay") * int((deck.size() + hand.size() + placed_cards.size()) / 10.0)
-	var walk_coin_bonus = artifact_count("walkCoin") * walks_left
-	var reward_fx: Array = []
-	if arti_pay > 0:
-		reward_fx.append("artiPay")
-	if fate_pay > 0:
-		reward_fx.append("fatePay")
-	if walk_coin_bonus > 0:
-		reward_fx.append("walkCoin")
-	for artifact in artifacts:
-		if artifact != null and artifact.get("type") == "discardStack" and discards_left > 0:
-			artifact["m"] = int(artifact.get("m", 0)) + discards_left
-			if not reward_fx.has("discardStack"):
-				reward_fx.append("discardStack")
+	var rewards: Dictionary = artifact_sys.victory()
+	var arti_pay: int = rewards["rows"].get("arti", 0)
+	var fate_pay: int = rewards["rows"].get("fate", 0)
+	var walk_coin_bonus: int = rewards["rows"].get("walk", 0)
+	var reward_fx: Array = rewards["fx"]
 	if is_boss() and chaos.has(null):
 		chaos[chaos.find(null)] = {"kind": "crystal"}
 		msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
-	var total_gain = base_reward + walk_reward + interest + arti_pay + fate_pay + walk_coin_bonus
+	var total_gain = base_reward + walk_reward + interest + int(rewards["total"])
 	coins += total_gain
 	if not reward_fx.is_empty():
 		# The artifact row is hidden behind the reward panel, so show it paying out first.

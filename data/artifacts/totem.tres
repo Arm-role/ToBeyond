@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/rule_effect.gd" id="1_fa401"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_q1ct3"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/totem.svg" id="3_i1c05"]
+
+[sub_resource type="Resource" id="Resource_rr7nc"]
+script = ExtResource("1_fa401")
+rule = &"totem"
+
+[resource]
+script = ExtResource("2_q1ct3")
+id = "totem"
+name = "โทเท็ม"
+icon = "🗿"
+desc = "วางโบนัสโทเท็มบนช่อง"
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+rarity = "uncommon"
+draft_name = "โทเท็ม"
+draft_desc = "ปัก Totem ลงช่องสุ่ม 1 ช่องต่อการ์ด (สุ่มช่องใหม่ทุกรอบเดิน) · ลูกไฟเดินถึงช่องนั้น ได้ ATK ตามเลขช่อง ยิ่งเลขน้อยยิ่งได้มาก
+ช่อง 1 = +60 … ช่อง 8 = +20 · ดูค่าได้ใต้ช่องที่มี 🗿"
+texture = ExtResource("3_i1c05")
+catalog_order = 28
+effects = Array[Resource]([SubResource("Resource_rr7nc")])

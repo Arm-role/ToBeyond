@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/west5_effect.gd" id="1_r1nt6"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_ms0nf"]
+
+[sub_resource type="Resource" id="Resource_4wg33"]
+script = ExtResource("1_r1nt6")
+
+[resource]
+script = ExtResource("2_ms0nf")
+id = "west5"
+name = "แนวตะวันตก"
+icon = "W+"
+desc = "โบนัสแนวตะวันตก"
+color = Color(0.18431373, 0.49803922, 0.8392157, 1)
+rarity = "rare"
+draft_name = "แนวตะวันตก"
+draft_desc = "ถ้ามีช่องทิศตะวันตก (W) เรียงติดกันตั้งแต่ 5 ช่อง: ทุกครั้งที่เดินตกช่องที่วาง Gem ทิศตะวันตก ตัวคูณ + ATK ที่ Gem ใบนั้นได้จากสูตร Stone · ยิ่งอัปเกรด Stone ยิ่งแรง · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง W แค่ 2 ช่อง)"
+emblem_dir = "W"
+catalog_order = 14
+order = 50
+effects = Array[Resource]([SubResource("Resource_4wg33")])

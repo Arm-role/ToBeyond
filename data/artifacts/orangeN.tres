@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/orange_n_effect.gd" id="1_7a0gk"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_i5uha"]
+
+[sub_resource type="Resource" id="Resource_sm4nx"]
+script = ExtResource("1_7a0gk")
+
+[resource]
+script = ExtResource("2_i5uha")
+id = "orangeN"
+name = "ส้มแจก Chaos"
+icon = "N"
+desc = "Gem ส้มให้ Chaos"
+color = Color(0.9411765, 0.5411765, 0.14117648, 1)
+rarity = "uncommon"
+draft_name = "ส้มแจก Chaos"
+draft_desc = "ตอนเดิน ถ้ามีสูตรที่การ์ดสีส้มทิศ N วางบนช่องทิศ N ครบทั้ง 2 ช่อง: ได้การ์ด Chaos สุ่ม 1 ใบต่อสูตร (ช่อง Chaos เต็มจะไม่ได้)"
+emblem_dir = "N"
+catalog_order = 29
+effects = Array[Resource]([SubResource("Resource_sm4nx")])

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="1_4to84"]
+
+[resource]
+script = ExtResource("1_4to84")
+id = "lshape"
+name = "สูตรตัว L"
+icon = "L"
+desc = "สูตรตัว L"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+price = 8
+rarity = ""
+draft_name = "สูตรตัว L"
+draft_desc = "ทุกสูตรเรียงเป็นตัว L (หักมุม) ได้"
+in_draft_pool = false
+catalog_order = 37

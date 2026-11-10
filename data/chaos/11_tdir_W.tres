@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_h3if7"]
+
+[resource]
+script = ExtResource("1_h3if7")
+kind = "tdir"
+dir = "W"
+name = "Chaos ทิศช่องตะวันตก"
+icon = "🧭"
+price = 4
+color = Color(0.21960784, 0.76862746, 0.72156864, 1)
+catalog_order = 11

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/counter_effect.gd" id="1_ktslr"]
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="2_5gmmd"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="3_hxyg5"]
+
+[sub_resource type="Resource" id="Resource_b76wf"]
+script = ExtResource("1_ktslr")
+hook = "pre_walk"
+amount = 3.0
+source = "matching_cards"
+dir = "W"
+color = "blue"
+
+[sub_resource type="Resource" id="Resource_fno14"]
+script = ExtResource("2_5gmmd")
+source = "counter"
+
+[resource]
+script = ExtResource("3_hxyg5")
+id = "stone7W"
+name = "พลังตะวันตก"
+icon = "W+0"
+desc = "โบนัส Stone ตะวันตก"
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+rarity = "uncommon"
+draft_name = "พลังตะวันตก"
+emblem_dir = "W"
+catalog_order = 33
+effects = Array[Resource]([SubResource("Resource_b76wf"), SubResource("Resource_fno14")])

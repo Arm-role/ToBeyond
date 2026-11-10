@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="1_22ybe"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_e0qxd"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/chaosAtk.svg" id="3_bhkwy"]
+
+[sub_resource type="Resource" id="Resource_3xnq1"]
+script = ExtResource("1_22ybe")
+amount = 10.0
+source = "chaos_held"
+skip_if_zero = true
+
+[resource]
+script = ExtResource("2_e0qxd")
+id = "chaosAtk"
+name = "คลัง Chaos"
+icon = "+10"
+desc = "ATK +10 ต่อ Chaos ที่ถือ"
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+draft_name = "คลัง Chaos"
+draft_desc = "ตอนโจมตี: ATK +10 ต่อการ์ดที่อยู่ในช่อง Chaos"
+texture = ExtResource("3_bhkwy")
+catalog_order = 20
+effects = Array[Resource]([SubResource("Resource_3xnq1")])

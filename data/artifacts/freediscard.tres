@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/rule_effect.gd" id="1_76mhq"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_cbt4x"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/freediscard.svg" id="3_xl13k"]
+
+[sub_resource type="Resource" id="Resource_h0u0i"]
+script = ExtResource("1_76mhq")
+rule = &"free_discard"
+
+[resource]
+script = ExtResource("2_cbt4x")
+id = "freediscard"
+name = "Wild Shuffle"
+icon = "♻️"
+desc = "ทิ้งการ์ดได้แม้มี Gem วางอยู่บนกระดาน"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+price = 8
+rarity = "uncommon"
+draft_name = "ทิ้งไพ่ฟรี"
+draft_desc = "ทิ้ง Gem ได้แม้วางการ์ดบนกระดานไปแล้ว · ทิ้งแล้วจั่วเต็มมือ · ข้อเสีย: จำนวนครั้งที่ทิ้งได้ต่อด่าน -1 ตราบที่ถือการ์ดนี้"
+texture = ExtResource("3_xl13k")
+catalog_order = 7
+effects = Array[Resource]([SubResource("Resource_h0u0i")])

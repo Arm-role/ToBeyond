@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/south5_effect.gd" id="1_1xsj8"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_jemng"]
+
+[sub_resource type="Resource" id="Resource_ym6p2"]
+script = ExtResource("1_1xsj8")
+
+[resource]
+script = ExtResource("2_jemng")
+id = "south5"
+name = "แนวใต้"
+icon = "S"
+desc = "โบนัสแนวใต้"
+color = Color(0.8392157, 0.22745098, 0.22745098, 1)
+rarity = "rare"
+draft_name = "แนวใต้"
+draft_desc = "ถ้ามีช่องทิศใต้ (S) เรียงติดกันตั้งแต่ 5 ช่อง: ตอนเดินถึงช่องสุดท้าย ก่อน Artifact ใบอื่นทำงาน รวมผล ATK × ตัวคูณ ตอนนั้นมาเป็น ATK แล้วตัวคูณกลับเป็น 1 จากนั้น Artifact ใบอื่นจึงทำงานต่อ (ทำงานก่อนเสมอ ไม่ขึ้นกับตำแหน่ง) · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง S แค่ 2 ช่อง)"
+emblem_dir = "S"
+catalog_order = 15
+effects = Array[Resource]([SubResource("Resource_ym6p2")])

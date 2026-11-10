@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="1_d15em"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_vkf5y"]
+
+[sub_resource type="Resource" id="Resource_2gxtg"]
+script = ExtResource("1_d15em")
+hook = "land"
+stat = "mult"
+amount = 3.0
+card_dir = "S"
+
+[resource]
+script = ExtResource("2_vkf5y")
+id = "dirSHit"
+name = "คูณทิศใต้"
+icon = "↓+3"
+desc = "โบนัสโจมตีทิศใต้"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+draft_name = "คูณทิศใต้"
+draft_desc = "เดินไปตกช่องที่วาง Gem ทิศใต้ (ทิศของการ์ด): ตัวคูณ +3"
+emblem_dir = "S"
+catalog_order = 24
+order = 60
+effects = Array[Resource]([SubResource("Resource_2gxtg")])

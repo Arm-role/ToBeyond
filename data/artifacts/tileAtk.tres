@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="1_ppmhn"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_6ycs4"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/tileAtk.svg" id="3_o7ud3"]
+
+[sub_resource type="Resource" id="Resource_44jbn"]
+script = ExtResource("1_ppmhn")
+op = "mul_linear"
+amount = 0.5
+source = "special_tiles"
+
+[resource]
+script = ExtResource("2_6ycs4")
+id = "tileAtk"
+name = "พลังช่องพิเศษ"
+icon = "✴"
+desc = "เพิ่มพลังตามช่องพิเศษ"
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+rarity = "uncommon"
+draft_name = "พลังช่องพิเศษ"
+draft_desc = "ตอนโจมตี: ATK คูณเพิ่มตามจำนวนช่องบนกระดานที่มี Chaos ช่อง (⚡+5, ×1.2 ตัวคูณ, ×1.2 ATK) วางอยู่
+• 0 ช่อง = ×1
+• 1 ช่อง = ×1.5
+• 2 ช่อง = ×2
+• เพิ่มขึ้น ×0.5 ทุกช่อง
+ช่องเดียวมี Chaos หลายอัน นับเป็น 1 ช่อง"
+texture = ExtResource("3_o7ud3")
+catalog_order = 11
+effects = Array[Resource]([SubResource("Resource_44jbn")])

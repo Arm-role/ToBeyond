@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/rule_effect.gd" id="1_sd5r2"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="2_d6u35"]
+[ext_resource type="Texture2D" path="res://assets/artifacts/helperOdd.svg" id="3_x3abi"]
+
+[sub_resource type="Resource" id="Resource_yf0vu"]
+script = ExtResource("1_sd5r2")
+rule = &"helper_odd"
+
+[resource]
+script = ExtResource("2_d6u35")
+id = "helperOdd"
+name = "ผู้ช่วยเลขคี่"
+icon = "คี่"
+desc = "ผู้ช่วยช่องคี่"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+rarity = "uncommon"
+draft_name = "ผู้ช่วยเลขคี่"
+draft_desc = "ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคี่ (1, 3, 5, 7) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ"
+texture = ExtResource("3_x3abi")
+catalog_order = 30
+effects = Array[Resource]([SubResource("Resource_yf0vu")])

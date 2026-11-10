@@ -13,163 +13,44 @@ const OFFER_ARTIFACTS: int = 2
 const OFFER_MISC: int = 5
 # These entries are deliberately disabled in the HTML draft itself: its
 # one-row board cannot support the required route/board mechanics yet.
-const DRAFT_DISABLED_ARTIFACTS: Array[String] = ["fatePay", "helperC", "helperR", "lshape", "moneybox"]
-const ARTIFACT_RARITY: Dictionary = {
-	"add5": "common", "mult2": "common", "atk15": "common",
-	"dirNHit": "common", "dirEHit": "common", "dirSHit": "common", "dirWHit": "common",
-	"artiPay": "common", "greenCoin": "common", "isoGem": "common", "firstGem": "common",
-	"emptyAtk": "common", "chaosStack": "common", "discardStack": "common",
-	"walkCoin": "common", "chaosAtk": "common",
-	"stone3": "uncommon", "tileAtk": "uncommon", "fullSell": "uncommon",
-	"stoneUp": "uncommon", "freediscard": "uncommon", "redS": "uncommon",
-	"stone7W": "uncommon", "stone7E": "uncommon", "orangeN": "uncommon",
-	"equalG": "uncommon", "totem": "uncommon", "helperOdd": "uncommon", "helperEven": "uncommon",
-	"north5": "rare", "eastG": "rare", "west5": "rare", "south5": "rare",
-	"reverse": "rare"
-}
-
-const ARTIFACT_CATALOG: Array[Dictionary] = [
-	{"type": "add5",        "name": "Gem Blade",       "icon": "⚔️", "desc": "+10 ATK เพิ่มเติมเมื่อยิงโจมตี",          "color": Color("#2f7fd6"), "price": 5},
-	{"type": "mult2",       "name": "Rune Lens",        "icon": "🔮", "desc": "ตัวคูณ +5 ก่อนคิดดาเมจสุดท้าย",          "color": Color("#d63a3a"), "price": 6},
-	{"type": "reverse",     "name": "Mirror Walk",      "icon": "↩️", "desc": "ลูกไฟเดินย้อนกลับและทำผลของแต่ละช่องซ้ำ",   "color": Color("#a66cf2"), "price": 6},
-	{"type": "emptyAtk",    "name": "Empty Fist",       "icon": "👊", "desc": "+2 ATK ต่อช่องกระดานที่ว่างเปล่า",       "color": Color("#a66cf2"), "price": 6},
-	{"type": "firstGem",    "name": "First Strike",     "icon": "🥇", "desc": "Gem ใบแรกที่ลูกไฟถึงได้รับโบนัสพลังตามกลุ่ม",  "color": Color("#f08a24"), "price": 6},
-	{"type": "walkCoin",    "name": "Gold Step",        "icon": "👟", "desc": "รับ 🪙 1 เหรียญต่อรอบเดินที่เหลือเมื่อชนะ", "color": Color("#f08a24"), "price": 6},
-	{"type": "stoneUp",     "name": "Stone Carver",     "icon": "🪨", "desc": "ตัวคูณเริ่ม ×1 และเพิ่มตามการอัปเกรด Stone",  "color": Color("#a66cf2"), "price": 6, "m": 1.0},
-	{"type": "freediscard", "name": "Wild Shuffle",     "icon": "♻️", "desc": "ทิ้งการ์ดได้แม้มี Gem วางอยู่บนกระดาน",   "color": Color("#2e9e5b"), "price": 8},
-	{"type": "atk15",       "name": "Power Core",       "icon": "⚡", "desc": "ATK รวมทั้งหมด ×1.5",                    "color": Color("#2f7fd6"), "price": 6},
-	{"type": "greenCoin",   "name": "Coin Hoard",       "icon": "🪙", "desc": "ตก Gem สีเขียวมีโอกาส 1/3 ได้ 1🪙",            "color": Color("#2e9e5b"), "price": 6},
-	{"type":"stone3", "name":"โบนัสกลุ่มสี", "icon":"💠", "desc":"โบนัส Stone กลุ่มสี", "color":Color("#2f7fd6"), "price":6},
-	{"type":"tileAtk", "name":"พลังช่องพิเศษ", "icon":"✴", "desc":"เพิ่มพลังตามช่องพิเศษ", "color":Color("#a66cf2"), "price":6},
-	{"type":"north5", "name":"แนวเหนือ", "icon":"N5", "desc":"โบนัสเมื่อทิศเหนือเรียงกัน", "color":Color("#f08a24"), "price":6},
-	{"type":"eastG", "name":"แนวตะวันออก", "icon":"E×2", "desc":"โบนัสแนวตะวันออก", "color":Color("#2e9e5b"), "price":6},
-	{"type":"west5", "name":"แนวตะวันตก", "icon":"W+", "desc":"โบนัสแนวตะวันตก", "color":Color("#2f7fd6"), "price":6},
-	{"type":"south5", "name":"แนวใต้", "icon":"S", "desc":"โบนัสแนวใต้", "color":Color("#d63a3a"), "price":6},
-	{"type":"equalG", "name":"ยกระดับกลุ่ม", "icon":"=", "desc":"กลุ่ม Stone ต่ำสุดเท่ากลุ่มสูงสุด", "color":Color("#2f7fd6"), "price":6},
-	{"type":"isoGem", "name":"โดดเดี่ยว", "icon":"M+", "desc":"โบนัสเมื่อ Gem อยู่โดดเดี่ยว", "color":Color("#2f7fd6"), "price":6},
-	{"type":"chaosStack", "name":"สะสม Chaos", "icon":"+0", "desc":"ใช้ Chaos แล้ว ATK +2 ถาวร", "color":Color("#a66cf2"), "price":6, "m":0},
-	{"type":"discardStack", "name":"เก็บไพ่ทิ้ง", "icon":"+0", "desc":"ชนะแล้วเพิ่มตัวคูณตามการทิ้ง", "color":Color("#d63a3a"), "price":6, "m":0},
-	{"type":"chaosAtk", "name":"คลัง Chaos", "icon":"+10", "desc":"ATK +10 ต่อ Chaos ที่ถือ", "color":Color("#a66cf2"), "price":6},
-	{"type":"fullSell", "name":"ขายเต็มราคา", "icon":"💰", "desc":"ขาย Artifact และ Chaos ได้เต็มราคา", "color":Color("#f08a24"), "price":6},
-	{"type":"dirNHit", "name":"คูณทิศเหนือ", "icon":"↑+3", "desc":"โบนัสโจมตีทิศเหนือ", "color":Color("#2e9e5b"), "price":6},
-	{"type":"dirEHit", "name":"คูณทิศตะวันออก", "icon":"→+3", "desc":"โบนัสโจมตีทิศตะวันออก", "color":Color("#2e9e5b"), "price":6},
-	{"type":"dirSHit", "name":"คูณทิศใต้", "icon":"↓+3", "desc":"โบนัสโจมตีทิศใต้", "color":Color("#2e9e5b"), "price":6},
-	{"type":"dirWHit", "name":"คูณทิศตะวันตก", "icon":"←+3", "desc":"โบนัสโจมตีทิศตะวันตก", "color":Color("#2e9e5b"), "price":6},
-	{"type":"artiPay", "name":"รายได้ Artifact", "icon":"🏺", "desc":"ชนะแล้วรับรายได้ตาม Artifact", "color":Color("#f08a24"), "price":6},
-	{"type":"fatePay", "name":"รายได้ Gem", "icon":"🎴", "desc":"รายได้จาก Gem", "color":Color("#f08a24"), "price":6},
-	{"type":"totem", "name":"โทเท็ม", "icon":"🗿", "desc":"วางโบนัสโทเท็มบนช่อง", "color":Color("#a66cf2"), "price":6},
-	{"type":"orangeN", "name":"ส้มแจก Chaos", "icon":"N", "desc":"Gem ส้มให้ Chaos", "color":Color("#f08a24"), "price":6},
-	{"type":"helperOdd", "name":"ผู้ช่วยเลขคี่", "icon":"คี่", "desc":"ผู้ช่วยช่องคี่", "color":Color("#2e9e5b"), "price":6},
-	{"type":"helperEven", "name":"ผู้ช่วยเลขคู่", "icon":"คู่", "desc":"ผู้ช่วยช่องคู่", "color":Color("#2f7fd6"), "price":6},
-	{"type":"redS", "name":"คูณแดงใต้", "icon":"S×1", "desc":"โบนัสแดงใต้", "color":Color("#d63a3a"), "price":6},
-	{"type":"stone7W", "name":"พลังตะวันตก", "icon":"W+0", "desc":"โบนัส Stone ตะวันตก", "color":Color("#a66cf2"), "price":6},
-	{"type":"stone7E", "name":"คูณตะวันออก", "icon":"E+0", "desc":"โบนัส Stone ตะวันออก", "color":Color("#2e9e5b"), "price":6},
-	{"type":"helperC", "name":"ผู้ช่วยมุม", "icon":"🔷", "desc":"ผู้ช่วยมุม", "color":Color("#2e9e5b"), "price":6},
-	{"type":"helperR", "name":"ผู้ช่วยย้อนกลับ", "icon":"⏪", "desc":"ผู้ช่วยย้อนกลับ", "color":Color("#2e9e5b"), "price":6},
-	{"type":"lshape", "name":"สูตรตัว L", "icon":"L", "desc":"สูตรตัว L", "color":Color("#2e9e5b"), "price":8},
-	{"type":"moneybox", "name":"กล่องเงิน", "icon":"💰", "desc":"กล่องเงินบนกระดาน", "color":Color("#2e9e5b"), "price":8},
-]
-
-const CHAOS_CATALOG: Array[Dictionary] = [
-	{"kind":"color", "col":"red", "name":"Chaos เปลี่ยนสีแดง", "icon":"🎨", "price":5, "color":Color("#d63a3a")},
-	{"kind":"color", "col":"green", "name":"Chaos เปลี่ยนสีเขียว", "icon":"🎨", "price":5, "color":Color("#2e9e5b")},
-	{"kind":"color", "col":"orange", "name":"Chaos เปลี่ยนสีส้ม", "icon":"🎨", "price":5, "color":Color("#f08a24")},
-	{"kind":"color", "col":"blue", "name":"Chaos เปลี่ยนสีน้ำเงิน", "icon":"🎨", "price":5, "color":Color("#2f7fd6")},
-	{"kind":"dirc", "dir":"N", "name":"Chaos เปลี่ยนทิศเหนือ", "icon":"🧭", "price":4, "color":Color("#a66cf2")},
-	{"kind":"dirc", "dir":"E", "name":"Chaos เปลี่ยนทิศตะวันออก", "icon":"🧭", "price":4, "color":Color("#a66cf2")},
-	{"kind":"dirc", "dir":"S", "name":"Chaos เปลี่ยนทิศใต้", "icon":"🧭", "price":4, "color":Color("#a66cf2")},
-	{"kind":"dirc", "dir":"W", "name":"Chaos เปลี่ยนทิศตะวันตก", "icon":"🧭", "price":4, "color":Color("#a66cf2")},
-	{"kind":"tdir", "dir":"N", "name":"Chaos ทิศช่องเหนือ", "icon":"🧭", "price":4, "color":Color("#38c4b8")},
-	{"kind":"tdir", "dir":"E", "name":"Chaos ทิศช่องตะวันออก", "icon":"🧭", "price":4, "color":Color("#38c4b8")},
-	{"kind":"tdir", "dir":"S", "name":"Chaos ทิศช่องใต้", "icon":"🧭", "price":4, "color":Color("#38c4b8")},
-	{"kind":"tdir", "dir":"W", "name":"Chaos ทิศช่องตะวันตก", "icon":"🧭", "price":4, "color":Color("#38c4b8")},
-	{"kind":"mtile", "name":"Chaos MULT +5", "icon":"⚡", "price":5, "color":Color("#a66cf2")},
-	{"kind":"xmult", "name":"Chaos MULT ×1.2", "icon":"×", "price":6, "color":Color("#a66cf2")},
-	{"kind":"xatk", "name":"Chaos ATK ×1.2", "icon":"✴", "price":6, "color":Color("#a66cf2")},
-	{"kind":"goldify", "name":"Chaos Gem ทอง", "icon":"✨", "price":6, "color":Color("#f2b63c")},
-	{"kind":"destroy", "name":"Chaos ทำลาย Gem", "icon":"💥", "price":5, "color":Color("#e0605e")},
-	{"kind":"crystal", "name":"ผลึก Gem", "icon":"💎", "price":6, "color":Color("#72d8ff")},
-]
+## Artifact and Chaos definitions live in res://data (ArtifactData / ChaosData,
+## loaded by ArtifactSystem). These views keep the Dictionary shapes the shop
+## and UI code use.
+static var ARTIFACT_CATALOG: Array[Dictionary] = _build_catalog()
+static var ARTIFACT_RARITY: Dictionary = _build_rarity()
+static var CHAOS_CATALOG: Array[Dictionary] = _build_chaos()
 
 
-## Display names / descriptions copied from To_Beyond_Draft.html (ITEM_NAME / itemDesc).
-const DRAFT_NAMES: Dictionary = {
-	"isoGem": "โดดเดี่ยว",
-	"firstGem": "ก้าวแรก",
-	"emptyAtk": "พลังช่องว่าง",
-	"chaosStack": "สะสม Chaos",
-	"discardStack": "เก็บไพ่ทิ้ง",
-	"walkCoin": "เดินประหยัด",
-	"chaosAtk": "คลัง Chaos",
-	"helperOdd": "ผู้ช่วยเลขคี่",
-	"helperEven": "ผู้ช่วยเลขคู่",
-	"equalG": "ยกระดับกลุ่ม",
-	"reverse": "Reverse",
-	"greenCoin": "เขียวนำโชค",
-	"south5": "แนวใต้",
-	"west5": "แนวตะวันตก",
-	"fullSell": "ขายเต็มราคา",
-	"eastG": "แนวตะวันออก",
-	"north5": "แนวเหนือ",
-	"tileAtk": "พลังช่องพิเศษ",
-	"helperC": "ผู้ช่วยมุม",
-	"artiPay": "รายได้ Artifact",
-	"fatePay": "รายได้ Gem",
-	"add5": "พลังโจมตี +10",
-	"mult2": "ตัวคูณ +5",
-	"redS": "คูณแดงใต้",
-	"stoneUp": "คูณอัปเกรด",
-	"stone7W": "พลังตะวันตก",
-	"stone7E": "คูณตะวันออก",
-	"totem": "โทเท็ม",
-	"stone3": "โบนัสกลุ่มสี",
-	"atk15": "พลังโจมตี ×1.5",
-	"orangeN": "ส้มแจก Chaos",
-	"helperR": "ผู้ช่วยย้อนกลับ",
-	"lshape": "สูตรตัว L",
-	"moneybox": "กล่องเงิน",
-	"freediscard": "ทิ้งไพ่ฟรี"
-}
+static func _build_catalog() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for d in ArtifactSystem.all():
+		out.append(d.make_instance())
+	return out
 
-const DRAFT_DESCS: Dictionary = {
-	"add5": "ตอนโจมตี: ATK +10",
-	"mult2": "ตอนโจมตี: ตัวคูณ +5",
-	"atk15": "ตอนโจมตี: ATK × 1.5",
-	"fullSell": "ขาย Artifact และ Chaos ได้เต็มราคาที่ซื้อ (ปกติ Artifact ได้ 1/3, Chaos ได้ 🪙1) · ใบนี้ขายเองก็ได้เต็มราคา",
-	"isoGem": "ทุกครั้งที่เดินตกช่อง Gem ที่ทั้งสองข้างเป็นช่องว่าง (ไม่มี Gem · ขอบกระดานนับเป็นช่องว่าง): ตัวคูณ + ATK ของกลุ่ม (สูตร Stone) ของใบนั้น",
-	"firstGem": "Gem ใบแรกที่ลูกไฟเดินถึงในแต่ละรอบ: ATK ของใบนั้นกลายเป็นผลบวกไล่ลงถึง 1 เช่น ATK 5 → 5+4+3+2+1 = 15",
-	"emptyAtk": "ตอนโจมตี: ATK +2 ต่อช่องว่างบนกระดาน (ช่องที่ไม่มี Gem)",
-	"walkCoin": "ตอนชนะศัตรู: ได้เหรียญเพิ่ม +1 ต่อครั้งที่ยังรับการโจมตีได้ (เลือดที่เหลือ)",
-	"chaosAtk": "ตอนโจมตี: ATK +10 ต่อการ์ดที่อยู่ในช่อง Chaos",
-	"equalG": "กลุ่ม Stone ที่ได้ ATK น้อยที่สุดบนกระดาน จะได้ ATK เท่ากับกลุ่มที่ได้มากที่สุด (ต้องมีอย่างน้อย 2 กลุ่ม)",
-	"reverse": "เมื่อลูกไฟเดินถึงช่องสุดท้าย จะเดินย้อนกลับไปช่องเริ่มต้น และเก็บ ATK / ทำให้ Artifact ทำงานซ้ำทุกช่องที่ผ่านขากลับ",
-	"greenCoin": "ทุกครั้งที่เดินตกช่องที่วาง Gem สีเขียว: มีโอกาส 1 ใน 3 ได้ 🪙 1 เหรียญทันที",
-	"south5": "ถ้ามีช่องทิศใต้ (S) เรียงติดกันตั้งแต่ 5 ช่อง: ตอนเดินถึงช่องสุดท้าย ก่อน Artifact ใบอื่นทำงาน รวมผล ATK × ตัวคูณ ตอนนั้นมาเป็น ATK แล้วตัวคูณกลับเป็น 1 จากนั้น Artifact ใบอื่นจึงทำงานต่อ (ทำงานก่อนเสมอ ไม่ขึ้นกับตำแหน่ง) · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง S แค่ 2 ช่อง)",
-	"west5": "ถ้ามีช่องทิศตะวันตก (W) เรียงติดกันตั้งแต่ 5 ช่อง: ทุกครั้งที่เดินตกช่องที่วาง Gem ทิศตะวันตก ตัวคูณ + ATK ที่ Gem ใบนั้นได้จากสูตร Stone · ยิ่งอัปเกรด Stone ยิ่งแรง · ใช้ Chaos เปลี่ยนทิศช่องเพื่อสร้างแนว (ปกติมีช่อง W แค่ 2 ช่อง)",
-	"tileAtk": "ตอนโจมตี: ATK คูณเพิ่มตามจำนวนช่องบนกระดานที่มี Chaos ช่อง (⚡+5, ×1.2 ตัวคูณ, ×1.2 ATK) วางอยู่\n• 0 ช่อง = ×1\n• 1 ช่อง = ×1.5\n• 2 ช่อง = ×2\n• เพิ่มขึ้น ×0.5 ทุกช่อง\nช่องเดียวมี Chaos หลายอัน นับเป็น 1 ช่อง",
-	"stone3": "ตอนโจมตี: ATK +40 ต่อ 1 กลุ่มสี\nกลุ่มสี = Gem สีเดียวกันวางติดกันตั้งแต่ 2 ใบขึ้นไป (แถบสีใต้ช่อง)\nเช่น แดงติดกัน 3 ใบ + น้ำเงินติดกัน 2 ใบ = 2 กลุ่ม = ATK +80\nกลุ่มสูตรทิศ (แถบม่วง) ไม่นับ",
-	"artiPay": "ตอนจบด่าน (เมื่อฆ่าศัตรูได้) ได้ 1 เหรียญต่อ Artifact ที่ถืออยู่ (นับรวมใบนี้)",
-	"fatePay": "ตอนจบด่าน (เมื่อฆ่าศัตรูได้) ได้ 1 เหรียญต่อ Gem ทุก 10 ใบในสำรับ",
-	"freediscard": "ทิ้ง Gem ได้แม้วางการ์ดบนกระดานไปแล้ว · ทิ้งแล้วจั่วเต็มมือ · ข้อเสีย: จำนวนครั้งที่ทิ้งได้ต่อด่าน -1 ตราบที่ถือการ์ดนี้",
-	"totem": "ปัก Totem ลงช่องสุ่ม 1 ช่องต่อการ์ด (สุ่มช่องใหม่ทุกรอบเดิน) · ลูกไฟเดินถึงช่องนั้น ได้ ATK ตามเลขช่อง ยิ่งเลขน้อยยิ่งได้มาก\nช่อง 1 = +60 … ช่อง 8 = +20 · ดูค่าได้ใต้ช่องที่มี 🗿",
-	"orangeN": "ตอนเดิน ถ้ามีสูตรที่การ์ดสีส้มทิศ N วางบนช่องทิศ N ครบทั้ง 2 ช่อง: ได้การ์ด Chaos สุ่ม 1 ใบต่อสูตร (ช่อง Chaos เต็มจะไม่ได้)",
-	"helperC": "ผู้ช่วยที่เดินเฉพาะช่องมุม",
-	"helperOdd": "ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคี่ (1, 3, 5, 7) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ",
-	"helperEven": "ทุกครั้งที่เดิน: ดาวผู้ช่วย (สีฟ้า) วิ่งก่อนลูกไฟเสมอ แวะเฉพาะช่องเลขคู่ (2, 4, 6, 8) ที่มี Gem / ผลึก / Totem ได้ ATK และทำให้ Artifact, Chaos บนช่อง, ผลึก, Totem ทำงานเหมือนลูกไฟ · มีหลายใบ = วิ่งหลายรอบ",
-	"helperR": "ผู้ช่วยที่เดินย้อนกลับเฉพาะช่องเลขคู่",
-	"lshape": "ทุกสูตรเรียงเป็นตัว L (หักมุม) ได้",
-	"moneybox": "ทุกครั้งที่เริ่มศัตรูใหม่ เกิดกล่องเงินที่ช่องว่างแบบสุ่ม 1 กล่องต่อการ์ด"
-}
+
+static func _build_rarity() -> Dictionary:
+	var out := {}
+	for d in ArtifactSystem.all():
+		if d.rarity != "":
+			out[d.id] = d.rarity
+	return out
+
+
+static func _build_chaos() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for c in ArtifactSystem.chaos_all():
+		out.append(c.make_offer())
+	return out
+
 
 const DIR_TH: Dictionary = {"N": "เหนือ", "E": "ตะวันออก", "S": "ใต้", "W": "ตะวันตก"}
 
 
 static func display_name(item: Dictionary) -> String:
 	var t: String = item.get("type", "")
-	if DRAFT_NAMES.has(t):
-		return DRAFT_NAMES[t]
-	if t.begins_with("dir") and t.ends_with("Hit"):
-		return "คูณทิศ" + DIR_TH.get(t.substr(3, 1), "")
+	var d := ArtifactSystem.get_def(t)
+	if d != null and d.draft_name != "":
+		return d.draft_name
 	return item.get("name", t)
 
 
@@ -209,10 +90,9 @@ static func display_desc(item: Dictionary) -> String:
 			var n2: int = dc.call("N")
 			var e: float = 2.0 if n2 >= 8 else 1.0 + 0.12 * n2
 			return "ตอนโจมตี: ตัวคูณยกกำลัง (1 + 0.12 ต่อช่องทิศ N บนกระดาน) · ตอนนี้ ^%s · ทั้งกระดานเป็นทิศ N (8 ช่อง) ได้โบนัสเป็นยกกำลัง 2 พอดี" % _r2(e)
-	if DRAFT_DESCS.has(t):
-		return DRAFT_DESCS[t]
-	if t.begins_with("dir") and t.ends_with("Hit"):
-		return "เดินไปตกช่องที่วาง Gem ทิศ%s (ทิศของการ์ด): ตัวคูณ +3" % DIR_TH.get(t.substr(3, 1), "")
+	var def := ArtifactSystem.get_def(t)
+	if def != null and def.draft_desc != "":
+		return def.draft_desc
 	return item.get("desc", "")
 
 
@@ -266,22 +146,12 @@ static func chaos_desc(c: Dictionary) -> String:
 
 ## Cover art like the draft's itemCover(): SVG art, else the direction emblem.
 func art_cover(item: Dictionary) -> Texture2D:
-	var t: String = item.get("type", "")
-	var tex: Texture2D = _main.ART_TEX.get(t)
-	if tex != null:
-		return tex
-	var dir := ""
-	if t.begins_with("dir") and t.ends_with("Hit"):
-		dir = t.substr(3, 1)
-	elif t in ["orangeN", "north5"]:
-		dir = "N"
-	elif t in ["redS", "south5"]:
-		dir = "S"
-	elif t in ["stone7W", "west5"]:
-		dir = "W"
-	elif t in ["stone7E", "eastG"]:
-		dir = "E"
-	return _main.EMBLEMS.get(dir) if dir != "" else null
+	var d := ArtifactSystem.get_def(item.get("type", ""))
+	if d == null:
+		return null
+	if d.texture != null:
+		return d.texture
+	return _main.EMBLEMS.get(d.emblem_dir) if d.emblem_dir != "" else null
 
 
 var _main: Node
@@ -303,10 +173,11 @@ static func has_artifact(artifacts: Array, type_key: String) -> bool:
 
 
 static func is_draft_enabled(type_key: String) -> bool:
-	return not DRAFT_DISABLED_ARTIFACTS.has(type_key)
+	var d := ArtifactSystem.get_def(type_key)
+	return d != null and d.in_draft_pool
 
 func get_sell_price(artifact: Dictionary) -> int:
-	return int(artifact.get("price", 6)) if _main.has_artifact("fullSell") else int(artifact.get("price", 6) / 3.0)
+	return int(artifact.get("price", 6)) if _main.artifact_sys.has_rule(&"full_sell") else int(artifact.get("price", 6) / 3.0)
 
 static func get_stone_upgrade_cost() -> int:
 	return STONE_UPGRADE_PRICE
@@ -767,7 +638,7 @@ func get_chaos_sell_price(chaos_card: Dictionary) -> int:
 		if definition["kind"] != chaos_card.get("kind"):
 			continue
 		if definition.get("col", "") == chaos_card.get("col", "") and definition.get("dir", "") == chaos_card.get("dir", ""):
-			return int(definition["price"]) if _main.has_artifact("fullSell") else 1
+			return int(definition["price"]) if _main.artifact_sys.has_rule(&"full_sell") else 1
 	return 1
 
 
@@ -992,8 +863,7 @@ func buy_stone_upgrade(formula_idx: int, cost: int) -> void:
 	_main.stone_formulas[formula_idx]["a"] += STONE_UPGRADE_BONUSES[formula_idx]
 	_main.stone_formulas[formula_idx]["lv"] = int(_main.stone_formulas[formula_idx].get("lv", 1)) + 1
 	shop_bought.append(key)
-	if _main.has_artifact("stoneUp"):
-		_main.stone_up_multiplier = snappedf(_main.stone_up_multiplier + 0.2, 0.1)
+	_main.artifact_sys.stone_upgrade()
 	_main.update_all_ui()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
@@ -1077,7 +947,8 @@ func on_shop_leave() -> void:
 	_main.player_hp = _main.player_max_hp
 
 	# Wild Shuffle permits discarding after placement, in exchange for one use.
-	_main.discards_left = maxi(0, _main.discard_max - (1 if _main.has_artifact("freediscard") else 0))
+	_main.discards_left = maxi(0, _main.discard_max - (1 if _main.artifact_sys.has_rule(&"free_discard") else 0))
+	_main.artifact_sys.round_start()
 
 	_main.build_deck()
 	_main.hand.clear()
