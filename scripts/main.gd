@@ -12,83 +12,6 @@ const COLOR_ORDER: Array[String] = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array[String] = ["N", "E", "S", "W"]
 const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"]
 
-const COLORS = {
-	"red": Color("#d63a3a"),
-	"green": Color("#2e9e5b"),
-	"orange": Color("#f08a24"),
-	"blue": Color("#2f7fd6"),
-	"blank": Color("#555566"),
-	"empty_tile": Color("#2b2250"),
-	"brass": Color("#d3a64a"),
-	"brass_bright": Color("#f0cf86"),
-	"gold": Color("#F2B63C"),
-	"bg": Color("#1f1836"),
-	"text_dim": Color("#a79fc4"),
-	"text_bright": Color("#f3ead7")
-}
-
-var EMBLEMS = {}           # dir -> Texture2D (white)
-var EMBLEMS_GOLD = {}      # dir -> Texture2D (gold, matched)
-var CHAOS_TEX = {}         # chaos kind -> Texture2D
-var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
-var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
-var PLACED_TILE_TEX = {}   # "idx_color_dir" or "idx_blank" -> Texture2D
-var CARD_TEMPLATE_TEX: Texture2D = null
-var CRYSTAL_TEX: Texture2D = null
-var BALL_TEXTURE: Texture2D = null
-
-func init_textures() -> void:
-	if ResourceLoader.exists("res://assets/frames/card_template.svg"):
-		CARD_TEMPLATE_TEX = load("res://assets/frames/card_template.svg")
-
-	# Emblems (white & gold variants)
-	for d in ["N", "E", "S", "W"]:
-		var dl = d.to_lower()
-		var pw = "res://assets/emblems/emblem_%s.svg" % dl
-		var pg = "res://assets/emblems/emblem_%s_gold.svg" % dl
-		if ResourceLoader.exists(pw):
-			EMBLEMS[d] = load(pw)
-		if ResourceLoader.exists(pg):
-			EMBLEMS_GOLD[d] = load(pg)
-
-	# Chaos SVGs
-	var chaos_keys = ["color","mtile","goldify","crystal","destroy"]
-	for key in chaos_keys:
-		var p = "res://assets/chaos/%s.svg" % key
-		if ResourceLoader.exists(p):
-			CHAOS_TEX[key] = load(p)
-
-	# Gem frames (placed card)
-	for col in ["red","green","orange","blue","blank"]:
-		var p = "res://assets/frames/gem_frame_%s.svg" % col
-		if ResourceLoader.exists(p):
-			GEM_FRAME_TEX[col] = load(p)
-
-	# Tile empty SVGs (per slot)
-	for i in range(N_TILES):
-		var p = "res://assets/tiles/tile_empty_%d.svg" % i
-		if ResourceLoader.exists(p):
-			TILE_EMPTY_TEX[i] = load(p)
-
-	# Placed tile SVGs (exact match with To_Beyond_Draft.html syncTiles)
-	for i in range(N_TILES):
-		for col in ["red", "green", "orange", "blue"]:
-			for d in ["N", "E", "S", "W"]:
-				var p = "res://assets/tiles/placed/tile_%d_%s_%s.svg" % [i, col, d]
-				if ResourceLoader.exists(p):
-					PLACED_TILE_TEX["%d_%s_%s" % [i, col, d]] = load(p)
-		var pb = "res://assets/tiles/placed/tile_%d_blank.svg" % i
-		if ResourceLoader.exists(pb):
-			PLACED_TILE_TEX["%d_blank" % i] = load(pb)
-
-	# Crystal
-	if ResourceLoader.exists("res://assets/crystal.svg"):
-		CRYSTAL_TEX = load("res://assets/crystal.svg")
-
-	# Ball
-	if ResourceLoader.exists("res://assets/ball.svg"):
-		BALL_TEXTURE = load("res://assets/ball.svg")
-
 # --- Stone Formulas ---
 var stone_formulas: Array[Dictionary] = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
 
@@ -253,7 +176,7 @@ func _ready() -> void:
 	var bg_mat := ShaderMaterial.new()
 	bg_mat.shader = preload("res://assets/shaders/bg_drift.gdshader")
 	$Background.material = bg_mat
-	init_textures()
+	GameAssets.load_all(N_TILES)
 	setup_token_visual()
 	_setup_beams()
 	connect_ui_signals()
@@ -277,10 +200,10 @@ func setup_token_visual() -> void:
 	# Draft: ball height = tile × 0.7, aspect 98:168 → about 84×143 here.
 	token.custom_minimum_size = Vector2(84, 143)
 	token.size = Vector2(84, 143)
-	if BALL_TEXTURE != null:
+	if GameAssets.BALL_TEXTURE != null:
 		var tex_rect = TextureRect.new()
 		tex_rect.name = "BallTexture"
-		tex_rect.texture = BALL_TEXTURE
+		tex_rect.texture = GameAssets.BALL_TEXTURE
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.custom_minimum_size = Vector2(84, 143)
@@ -386,7 +309,7 @@ func _setup_action_dialog() -> void:
 	box.custom_minimum_size = Vector2(660, 0)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color("#2d2450")
-	sb.border_color = COLORS["brass"]
+	sb.border_color = GameAssets.COLORS["brass"]
 	sb.set_border_width_all(3)
 	sb.set_corner_radius_all(21)
 	sb.content_margin_left = 33.0
@@ -403,7 +326,7 @@ func _setup_action_dialog() -> void:
 	title.name = "Title"
 	title.theme_type_variation = &"BoldLabel"
 	title.add_theme_font_size_override("font_size", 33)
-	title.add_theme_color_override("font_color", COLORS["brass_bright"])
+	title.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vb.add_child(title)
 	var rar := Label.new()
@@ -415,7 +338,7 @@ func _setup_action_dialog() -> void:
 	var desc := Label.new()
 	desc.name = "Desc"
 	desc.add_theme_font_size_override("font_size", 22)
-	desc.add_theme_color_override("font_color", COLORS["text_bright"])
+	desc.add_theme_color_override("font_color", GameAssets.COLORS["text_bright"])
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vb.add_child(desc)
 	var acts := HBoxContainer.new()
@@ -432,10 +355,10 @@ func _setup_action_dialog() -> void:
 		b.custom_minimum_size = Vector2(0, 66)
 		b.add_theme_font_size_override("font_size", 22)
 		var bs := StyleBoxFlat.new()
-		bs.bg_color = COLORS["brass_bright"] if b == ok else Color("#c9c0e6")
+		bs.bg_color = GameAssets.COLORS["brass_bright"] if b == ok else Color("#c9c0e6")
 		if b == ok:
 			bs.border_width_bottom = 66
-			bs.border_color = COLORS["brass"]
+			bs.border_color = GameAssets.COLORS["brass"]
 			bs.border_blend = true
 			bs.content_margin_top = 0.0
 			bs.content_margin_bottom = 0.0
@@ -803,7 +726,7 @@ func _toggle_fullscreen() -> void:
 
 func _style_sort_button(btn: Button, active: bool) -> void:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = COLORS["brass"] if active else Color(0, 0, 0, 0)
+	sb.bg_color = GameAssets.COLORS["brass"] if active else Color(0, 0, 0, 0)
 	sb.content_margin_left = 27.0
 	sb.content_margin_right = 27.0
 	for state in ["normal", "hover", "pressed", "focus"]:
@@ -1253,11 +1176,11 @@ func refresh_calc() -> void:
 		if placed_cards.has(i) and not placed_cards[i].get("is_blank", false):
 			var val = result["grp_val"].get(i, 1)
 			lbl.text = "+%d" % val
-			var g_col = COLORS["brass"]
+			var g_col = GameAssets.COLORS["brass"]
 			for g in result["groups"]:
 				if g["idxs"].has(i):
 					if g["col"] != null:
-						g_col = COLORS.get(g["col"], COLORS["brass"])
+						g_col = GameAssets.COLORS.get(g["col"], GameAssets.COLORS["brass"])
 					else:
 						g_col = Color("#E040FB")
 					break

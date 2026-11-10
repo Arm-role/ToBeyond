@@ -151,7 +151,7 @@ func art_cover(item: Dictionary) -> Texture2D:
 		return null
 	if d.texture != null:
 		return d.texture
-	return _main.EMBLEMS.get(d.emblem_dir) if d.emblem_dir != "" else null
+	return GameAssets.EMBLEMS.get(d.emblem_dir) if d.emblem_dir != "" else null
 
 
 var _main: Node
@@ -238,26 +238,26 @@ func _update_tab_buttons() -> void:
 		var sb: StyleBox
 		if active:
 			var flat := StyleBoxFlat.new()
-			flat.bg_color = _main.COLORS["brass"]
-			flat.border_color = _main.COLORS["brass"]
+			flat.bg_color = GameAssets.COLORS["brass"]
+			flat.border_color = GameAssets.COLORS["brass"]
 			flat.set_border_width_all(3)
 			flat.set_corner_radius_all(18)
 			sb = flat
 		elif key == "game":
 			var outline := StyleBoxFlat.new()
 			outline.bg_color = Color(0, 0, 0, 0)
-			outline.border_color = _main.COLORS["brass"]
+			outline.border_color = GameAssets.COLORS["brass"]
 			outline.set_border_width_all(3)
 			outline.set_corner_radius_all(18)
 			sb = outline
 		else:
 			var dashed := DashedStyleBox.new()
-			dashed.border_color = _main.COLORS["brass"]
+			dashed.border_color = GameAssets.COLORS["brass"]
 			dashed.corner_radius = 18.0
 			sb = dashed
 		for st in ["normal", "hover", "pressed", "focus", "disabled"]:
 			button.add_theme_stylebox_override(st, sb)
-		var font_col: Color = Color("#2a2140") if active else _main.COLORS["brass_bright"]
+		var font_col: Color = Color("#2a2140") if active else GameAssets.COLORS["brass_bright"]
 		for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 			button.add_theme_color_override(c, font_col)
 		button.modulate = Color(1, 1, 1, 0.85) if (key != "game" and not active) else Color.WHITE
@@ -518,22 +518,22 @@ func _chaos_card_look(chaos_def: Dictionary) -> Dictionary:
 	var look := {"bg": Color("#a66cf2"), "text": Color.WHITE, "cover": null}
 	match kind:
 		"color":
-			look["bg"] = _main.COLORS.get(chaos_def.get("col", ""), look["bg"])
-			look["cover"] = _main.CHAOS_TEX.get("color")
+			look["bg"] = GameAssets.COLORS.get(chaos_def.get("col", ""), look["bg"])
+			look["cover"] = GameAssets.CHAOS_TEX.get("color")
 		"goldify":
 			look["bg"] = Color("#e8bf4c")
 			look["text"] = Color("#3a2a00")
-			look["cover"] = _main.CHAOS_TEX.get("goldify")
+			look["cover"] = GameAssets.CHAOS_TEX.get("goldify")
 		"destroy":
 			look["bg"] = Color("#b73e3d")
-			look["cover"] = _main.CHAOS_TEX.get("destroy")
+			look["cover"] = GameAssets.CHAOS_TEX.get("destroy")
 		"tdir":
 			look["bg"] = Color("#23978e")
-			look["cover"] = _main.EMBLEMS.get(chaos_def.get("dir", "N"))
+			look["cover"] = GameAssets.EMBLEMS.get(chaos_def.get("dir", "N"))
 		"dirc":
-			look["cover"] = _main.EMBLEMS.get(chaos_def.get("dir", "N"))
+			look["cover"] = GameAssets.EMBLEMS.get(chaos_def.get("dir", "N"))
 		"mtile", "crystal":
-			look["cover"] = _main.CHAOS_TEX.get(kind)
+			look["cover"] = GameAssets.CHAOS_TEX.get(kind)
 	return look
 
 
@@ -557,7 +557,7 @@ func _add_offer_row(label_text: String) -> HBoxContainer:
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lab.add_theme_font_size_override("font_size", 18)
-	lab.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+	lab.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 	lab.add_theme_constant_override("line_spacing", -2)
 	row.add_child(lab)
 	_main.shop_offer_container.add_child(row)
@@ -568,7 +568,7 @@ func _owned_slot(parent: Container, kind: String, filled: bool, bg: Color) -> Bu
 	var slot := Button.new()
 	slot.custom_minimum_size = Vector2(roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * 126), 126)
 	slot.clip_text = true
-	_main.ui_renderer._style_item_slot(slot, filled, bg, _main.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
+	_main.ui_renderer._style_item_slot(slot, filled, bg, GameAssets.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
 	slot.disabled = not filled
 	parent.add_child(slot)
 	return slot
@@ -693,7 +693,7 @@ func _add_section(title: String) -> void:
 	lab.theme_type_variation = &"BoldLabel"
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.add_theme_font_size_override("font_size", 18)
-	lab.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+	lab.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 	if not first:
 		var line := StyleBoxFlat.new()
 		line.bg_color = Color(0, 0, 0, 0)

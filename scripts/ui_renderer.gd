@@ -37,7 +37,7 @@ func set_card_sway(control: Control, enabled: bool = true, rot_deg: float = 1.2,
 func set_card_template(control: Control, enabled: bool = true, tint: Color = Color.WHITE) -> void:
 	var frame := control.get_node_or_null("CardTemplate") as TextureRect
 	set_card_sway(control, enabled)
-	if not enabled or _main.CARD_TEMPLATE_TEX == null:
+	if not enabled or GameAssets.CARD_TEMPLATE_TEX == null:
 		if frame != null:
 			frame.visible = false
 		return
@@ -50,7 +50,7 @@ func set_card_template(control: Control, enabled: bool = true, tint: Color = Col
 		frame.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		control.add_child(frame)
 	frame.visible = true
-	frame.texture = _main.CARD_TEMPLATE_TEX
+	frame.texture = GameAssets.CARD_TEMPLATE_TEX
 	frame.modulate = tint
 
 
@@ -142,27 +142,27 @@ func render_tiles() -> void:
 
 			if is_blank:
 				var key = "%d_blank" % art
-				if _main.PLACED_TILE_TEX.has(key):
-					tile_btn.icon = _main.PLACED_TILE_TEX[key]
-				elif _main.TILE_EMPTY_TEX.has(art):
-					tile_btn.icon = _main.TILE_EMPTY_TEX[art]
+				if GameAssets.PLACED_TILE_TEX.has(key):
+					tile_btn.icon = GameAssets.PLACED_TILE_TEX[key]
+				elif GameAssets.TILE_EMPTY_TEX.has(art):
+					tile_btn.icon = GameAssets.TILE_EMPTY_TEX[art]
 				tile_btn.modulate = Color.WHITE
 			else:
 				var c_dir = card.get("dir", "N")
 				var c_col = card.get("color", "blue")
 				var key = "%d_%s_%s" % [art, c_col, c_dir]
-				if _main.PLACED_TILE_TEX.has(key):
-					tile_btn.icon = _main.PLACED_TILE_TEX[key]
-				elif _main.TILE_EMPTY_TEX.has(art):
-					tile_btn.icon = _main.TILE_EMPTY_TEX[art]
+				if GameAssets.PLACED_TILE_TEX.has(key):
+					tile_btn.icon = GameAssets.PLACED_TILE_TEX[key]
+				elif GameAssets.TILE_EMPTY_TEX.has(art):
+					tile_btn.icon = GameAssets.TILE_EMPTY_TEX[art]
 
 				if is_gold:
 					tile_btn.modulate = Color(1.2, 1.15, 0.8)
 				else:
 					tile_btn.modulate = Color.WHITE
 		else:
-			if _main.TILE_EMPTY_TEX.has(art):
-				tile_btn.icon = _main.TILE_EMPTY_TEX[art]
+			if GameAssets.TILE_EMPTY_TEX.has(art):
+				tile_btn.icon = GameAssets.TILE_EMPTY_TEX[art]
 			tile_btn.modulate = Color.WHITE
 
 		_apply_tile_state(tile_btn, i, calc)
@@ -280,12 +280,12 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 	var glow_alpha = 0.0
 	var hint = "ช่อง %d · ทิศ %s" % [tile_idx + 1, _main.TILE_DIR[tile_idx]]
 	if can_place:
-		accent = _main.COLORS["brass_bright"]
+		accent = GameAssets.COLORS["brass_bright"]
 		width = 5
 		glow_alpha = 0.50
 		hint += " · วาง Gem ที่เลือกได้"
 	elif is_gold:
-		accent = _main.COLORS["gold"]
+		accent = GameAssets.COLORS["gold"]
 		width = 6
 		glow_alpha = 0.75
 		hint += " · Gem ทอง: ทำงานสองครั้ง"
@@ -410,11 +410,11 @@ func _group_color_for_tile(tile_idx: int, calc: Dictionary) -> Color:
 	for group in calc["groups"]:
 		if group["idxs"].has(tile_idx):
 			if group["col"] != null:
-				return GCOL.get(group["col"], _main.COLORS["brass_bright"])
+				return GCOL.get(group["col"], GameAssets.COLORS["brass_bright"])
 			if group.get("type", "") == "alt":
 				return Color("#f0cf86")
 			return Color("#E040FB")
-	return _main.COLORS["brass_bright"]
+	return GameAssets.COLORS["brass_bright"]
 
 
 func _make_gstrip_badge(group_color: Color) -> StyleBoxFlat:
@@ -492,7 +492,7 @@ func render_hand() -> void:
 		if is_blank:
 			# Draft `.tcard.blank`: light grey card with a dashed square.
 			sb.bg_color = Color("#cfcfda")
-			sb.border_color = Color("#ffd966") if is_sel else _main.COLORS["brass"]
+			sb.border_color = Color("#ffd966") if is_sel else GameAssets.COLORS["brass"]
 			btn.icon = null
 			btn.text = ""
 			var bk := Panel.new()
@@ -511,10 +511,10 @@ func render_hand() -> void:
 		else:
 			var c_col = card["color"]
 			var c_dir = card["dir"]
-			sb.bg_color = _main.COLORS.get(c_col, Color.GRAY)
-			sb.border_color = Color("#ffd966") if is_sel else _main.COLORS["brass"]
+			sb.bg_color = GameAssets.COLORS.get(c_col, Color.GRAY)
+			sb.border_color = Color("#ffd966") if is_sel else GameAssets.COLORS["brass"]
 
-			var icon_tex = _main.EMBLEMS.get(c_dir)
+			var icon_tex = GameAssets.EMBLEMS.get(c_dir)
 			if icon_tex != null:
 				btn.icon = icon_tex
 				btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -594,7 +594,7 @@ func render_artifact_row() -> void:
 		var slot = _main.artifact_row.get_child(i + 1) as Button
 		if slot == null: continue
 		var art = _main.artifacts[i]
-		_style_item_slot(slot, art != null, art.get("color", _main.COLORS["brass"]) if art != null else Color.BLACK, _main.COLORS["brass"], "art")
+		_style_item_slot(slot, art != null, art.get("color", GameAssets.COLORS["brass"]) if art != null else Color.BLACK, GameAssets.COLORS["brass"], "art")
 		_set_rarity_aura(slot, ShopManager.ARTIFACT_RARITY.get(art.get("type", ""), "") if art != null else "")
 		if art != null:
 			# Use the draft SVG cover when imported, with the text icon as a safe fallback.
@@ -653,7 +653,7 @@ func render_chaos_row() -> void:
 		if chaos_card != null:
 			chaos_bg = {"goldify": Color("#e8bf4c"), "tdir": Color("#23978e"), "destroy": Color("#b73e3d")}.get(chaos_card["kind"], chaos_bg)
 			if chaos_card["kind"] == "color":
-				chaos_bg = _main.COLORS.get(chaos_card.get("col", ""), chaos_bg)
+				chaos_bg = GameAssets.COLORS.get(chaos_card.get("col", ""), chaos_bg)
 		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#ffd966") if i == _main.selected_chaos_slot and chaos_card != null else Color("#c79bff"), "chaos")
 		if chaos_card == null:
 			slot.text = ""
@@ -682,14 +682,14 @@ func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
 	card.custom_minimum_size = size
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("#cfcfda") if col == "blank" else _main.COLORS.get(col, Color.GRAY)
-	sb.border_color = _main.COLORS["brass"]
+	sb.bg_color = Color("#cfcfda") if col == "blank" else GameAssets.COLORS.get(col, Color.GRAY)
+	sb.border_color = GameAssets.COLORS["brass"]
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(int(round(size.x * 0.18)))
 	card.add_theme_stylebox_override("panel", sb)
-	if dir != "" and _main.EMBLEMS.has(dir):
+	if dir != "" and GameAssets.EMBLEMS.has(dir):
 		var em := TextureRect.new()
-		em.texture = _main.EMBLEMS[dir]
+		em.texture = GameAssets.EMBLEMS[dir]
 		em.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		em.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		em.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -717,7 +717,7 @@ func _rich(text: String, size: int) -> RichTextLabel:
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	r.add_theme_font_size_override("normal_font_size", size)
 	r.add_theme_font_size_override("bold_font_size", size)
-	r.add_theme_color_override("default_color", _main.COLORS["text_bright"])
+	r.add_theme_color_override("default_color", GameAssets.COLORS["text_bright"])
 	r.text = text
 	return r
 
@@ -769,7 +769,7 @@ func setup_stone_modal_content() -> void:
 		h.text = "ยังไม่ค้นพบอีก %d สูตร · วางให้ได้เพื่อค้นพบ" % hidden
 		h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		h.add_theme_font_size_override("font_size", 21)
-		h.add_theme_color_override("font_color", _main.COLORS["text_dim"])
+		h.add_theme_color_override("font_color", GameAssets.COLORS["text_dim"])
 		var hs := StyleBoxFlat.new()
 		hs.bg_color = Color(1, 1, 1, 0.05)
 		hs.set_corner_radius_all(12)
@@ -791,7 +791,7 @@ func open_deck_modal() -> void:
 		var empty := Label.new()
 		empty.text = "กองหมดแล้ว"
 		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty.add_theme_color_override("font_color", _main.COLORS["text_dim"])
+		empty.add_theme_color_override("font_color", GameAssets.COLORS["text_dim"])
 		empty.add_theme_font_size_override("font_size", 21)
 		_main.deck_modal_list.add_child(empty)
 	var order: Array = _main.COLOR_ORDER + ["blank"]
@@ -810,7 +810,7 @@ func open_deck_modal() -> void:
 		head.text = "%s × %d" % [NAMES[col], cards.size()]
 		head.theme_type_variation = &"BoldLabel"
 		head.add_theme_font_size_override("font_size", 21)
-		head.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+		head.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 		grp.add_child(head)
 		var row := HFlowContainer.new()
 		row.add_theme_constant_override("h_separation", 7)
