@@ -314,6 +314,7 @@ func _setup_beams() -> void:
 
 func connect_ui_signals() -> void:
 	restart_btn.pressed.connect(start_new_game)
+	_setup_fullscreen_button()
 	speed_btn.pressed.connect(_on_speed_toggle)
 	deck_count_btn.pressed.connect(open_deck_modal)
 	deck_modal_close_btn.pressed.connect(func(): deck_modal.visible = false)
@@ -725,6 +726,52 @@ func set_sort_mode(mode: String) -> void:
 	_style_sort_button(sort_color_btn, mode == "color")
 	_style_sort_button(sort_dir_btn, mode == "dir")
 	render_hand()
+
+
+## Round fullscreen button next to Speed (web only). Browsers only allow
+## fullscreen from a tap, so it has to be a button. Hidden when the page is
+## already an installed app (PWA fullscreen/standalone) or the browser can't
+## do fullscreen (iPhone).
+func _setup_fullscreen_button() -> void:
+	if not OS.has_feature("web"):
+		return
+	var can: bool = JavaScriptBridge.eval("!!document.fullscreenEnabled && !(window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true)", true)
+	if not can:
+		return
+	var btn := Button.new()
+	btn.name = "FullscreenBtn"
+	btn.layout_mode = 1
+	btn.anchors_preset = Control.PRESET_TOP_RIGHT
+	btn.anchor_left = 1.0
+	btn.anchor_right = 1.0
+	btn.offset_left = -249.0
+	btn.offset_right = -189.0
+	btn.offset_top = 12.0
+	btn.offset_bottom = 72.0
+	btn.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	btn.tooltip_text = "เต็มจอ"
+	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var sb := restart_btn.get_theme_stylebox("normal" if st == "focus" else st)
+		if sb != null:
+			btn.add_theme_stylebox_override(st, sb)
+	if ResourceLoader.exists("res://assets/ui/fullscreen.svg"):
+		btn.icon = load("res://assets/ui/fullscreen.svg")
+		btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn.expand_icon = true
+		btn.add_theme_constant_override("icon_max_width", 33)
+	else:
+		btn.text = "เต็มจอ"
+	btn.pressed.connect(_toggle_fullscreen)
+	$TopBar.add_child(btn)
+
+
+func _toggle_fullscreen() -> void:
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	# Android: also lock to landscape (only allowed while fullscreen).
+	JavaScriptBridge.eval("try{screen.orientation.lock('landscape').catch(function(){})}catch(e){}")
 
 
 func _style_sort_button(btn: Button, active: bool) -> void:
