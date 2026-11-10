@@ -44,6 +44,7 @@ module.exports = {
     placed: { draft: setHand + `selIds=new Set(hand.map(c=>c.id));autoPlace();`, wait: 1500,
       els: Object.assign({ 'group strip': ['#gstrip > *', 'BoardSection/GstripContainer/*'] }, MAIN) },
     arts: { draft: setHand + `[['add5','+10','blue',5],['mult2','+5','red',6],['atk15','A×1.5','blue',6]].forEach(([type,label,color,price],i)=>{ITEMS[i]={type,label,color,price,m:0};});renderItems();refreshCalc();`, els: MAIN },
+    rare: { draft: setHand + `[['add5','+10','blue',5],['stoneUp','S','purple',6],['north5','N5','orange',6]].forEach(([type,label,color,price],i)=>{ITEMS[i]={type,label,color,price,m:type==='stoneUp'?1:0};});renderItems();refreshCalc();`, els: MAIN },
     boss: { draft: `spawnEnemy();spawnEnemy();document.querySelector('.enemy').classList.remove('spawn');` + setHand + `hand[6]={id:9006,type:'blank',dir:null};hand[7]={id:9007,type:'blank',dir:null};renderTray();chaos=[chaosFromDef(CHAOS_SHOP.find(d=>d.k==='mtile')),chaosFromDef(CHAOS_SHOP.find(d=>d.k==='color'&&d.a==='red')),chaosFromDef(CHAOS_SHOP.find(d=>d.k==='tdir'&&d.a==='W'))];tileChaos.mt.add(2);tileChaos.xm.add(5);tileChaos.xa.add(5);renderChaos();refreshCalc();discoverToast(4);chaosMsg('แตะช่องที่ต้องการวาง');`,
       els: MAIN },
     win: { draft: setHand + `rewardInfo={base:4,left:2,held:21,interest:4,arti:0,fate:0,cry:0,wc:0};showReward();`,

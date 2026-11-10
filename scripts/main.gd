@@ -261,6 +261,9 @@ var drag_moved: bool = false
 func _ready() -> void:
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
+	var bg_mat := ShaderMaterial.new()
+	bg_mat.shader = preload("res://assets/shaders/bg_drift.gdshader")
+	$Background.material = bg_mat
 	init_textures()
 	setup_token_visual()
 	_setup_beams()
@@ -1465,6 +1468,7 @@ func on_victory() -> void:
 	coins += total_gain
 	sfx.play("coin")
 
+	VfxManager.coin_rain(effects_layer, clampi(total_gain * 3, 12, 40), size.x * 0.6)
 	render_reward_summary(base_reward, walks_left, walk_reward, coins - total_gain, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 	update_all_ui()
 	reward_modal.visible = true

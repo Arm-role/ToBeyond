@@ -192,20 +192,35 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 		if g["idxs"].has(i):
 			group = g
 			break
+	cell.remove_theme_stylebox_override("normal")
+	var bar := cell.get_node_or_null("Bar") as Panel
+	if bar == null:
+		bar = Panel.new()
+		bar.name = "Bar"
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		bar.offset_bottom = 10.5
+		cell.add_child(bar)
+		cell.move_child(bar, 0)
+	bar.visible = group != null
 	if group == null:
-		cell.remove_theme_stylebox_override("normal")
+		pass
 	else:
-		var bar := StyleBoxFlat.new()
-		bar.bg_color = Color(0, 0, 0, 0)
-		bar.border_width_top = 10
-		bar.border_color = _group_color_for_tile(i, calc)
-		if i == group["idxs"].min():
-			bar.expand_margin_left = -4.5
-			bar.corner_radius_bottom_left = 9
-		if i == group["idxs"].max():
-			bar.expand_margin_right = -4.5
-			bar.corner_radius_bottom_right = 9
-		cell.add_theme_stylebox_override("normal", bar)
+		# Draft .gbar: 7 px bar with a glow, rounded bottom corners at the group's ends.
+		var col := _group_color_for_tile(i, calc)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = col
+		sb.shadow_color = Color(col.r, col.g, col.b, 0.4)
+		sb.shadow_size = 7
+		var first: bool = i == group["idxs"].min()
+		var last: bool = i == group["idxs"].max()
+		bar.offset_left = 4.5 if first else 0.0
+		bar.offset_right = -4.5 if last else 0.0
+		if first:
+			sb.corner_radius_bottom_left = 9
+		if last:
+			sb.corner_radius_bottom_right = 9
+		bar.add_theme_stylebox_override("panel", sb)
 		var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
 		if has_gem:
 			var v := _gstrip_chip(_main.fmt_num(float(calc["grp_val"].get(i, 1))), Color("#5fb0ff"), 28)
@@ -508,12 +523,42 @@ func render_hand() -> void:
 	selected_hand_ids = live_selected_ids
 
 
+const RARITY_AURA_SHADER: Shader = preload("res://assets/shaders/rarity_aura.gdshader")
+var _aura_mats: Dictionary = {}
+
+
+## Pulsing rim glow on uncommon (green) and rare (gold, with a slow sweep) artifacts.
+func _set_rarity_aura(slot: Control, rarity: String) -> void:
+	var old := slot.get_node_or_null("Aura")
+	if old != null:
+		if old.get_meta("rarity", "") == rarity:
+			return
+		old.queue_free()
+	if rarity != "uncommon" and rarity != "rare":
+		return
+	if not _aura_mats.has(rarity):
+		var m := ShaderMaterial.new()
+		m.shader = RARITY_AURA_SHADER
+		m.set_shader_parameter("tint", Color("#6df0a8") if rarity == "uncommon" else Color("#ffcf5a"))
+		m.set_shader_parameter("rim", 0.4 if rarity == "uncommon" else 0.5)
+		m.set_shader_parameter("sweep_strength", 0.0 if rarity == "uncommon" else 0.35)
+		_aura_mats[rarity] = m
+	var aura := ColorRect.new()
+	aura.name = "Aura"
+	aura.set_meta("rarity", rarity)
+	aura.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	aura.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	aura.material = _aura_mats[rarity]
+	slot.add_child(aura)
+
+
 func render_artifact_row() -> void:
 	for i in range(ShopManager.MAX_ARTIFACTS):
 		var slot = _main.artifact_row.get_child(i + 1) as Button
 		if slot == null: continue
 		var art = _main.artifacts[i]
 		_style_item_slot(slot, art != null, art.get("color", _main.COLORS["brass"]) if art != null else Color.BLACK, _main.COLORS["brass"], "art")
+		_set_rarity_aura(slot, ShopManager.ARTIFACT_RARITY.get(art.get("type", ""), "") if art != null else "")
 		if art != null:
 			# Use the draft SVG cover when imported, with the text icon as a safe fallback.
 			slot.icon = _main.shop_mgr.art_cover(art)

@@ -1,6 +1,126 @@
 class_name VfxManager
 extends RefCounted
 
+# ---------------------------------------------------------------------------
+# Particles (FxParticles: a few dozen sprites drawn in code, phone-friendly)
+# ---------------------------------------------------------------------------
+static var _dot_tex: GradientTexture2D = null
+static var _coin_tex: ImageTexture = null
+static var _add_mat: CanvasItemMaterial = null
+
+
+## Touchscreens get about half the particles.
+static func _count(n: int) -> int:
+	return maxi(4, int(n * (0.5 if DisplayServer.is_touchscreen_available() else 1.0)))
+
+
+static func _dot() -> Texture2D:
+	if _dot_tex == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+		g.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0.45), Color(1, 1, 1, 0)])
+		_dot_tex = GradientTexture2D.new()
+		_dot_tex.gradient = g
+		_dot_tex.fill = GradientTexture2D.FILL_RADIAL
+		_dot_tex.fill_from = Vector2(0.5, 0.5)
+		_dot_tex.fill_to = Vector2(1.0, 0.5)
+		_dot_tex.width = 32
+		_dot_tex.height = 32
+	return _dot_tex
+
+
+## Small golden coin drawn in code (gold disc, darker rim, highlight).
+static func coin_texture() -> Texture2D:
+	if _coin_tex == null:
+		var n := 40
+		var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+		for y in n:
+			for x in n:
+				var d := Vector2(x + 0.5 - n / 2.0, y + 0.5 - n / 2.0).length() / (n / 2.0)
+				if d > 1.0:
+					continue
+				var c := Color("#ffd23f")
+				if d > 0.82:
+					c = Color("#c58a12")
+				elif Vector2(x - 14.0, y - 13.0).length() < 7.0:
+					c = Color("#fff3a8")
+				img.set_pixel(x, y, c)
+		_coin_tex = ImageTexture.create_from_image(img)
+	return _coin_tex
+
+
+static func _additive() -> CanvasItemMaterial:
+	if _add_mat == null:
+		_add_mat = CanvasItemMaterial.new()
+		_add_mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	return _add_mat
+
+
+static func _fx(layer: Control, at_global: Vector2, additive: bool) -> FxParticles:
+	var fx := FxParticles.new()
+	fx.tex = _dot()
+	if additive:
+		fx.material = _additive()
+	fx.position = layer.get_global_transform().affine_inverse() * at_global
+	layer.add_child(fx)
+	return fx
+
+
+## One-shot radial burst. `mid` (optional) is a second colour the particle
+## fades through, e.g. yellow -> orange -> transparent. `size` is in dot-texture
+## scale (1.0 = 32 px).
+static func burst_particles(layer: Control, at_global: Vector2, col: Color, amount: int = 14, speed: float = 220.0, life: float = 0.5, size: float = 0.5, gravity: float = 0.0, mid: Color = Color(0, 0, 0, 0), speed_multiplier: float = 1.0) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	var fx := _fx(layer, at_global, true)
+	fx.col_from = col
+	fx.col_mid = mid
+	fx.gravity = gravity
+	fx.damping = 2.2
+	fx.speed_scale = speed_multiplier
+	fx.burst(_count(amount), speed * 0.4, speed, life, size)
+
+
+## Continuous trail that stays behind a moving point. Move `.position` with
+## trail_move(); call stop_trail() when done.
+static func start_trail(layer: Control, at_global: Vector2, col: Color, mid: Color) -> FxParticles:
+	var fx := _fx(layer, at_global, true)
+	fx.head = fx.position
+	fx.position = Vector2.ZERO  # particles keep their place while the head moves
+	fx.col_from = col
+	fx.col_mid = mid
+	fx.continuous = true
+	fx.emit_rate = 70.0 if not DisplayServer.is_touchscreen_available() else 40.0
+	fx.emit_life = 0.4
+	fx.size_scale = 0.8
+	return fx
+
+
+static func trail_move(fx: FxParticles, at_global: Vector2) -> void:
+	if fx != null and is_instance_valid(fx):
+		fx.head = fx.get_parent().get_global_transform().affine_inverse() * at_global
+
+
+static func stop_trail(fx: FxParticles) -> void:
+	if fx != null and is_instance_valid(fx):
+		fx.stop()
+
+
+## Coins falling from the top edge across `width` px (victory screen).
+static func coin_rain(layer: Control, amount: int, width: float) -> void:
+	var fx := _fx(layer, layer.get_global_rect().position + Vector2(layer.size.x * 0.5, -30.0), false)
+	fx.tex = coin_texture()
+	fx.col_from = Color.WHITE
+	fx.gravity = 900.0
+	fx.shrink = false
+	fx.fade_from = 0.7
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	for i in _count(amount):
+		fx.add_particle(Vector2(rng.randf_range(-width * 0.5, width * 0.5), 0.0), Vector2(rng.randf_range(-40.0, 40.0), rng.randf_range(260.0, 460.0)), rng.randf_range(1.2, 2.0), rng.randf_range(0.55, 0.95), rng.randf_range(-6.0, 6.0))
+		fx._p.back()["age"] = -rng.randf() * 0.5  # stagger the start
+
+
 ## Fires laser beam from Hero or Enemy with animated width & alpha fade
 static func fire_laser_beam(effects_layer: Control, line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Color, beam_w: float = 20.0, duration: float = 0.25, speed_multiplier: float = 1.0) -> void:
 	if not effects_layer or not line: return

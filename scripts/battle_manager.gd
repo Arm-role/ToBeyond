@@ -112,6 +112,8 @@ func run_walk() -> void:
 func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
 	if _main.placed_cards.has(tile_idx) or _main.totem_tiles.has(tile_idx) or _main.chaos_crystals.has(tile_idx):
 		_main.sfx.step(_step_i)
+		var tile_ctl := _main.tiles_container.get_child(tile_idx) as Control
+		VfxManager.burst_particles(_main.effects_layer, tile_ctl.global_position + tile_ctl.size * 0.5, Color("#ffe27a"), 8 + mini(_step_i, 8), 150.0 + 12.0 * _step_i, 0.45, 0.45, 0.0, Color("#ff9a2e"), _spd())
 		_step_i += 1
 	if _main.placed_cards.has(tile_idx):
 		_spawn_tile_popup(tile_idx, helper_pass)
@@ -226,6 +228,8 @@ func _on_walk_finished() -> void:
 	await _timer(0.35)
 	for i in range(1, steps.size()):
 		_main.flash_artifact(int(steps[i]["slot"]))
+		var art_ctl := _main.artifact_row.get_child(int(steps[i]["slot"]) + 1) as Control
+		VfxManager.burst_particles(_main.effects_layer, art_ctl.global_position + art_ctl.size * 0.5, Color("#fff0b0"), 12, 200.0, 0.5, 0.5, 0.0, Color("#ffb22e"), _spd())
 		_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24][clampi(i - 1, 0, 10)]) / 12.0))
 		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
 		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.15, 4.0, 0.0)
@@ -251,6 +255,7 @@ func _on_walk_finished() -> void:
 	var c1 := p0 + Vector2(maxf(210.0, L * 0.5), 0.0)
 	var c2 := p3 + Vector2(0.0, maxf(240.0, L * 0.5))
 	token.pivot_offset = token.size * 0.5
+	var trail := VfxManager.start_trail(layer, p0, Color("#fff1a8"), Color("#ff7a1f"))
 	var fly := _ct()
 	fly.tween_method(func(q: float):
 		var e := pow(q, 1.6)
@@ -259,8 +264,10 @@ func _on_walk_finished() -> void:
 		var tan := 3.0 * u * u * (c1 - p0) + 6.0 * u * e * (c2 - c1) + 3.0 * e * e * (p3 - c2)
 		token.global_position = pos - token.size * 0.5
 		token.rotation = tan.angle()
+		VfxManager.trail_move(trail, pos)
 	, 0.0, 1.0, 0.75 / _spd())
 	await fly.finished
+	VfxManager.stop_trail(trail)
 	token.visible = false
 	token.rotation = 0.0
 	token.position = Vector2(20.0, 26.0)
@@ -294,6 +301,8 @@ func _on_walk_finished() -> void:
 	_main.shake_node(enemy_pic, 18.0 * (1.0 + 0.35 * tier), 0.5)
 	_hit_flash(enemy_pic)
 	if _main.enemy_hp <= 0:
+		VfxManager.burst_particles(layer, enemy_center, Color("#fff3b0"), 36, 520.0, 0.95, 0.8, 900.0, Color("#ff7a2e"), _spd())
+		VfxManager.burst_particles(layer, enemy_center, Color("#ffffff"), 14, 300.0, 0.6, 0.5, 0.0, Color("#9fd0ff"), _spd())
 		await _timer(0.35)
 		_ct().tween_property(enemy_pic, "modulate:a", 0.0, 0.5 / _spd())
 		await _timer(0.55)

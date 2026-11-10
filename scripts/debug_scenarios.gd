@@ -9,7 +9,7 @@ extends Node
 ## and window.tbReady = <name> once the state is on screen.
 ## Keep the list in sync with tools/parity/scenarios.js.
 
-const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "deck", "stone"]
+const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone"]
 ## Same 8 cards as tools/parity/scenarios.js, so both hands match.
 const FIXED_HAND := [["red", "N"], ["red", "N"], ["blue", "E"], ["blue", "E"],
 	["green", "S"], ["orange", "W"], ["red", "S"], ["blue", "W"]]
@@ -73,6 +73,14 @@ func run(scenario: String, restart: bool = true) -> void:
 					if it["type"] == t:
 						main.artifacts[slot] = it.duplicate()
 						slot += 1
+			main.update_all_ui()
+		"rare":
+			var rslot := 0
+			for t in ["add5", "stoneUp", "north5"]:
+				for it in ShopManager.ARTIFACT_CATALOG:
+					if it["type"] == t:
+						main.artifacts[rslot] = it.duplicate()
+						rslot += 1
 			main.update_all_ui()
 		"boss":
 			main.chaos = [{"kind": "mtile"}, {"kind": "color", "col": "red"}, {"kind": "tdir", "dir": "W"}]
