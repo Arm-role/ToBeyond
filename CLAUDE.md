@@ -19,6 +19,9 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 - Block: force push, skipping git hooks or signing, `Read` of a file over 40 KB without `offset`/`limit`.
 - `node tools/hooks/test.js` checks all rules (run it after any change to the hook).
 
+## Open task
+- Splitting `scripts/main.gd`: plan, block status and checks in `docs/refactor-main-split.md` (branch `refactor-main-split`). "Next refactor block" means the first `todo` row there.
+
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
 - Each pushed branch deploys to `https://arm-role.github.io/ToBeyond/preview/<branch>/` (`main` → site root).
