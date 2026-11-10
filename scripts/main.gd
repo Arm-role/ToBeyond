@@ -958,9 +958,13 @@ func _finish_chaos(slot_idx: int, message: String) -> void:
 	chaos[slot_idx] = null
 	selected_chaos_slot = -1
 	selected_card_ids.clear()
+	var stacked := false
 	for artifact in artifacts:
 		if artifact != null and artifact.get("type") == "chaosStack":
 			artifact["m"] = int(artifact.get("m", 0)) + 2
+			stacked = true
+	if stacked:
+		battle_mgr.fx_artifact_types(["chaosStack"])
 	if message != "":
 		chaos_msg(message)
 	update_all_ui()
@@ -1153,6 +1157,7 @@ func prepare_walk_artifacts() -> void:
 	var east_green: int = matching_card_count("E", "green")
 	var west_blue: int = matching_card_count("W", "blue")
 	var north_orange: int = matching_group_count("N", "orange")
+	var triggered: Array = []  # artifacts to flash (draft flashItem)
 	for artifact in artifacts:
 		if artifact == null:
 			continue
@@ -1160,19 +1165,25 @@ func prepare_walk_artifacts() -> void:
 			"redS":
 				if south_red > 0:
 					artifact["m"] = snappedf(float(artifact.get("m", 1.0)) + 0.5 * south_red, 0.1)
+					triggered.append("redS")
 			"stone7E":
 				if east_green > 0:
 					artifact["m"] = int(artifact.get("m", 0)) + east_green
+					triggered.append("stone7E")
 			"stone7W":
 				if west_blue > 0:
 					artifact["m"] = int(artifact.get("m", 0)) + 3 * west_blue
+					triggered.append("stone7W")
 			"orangeN":
 				for _i in range(north_orange):
 					give_random_chaos()
+				if north_orange > 0:
+					triggered.append("orangeN")
 	if north_orange > 0:
 		msg_label.text = "✨ Gem ส้มทิศเหนือสร้าง Chaos"
 	render_artifact_row()
 	render_chaos_row()
+	battle_mgr.fx_artifact_types(triggered)
 
 
 func sync_totems() -> void:
@@ -1314,10 +1325,13 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 		extra = int(gain * (gain + 1) / 2) - gain
 		walk_base_damage += extra
 		fired.append("firstGem")
-	if has_artifact("greenCoin") and card.get("color") == "green" and randf() < (1.0 / 3.0):
-		coins += 1
+	var coin_won := false
+	if has_artifact("greenCoin") and card.get("color") == "green":
 		fired.append("greenCoin")
-		update_all_ui()
+		if randf() < (1.0 / 3.0):
+			coins += 1
+			coin_won = true
+			update_all_ui()
 	# Landing artifacts resolve once per landing (twice for a gold Gem because
 	# BattleManager calls this function twice).
 	var direction: String = card.get("dir", "")
@@ -1337,7 +1351,7 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 	if has_artifact(direction_hit):
 		walk_mult_bonus += 3.0 * artifact_count(direction_hit)
 		fired.append(direction_hit)
-	return {"gain": gain, "extra": extra, "fired": fired}
+	return {"gain": gain, "extra": extra, "fired": fired, "coin_won": coin_won}
 
 
 ## Number formatting from the HTML draft: integers without decimals,
@@ -1465,14 +1479,28 @@ func on_victory() -> void:
 	var arti_pay = artifact_count("artiPay") * owned_artifacts
 	var fate_pay = artifact_count("fatePay") * int((deck.size() + hand.size() + placed_cards.size()) / 10.0)
 	var walk_coin_bonus = artifact_count("walkCoin") * walks_left
+	var reward_fx: Array = []
+	if arti_pay > 0:
+		reward_fx.append("artiPay")
+	if fate_pay > 0:
+		reward_fx.append("fatePay")
+	if walk_coin_bonus > 0:
+		reward_fx.append("walkCoin")
 	for artifact in artifacts:
 		if artifact != null and artifact.get("type") == "discardStack" and discards_left > 0:
 			artifact["m"] = int(artifact.get("m", 0)) + discards_left
+			if not reward_fx.has("discardStack"):
+				reward_fx.append("discardStack")
 	if is_boss() and chaos.has(null):
 		chaos[chaos.find(null)] = {"kind": "crystal"}
 		msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
 	var total_gain = base_reward + walk_reward + interest + arti_pay + fate_pay + walk_coin_bonus
 	coins += total_gain
+	if not reward_fx.is_empty():
+		# The artifact row is hidden behind the reward panel, so show it paying out first.
+		render_artifact_row()
+		await battle_mgr.fx_artifact_types(reward_fx)
+		await get_tree().create_timer(0.45 / speed_multiplier).timeout
 	sfx.play("coin")
 
 	VfxManager.coin_rain(effects_layer, clampi(total_gain * 3, 12, 40), size.x * 0.6)

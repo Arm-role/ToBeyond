@@ -89,11 +89,14 @@ func run_walk() -> void:
 		if not _main.has_artifact(helper_type):
 			continue
 		var wants_odd: bool = helper_type == "helperOdd"
+		var first_helper_step := true
 		for tile_idx in forward_tiles:
 			if ((tile_idx + 1) % 2 == 1) == wants_odd:
-				walk_steps.append({"tile": tile_idx, "helper": true})
-	for tile_idx in active_tiles:
-		walk_steps.append({"tile": tile_idx, "helper": false})
+				walk_steps.append({"tile": tile_idx, "helper": true, "fx": helper_type if first_helper_step else ""})
+				first_helper_step = false
+	for k in range(active_tiles.size()):
+		# The first stop after the last forward tile is where the ball turns back.
+		walk_steps.append({"tile": active_tiles[k], "helper": false, "fx": "reverse" if (k == forward_tiles.size() and k > 0) else ""})
 
 	for step in walk_steps:
 		var idx: int = step["tile"]
@@ -104,6 +107,8 @@ func run_walk() -> void:
 		var target_pos = tile_btn.position + (tile_btn.size - token.size) * 0.5
 		tween.tween_property(token, "position", target_pos, step_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_visit_tile.bind(idx, helper_pass))
+		if str(step.get("fx", "")) != "":
+			tween.tween_callback(_artifact_pop.bind(_main.artifact_slot(str(step["fx"])), 0))
 		tween.tween_interval(0.05 / _spd())
 
 	tween.finished.connect(_on_walk_finished)
@@ -139,17 +144,22 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 	var applied = _main.apply_tile_walk_effects(tile_idx, helper_pass)
 	var gain = int(applied["gain"])
 	var fired: Array = applied.get("fired", []).duplicate()
+	var coin_won: bool = applied.get("coin_won", false)
 	# A gold Gem (created by Chaos Goldify) resolves its landing effects twice.
 	if card.get("gold", false):
 		var repeated = _main.apply_tile_walk_effects(tile_idx, helper_pass)
 		applied["extra"] = int(applied["extra"]) + int(repeated["extra"])
 		gain += int(repeated["gain"])
+		coin_won = coin_won or repeated.get("coin_won", false)
 		for t in repeated.get("fired", []):
 			if not fired.has(t):
 				fired.append(t)
 
 	for t in fired:
 		_artifact_pop(_main.artifact_slot(t), _step_i)
+	if fired.has("greenCoin"):
+		# Draft: "+1 🪙" in gold when the coin drops, a grey ✗ when it doesn't.
+		_main.spawn_damage_number("+1 🪙" if coin_won else "✗", tile_btn.global_position + Vector2(tile_btn.size.x * 0.5, 0.0), Color("#f2c230") if coin_won else Color("#8a86a8"), false)
 	if gain > 0 and not card.get("is_blank", false):
 		_tile_pop(tile_idx, "+%d" % gain)
 		VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
@@ -239,6 +249,18 @@ func _artifact_pop(slot: int, combo: int) -> void:
 	_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(combo, 0, 6)]) / 12.0), -3.0)
 
 
+## Flash several artifacts one after another (counters grew, Chaos given, coins paid...).
+func fx_artifact_types(types: Array) -> void:
+	var k := 0
+	for t in types:
+		var slot: int = _main.artifact_slot(str(t))
+		if slot < 0:
+			continue
+		_artifact_pop(slot, k)
+		k += 1
+		await _timer(0.18)
+
+
 func _hit_crystal(tile_idx: int) -> void:
 	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
 	var result: Dictionary = _main.hit_crystal(tile_idx)
@@ -255,6 +277,7 @@ func _hit_totem(tile_idx: int) -> void:
 	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
 	var gain: int = _main.totem_attack(tile_idx)
 	_main.walk_base_damage += gain
+	_artifact_pop(_main.artifact_slot("totem"), _step_i)
 	_tile_pop(tile_idx, "🗿+%d" % gain, Color("#7fd0ff"))
 	_main.refresh_calc()
 
