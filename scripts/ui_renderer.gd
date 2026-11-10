@@ -15,8 +15,28 @@ func _init(main: Node) -> void:
 	_main = main
 
 
+const CARD_SWAY_SCRIPT: Script = preload("res://scripts/card_sway.gd")
+
+
+## Gentle idle motion for every card (scripts/card_sway.gd).
+func set_card_sway(control: Control, enabled: bool = true, rot_deg: float = 1.2, bob: float = 0.012) -> void:
+	var sway := control.get_node_or_null("CardSway")
+	if not enabled:
+		if sway != null:
+			sway.name = "CardSwayOld"
+			sway.stop()
+		return
+	if sway == null:
+		sway = CARD_SWAY_SCRIPT.new()
+		sway.name = "CardSway"
+		control.add_child(sway)
+	sway.rot_deg = rot_deg
+	sway.bob = bob
+
+
 func set_card_template(control: Control, enabled: bool = true, tint: Color = Color.WHITE) -> void:
 	var frame := control.get_node_or_null("CardTemplate") as TextureRect
+	set_card_sway(control, enabled)
 	if not enabled or _main.CARD_TEMPLATE_TEX == null:
 		if frame != null:
 			frame.visible = false
@@ -142,6 +162,8 @@ func render_tiles() -> void:
 		_render_tile_number(tile_btn, i)
 		_render_crystal(tile_btn, i)
 		_render_totem(tile_btn, i)
+		# Placed cards on the board sway a little less than cards in hand.
+		set_card_sway(tile_btn, _main.placed_cards.has(i), 0.8, 0.008)
 
 		_render_gstrip_cell(i, calc)
 
