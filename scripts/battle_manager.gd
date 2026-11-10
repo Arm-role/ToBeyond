@@ -23,6 +23,19 @@ func _init(main: Node) -> void:
 func _ct() -> Tween:
 	return _main.create_tween()
 
+const HIT_FLASH_SHADER: Shader = preload("res://assets/shaders/hit_flash.gdshader")
+
+## Flash the node white for a moment (assets/shaders/hit_flash.gdshader).
+func _hit_flash(node: CanvasItem, color: Color = Color.WHITE, dur: float = 0.22) -> void:
+	var mat := node.material as ShaderMaterial
+	if mat == null or mat.shader != HIT_FLASH_SHADER:
+		mat = ShaderMaterial.new()
+		mat.shader = HIT_FLASH_SHADER
+		node.material = mat
+	mat.set_shader_parameter("flash_color", color)
+	mat.set_shader_parameter("flash", 1.0)
+	_ct().tween_property(mat, "shader_parameter/flash", 0.0, dur / _spd()).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+
 func _timer(sec: float) -> Signal:
 	return _main.get_tree().create_timer(sec / _main.speed_multiplier).timeout
 
@@ -124,10 +137,13 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 
 	if gain > 0 and not card.get("is_blank", false):
 		_tile_pop(tile_idx, "+%d" % gain)
+		VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
 
 	if int(applied["extra"]) > 0:
 		_main.spawn_damage_number("+%d" % int(applied["extra"]), tile_btn.global_position + tile_btn.size * 0.5, Color("#ffd966"), false)
 	_main.refresh_calc()
+	if gain > 0 or int(applied["extra"]) > 0:
+		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.1, 3.0, 0.0)
 
 
 ## Draft `.spop`: big blue number with a white glow above the tile,
@@ -204,6 +220,7 @@ func _on_walk_finished() -> void:
 	for i in range(1, steps.size()):
 		_main.flash_artifact(int(steps[i]["slot"]))
 		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
+		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.15, 4.0, 0.0)
 		await _timer(0.45)
 	await _timer(0.25)
 
@@ -253,6 +270,7 @@ func _on_walk_finished() -> void:
 	_main.enemy_hp_label.text = "HP %s / %s" % [_main.fmt_num(_main.enemy_hp), _main.fmt_num(_main.enemy_max_hp)]
 	_ct().tween_property(_main.enemy_hp_bar, "value", float(_main.enemy_hp), 0.4 / _spd())
 	_main.shake_node(enemy_pic, 18.0, 0.5)
+	_hit_flash(enemy_pic)
 	if _main.enemy_hp <= 0:
 		await _timer(0.35)
 		_ct().tween_property(enemy_pic, "modulate:a", 0.0, 0.5 / _spd())

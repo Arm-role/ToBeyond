@@ -128,3 +128,58 @@ static func pop_tile_anim(tile_btn: Control) -> void:
 	tile_btn.scale = Vector2(1.12, 1.12)
 	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.28)
 
+
+
+const HIT_FLASH_SHADER: Shader = preload("res://assets/shaders/hit_flash.gdshader")
+
+## "Trigger" juice when a tile, artifact or number fires: a quick scale punch,
+## a wobble that settles, and a white flash over the node and its children.
+static func trigger_juice(node: Control, speed_multiplier: float = 1.0, punch: float = 1.2, wobble_deg: float = 7.0, flash_peak: float = 0.7) -> void:
+	if node == null or not is_instance_valid(node): return
+	var old: Tween = node.get_meta("juice_tween") if node.has_meta("juice_tween") else null
+	if old != null and old.is_valid():
+		old.kill()
+	node.pivot_offset = node.size * 0.5
+	node.scale = Vector2.ONE
+	node.rotation = 0.0
+	var z0: int = node.get_meta("juice_z", node.z_index)
+	node.set_meta("juice_z", z0)
+	node.z_index = z0 + 10
+	var d := 1.0 / maxf(speed_multiplier, 0.01)
+
+	var mat: ShaderMaterial = null
+	if flash_peak > 0.0:
+		mat = node.material as ShaderMaterial
+		if mat == null or mat.shader != HIT_FLASH_SHADER:
+			mat = ShaderMaterial.new()
+			mat.shader = HIT_FLASH_SHADER
+			node.material = mat
+		_share_material(node)
+		mat.set_shader_parameter("flash", flash_peak)
+
+	var t := node.create_tween()
+	node.set_meta("juice_tween", t)
+	t.tween_property(node, "scale", Vector2(punch, punch), 0.06 * d).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(node, "scale", Vector2.ONE, 0.34 * d).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_callback(func(): node.z_index = z0)
+	var w := deg_to_rad(wobble_deg)
+	var old_wob: Tween = node.get_meta("juice_wob") if node.has_meta("juice_wob") else null
+	if old_wob != null and old_wob.is_valid():
+		old_wob.kill()
+	var wob := node.create_tween()
+	node.set_meta("juice_wob", wob)
+	wob.tween_property(node, "rotation", w, 0.06 * d)
+	wob.tween_property(node, "rotation", -w * 0.6, 0.09 * d)
+	wob.tween_property(node, "rotation", w * 0.3, 0.09 * d)
+	wob.tween_property(node, "rotation", 0.0, 0.1 * d)
+	if mat != null:
+		var f := node.create_tween()
+		f.tween_property(mat, "shader_parameter/flash", 0.0, 0.25 * d).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+
+
+## Children without their own material draw with the parent's (the flash shader).
+static func _share_material(node: Node) -> void:
+	for c in node.get_children():
+		if c is CanvasItem and (c as CanvasItem).material == null:
+			(c as CanvasItem).use_parent_material = true
+			_share_material(c)

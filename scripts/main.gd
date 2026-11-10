@@ -1196,15 +1196,7 @@ func flash_artifact(slot_idx: int) -> void:
 	if slot_idx < 0 or slot_idx + 1 >= artifact_row.get_child_count():
 		return
 	var slot := artifact_row.get_child(slot_idx + 1) as Control
-	slot.pivot_offset = slot.size * 0.5
-	slot.z_index = 10
-	var d := 0.5 / speed_multiplier
-	var t := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	t.tween_property(slot, "scale", Vector2(1.3, 1.3), d * 0.4)
-	t.parallel().tween_property(slot, "modulate", Color(1.5, 1.4, 0.9), d * 0.4)
-	t.tween_property(slot, "scale", Vector2.ONE, d * 0.6)
-	t.parallel().tween_property(slot, "modulate", Color.WHITE, d * 0.6)
-	t.tween_callback(func(): slot.z_index = 0)
+	VfxManager.trigger_juice(slot, speed_multiplier, 1.3, 9.0)
 
 
 func begin_walk_damage() -> void:
