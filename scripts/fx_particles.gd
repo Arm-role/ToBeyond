@@ -12,7 +12,8 @@ var damping: float = 0.0           # per second, fraction of velocity lost
 var col_from: Color = Color.WHITE
 var col_mid: Color = Color(0, 0, 0, 0)  # alpha 0 = no middle colour
 var size_scale: float = 1.0
-var shrink: bool = true            # scale 1 -> 0.1 over the life
+var shrink: bool = true            # scale 1 -> shrink_to over the life
+var shrink_to: float = 0.1
 var fade: bool = true
 var fade_from: float = 0.0         # life fraction where fading starts (when there is no middle colour)
 var speed_scale: float = 1.0
@@ -86,6 +87,6 @@ func _draw() -> void:
 		if fade:
 			var f0 := 0.45 if col_mid.a > 0.0 else fade_from
 			c.a *= 1.0 - clampf((t - f0) / (1.0 - f0), 0.0, 1.0)
-		var s: float = q["size"] * (lerpf(1.0, 0.1, t) if shrink else 1.0)
+		var s: float = q["size"] * (lerpf(1.0, shrink_to, t) if shrink else 1.0)
 		draw_set_transform(q["pos"], q["rot"], Vector2(s, s))
 		draw_texture(tex, -half, c)

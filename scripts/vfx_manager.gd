@@ -49,6 +49,25 @@ static func coin_texture() -> Texture2D:
 	return _coin_tex
 
 
+## Hard-edged round spark (solid core, short soft rim) for particles that must
+## read on bright cards.
+static var _spark_tex: GradientTexture2D = null
+
+static func _spark() -> Texture2D:
+	if _spark_tex == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.55, 0.8, 1.0])
+		g.colors = PackedColorArray([Color.WHITE, Color.WHITE, Color(1, 1, 1, 0.55), Color(1, 1, 1, 0)])
+		_spark_tex = GradientTexture2D.new()
+		_spark_tex.gradient = g
+		_spark_tex.fill = GradientTexture2D.FILL_RADIAL
+		_spark_tex.fill_from = Vector2(0.5, 0.5)
+		_spark_tex.fill_to = Vector2(1.0, 0.5)
+		_spark_tex.width = 32
+		_spark_tex.height = 32
+	return _spark_tex
+
+
 static func _additive() -> CanvasItemMaterial:
 	if _add_mat == null:
 		_add_mat = CanvasItemMaterial.new()
@@ -69,14 +88,17 @@ static func _fx(layer: Control, at_global: Vector2, additive: bool) -> FxParticl
 ## One-shot radial burst. `mid` (optional) is a second colour the particle
 ## fades through, e.g. yellow -> orange -> transparent. `size` is in dot-texture
 ## scale (1.0 = 32 px).
-static func burst_particles(layer: Control, at_global: Vector2, col: Color, amount: int = 14, speed: float = 220.0, life: float = 0.5, size: float = 0.5, gravity: float = 0.0, mid: Color = Color(0, 0, 0, 0), speed_multiplier: float = 1.0) -> void:
+static func burst_particles(layer: Control, at_global: Vector2, col: Color, amount: int = 14, speed: float = 220.0, life: float = 0.5, size: float = 0.5, gravity: float = 0.0, mid: Color = Color(0, 0, 0, 0), speed_multiplier: float = 1.0, additive: bool = true, hard: bool = false) -> void:
 	if layer == null or not is_instance_valid(layer):
 		return
-	var fx := _fx(layer, at_global, true)
+	var fx := _fx(layer, at_global, additive)
 	fx.col_from = col
 	fx.col_mid = mid
 	fx.gravity = gravity
 	fx.damping = 2.2
+	if hard:
+		fx.tex = _spark()
+		fx.shrink_to = 0.45
 	fx.speed_scale = speed_multiplier
 	fx.burst(_count(amount), speed * 0.4, speed, life, size)
 

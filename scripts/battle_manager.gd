@@ -113,7 +113,7 @@ func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
 	if _main.placed_cards.has(tile_idx) or _main.totem_tiles.has(tile_idx) or _main.chaos_crystals.has(tile_idx):
 		_main.sfx.step(_step_i)
 		var tile_ctl := _main.tiles_container.get_child(tile_idx) as Control
-		VfxManager.burst_particles(_main.effects_layer, tile_ctl.global_position + tile_ctl.size * 0.5, Color("#ffe27a"), 8 + mini(_step_i, 8), 150.0 + 12.0 * _step_i, 0.45, 0.45, 0.0, Color("#ff9a2e"), _spd())
+		_trigger_fx(tile_ctl.global_position + tile_ctl.size * 0.5, _card_fx_color(tile_idx), _step_i)
 		_step_i += 1
 	if _main.placed_cards.has(tile_idx):
 		_spawn_tile_popup(tile_idx, helper_pass)
@@ -188,6 +188,27 @@ func _tile_pop(tile_idx: int, text: String, col: Color = Color("#1f7ae0")) -> vo
 	t.parallel().tween_property(pop, "modulate:a", 0.0, total * 0.8)
 	t.parallel().tween_property(pop, "position:y", pop.position.y - 33.0, total * 0.8)
 	t.tween_callback(pop.queue_free)
+
+
+const FX_COLORS := {"red": "#ff6b6b", "green": "#5af08a", "orange": "#ffb04a", "blue": "#6fb8ff"}
+
+
+func _card_fx_color(tile_idx: int) -> Color:
+	var card = _main.placed_cards.get(tile_idx)
+	if card == null:
+		return Color("#ffe27a")  # totem / crystal
+	return Color(FX_COLORS.get(str(card.get("color", "")), "#ffffff"))
+
+
+## A card/totem/crystal triggers as the token passes: a bright flash, a ring of
+## sparks in the card's colour, and a few white glints. Bigger as the combo grows.
+func _trigger_fx(at: Vector2, col: Color, combo: int) -> void:
+	var layer: Control = _main.effects_layer
+	var k := mini(combo, 8)
+	VfxManager.burst_particles(layer, at, Color(1, 1, 0.9, 0.4), 3, 30.0, 0.25, 1.2 + 0.05 * k, 0.0, col, _spd())  # soft flash
+	# solid sparks (normal blend so they read on bright cards), then additive glints
+	VfxManager.burst_particles(layer, at, col, 22 + 2 * k, 400.0 + 25.0 * k, 0.9, 0.9, 220.0, col.lightened(0.55), _spd(), false, true)
+	VfxManager.burst_particles(layer, at, Color.WHITE, 8, 520.0, 0.5, 0.7, 0.0, col, _spd())
 
 
 func _hit_crystal(tile_idx: int) -> void:
