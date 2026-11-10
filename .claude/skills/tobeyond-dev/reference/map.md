@@ -28,6 +28,7 @@ Draft sections start with a comment like `/* ===== Token / walk ===== */`; jump 
 | Speed ×1–×5 | Speed: `apply cycleSpeed` (scales setTimeout, rAF, CSS) | main: `_on_speed_toggle`; battle_manager: `_spd _timer` |
 | Game over, new game | `showGameOver newGame resetGame` | main: `on_game_over start_new_game` |
 | Effects | `strike enemyStrike` + CSS keyframes | vfx_manager: `fire_laser_beam shake_node spawn_damage_number show_center_toast pop_tile_anim` |
+| Sound, hit stop, fullscreen/mute buttons (not in the draft, added for game feel) | — | `scripts/sfx_manager.gd` (synthesised sounds, `main.sfx.play(name)`), battle_manager: `_hit_stop`, final-total pop + tier tint in `_on_walk_finished`; main: `_setup_fullscreen_button _setup_audio_button`, number pop in `show_calc` |
 
 ## Data
 

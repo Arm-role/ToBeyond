@@ -134,6 +134,7 @@ var selected_card_ids: Array[int] = []
 var card_uid_counter: int = 0
 
 var stage: int = 1
+var sfx: Node # SfxManager (scripts/sfx_manager.gd)
 var coins: int = 0
 var sort_mode: String = "color" # "color" or "dir"
 
@@ -258,6 +259,8 @@ var drag_moved: bool = false
 
 
 func _ready() -> void:
+	sfx = preload("res://scripts/sfx_manager.gd").new()
+	add_child(sfx)
 	init_textures()
 	setup_token_visual()
 	_setup_beams()
@@ -315,6 +318,7 @@ func _setup_beams() -> void:
 func connect_ui_signals() -> void:
 	restart_btn.pressed.connect(start_new_game)
 	_setup_fullscreen_button()
+	_setup_audio_button()
 	speed_btn.pressed.connect(_on_speed_toggle)
 	deck_count_btn.pressed.connect(open_deck_modal)
 	deck_modal_close_btn.pressed.connect(func(): deck_modal.visible = false)
@@ -713,6 +717,7 @@ func render_tiles() -> void:
 
 func pop_tile_anim(tile_idx: int) -> void:
 	if tile_idx < 0 or tile_idx >= N_TILES: return
+	sfx.play("place")
 	var tile_btn = tiles_container.get_child(tile_idx) as Button
 	VfxManager.pop_tile_anim(tile_btn)
 
@@ -762,6 +767,36 @@ func _setup_fullscreen_button() -> void:
 	else:
 		btn.text = "เต็มจอ"
 	btn.pressed.connect(_toggle_fullscreen)
+	$TopBar.add_child(btn)
+
+
+## Round speaker button (mute / unmute), left of the fullscreen button.
+func _setup_audio_button() -> void:
+	var btn := Button.new()
+	btn.name = "AudioBtn"
+	btn.layout_mode = 1
+	btn.anchors_preset = Control.PRESET_TOP_RIGHT
+	btn.anchor_left = 1.0
+	btn.anchor_right = 1.0
+	var slot := -321.0 if $TopBar.has_node("FullscreenBtn") else -249.0
+	btn.offset_left = slot
+	btn.offset_right = slot + 60.0
+	btn.offset_top = 12.0
+	btn.offset_bottom = 72.0
+	btn.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var sb := restart_btn.get_theme_stylebox("normal" if st == "focus" else st)
+		if sb != null:
+			btn.add_theme_stylebox_override(st, sb)
+	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		btn.add_theme_color_override(c, Color("#2a2140"))
+	btn.add_theme_font_size_override("font_size", 28)
+	btn.text = "🔇" if sfx.muted else "🔊"
+	btn.pressed.connect(func():
+		sfx.set_muted(not sfx.muted)
+		btn.text = "🔇" if sfx.muted else "🔊"
+		if not sfx.muted:
+			sfx.play("coin"))
 	$TopBar.add_child(btn)
 
 
@@ -1316,7 +1351,11 @@ static func fmt_num(v: float) -> String:
 
 ## Draft showCalc(): `ATK × MULT = TOTAL`.
 func show_calc(atk: float, mult: float) -> void:
-	calc_label.text = "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01)), fmt_num(round(atk * mult))]
+	var new_text := "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01)), fmt_num(round(atk * mult))]
+	var changed: bool = calc_label.text != new_text
+	calc_label.text = new_text
+	if changed and is_busy:
+		VfxManager.trigger_juice(calc_label, speed_multiplier, 1.1, 0.0, 0.0)
 
 
 func refresh_calc() -> void:
@@ -1424,6 +1463,7 @@ func on_victory() -> void:
 		msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
 	var total_gain = base_reward + walk_reward + interest + arti_pay + fate_pay + walk_coin_bonus
 	coins += total_gain
+	sfx.play("coin")
 
 	render_reward_summary(base_reward, walks_left, walk_reward, coins - total_gain, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 	update_all_ui()
@@ -1543,6 +1583,7 @@ func has_artifact(type_key: String) -> bool:
 
 func on_game_over() -> void:
 	is_busy = false
+	sfx.play("lose")
 	msg_label.text = ""
 	gameover_info.text = "ผ่านศัตรู %d ตัว" % (stage - 1)
 	update_all_ui()
@@ -1570,8 +1611,8 @@ func fire_laser_beam(line: Line2D, from_pos: Vector2, to_pos: Vector2, col: Colo
 	VfxManager.fire_laser_beam(effects_layer, line, from_pos, to_pos, col, beam_w, duration, speed_multiplier)
 
 
-func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38) -> void:
-	VfxManager.shake_node(node, intensity, duration, speed_multiplier)
+func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38, rot_deg: float = 6.0) -> void:
+	VfxManager.shake_node(node, intensity, duration, speed_multiplier, rot_deg)
 
 
 func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = Color("#ff4d5e"), is_big: bool = true) -> void:

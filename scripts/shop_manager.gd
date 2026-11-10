@@ -467,6 +467,7 @@ func reroll_shop() -> void:
 	if _main.coins < reroll_cost:
 		return
 	_main.coins -= reroll_cost
+	_main.sfx.play("coin")
 	reroll_cost += REROLL_STEP
 	generate_game_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
@@ -963,6 +964,7 @@ func buy_stat(stat_type: String, price: int) -> void:
 	if (stat_type == "hand" and _main.hand_max >= HAND_CAP) or _main.coins < price:
 		return
 	_main.coins -= price
+	_main.sfx.play("coin")
 	if stat_type == "hand":
 		_main.hand_max += 1
 	elif stat_type == "walk":
@@ -986,6 +988,7 @@ func buy_stone_upgrade(formula_idx: int, cost: int) -> void:
 	if shop_bought.has(key) or cost != STONE_UPGRADE_PRICE or _main.coins < cost:
 		return
 	_main.coins -= cost
+	_main.sfx.play("coin")
 	_main.stone_formulas[formula_idx]["a"] += STONE_UPGRADE_BONUSES[formula_idx]
 	_main.stone_formulas[formula_idx]["lv"] = int(_main.stone_formulas[formula_idx].get("lv", 1)) + 1
 	shop_bought.append(key)
@@ -1000,6 +1003,7 @@ func buy_artifact(item: Dictionary) -> void:
 	var slot: int = _main.artifacts.find(null)
 	if slot == -1 or _main.coins < item["price"]: return
 	_main.coins -= item["price"]
+	_main.sfx.play("coin")
 	_main.artifacts[slot] = item.duplicate()
 	_main.sync_totems()
 	_main.update_all_ui()
@@ -1014,6 +1018,7 @@ func buy_chaos(definition: Dictionary) -> void:
 	if slot == -1 or _main.coins < definition["price"]:
 		return
 	_main.coins -= definition["price"]
+	_main.sfx.play("coin")
 	var chaos_card: Dictionary = {"kind": definition["kind"]}
 	if definition.has("col"):
 		chaos_card["col"] = definition["col"]
@@ -1031,6 +1036,7 @@ func sell_artifact(slot_idx: int) -> void:
 	if art == null: return
 	var sell_price = get_sell_price(art)
 	_main.coins += sell_price
+	_main.sfx.play("coin")
 	_main.artifacts[slot_idx] = null
 	_main.sync_totems()
 	_main.update_all_ui()
@@ -1047,6 +1053,7 @@ func sell_chaos(slot_idx: int) -> void:
 	if chaos_card == null:
 		return
 	_main.coins += get_chaos_sell_price(chaos_card)
+	_main.sfx.play("coin")
 	_main.chaos[slot_idx] = null
 	_main.update_all_ui()
 	render_shop_owned()

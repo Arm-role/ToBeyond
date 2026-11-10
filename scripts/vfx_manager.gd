@@ -29,7 +29,7 @@ static func fire_laser_beam(effects_layer: Control, line: Line2D, from_pos: Vect
 	)
 
 ## Shakes a node on damage taken
-static func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38, speed_multiplier: float = 1.0) -> void:
+static func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38, speed_multiplier: float = 1.0, rot_deg: float = 6.0) -> void:
 	if not node: return
 	node.pivot_offset = node.size * 0.5
 	var orig_pos = node.position
@@ -39,7 +39,7 @@ static func shake_node(node: Control, intensity: float = 14.0, duration: float =
 	for i in range(steps):
 		var decay = 1.0 - (float(i) / float(steps))
 		var offset = Vector2(randf_range(-intensity, intensity) * decay, randf_range(-intensity * 0.35, intensity * 0.35) * decay)
-		var rot_offset = deg_to_rad(randf_range(-6.0, 6.0) * decay)
+		var rot_offset = deg_to_rad(randf_range(-rot_deg, rot_deg) * decay)
 		tween.tween_property(node, "position", orig_pos + offset, 0.04 / speed_multiplier)
 		tween.parallel().tween_property(node, "rotation", orig_rot + rot_offset, 0.04 / speed_multiplier)
 	tween.tween_property(node, "position", orig_pos, 0.04 / speed_multiplier)

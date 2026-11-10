@@ -47,7 +47,11 @@ func _spd() -> float:
 # Public entry point — called from main._on_walk_pressed()
 # ---------------------------------------------------------------------------
 
+var _step_i: int = 0
+
+
 func run_walk() -> void:
+	_step_i = 0
 	_main.walks_left -= 1
 	_main.is_busy = true
 	_main.begin_walk_damage()
@@ -106,6 +110,9 @@ func run_walk() -> void:
 
 
 func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
+	if _main.placed_cards.has(tile_idx) or _main.totem_tiles.has(tile_idx) or _main.chaos_crystals.has(tile_idx):
+		_main.sfx.step(_step_i)
+		_step_i += 1
 	if _main.placed_cards.has(tile_idx):
 		_spawn_tile_popup(tile_idx, helper_pass)
 	if _main.totem_tiles.has(tile_idx):
@@ -219,13 +226,24 @@ func _on_walk_finished() -> void:
 	await _timer(0.35)
 	for i in range(1, steps.size()):
 		_main.flash_artifact(int(steps[i]["slot"]))
+		_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24][clampi(i - 1, 0, 10)]) / 12.0))
 		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
 		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.15, 4.0, 0.0)
 		await _timer(0.45)
+	# Final total: a bigger pop, tinted by how big the hit is compared with the enemy's HP.
+	var pre_dmg: int = maxi(1, int(_main.compute_attack()["dmg"]))
+	var ratio := float(pre_dmg) / float(maxi(1, _main.enemy_hp))
+	var tier := 2 if ratio >= 1.0 else (1 if ratio >= 0.4 else 0)
+	if steps.size() > 1 or tier > 0:
+		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.2 + 0.1 * tier, 3.0, 0.0)
+	if tier > 0:
+		_main.calc_label.modulate = Color("#ffd36b") if tier == 1 else Color("#ff8a50")
+		_ct().tween_property(_main.calc_label, "modulate", Color.WHITE, 0.9 / _spd())
 	await _timer(0.25)
 
 	# 1. Fireball (draft strike()): cubic Bézier from the token to the hero —
 	#    keeps heading right first, then curves in from below; 750 ms.
+	_main.sfx.play("whoosh")
 	_main.msg_label.text = "🔥"
 	var p0: Vector2 = token.global_position + token.size * 0.5
 	var p3: Vector2 = hero_pic.global_position + hero_pic.size * 0.5
@@ -264,23 +282,37 @@ func _on_walk_finished() -> void:
 	await _timer(0.3)
 	_burst(enemy_center)
 	_main.msg_label.text = ""
+	_main.sfx.play("hit", 1.0 - 0.18 * tier, 1.5 * tier)
+	_hit_stop(tier)
+	if tier > 0:
+		_main.shake_node(_main, 7.0 + 6.0 * tier, 0.3, 0.0)
 
 	# 4. Enemy takes damage and shakes (.enemy.hit).
 	_main.enemy_hp = maxi(0, _main.enemy_hp - dmg)
 	_main.enemy_hp_label.text = "HP %s / %s" % [_main.fmt_num(_main.enemy_hp), _main.fmt_num(_main.enemy_max_hp)]
 	_ct().tween_property(_main.enemy_hp_bar, "value", float(_main.enemy_hp), 0.4 / _spd())
-	_main.shake_node(enemy_pic, 18.0, 0.5)
+	_main.shake_node(enemy_pic, 18.0 * (1.0 + 0.35 * tier), 0.5)
 	_hit_flash(enemy_pic)
 	if _main.enemy_hp <= 0:
 		await _timer(0.35)
 		_ct().tween_property(enemy_pic, "modulate:a", 0.0, 0.5 / _spd())
 		await _timer(0.55)
 		_main.msg_label.text = "ชนะ!"
+		_main.sfx.play("win")
 		await _timer(0.7)
 		_main.on_victory()
 	else:
 		await _timer(0.9)
 		_enemy_counter_attack()
+
+
+## Brief freeze on impact (draft has none; makes hits feel heavy). Uses real
+## time, so it can't get stuck even if the scene restarts.
+func _hit_stop(tier: int) -> void:
+	var dur: float = [0.03, 0.07, 0.12][tier]
+	Engine.time_scale = 0.04
+	await _main.get_tree().create_timer(dur, true, false, true).timeout
+	Engine.time_scale = 1.0
 
 
 func _burst(at_global: Vector2) -> void:
@@ -360,6 +392,7 @@ func _hero_cast(hero: Control) -> void:
 
 
 func _hero_ouch(hero: Control) -> void:
+	_main.sfx.play("hurt")
 	# Draft `@keyframes ouch` (0.45 s): knocked back with a red flash.
 	hero.pivot_offset = hero.size * 0.5
 	var x0 := hero.position.x
