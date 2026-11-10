@@ -138,12 +138,18 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 
 	var applied = _main.apply_tile_walk_effects(tile_idx, helper_pass)
 	var gain = int(applied["gain"])
+	var fired: Array = applied.get("fired", []).duplicate()
 	# A gold Gem (created by Chaos Goldify) resolves its landing effects twice.
 	if card.get("gold", false):
 		var repeated = _main.apply_tile_walk_effects(tile_idx, helper_pass)
 		applied["extra"] = int(applied["extra"]) + int(repeated["extra"])
 		gain += int(repeated["gain"])
+		for t in repeated.get("fired", []):
+			if not fired.has(t):
+				fired.append(t)
 
+	for t in fired:
+		_artifact_pop(_main.artifact_slot(t), _step_i)
 	if gain > 0 and not card.get("is_blank", false):
 		_tile_pop(tile_idx, "+%d" % gain)
 		VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
@@ -211,6 +217,28 @@ func _trigger_fx(at: Vector2, col: Color, combo: int) -> void:
 	VfxManager.burst_particles(layer, at, Color.WHITE, 8, 520.0, 0.5, 0.7, 0.0, col, _spd())
 
 
+## An artifact takes effect: the card bounces and glows (flash_artifact) and
+## throws sparks in its own colour.
+func _artifact_fx(slot: int, combo: int) -> void:
+	if slot < 0 or slot + 1 >= _main.artifact_row.get_child_count():
+		return
+	_main.flash_artifact(slot)
+	var ctl := _main.artifact_row.get_child(slot + 1) as Control
+	var art = _main.artifacts[slot]
+	var col: Color = Color("#ffd966")
+	if art != null and art.get("color") is Color:
+		col = (art["color"] as Color).lightened(0.3)
+	_trigger_fx(ctl.global_position + ctl.size * 0.5, col, combo + 2)
+
+
+## Landing artifact during the walk: fx plus a soft chime.
+func _artifact_pop(slot: int, combo: int) -> void:
+	if slot < 0:
+		return
+	_artifact_fx(slot, combo)
+	_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(combo, 0, 6)]) / 12.0), -3.0)
+
+
 func _hit_crystal(tile_idx: int) -> void:
 	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
 	var result: Dictionary = _main.hit_crystal(tile_idx)
@@ -248,9 +276,7 @@ func _on_walk_finished() -> void:
 	_main.show_calc(steps[0]["atk"], steps[0]["mult"])
 	await _timer(0.35)
 	for i in range(1, steps.size()):
-		_main.flash_artifact(int(steps[i]["slot"]))
-		var art_ctl := _main.artifact_row.get_child(int(steps[i]["slot"]) + 1) as Control
-		VfxManager.burst_particles(_main.effects_layer, art_ctl.global_position + art_ctl.size * 0.5, Color("#fff0b0"), 12, 200.0, 0.5, 0.5, 0.0, Color("#ffb22e"), _spd())
+		_artifact_fx(int(steps[i]["slot"]), i - 1)
 		_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24][clampi(i - 1, 0, 10)]) / 12.0))
 		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
 		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.15, 4.0, 0.0)

@@ -1295,7 +1295,7 @@ func begin_walk_damage() -> void:
 func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictionary:
 	var card = placed_cards.get(tile_idx)
 	if card == null or card.get("is_blank", false):
-		return {"gain": 0, "extra": 0}
+		return {"gain": 0, "extra": 0, "fired": []}
 
 	var gain = int(calculate_groups()["grp_val"].get(tile_idx, 1))
 	walk_base_damage += gain
@@ -1306,14 +1306,17 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 	if chaos_xatk_tiles.has(tile_idx):
 		walk_base_damage = int(round(walk_base_damage * 1.2))
 	var extra = 0
+	var fired: Array = []  # landing artifacts that took effect (for the flash + sparks)
 	# First Strike applies to the first Gem reached, rather than board slot zero.
 	if has_artifact("firstGem") and not helper_pass and (not first_gem_triggered or first_gem_tile == tile_idx):
 		first_gem_triggered = true
 		first_gem_tile = tile_idx
 		extra = int(gain * (gain + 1) / 2) - gain
 		walk_base_damage += extra
+		fired.append("firstGem")
 	if has_artifact("greenCoin") and card.get("color") == "green" and randf() < (1.0 / 3.0):
 		coins += 1
+		fired.append("greenCoin")
 		update_all_ui()
 	# Landing artifacts resolve once per landing (twice for a gold Gem because
 	# BattleManager calls this function twice).
@@ -1321,16 +1324,20 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 	if has_artifact("isoGem") and not placed_cards.has(tile_idx - 1) and not placed_cards.has(tile_idx + 1):
 		walk_mult_bonus += gain
 		extra += gain
+		fired.append("isoGem")
 	if has_artifact("eastG") and direction == "E":
 		var east_count := tile_direction_count("E")
 		var east_factor := 2.0 if east_count >= N_TILES else 1.0 + 0.1 * east_count
 		walk_mult_bonus = (1.0 + walk_mult_bonus) * east_factor - 1.0
+		fired.append("eastG")
 	if has_artifact("west5") and direction == "W" and gain > 0 and tile_direction_run("W") >= 5:
 		walk_mult_bonus += gain
+		fired.append("west5")
 	var direction_hit := "dir%sHit" % direction
 	if has_artifact(direction_hit):
 		walk_mult_bonus += 3.0 * artifact_count(direction_hit)
-	return {"gain": gain, "extra": extra}
+		fired.append(direction_hit)
+	return {"gain": gain, "extra": extra, "fired": fired}
 
 
 ## Number formatting from the HTML draft: integers without decimals,
