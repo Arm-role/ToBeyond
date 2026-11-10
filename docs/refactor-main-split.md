@@ -18,7 +18,7 @@ Goal: `main.gd` (1543 lines, 55 KB) under 40 KB / ~700 lines so it can be read i
 | 1 | `game_assets.gd` | `COLORS`, texture tables, `init_textures()` -> `GameAssets.load_all(n)` (static) | done, `aa038ac` |
 | 2 | `board_calc.gd` | group/direction counting (`calculate_groups`, `tile_direction_*`, `matching_*`), walk/attack maths (`compute_attack`, `apply_tile_walk_effects`, totems) | done |
 | 3 | `toolbar_controls.gd` | fullscreen, audio and sort buttons (`_setup_fullscreen_button`, `_setup_audio_button`, `_style_sort_button`, ...) | done |
-| 4 | `action_dialog.gd` + `slot_drag.gd` | confirm dialog (`_setup_action_dialog`, `show_action_dialog`), artifact/chaos slot drag (`_input`, `_begin_slot_drag`, `_finish_slot_drag`) | todo |
+| 4 | `action_dialog.gd` + `slot_drag.gd` | confirm dialog (`_setup_action_dialog`, `show_action_dialog`), artifact/chaos slot drag (`_input`, `_begin_slot_drag`, `_finish_slot_drag`) | done |
 | 5 | `chaos_controller.gd` | Chaos use (`_apply_hand_chaos`, `_apply_chaos_to_tile`, `hit_crystal`), tile click, discard | todo |
 | 6 | `reward_flow.gd` (new file, not `ui_renderer.gd`, it is already ~850 lines) | `on_victory`, `render_reward_summary`, reward rows | todo |
 | 7 | none | drop wrappers on `main` that no script calls; re-measure size | todo |
@@ -52,6 +52,8 @@ main/arts/boss/win/shop/lose/deck/stone, errors: none. Those differences against
 - Block 2: `BoardCalc` (10 functions, `main` keeps one-line wrappers). `main.gd` 1466 -> 1393 lines. Checks equal to baseline. Advisor not consulted yet.
 
 - Block 3: `ToolbarControls` (fullscreen, audio, sort-button style, toggle; wrappers kept). `main.gd` 1393 -> 1323 lines. Checks equal to baseline. `toolbar` must be created before `connect_ui_signals()`.
+
+- Block 4: `ActionDialog` (setup, show; `action_dialog` + `pending_dialog_action` stay on main) and `SlotDrag` (drag state moved into it; `main._input` forwards). `main.gd` 1323 -> 1150 lines. Checks equal to baseline.
 
 ## Found (not fixed, outside the refactor)
 - `scripts/game_assets.gd`: `load_all` starts with a string "docstring" (a no-op statement); use a `##` comment if touched again.
