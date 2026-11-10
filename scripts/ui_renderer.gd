@@ -128,34 +128,41 @@ func render_tiles() -> void:
 		tile_btn.expand_icon = true
 		tile_btn.text = ""
 
+		# Tile art bakes in the tile's own direction emblem. When Chaos changed
+		# the direction (draft setTileDir), borrow the art of a tile whose
+		# default direction is the new one (only the emblem differs; the baked
+		# number is dropped by the SVG importer and drawn as a Label instead).
+		var art: int = _main.DEFAULT_TILE_DIR.find(_main.TILE_DIR[i]) if _main.TILE_DIR[i] != _main.DEFAULT_TILE_DIR[i] else i
+		if art < 0:
+			art = i
 		if _main.placed_cards.has(i):
 			var card = _main.placed_cards[i]
 			var is_blank = card.get("is_blank", false) or card.get("color") == "blank"
 			var is_gold = card.get("gold", false)
 
 			if is_blank:
-				var key = "%d_blank" % i
+				var key = "%d_blank" % art
 				if _main.PLACED_TILE_TEX.has(key):
 					tile_btn.icon = _main.PLACED_TILE_TEX[key]
-				elif _main.TILE_EMPTY_TEX.has(i):
-					tile_btn.icon = _main.TILE_EMPTY_TEX[i]
+				elif _main.TILE_EMPTY_TEX.has(art):
+					tile_btn.icon = _main.TILE_EMPTY_TEX[art]
 				tile_btn.modulate = Color.WHITE
 			else:
 				var c_dir = card.get("dir", "N")
 				var c_col = card.get("color", "blue")
-				var key = "%d_%s_%s" % [i, c_col, c_dir]
+				var key = "%d_%s_%s" % [art, c_col, c_dir]
 				if _main.PLACED_TILE_TEX.has(key):
 					tile_btn.icon = _main.PLACED_TILE_TEX[key]
-				elif _main.TILE_EMPTY_TEX.has(i):
-					tile_btn.icon = _main.TILE_EMPTY_TEX[i]
+				elif _main.TILE_EMPTY_TEX.has(art):
+					tile_btn.icon = _main.TILE_EMPTY_TEX[art]
 
 				if is_gold:
 					tile_btn.modulate = Color(1.2, 1.15, 0.8)
 				else:
 					tile_btn.modulate = Color.WHITE
 		else:
-			if _main.TILE_EMPTY_TEX.has(i):
-				tile_btn.icon = _main.TILE_EMPTY_TEX[i]
+			if _main.TILE_EMPTY_TEX.has(art):
+				tile_btn.icon = _main.TILE_EMPTY_TEX[art]
 			tile_btn.modulate = Color.WHITE
 
 		_apply_tile_state(tile_btn, i, calc)
@@ -293,6 +300,14 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · Chaos MULT ×1.2"
 	if _main.chaos_xatk_tiles.has(tile_idx):
 		hint += " · Chaos ATK ×1.2"
+	if _main.TILE_DIR[tile_idx] != _main.DEFAULT_TILE_DIR[tile_idx]:
+		# Draft `.tile.chaosd .tfr{stroke:#c79bff}`: purple frame on a tile whose
+		# direction was changed by Chaos.
+		hint += " · Chaos เปลี่ยนทิศ"
+		if width == 0:
+			accent = Color("#c79bff")
+			width = 5
+			glow_alpha = 0.45
 	if _main.chaos_crystals.has(tile_idx):
 		hint += " · ผลึก Gem HP %d" % int(_main.chaos_crystals[tile_idx])
 		accent = Color("#72d8ff")
