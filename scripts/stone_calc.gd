@@ -5,8 +5,8 @@ extends RefCounted
 # Data-driven: a formula matches a span of n cards when n >= `min` and every flag
 # in `req` (see FLAGS) is true. Value per card = a + g * (n - 1); `bonus` = `a` gained
 # per Stone upgrade. `tier` = difficulty (higher = harder). Selection uses two axes:
-# tier first, then number of cards; the value (a, g) only sets the damage and the
-# last tie-breaks. Formula order still matters (shop keys, toast "stone N").
+# per span the highest tier wins; between groups more cards first, then tier. The
+# value (a, g) only sets the damage and the last tie-breaks. Formula order still matters (shop keys, toast "stone N").
 const FLAGS: Array = ["same_col", "same_dir", "dtile", "alt_col"]
 const COLOR_ORDER: Array = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array = ["N", "E", "S", "W"]
@@ -20,12 +20,12 @@ const DEFAULT_FORMULAS: Array[Dictionary] = [
 	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)", "min": 2, "a": 4, "g": 4, "tier": 4, "bonus": 4, "req": ["same_col", "same_dir"], "pv": [["red", "S"], ["red", "S"], ["red", "S"]]}
 ]
 
-## Two axes first: tier, then number of cards; then total value, per-card value.
+## Two axes first: number of cards, then tier; then total value, per-card value.
 static func _group_better(g: Dictionary, b: Dictionary) -> bool:
-	if g["tier"] != b["tier"]:
-		return g["tier"] > b["tier"]
 	if g["idxs"].size() != b["idxs"].size():
 		return g["idxs"].size() > b["idxs"].size()
+	if g["tier"] != b["tier"]:
+		return g["tier"] > b["tier"]
 	if g["res"]["tot"] != b["res"]["tot"]:
 		return g["res"]["tot"] > b["res"]["tot"]
 	return g["res"]["a"] > b["res"]["a"]
