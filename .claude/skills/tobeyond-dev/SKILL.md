@@ -5,12 +5,12 @@ description: Work on ToBeyond, the Godot 4.7 GDScript game - change screens, tex
 
 # ToBeyond development
 
-The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searched only when the user orders it (a hook asks them); `reference/map.md` is history only. Change behaviour from the Godot code and what the user asks for.
+The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searched only when the user orders it (a hook asks them); `reference/map.md` maps features to Godot functions (its appendix lists the draft's). Change behaviour from the Godot code and what the user asks for.
 
 ## Rules that keep a task cheap (read first)
 
 1. **Context is the cost.** Every turn re-reads the whole conversation. Batch shell work into one call, keep outputs short, and finish one task per session (the user starts a new session or runs `/clear` after a push).
-2. **Never read big files whole.** `main.gd` ~1.6k lines, `shop_manager.gd` ~1.1k. Find with `grep -n`, then read a range: `sed -n 'a,bp' file | cut -c1-220` (≤150 lines). Start from `reference/map.md`.
+2. **Never read big files whole.** `main.gd`, `shop_manager.gd` and `ui_renderer.gd` are 800+ lines each. Find with `grep -n`, then read a range: `sed -n 'a,bp' file | cut -c1-220` (≤150 lines). Start from `reference/map.md`.
 3. **Check before building, build once per batch.** `tools/parity/build.sh --check` (seconds) after edits; full `build.sh` only before a visual check. Put several fixes in one build. Budget: ≤3 builds and ≤40 turns per task; past that, stop, summarise and ask.
 4. **Numbers before pictures.** `parity.js` prints what differs as text. Don't open screenshots in the main session; when pixels matter, use the `parity-check` skill (the `parity-checker` agent looks at the images and returns a short list).
 5. **Model roles.** The main session (Sonnet) does the work: reads, edits, decides, commits. Agents start cold (~20–90k tokens each), so call them only when they save more than they cost:
@@ -22,8 +22,8 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 ## Facts
 
 - Godot 4.7.2, GL Compatibility, canvas 1920×1080 = 1.5× the draft's 1280×720 (draft px × 1.5 = Godot px). Fonts: Sarabun + Noto Color Emoji via `assets/fonts/main_theme.tres`.
-- Install Godot in a fresh container: `tools/parity/setup_godot.sh` (~1 min). Playwright + Chromium are preinstalled in cloud sessions.
-- Work on the session branch. Every pushed branch deploys to `https://arm-role.github.io/ToBeyond/preview/<branch>/` (main → site root) via `.github/workflows/deploy.yml`, a few minutes after the push.
+- Fresh container: `tools/parity/setup_godot.sh` (command list in `CLAUDE.md`). Playwright + Chromium are preinstalled in cloud sessions.
+- Branches and previews: see `CLAUDE.md`. The preview deploys via `.github/workflows/deploy.yml` a few minutes after the push.
 - Node paths: `python3 tools/parity/node_tree.py [filter]` prints the live tree of `scenes/main.tscn` (also in `SYSTEM_PATHS.md`).
 
 ## The loop
@@ -32,7 +32,7 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 2. **Spec**: read the Godot code and the user's request. Don't open the draft unless the user orders it.
 3. **Edit** the GDScript / scene.
 4. **Check**: `tools/parity/build.sh --check`.
-5. **Compare**: `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
+5. **Compare** (the parity tools compare with the draft; use them for layout/animation checks or when the user orders a draft comparison): `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
 6. **Visual pass** when the change is visual: `parity-check` skill with the scenario (and `--region`).
 7. **Review** (large or risky tasks only): ask `advisor` with the diff summary before calling it done.
 8. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
@@ -52,11 +52,10 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 
 - `node tools/parity/record.js <scenario> --steps="x,y;wN;…" [--region=x,y,w,h] [--fps=12]`: records the Godot web build while clicking, writes a contact sheet `build/record/<name>.png` of the frames after the last click. For animation/feel checks (no draft needed); details in `reference/feel.md`.
 
-- `tools/parity/build.sh [--check]`: logs in `build/import.log`, `build/export.log`.
-- `python3 tools/parity/token_report.py`: turns, context size and cache use per request of this session. Use it to report cost at the end of a large task.
+- Build logs: `build/import.log`, `build/export.log`. `python3 tools/parity/token_report.py` reports turns, context size and cache use per request; use it to report cost at the end of a large task. Other commands: `CLAUDE.md`.
 
 ## Reference (read only the part you need)
 
-- `reference/map.md`: feature → draft section/functions → Godot file/functions, data tables, draft CSS selectors.
+- `reference/map.md`: feature → Godot file: functions (checked by `build.sh --check`), data tables; appendix: draft functions and CSS selectors.
 - `reference/feel.md`: game feel: current timings, rules (speed_multiplier, no idle frames, sfx on landing), checklist, and `record.js` usage. Read it for any animation / juice / timing change.
 - `reference/pitfalls.md`: Godot/web traps already hit in this project (fonts, SVG text, z-index, type inference, class cache, …).
