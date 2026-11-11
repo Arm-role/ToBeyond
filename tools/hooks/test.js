@@ -2,9 +2,13 @@
 // node tools/hooks/test.js : checks every rule of guard.js, prints PASS/FAIL per case.
 const { spawnSync } = require("child_process");
 const path = require("path");
+const fs = require("fs");
+const os = require("os");
 const guard = path.join(__dirname, "guard.js");
 const D = "To_Beyond_Dra" + "ft.html";
-const big = path.join(__dirname, "..", "..", "scripts", "main.gd");
+// Temp file over the 40 KB limit, so the test does not depend on how big a real project file is.
+const big = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "guard-test-")), "big.gd");
+fs.writeFileSync(big, "x".repeat(50000));
 
 const cases = [
   // [name, call, expected: "allow" | "ask" | "block"]
@@ -38,5 +42,6 @@ for (const [name, c, want] of cases) {
   if (!ok) bad++;
   console.log((ok ? "PASS " : "FAIL ") + name.padEnd(28) + "want " + want + ", got " + got);
 }
+fs.rmSync(path.dirname(big), { recursive: true, force: true });
 console.log(bad ? `${bad} FAILED` : "all passed");
 process.exit(bad ? 1 : 0);
