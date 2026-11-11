@@ -5,8 +5,13 @@
 [resource]
 script = ExtResource("1_avrja")
 kind = "crystal"
+id = "crystal"
 name = "ผลึก Gem"
 icon = "💎"
 price = 6
 color = Color(0.44705883, 0.84705883, 1, 1)
 catalog_order = 17
+label = "ผลึก"
+title = "ผลึก Gem"
+desc = "แตะการ์ดนี้แล้วแตะช่องว่างบนกระดาน วางผลึก Gem (HP 5) · ตอนเดินแวะช่องนี้ ATK ที่สะสมจะหักเลือดผลึก ผลึกแตกแล้วได้ Gem สุ่ม +3 ใบ (เข้ามือและเพิ่มในสำรับถาวร) · วาง Gem บนช่องนี้ไม่ได้"
+cover_key = "chaos:crystal"

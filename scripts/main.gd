@@ -555,12 +555,7 @@ func give_random_chaos() -> bool:
 	if slot < 0:
 		return false
 	var definition: Dictionary = ShopManager.CHAOS_CATALOG[randi_range(0, ShopManager.CHAOS_CATALOG.size() - 1)]
-	var card: Dictionary = {"kind": definition["kind"]}
-	if definition.has("col"):
-		card["col"] = definition["col"]
-	if definition.has("dir"):
-		card["dir"] = definition["dir"]
-	chaos[slot] = card
+	chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
 	return true
 
 

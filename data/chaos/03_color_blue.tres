@@ -5,7 +5,14 @@
 [resource]
 script = ExtResource("1_e6haj")
 col = "blue"
+id = "color_blue"
 name = "Chaos เปลี่ยนสีน้ำเงิน"
 icon = "🎨"
 color = Color(0.18431373, 0.49803922, 0.8392157, 1)
 catalog_order = 3
+label = "น้ำเงิน"
+title = "Chaos เปลี่ยนสีน้ำเงิน"
+desc = "เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสีน้ำเงิน ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+card_bg = Color(0.18431373, 0.49803922, 0.8392157, 1)
+slot_bg = Color(0.18431373, 0.49803922, 0.8392157, 1)
+cover_key = "chaos:color"

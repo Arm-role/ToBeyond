@@ -23,7 +23,7 @@ func on_victory() -> void:
 	var walk_coin_bonus: int = rewards["rows"].get("walk", 0)
 	var reward_fx: Array = rewards["fx"]
 	if _main.is_boss() and _main.chaos.has(null):
-		_main.chaos[_main.chaos.find(null)] = {"kind": "crystal"}
+		_main.chaos[_main.chaos.find(null)] = ArtifactSystem.chaos_def({"kind": "crystal"}).make_card()
 		_main.msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
 	var total_gain = base_reward + walk_reward + interest + int(rewards["total"])
 	_main.coins += total_gain

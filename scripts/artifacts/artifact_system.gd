@@ -54,6 +54,20 @@ static func chaos_all() -> Array[ChaosData]:
 	return _chaos
 
 
+## The definition of an owned/offered Chaos card. Cards made without an id
+## (old code, tests) are matched by kind + col + dir.
+static func chaos_def(card: Dictionary) -> ChaosData:
+	_ensure_loaded()
+	var cid: String = card.get("id", "")
+	for c in _chaos:
+		if cid != "":
+			if c.id == cid:
+				return c
+		elif c.kind == card.get("kind", "") and c.col == card.get("col", "") and c.dir == card.get("dir", ""):
+			return c
+	return null
+
+
 # --- Hooks (per game) ------------------------------------------------------------
 var main: Node
 

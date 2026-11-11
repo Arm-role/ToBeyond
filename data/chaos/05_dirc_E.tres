@@ -6,8 +6,13 @@
 script = ExtResource("1_uokju")
 kind = "dirc"
 dir = "E"
+id = "dirc_E"
 name = "Chaos เปลี่ยนทิศตะวันออก"
 icon = "🧭"
 price = 4
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 catalog_order = 5
+label = "ตะวันออก"
+title = "Chaos เปลี่ยนทิศ Gemตะวันออก"
+desc = "เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศตะวันออก ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+cover_key = "emblem:E"

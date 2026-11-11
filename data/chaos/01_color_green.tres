@@ -5,7 +5,14 @@
 [resource]
 script = ExtResource("1_xd348")
 col = "green"
+id = "color_green"
 name = "Chaos เปลี่ยนสีเขียว"
 icon = "🎨"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
 catalog_order = 1
+label = "เขียว"
+title = "Chaos เปลี่ยนสีเขียว"
+desc = "เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสีเขียว ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+card_bg = Color(0.18039216, 0.61960787, 0.35686275, 1)
+slot_bg = Color(0.18039216, 0.61960787, 0.35686275, 1)
+cover_key = "chaos:color"

@@ -5,7 +5,12 @@
 [resource]
 script = ExtResource("1_85ffh")
 kind = "mtile"
+id = "mtile"
 name = "Chaos MULT +5"
 icon = "⚡"
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 catalog_order = 12
+label = "⚡+5"
+title = "Chaos ช่อง ⚡+5"
+desc = "ตัวคูณ +5 · แตะการ์ดนี้แล้วแตะช่องบนกระดาน (อยู่ถาวรจนจบเกม) · ทำงานเมื่อเดินตกช่องที่มี Gem และทิศการ์ดตรงกับทิศช่อง"
+cover_key = "chaos:mtile"

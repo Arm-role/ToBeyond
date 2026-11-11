@@ -6,8 +6,13 @@
 script = ExtResource("1_ytqfe")
 kind = "dirc"
 dir = "S"
+id = "dirc_S"
 name = "Chaos เปลี่ยนทิศใต้"
 icon = "🧭"
 price = 4
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 catalog_order = 6
+label = "ใต้"
+title = "Chaos เปลี่ยนทิศ Gemใต้"
+desc = "เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศใต้ ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+cover_key = "emblem:S"

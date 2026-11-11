@@ -5,7 +5,14 @@
 [resource]
 script = ExtResource("1_vi4tc")
 kind = "destroy"
+id = "destroy"
 name = "Chaos ทำลาย Gem"
 icon = "💥"
 color = Color(0.8784314, 0.3764706, 0.36862746, 1)
 catalog_order = 16
+label = "ทำลาย"
+title = "Chaos ทำลาย"
+desc = "เลือก Gem 2 ใบ แล้วแตะการ์ดนี้: ทำลายออกจากสำรับถาวร"
+card_bg = Color(0.7176471, 0.24313726, 0.23921569, 1)
+slot_bg = Color(0.7176471, 0.24313726, 0.23921569, 1)
+cover_key = "chaos:destroy"

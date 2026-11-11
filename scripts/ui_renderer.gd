@@ -651,9 +651,7 @@ func render_chaos_row() -> void:
 		slot.icon = null
 		var chaos_bg := Color("#7b4fc9")
 		if chaos_card != null:
-			chaos_bg = {"goldify": Color("#e8bf4c"), "tdir": Color("#23978e"), "destroy": Color("#b73e3d")}.get(chaos_card["kind"], chaos_bg)
-			if chaos_card["kind"] == "color":
-				chaos_bg = GameAssets.COLORS.get(chaos_card.get("col", ""), chaos_bg)
+			chaos_bg = ArtifactSystem.chaos_def(chaos_card).slot_bg
 		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#ffd966") if i == _main.selected_chaos_slot and chaos_card != null else Color("#c79bff"), "chaos")
 		if chaos_card == null:
 			slot.text = ""
@@ -666,7 +664,7 @@ func render_chaos_row() -> void:
 		slot.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		slot.add_theme_constant_override("icon_max_width", 60)
-		slot.text = label if look["cover"] != null else "×1.2\n" + label
+		slot.text = ArtifactSystem.chaos_def(chaos_card).slot_prefix + label
 		slot.add_theme_font_size_override("font_size", 19 if look["cover"] != null else 22)
 		slot.add_theme_color_override("font_color", look["text"])
 		slot.add_theme_color_override("font_hover_color", look["text"])
