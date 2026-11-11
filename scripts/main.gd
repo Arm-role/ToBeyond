@@ -457,11 +457,14 @@ func render_tiles() -> void:
 	ui_renderer.render_tiles()
 
 
-func pop_tile_anim(tile_idx: int) -> void:
+func pop_tile_anim(tile_idx: int, delay: float = 0.0) -> void:
 	if tile_idx < 0 or tile_idx >= N_TILES: return
-	sfx.play("place")
+	if delay > 0.0:
+		get_tree().create_timer(delay).timeout.connect(sfx.play.bind("place"))
+	else:
+		sfx.play("place")
 	var tile_btn = tiles_container.get_child(tile_idx) as Button
-	VfxManager.pop_tile_anim(tile_btn)
+	VfxManager.pop_tile_anim(tile_btn, delay)
 
 
 func render_hand() -> void:
@@ -697,8 +700,8 @@ func auto_place_selected() -> void:
 	selected_card_ids.clear()
 	update_all_ui()
 	refresh_calc()
-	for slot in slots:
-		pop_tile_anim(slot)
+	for k in range(slots.size()):
+		pop_tile_anim(slots[k], k * 0.09)
 
 
 # ==============================================================================

@@ -263,13 +263,35 @@ static func show_center_toast(toast: PanelContainer, duration: float = 2.6) -> v
 	tween.tween_callback(func(): toast.visible = false)
 
 ## Quick pop bounce when placing or moving a tile card (.tile.tplace)
-static func pop_tile_anim(tile_btn: Control) -> void:
+static func pop_tile_anim(tile_btn: Control, delay: float = 0.0) -> void:
 	if not tile_btn: return
 	tile_btn.pivot_offset = tile_btn.size / 2.0
-	var tween = tile_btn.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tile_btn.scale = Vector2(1.12, 1.12)
-	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.28)
-
+	# Card "lands" on the tile: starts big and faint, slams down with a small
+	# overshoot, flashes white, and a ring bursts out from the tile.
+	tile_btn.scale = Vector2(1.6, 1.6)
+	tile_btn.self_modulate = Color(2.2, 2.2, 2.2, 0.0)
+	var tween = tile_btn.create_tween().set_parallel(true)
+	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.32).set_delay(delay) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(tile_btn, "self_modulate", Color.WHITE, 0.3).set_delay(delay) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	var ring := Panel.new()
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ring.pivot_offset = tile_btn.size / 2.0
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(1, 1, 1, 0)
+	sb.set_border_width_all(4)
+	sb.border_color = Color(1, 0.95, 0.7, 0.9)
+	sb.set_corner_radius_all(18)
+	ring.add_theme_stylebox_override("panel", sb)
+	ring.modulate.a = 0.0
+	tile_btn.add_child(ring)
+	var rt = ring.create_tween().set_parallel(true)
+	rt.tween_property(ring, "modulate:a", 1.0, 0.01).set_delay(delay + 0.12)
+	rt.tween_property(ring, "scale", Vector2(1.5, 1.5), 0.35).set_delay(delay + 0.12).set_ease(Tween.EASE_OUT)
+	rt.tween_property(ring, "modulate:a", 0.0, 0.3).set_delay(delay + 0.14)
+	rt.chain().tween_callback(ring.queue_free)
 
 
 const HIT_FLASH_SHADER: Shader = preload("res://assets/shaders/hit_flash.gdshader")
