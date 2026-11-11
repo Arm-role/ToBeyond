@@ -3,6 +3,8 @@
 #   tools/parity/build.sh --check   parse every script (~0.3 s each), verify skill-doc references
 #                                   (check_refs.py), and run the game headless
 #                                   into the "main" test state (a few seconds, no export)
+#   tools/parity/build.sh --regress [--update]   the check, then the artifact/chaos regression
+#                                   against tools/parity/baseline (--update rewrites it)
 #   tools/parity/build.sh           the check, then import + Web export to build/web (~1 min)
 # Full logs: build/import.log, build/export.log
 set -uo pipefail
@@ -25,6 +27,7 @@ fi
 [ -n "$errs" ] && echo "$errs" && echo "check: runtime errors above"
 echo "check OK"
 [ "${1:-}" = "--check" ] && exit 0
+[ "${1:-}" = "--regress" ] && exec bash tools/parity/regress.sh "${2:-}"
 
 start=$(date +%s)
 "$GODOT" --headless --path . --import > build/import.log 2>&1

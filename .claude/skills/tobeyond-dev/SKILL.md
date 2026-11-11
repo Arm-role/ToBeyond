@@ -31,7 +31,7 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 1. **Locate**: `reference/map.md` → Godot file: function → `grep -n`. The map is checked by `build.sh --check`; if you move or rename something it lists, update the map.
 2. **Spec**: read the Godot code and the user's request. Don't open the draft unless the user orders it.
 3. **Edit** the GDScript / scene.
-4. **Check**: `tools/parity/build.sh --check`.
+4. **Check**: `tools/parity/build.sh --check`; for artifact / Chaos / walk / damage logic also `tools/parity/build.sh --regress` (diff vs `tools/parity/baseline/`; `--regress --update` only for an intended change, and commit it).
 5. **Compare** (the parity tools compare with the draft; use them for layout/animation checks or when the user orders a draft comparison): `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
 6. **Visual pass** when the change is visual: `parity-check` skill with the scenario (and `--region`).
 7. **Review** (large or risky tasks only): ask `advisor` with the diff summary before calling it done.

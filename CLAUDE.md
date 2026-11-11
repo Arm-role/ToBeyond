@@ -23,7 +23,7 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 - `scripts/main.gd`: node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
 - Split classes (each holds `_main`): `BoardCalc`, `ToolbarControls`, `ActionDialog`, `SlotDrag`, `ChaosController`, `RewardFlow`, plus the managers (`BattleManager`, `ShopManager`, `UiRenderer`, `ArtifactSystem`).
 - Artifacts and Chaos are data: `data/artifacts/*.tres`, `data/chaos/*.tres`. New Chaos card: `docs/plan-chaos-data-driven.md` ("How to add").
-- Chaos/regression checks (run before and after a refactor and diff): `tools/parity/artifact_regress.gd`, `chaos_use.gd`, `chaos_dump.gd`.
+- Logic regression: `tools/parity/build.sh --regress` diffs `artifact_regress.gd`, `chaos_use.gd`, `chaos_dump.gd` against `tools/parity/baseline/`. Run it after any change to artifacts, Chaos, walk or damage code. After an *intended* number change run `--regress --update` and commit the baseline diff.
 
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
