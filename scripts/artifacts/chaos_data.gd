@@ -1,7 +1,7 @@
 class_name ChaosData
 extends Resource
 ## One Chaos card sold in the shop (res://data/chaos/*.tres). What the card
-## does is keyed by `kind` in main.gd (_apply_hand_chaos / _apply_chaos_to_tile).
+## does is keyed by `kind` in ChaosController (apply_hand / apply_to_tile).
 
 @export_enum("color", "dirc", "tdir", "mtile", "xmult", "xatk", "goldify", "destroy", "crystal") var kind: String = "color"
 @export var col: String = ""  # "" = any/none

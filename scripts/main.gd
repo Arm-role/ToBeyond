@@ -509,14 +509,6 @@ func _on_chaos_slot_pressed(slot_idx: int) -> void:
 	chaos_ctl.on_slot_pressed(slot_idx)
 
 
-func _apply_hand_chaos(slot_idx: int) -> void:
-	chaos_ctl.apply_hand(slot_idx)
-
-
-func _apply_chaos_to_tile(tile_idx: int) -> void:
-	chaos_ctl.apply_to_tile(tile_idx)
-
-
 func _finish_chaos(slot_idx: int, message: String) -> void:
 	chaos_ctl.finish(slot_idx, message)
 
@@ -744,10 +736,6 @@ func artifact_count_any() -> int:
 		if artifact != null:
 			count += 1
 	return count
-
-
-func render_reward_summary(base_reward: int, walks_remaining: int, walk_reward: int, held_coins: int, interest: int, total_gain: int, arti_pay: int = 0, fate_pay: int = 0, walk_coin_bonus: int = 0) -> void:
-	reward_flow.render_summary(base_reward, walks_remaining, walk_reward, held_coins, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 
 
 func _on_reward_shop_pressed() -> void:

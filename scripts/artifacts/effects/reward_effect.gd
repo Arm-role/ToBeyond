@@ -1,7 +1,7 @@
 class_name RewardEffect
 extends ArtifactEffect
 ## Data-only victory coins: copies × amount × source. `row` names the line in
-## the reward summary ("arti", "fate", "walk"; new rows need render_reward_summary).
+## the reward summary ("arti", "fate", "walk"; new rows need RewardFlow.render_summary).
 
 @export var amount: float = 1.0
 @export var source: String = "artifacts_owned"
