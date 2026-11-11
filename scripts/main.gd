@@ -685,8 +685,8 @@ func refresh_calc() -> void:
 ## Cards placed one at a time: each hand card leaves the hand, swoops to its
 ## tile (accelerating, with a small arc) and lands with a pop and a rising
 ## note, one beat after the previous card.
-const PLACE_BEAT := 0.15     # seconds between launches
-const PLACE_FLIGHT := 0.3    # seconds in the air
+const PLACE_BEAT := 0.28     # seconds between launches
+const PLACE_FLIGHT := 0.48   # seconds in the air
 var _placing: bool = false
 
 
@@ -757,7 +757,7 @@ func auto_place_selected() -> void:
 			proxy.global_position = pos - proxy.size * 0.5
 			proxy.scale = Vector2.ONE.lerp(s1, t)
 			proxy.rotation = lerpf(r0, 0.0, t), 0.0, 1.0, PLACE_FLIGHT) \
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tw.tween_callback(_land_card.bind(tile_btn, placed_icon, proxy, k, last))
 
 
