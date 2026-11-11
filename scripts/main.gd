@@ -302,14 +302,6 @@ func _input(event: InputEvent) -> void:
 	slot_drag.on_input(event)
 
 
-func _begin_slot_drag(mouse_pos: Vector2) -> void:
-	slot_drag.begin(mouse_pos)
-
-
-func _finish_slot_drag(mouse_pos: Vector2) -> void:
-	slot_drag.finish(mouse_pos)
-
-
 # ==============================================================================
 # Game Loop & Initializations
 # ==============================================================================
@@ -758,10 +750,6 @@ func render_reward_summary(base_reward: int, walks_remaining: int, walk_reward: 
 	reward_flow.render_summary(base_reward, walks_remaining, walk_reward, held_coins, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 
 
-func _add_reward_row(left_text: String, right_text: String, is_total: bool = false) -> void:
-	reward_flow.add_row(left_text, right_text, is_total)
-
-
 func _on_reward_shop_pressed() -> void:
 	reward_modal.visible = false
 	open_shop()
@@ -769,30 +757,6 @@ func _on_reward_shop_pressed() -> void:
 
 func open_shop() -> void:
 	shop_mgr.open_shop()
-
-
-func _render_shop_owned() -> void:
-	shop_mgr.render_shop_owned()
-
-
-func _render_shop_offers() -> void:
-	shop_mgr.render_shop_offers()
-
-
-func _buy_stat(stat_type: String, price: int) -> void:
-	shop_mgr.buy_stat(stat_type, price)
-
-
-func _buy_stone_upgrade(formula_idx: int, cost: int) -> void:
-	shop_mgr.buy_stone_upgrade(formula_idx, cost)
-
-
-func _buy_artifact(item: Dictionary) -> void:
-	shop_mgr.buy_artifact(item)
-
-
-func _sell_artifact(slot_idx: int) -> void:
-	shop_mgr.sell_artifact(slot_idx)
 
 
 func _on_shop_leave() -> void:
