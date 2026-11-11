@@ -1,0 +1,2 @@
+date	setup_commit	task	result	turns	tokens	note
+2026-11-11	7885187	place-timing	PASS	4	67828	sonnet general-purpose, first baseline; 14 s; no visual check
