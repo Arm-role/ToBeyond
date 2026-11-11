@@ -11,7 +11,7 @@ Line numbers drift, so grep the name. The draft columns live in the appendix at 
 | Totem | `board_calc.gd: sync_totems totem_attack` · `ui_renderer.gd: _render_totem` · `battle_manager.gd: _hit_totem` |
 | Deck, hand, sort, discard | `main.gd: build_deck draw_up_to_hand set_sort_mode render_hand` · `ui_renderer.gd: render_hand` · `chaos_controller.gd: on_discard_pressed` |
 | Place / take back / new round | `main.gd: _on_hand_card_clicked _on_tile_clicked start_new_round` · `chaos_controller.gd: on_tile_clicked` |
-| Stone formulas (groups) | `stone_calc.gd: DEFAULT_FORMULAS calculate_groups` · `board_calc.gd: calculate_groups matching_group_count matching_card_count` |
+| Stone formulas (groups) | `stone_calc.gd: DEFAULT_FORMULAS FLAGS calculate_groups validate_formulas` · `board_calc.gd: calculate_groups matching_group_count matching_card_count` |
 | Auto place | `stone_calc.gd: solve_best_placement` · `main.gd: auto_place_selected` |
 | Damage formula text | `main.gd: show_calc refresh_calc fmt_num` · `board_calc.gd: compute_attack` |
 | Walk (token path, per-tile effects) | `battle_manager.gd: run_walk build_walk_steps _visit_tile _tile_pop _spawn_tile_popup` · `board_calc.gd: tile_direction_count tile_direction_run passive_chaos_tile_count apply_tile_walk_effects` · `main.gd: _on_walk_pressed _land_card begin_walk_damage prepare_walk_artifacts` |
@@ -40,7 +40,7 @@ Line numbers drift, so grep the name. The draft columns live in the appendix at 
 | artifact catalog in `genOffers` / `itemName` / `itemDesc`, `RARITY`, attack/landing code per type | `data/artifacts/<id>.tres` (`ArtifactData`: shop fields, rarity, draft name/desc, cover, effects). `ShopManager.ARTIFACT_CATALOG` / `ARTIFACT_RARITY` are views built from it |
 | artifact effects and trigger points | `scripts/artifacts/`: `ArtifactSystem` (hooks: round_start, chaos_used, pre_walk, land, attack_early, attack, victory, reward, stone_upgrade, rules), `ArtifactEffect` (hook table), data-only `StatEffect CounterEffect RewardEffect RuleEffect`, custom ones in `effects/*_effect.gd`. Game code asks `artifact_sys.has_rule(&"…")`, never an artifact id. Check numbers: `godot --headless --path . --script res://tools/parity/artifact_regress.gd` and diff with a run before the change |
 | `CHAOS_SHOP` | `data/chaos/*.tres` (`ChaosData`) → `ShopManager.CHAOS_CATALOG` |
-| `FROWS` (Stone rows: key, name, desc, min, a, g, pv) | `StoneCalc.DEFAULT_FORMULAS` |
+| `FROWS` (Stone rows: key, name, desc, min, a, g, bonus, req, pv) | `StoneCalc.DEFAULT_FORMULAS` |
 | `UPG_INFO` | shop_manager `_get_stat_offer_info` |
 | `BOSS_PICS BOSS_BLANKS ENEMY_HP_START EATK_START PHP_GROW` | same names in main.gd (grep) |
 

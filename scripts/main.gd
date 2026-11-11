@@ -193,6 +193,7 @@ func _ready() -> void:
 	shop_mgr = ShopManager.new(self)
 	ui_renderer = UiRenderer.new(self)
 	board_calc = BoardCalc.new(self)
+	StoneCalc.validate_formulas(stone_formulas)
 	_setup_action_dialog()
 	setup_stone_modal_content()
 	_style_sort_button(sort_color_btn, sort_mode == "color")
@@ -338,6 +339,7 @@ func start_new_game() -> void:
 	first_gem_triggered = false
 	first_gem_tile = -1
 	stone_formulas = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
+	StoneCalc.validate_formulas(stone_formulas)
 	totem_tiles.clear()
 	reset_chaos()
 

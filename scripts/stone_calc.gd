@@ -2,17 +2,39 @@ class_name StoneCalc
 extends RefCounted
 
 # Same data as FROWS in To_Beyond_Draft.html; `pv` = preview cards [colour, dir or ""].
+# Data-driven: a formula matches a span of n cards when n >= `min` and every flag
+# in `req` (see FLAGS) is true. Value per card = a + g * (n - 1); `bonus` = `a` gained
+# per Stone upgrade. Formula order matters (tie-break, shop keys, toast "stone N").
+const FLAGS: Array = ["same_col", "same_dir", "dtile", "alt_col"]
 const COLOR_ORDER: Array = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array = ["N", "E", "S", "W"]
 
 const DEFAULT_FORMULAS: Array[Dictionary] = [
-	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1, "pv": [["red", ""], ["red", ""], ["red", ""]]},
-	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)", "min": 2, "a": 2, "g": 1, "pv": [["red", "E"], ["blue", "E"], ["green", "E"]]},
-	{"key": "alt", "name": "สลับสี", "desc": "สองสีวางสลับกัน (3 ใบขึ้นไป)", "min": 3, "a": 3, "g": 1, "pv": [["red", ""], ["blue", ""], ["red", ""]]},
-	{"key": "dtile", "name": "ทิศตรงช่อง", "desc": "ทิศของการ์ดตรงกับช่องทุกใบ (สีไหนก็ได้)", "min": 1, "a": 2, "g": 2, "pv": [["red", "N"], ["blue", "N"], ["green", "E"]]},
-	{"key": "cd", "name": "สีทิศ", "desc": "สีเดียวกัน และทิศตรงช่องทุกใบ (2 ใบขึ้นไป)", "min": 2, "a": 5, "g": 5, "pv": [["red", "N"], ["red", "N"], ["red", "E"]]},
-	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)", "min": 2, "a": 4, "g": 4, "pv": [["red", "S"], ["red", "S"], ["red", "S"]]}
+	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1, "bonus": 1, "req": ["same_col"], "pv": [["red", ""], ["red", ""], ["red", ""]]},
+	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)", "min": 2, "a": 2, "g": 1, "bonus": 1, "req": ["same_dir"], "pv": [["red", "E"], ["blue", "E"], ["green", "E"]]},
+	{"key": "alt", "name": "สลับสี", "desc": "สองสีวางสลับกัน (3 ใบขึ้นไป)", "min": 3, "a": 3, "g": 1, "bonus": 2, "req": ["alt_col"], "pv": [["red", ""], ["blue", ""], ["red", ""]]},
+	{"key": "dtile", "name": "ทิศตรงช่อง", "desc": "ทิศของการ์ดตรงกับช่องทุกใบ (สีไหนก็ได้)", "min": 1, "a": 2, "g": 2, "bonus": 2, "req": ["dtile"], "pv": [["red", "N"], ["blue", "N"], ["green", "E"]]},
+	{"key": "cd", "name": "สีทิศ", "desc": "สีเดียวกัน และทิศตรงช่องทุกใบ (2 ใบขึ้นไป)", "min": 2, "a": 5, "g": 5, "bonus": 3, "req": ["same_col", "dtile"], "pv": [["red", "N"], ["red", "N"], ["red", "E"]]},
+	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)", "min": 2, "a": 4, "g": 4, "bonus": 4, "req": ["same_col", "same_dir"], "pv": [["red", "S"], ["red", "S"], ["red", "S"]]}
 ]
+
+static func _has_flags(flags: Dictionary, req: Array) -> bool:
+	for flag in req:
+		if not flags.get(flag, false):
+			return false
+	return true
+
+
+## Checks the formula data once (call at startup / reset, not in the solver loop).
+static func validate_formulas(formulas: Array) -> void:
+	for r in formulas:
+		for k in ["key", "name", "min", "a", "g", "bonus", "req"]:
+			if not r.has(k):
+				push_error("StoneCalc: formula %s lacks '%s'" % [str(r.get("key", "?")), k])
+		for flag in r.get("req", []):
+			if not FLAGS.has(flag):
+				push_error("StoneCalc: formula %s has unknown req flag '%s'" % [str(r.get("key", "?")), flag])
+
 
 ## Calculate stone formula groupings and base damage
 static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formulas: Array, max_tiles: int = 8) -> Dictionary:
@@ -54,20 +76,13 @@ static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formula
 							alt_col = false
 							break
 
-				var f = {
-					"col": same_col,
-					"dsame": same_dir,
-					"alt": alt_col,
-					"dtile": dtile,
-					"cd": same_col and dtile,
-					"twin": same_col and same_dir
-				}
+				var flags := {"same_col": same_col, "same_dir": same_dir, "dtile": dtile, "alt_col": alt_col}
 
 				var best_k = -1
 				var best_v = 0
 				for k in range(formulas.size()):
 					var r = formulas[k]
-					if f.get(r["key"], false) and n >= r["min"]:
+					if n >= r["min"] and _has_flags(flags, r["req"]):
 						var v = r["a"] + r["g"] * (n - 1)
 						if v > best_v or (v == best_v and k > best_k):
 							best_v = v

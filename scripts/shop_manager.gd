@@ -6,7 +6,6 @@ const HAND_CAP: int = 12
 const HAND_PRICE: int = 10
 const STAT_PRICE: int = 10
 const STONE_UPGRADE_PRICE: int = 3
-const STONE_UPGRADE_BONUSES: Array[int] = [1, 1, 2, 2, 3, 4]
 const REROLL_START: int = 5
 const REROLL_STEP: int = 2
 const OFFER_ARTIFACTS: int = 2
@@ -670,7 +669,7 @@ func _render_offer(index: int) -> void:
 		var stone_idx: int = offer["idx"]
 		var stone: Dictionary = _main.stone_formulas[stone_idx]
 		var stone_cost := get_stone_upgrade_cost()
-		var stone_bonus: int = STONE_UPGRADE_BONUSES[stone_idx]
+		var stone_bonus: int = int(stone["bonus"])
 		var stone_level: int = int(stone.get("lv", 1))
 		var stone_key := "stone:%d" % stone_idx
 		var is_sold: bool = sold or shop_bought.has(stone_key)
@@ -734,7 +733,7 @@ func _render_upgrade_catalog() -> void:
 			continue
 		var cost := get_stone_upgrade_cost()
 		var key := "stone:%d" % idx
-		var bonus: int = STONE_UPGRADE_BONUSES[idx]
+		var bonus: int = int(stone["bonus"])
 		var level: int = int(stone.get("lv", 1))
 		var captured_idx := idx
 		var captured_cost := cost
@@ -791,7 +790,7 @@ func buy_stone_upgrade(formula_idx: int, cost: int) -> void:
 		return
 	_main.coins -= cost
 	_main.sfx.play("coin")
-	_main.stone_formulas[formula_idx]["a"] += STONE_UPGRADE_BONUSES[formula_idx]
+	_main.stone_formulas[formula_idx]["a"] += int(_main.stone_formulas[formula_idx]["bonus"])
 	_main.stone_formulas[formula_idx]["lv"] = int(_main.stone_formulas[formula_idx].get("lv", 1)) + 1
 	shop_bought.append(key)
 	_main.artifact_sys.stone_upgrade()
