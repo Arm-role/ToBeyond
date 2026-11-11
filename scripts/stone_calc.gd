@@ -4,19 +4,32 @@ extends RefCounted
 # Same data as FROWS in To_Beyond_Draft.html; `pv` = preview cards [colour, dir or ""].
 # Data-driven: a formula matches a span of n cards when n >= `min` and every flag
 # in `req` (see FLAGS) is true. Value per card = a + g * (n - 1); `bonus` = `a` gained
-# per Stone upgrade. Formula order matters (tie-break, shop keys, toast "stone N").
+# per Stone upgrade. `tier` = difficulty (higher = harder). Selection uses two axes:
+# tier first, then number of cards; the value (a, g) only sets the damage and the
+# last tie-breaks. Formula order still matters (shop keys, toast "stone N").
 const FLAGS: Array = ["same_col", "same_dir", "dtile", "alt_col"]
 const COLOR_ORDER: Array = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array = ["N", "E", "S", "W"]
 
 const DEFAULT_FORMULAS: Array[Dictionary] = [
-	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1, "bonus": 1, "req": ["same_col"], "pv": [["red", ""], ["red", ""], ["red", ""]]},
-	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)", "min": 2, "a": 2, "g": 1, "bonus": 1, "req": ["same_dir"], "pv": [["red", "E"], ["blue", "E"], ["green", "E"]]},
-	{"key": "alt", "name": "สลับสี", "desc": "สองสีวางสลับกัน (3 ใบขึ้นไป)", "min": 3, "a": 3, "g": 1, "bonus": 2, "req": ["alt_col"], "pv": [["red", ""], ["blue", ""], ["red", ""]]},
-	{"key": "dtile", "name": "ทิศตรงช่อง", "desc": "ทิศของการ์ดตรงกับช่องทุกใบ (สีไหนก็ได้)", "min": 1, "a": 2, "g": 2, "bonus": 2, "req": ["dtile"], "pv": [["red", "N"], ["blue", "N"], ["green", "E"]]},
-	{"key": "cd", "name": "สีทิศ", "desc": "สีเดียวกัน และทิศตรงช่องทุกใบ (2 ใบขึ้นไป)", "min": 2, "a": 5, "g": 5, "bonus": 3, "req": ["same_col", "dtile"], "pv": [["red", "N"], ["red", "N"], ["red", "E"]]},
-	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)", "min": 2, "a": 4, "g": 4, "bonus": 4, "req": ["same_col", "same_dir"], "pv": [["red", "S"], ["red", "S"], ["red", "S"]]}
+	{"key": "col", "name": "สีเรียงกัน", "desc": "สีเดียวกันวางติดกัน (ใบเดี่ยวนับด้วย)", "min": 1, "a": 1, "g": 1, "tier": 1, "bonus": 1, "req": ["same_col"], "pv": [["red", ""], ["red", ""], ["red", ""]]},
+	{"key": "dsame", "name": "ทิศเรียงกัน", "desc": "ทิศของการ์ดเหมือนกันวางติดกัน (ไม่สนช่อง · 2 ใบขึ้นไป)", "min": 2, "a": 2, "g": 1, "tier": 1, "bonus": 1, "req": ["same_dir"], "pv": [["red", "E"], ["blue", "E"], ["green", "E"]]},
+	{"key": "alt", "name": "สลับสี", "desc": "สองสีวางสลับกัน (3 ใบขึ้นไป)", "min": 3, "a": 3, "g": 1, "tier": 2, "bonus": 2, "req": ["alt_col"], "pv": [["red", ""], ["blue", ""], ["red", ""]]},
+	{"key": "dtile", "name": "ทิศตรงช่อง", "desc": "ทิศของการ์ดตรงกับช่องทุกใบ (สีไหนก็ได้)", "min": 1, "a": 2, "g": 2, "tier": 3, "bonus": 2, "req": ["dtile"], "pv": [["red", "N"], ["blue", "N"], ["green", "E"]]},
+	{"key": "cd", "name": "สีทิศ", "desc": "สีเดียวกัน และทิศตรงช่องทุกใบ (2 ใบขึ้นไป)", "min": 2, "a": 5, "g": 5, "tier": 5, "bonus": 3, "req": ["same_col", "dtile"], "pv": [["red", "N"], ["red", "N"], ["red", "E"]]},
+	{"key": "twin", "name": "ฝาแฝด", "desc": "การ์ดเหมือนกันทั้งสีและทิศ วางติดกัน (2 ใบขึ้นไป)", "min": 2, "a": 4, "g": 4, "tier": 4, "bonus": 4, "req": ["same_col", "same_dir"], "pv": [["red", "S"], ["red", "S"], ["red", "S"]]}
 ]
+
+## Two axes first: tier, then number of cards; then total value, per-card value.
+static func _group_better(g: Dictionary, b: Dictionary) -> bool:
+	if g["tier"] != b["tier"]:
+		return g["tier"] > b["tier"]
+	if g["idxs"].size() != b["idxs"].size():
+		return g["idxs"].size() > b["idxs"].size()
+	if g["res"]["tot"] != b["res"]["tot"]:
+		return g["res"]["tot"] > b["res"]["tot"]
+	return g["res"]["a"] > b["res"]["a"]
+
 
 static func _has_flags(flags: Dictionary, req: Array) -> bool:
 	for flag in req:
@@ -28,7 +41,7 @@ static func _has_flags(flags: Dictionary, req: Array) -> bool:
 ## Checks the formula data once (call at startup / reset, not in the solver loop).
 static func validate_formulas(formulas: Array) -> void:
 	for r in formulas:
-		for k in ["key", "name", "min", "a", "g", "bonus", "req"]:
+		for k in ["key", "name", "min", "a", "g", "tier", "bonus", "req"]:
 			if not r.has(k):
 				push_error("StoneCalc: formula %s lacks '%s'" % [str(r.get("key", "?")), k])
 		for flag in r.get("req", []):
@@ -80,11 +93,14 @@ static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formula
 
 				var best_k = -1
 				var best_v = 0
+				var best_t = -1
 				for k in range(formulas.size()):
 					var r = formulas[k]
 					if n >= r["min"] and _has_flags(flags, r["req"]):
 						var v = r["a"] + r["g"] * (n - 1)
-						if v > best_v or (v == best_v and k > best_k):
+						var t: int = int(r["tier"])
+						if t > best_t or (t == best_t and (v > best_v or (v == best_v and k > best_k))):
+							best_t = t
 							best_v = v
 							best_k = k
 
@@ -93,6 +109,7 @@ static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formula
 						"type": formulas[best_k]["key"],
 						"name": formulas[best_k]["name"],
 						"idxs": idxs,
+						"tier": best_t,
 						"col": first_col if same_col else null,
 						"res": {"a": best_v, "k": best_k, "tot": best_v * n}
 					})
@@ -102,8 +119,7 @@ static func calculate_groups(placed_cards: Dictionary, tile_dirs: Array, formula
 			if best == null:
 				best = g
 				continue
-			var b = best
-			if g["res"]["tot"] > b["res"]["tot"] or (g["res"]["tot"] == b["res"]["tot"] and (g["res"]["a"] > b["res"]["a"] or (g["res"]["a"] == b["res"]["a"] and g["idxs"].size() > b["idxs"].size()))):
+			if _group_better(g, best):
 				best = g
 
 		if best == null:
