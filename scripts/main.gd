@@ -166,6 +166,7 @@ var board_calc: BoardCalc
 var toolbar: ToolbarControls
 var action_dlg: ActionDialog
 var slot_drag: SlotDrag
+var chaos_ctl: ChaosController
 var action_dialog: Control
 var pending_dialog_action: Callable
 
@@ -182,6 +183,7 @@ func _ready() -> void:
 	toolbar = ToolbarControls.new(self)
 	action_dlg = ActionDialog.new(self)
 	slot_drag = SlotDrag.new(self)
+	chaos_ctl = ChaosController.new(self)
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
 	artifact_sys = ArtifactSystem.new(self)
@@ -510,216 +512,32 @@ func _on_hand_card_clicked(card_id: int) -> void:
 
 
 func _on_chaos_slot_pressed(slot_idx: int) -> void:
-	if is_busy or slot_idx < 0 or slot_idx >= chaos.size():
-		return
-	var chaos_card = chaos[slot_idx]
-	if chaos_card == null:
-		return
-	var kind: String = chaos_card["kind"]
-	if kind in ["tdir", "mtile", "xmult", "xatk", "crystal"]:
-		selected_chaos_slot = -1 if selected_chaos_slot == slot_idx else slot_idx
-		chaos_msg("แตะช่องที่ต้องการวาง" if selected_chaos_slot >= 0 else "ยกเลิกแล้ว")
-		update_all_ui()
-		return
-	_apply_hand_chaos(slot_idx)
+	chaos_ctl.on_slot_pressed(slot_idx)
 
 
 func _apply_hand_chaos(slot_idx: int) -> void:
-	var chaos_card = chaos[slot_idx]
-	if chaos_card == null:
-		return
-	var picked: Array[Dictionary] = []
-	for card in hand:
-		if selected_card_ids.has(card["id"]):
-			picked.append(card)
-	var kind: String = chaos_card["kind"]
-	if kind != "destroy" and picked.any(func(c): return c.get("is_blank", false)):
-		chaos_msg("การ์ดเปล่าใช้ Chaos ไม่ได้")
-		return
-	if kind == "color":
-		if picked.is_empty():
-			chaos_msg("เลือก Gem ในมือก่อน (สูงสุด 2 ใบ)")
-			return
-		if picked.size() > 2:
-			chaos_msg("เปลี่ยนสีได้สูงสุด 2 ใบ")
-			return
-		if picked.all(func(c): return c["color"] == chaos_card["col"]):
-			chaos_msg("Gem ที่เลือกเป็นสี%sอยู่แล้ว" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-			return
-		for card in picked:
-			if card.get("is_blank", false):
-				continue
-			deck_mods.append({"from": card["color"], "dir": card["dir"], "to": chaos_card["col"], "to_dir": card["dir"]})
-			card["color"] = chaos_card["col"]
-		_finish_chaos(slot_idx, "🎨 เปลี่ยนเป็นสี%sถาวร" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-	elif kind == "dirc":
-		if picked.is_empty():
-			chaos_msg("เลือก Gem ในมือก่อน (1 ใบ)")
-			return
-		if picked.size() > 1:
-			chaos_msg("เปลี่ยนทิศได้ทีละ 1 ใบ")
-			return
-		if picked[0]["dir"] == chaos_card["dir"]:
-			chaos_msg("Gem ที่เลือกเป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		var card = picked[0]
-		deck_mods.append({"from": card["color"], "dir": card["dir"], "to": card["color"], "to_dir": chaos_card["dir"]})
-		card["dir"] = chaos_card["dir"]
-		_finish_chaos(slot_idx, "🧭 เปลี่ยนเป็นทิศ%sถาวร" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-	elif kind == "goldify":
-		if picked.size() != 1:
-			chaos_msg("เลือก Gem ในมือ 1 ใบก่อน")
-			return
-		if picked[0].get("gold", false):
-			chaos_msg("ใบนี้เป็นการ์ดทองอยู่แล้ว")
-			return
-		picked[0]["gold"] = true
-		gold_mods.append({"color": picked[0]["color"], "dir": picked[0]["dir"]})
-		_finish_chaos(slot_idx, "✨ เป็นการ์ดทองถาวร")
-	elif kind == "destroy":
-		if picked.size() != 2:
-			chaos_msg("เลือก Gem ในมือ 2 ใบก่อน")
-			return
-		for card in picked:
-			if not card.get("is_blank", false):
-				deck_removals.append({"color": card["color"], "dir": card["dir"]})
-			hand.erase(card)
-		_finish_chaos(slot_idx, "💥 ทำลาย Gem 2 ใบถาวร")
+	chaos_ctl.apply_hand(slot_idx)
 
 
 func _apply_chaos_to_tile(tile_idx: int) -> void:
-	if selected_chaos_slot < 0 or selected_chaos_slot >= chaos.size():
-		return
-	var chaos_card = chaos[selected_chaos_slot]
-	if chaos_card == null:
-		selected_chaos_slot = -1
-		return
-	var kind: String = chaos_card["kind"]
-	if kind == "tdir":
-		if TILE_DIR[tile_idx] == chaos_card["dir"]:
-			chaos_msg("ช่องนี้เป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		TILE_DIR[tile_idx] = chaos_card["dir"]
-	elif kind == "mtile":
-		if chaos_mult_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_mult_tiles[tile_idx] = true
-	elif kind == "xmult":
-		if chaos_xmult_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_xmult_tiles[tile_idx] = true
-	elif kind == "xatk":
-		if chaos_xatk_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_xatk_tiles[tile_idx] = true
-	elif kind == "crystal":
-		if placed_cards.has(tile_idx) or chaos_crystals.has(tile_idx):
-			chaos_msg("วางผลึกได้เฉพาะช่องว่าง")
-			return
-		chaos_crystals[tile_idx] = CRYSTAL_HP
-	else:
-		return
-	_finish_chaos(selected_chaos_slot, "")
+	chaos_ctl.apply_to_tile(tile_idx)
 
 
 func _finish_chaos(slot_idx: int, message: String) -> void:
-	chaos[slot_idx] = null
-	selected_chaos_slot = -1
-	selected_card_ids.clear()
-	artifact_sys.chaos_used()
-	if message != "":
-		chaos_msg(message)
-	update_all_ui()
-	refresh_calc()
+	chaos_ctl.finish(slot_idx, message)
 
 
 func hit_crystal(tile_idx: int) -> Dictionary:
-	if not chaos_crystals.has(tile_idx):
-		return {"used": 0, "broken": false}
-	var current_hp: int = chaos_crystals[tile_idx]
-	var incoming: int = maxi(1, walk_base_damage)
-	var used: int = mini(incoming, current_hp)
-	walk_base_damage = maxi(0, walk_base_damage - used)
-	current_hp -= used
-	if current_hp > 0:
-		chaos_crystals[tile_idx] = current_hp
-		update_all_ui()
-		return {"used": used, "broken": false}
-	chaos_crystals.erase(tile_idx)
-	for _i in range(CRYSTAL_GEMS):
-		var color: String = COLOR_ORDER[randi_range(0, COLOR_ORDER.size() - 1)]
-		var direction: String = DIR_ORDER[randi_range(0, DIR_ORDER.size() - 1)]
-		var deck_card := {"id": card_uid_counter, "color": color, "dir": direction, "is_blank": false, "gold": false}
-		card_uid_counter += 1
-		deck.append(deck_card)
-		var hand_card := deck_card.duplicate()
-		hand_card["id"] = card_uid_counter
-		card_uid_counter += 1
-		hand.append(hand_card)
-	msg_label.text = "💎 ผลึกแตก! ได้ Gem +%d" % CRYSTAL_GEMS
-	update_all_ui()
-	return {"used": used, "broken": true}
+	return chaos_ctl.hit_crystal(tile_idx)
 
 
 func _on_tile_clicked(tile_idx: int) -> void:
-	if is_busy: return
-	if selected_chaos_slot >= 0:
-		_apply_chaos_to_tile(tile_idx)
-		return
-	if chaos_crystals.has(tile_idx):
-		msg_label.text = "ช่องนี้มีผลึก Gem วาง Gem ไม่ได้"
-		return
-
-	# Rule: If tile already has card, return it to hand!
-	if placed_cards.has(tile_idx):
-		if hand.size() >= hand_max:
-			msg_label.text = "มือเต็ม เอา Gem กลับไม่ได้"
-			return
-		var card = placed_cards[tile_idx]
-		placed_cards.erase(tile_idx)
-		hand.append(card)
-		update_all_ui()
-		refresh_calc()
-		return
-
-	# If exactly one card selected in hand, place it here
-	if selected_card_ids.size() == 1:
-		var target_id = selected_card_ids[0]
-		var found_card = null
-		for card in hand:
-			if card["id"] == target_id:
-				found_card = card
-				break
-		if found_card != null:
-			hand.erase(found_card)
-			placed_cards[tile_idx] = found_card
-			selected_card_ids.clear()
-			update_all_ui()
-			refresh_calc()
-			pop_tile_anim(tile_idx)
+	chaos_ctl.on_tile_clicked(tile_idx)
 
 
 func _on_discard_pressed() -> void:
-	if is_busy or selected_card_ids.is_empty() or discards_left <= 0:
-		return
-	if placed_cards.size() > 0 and not artifact_sys.has_rule(&"free_discard"):
-		msg_label.text = "⚠️ วาง Gem แล้วทิ้งไม่ได้ (ดึง Gem กลับก่อน)"
-		return
+	chaos_ctl.on_discard_pressed()
 
-	discards_left -= 1
-	var to_remove = []
-	for card in hand:
-		if selected_card_ids.has(card["id"]):
-			to_remove.append(card)
-	for card in to_remove:
-		hand.erase(card)
-	selected_card_ids.clear()
-	draw_up_to_hand(hand_max)
-	update_all_ui()
-	refresh_calc()
 
 
 # ==============================================================================

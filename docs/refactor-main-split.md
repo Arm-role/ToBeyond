@@ -19,7 +19,7 @@ Goal: `main.gd` (1543 lines, 55 KB) under 40 KB / ~700 lines so it can be read i
 | 2 | `board_calc.gd` | group/direction counting (`calculate_groups`, `tile_direction_*`, `matching_*`), walk/attack maths (`compute_attack`, `apply_tile_walk_effects`, totems) | done |
 | 3 | `toolbar_controls.gd` | fullscreen, audio and sort buttons (`_setup_fullscreen_button`, `_setup_audio_button`, `_style_sort_button`, ...) | done |
 | 4 | `action_dialog.gd` + `slot_drag.gd` | confirm dialog (`_setup_action_dialog`, `show_action_dialog`), artifact/chaos slot drag (`_input`, `_begin_slot_drag`, `_finish_slot_drag`) | done |
-| 5 | `chaos_controller.gd` | Chaos use (`_apply_hand_chaos`, `_apply_chaos_to_tile`, `hit_crystal`), tile click, discard | todo |
+| 5 | `chaos_controller.gd` | Chaos use (`_apply_hand_chaos`, `_apply_chaos_to_tile`, `hit_crystal`), tile click, discard | done |
 | 6 | `reward_flow.gd` (new file, not `ui_renderer.gd`, it is already ~850 lines) | `on_victory`, `render_reward_summary`, reward rows | todo |
 | 7 | none | drop wrappers on `main` that no script calls; re-measure size | todo |
 
