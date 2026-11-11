@@ -268,12 +268,18 @@ static func pop_tile_anim(tile_btn: Control, delay: float = 0.0) -> void:
 	tile_btn.pivot_offset = tile_btn.size / 2.0
 	# Card "lands" on the tile: starts big and faint, slams down with a small
 	# overshoot, flashes white, and a ring bursts out from the tile.
-	tile_btn.scale = Vector2(1.6, 1.6)
-	tile_btn.self_modulate = Color(2.2, 2.2, 2.2, 0.0)
-	var tween = tile_btn.create_tween().set_parallel(true)
-	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.32).set_delay(delay) \
+	# The start pose is applied only when this tile's turn comes, so tiles
+	# waiting in the queue keep showing their art instead of vanishing.
+	var tween = tile_btn.create_tween()
+	if delay > 0.0:
+		tween.tween_interval(delay)
+	tween.tween_callback(func() -> void:
+		tile_btn.scale = Vector2(1.6, 1.6)
+		tile_btn.self_modulate = Color(2.2, 2.2, 2.2, 0.0))
+	tween.set_parallel(true)
+	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.32) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(tile_btn, "self_modulate", Color.WHITE, 0.3).set_delay(delay) \
+	tween.tween_property(tile_btn, "self_modulate", Color.WHITE, 0.3) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	var ring := Panel.new()
 	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
