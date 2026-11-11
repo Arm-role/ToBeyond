@@ -99,49 +99,20 @@ static func display_desc(item: Dictionary) -> String:
 const COL_TH: Dictionary = {"red": "แดง", "green": "เขียว", "orange": "ส้ม", "blue": "น้ำเงิน"}
 
 
-## Chaos texts from the draft (chaosLabel / chaosName / chaosDesc).
+## Chaos texts from the draft (label / title / desc live in data/chaos/*.tres).
 static func chaos_label(c: Dictionary) -> String:
-	match c.get("kind", ""):
-		"color": return COL_TH.get(c.get("col", ""), "")
-		"dirc": return DIR_TH.get(c.get("dir", ""), "")
-		"tdir": return "ช่อง " + str(c.get("dir", ""))
-		"mtile": return "⚡+5"
-		"xmult": return "MULT"
-		"xatk": return "ATK"
-		"goldify": return "ทอง"
-		"destroy": return "ทำลาย"
-		"crystal": return "ผลึก"
-	return ""
+	var d := ArtifactSystem.chaos_def(c)
+	return d.label if d != null else ""
 
 
 static func chaos_name(c: Dictionary) -> String:
-	match c.get("kind", ""):
-		"color": return "Chaos เปลี่ยนสี" + COL_TH.get(c.get("col", ""), "")
-		"dirc": return "Chaos เปลี่ยนทิศ Gem" + DIR_TH.get(c.get("dir", ""), "")
-		"tdir": return "Chaos เปลี่ยนทิศช่อง" + DIR_TH.get(c.get("dir", ""), "")
-		"mtile": return "Chaos ช่อง ⚡+5"
-		"xmult": return "Chaos ช่อง ×1.2 มัลติ"
-		"xatk": return "Chaos ช่อง ×1.2 ATK"
-		"goldify": return "Chaos ทอง"
-		"destroy": return "Chaos ทำลาย"
-		"crystal": return "ผลึก Gem"
-	return "Chaos"
+	var d := ArtifactSystem.chaos_def(c)
+	return d.title if d != null else "Chaos"
 
 
 static func chaos_desc(c: Dictionary) -> String:
-	var tile := "แตะการ์ดนี้แล้วแตะช่องบนกระดาน (อยู่ถาวรจนจบเกม) · ทำงานเมื่อเดินตกช่องที่มี Gem และทิศการ์ดตรงกับทิศช่อง"
-	var d: String = DIR_TH.get(c.get("dir", ""), "")
-	match c.get("kind", ""):
-		"color": return "เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสี%s ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)" % COL_TH.get(c.get("col", ""), "")
-		"dirc": return "เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศ%s ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)" % d
-		"tdir": return "แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็น%s ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศ%sที่วางบนช่องนี้จะนับว่าตรงทิศ" % [d, d]
-		"mtile": return "ตัวคูณ +5 · " + tile
-		"xmult": return "ตัวคูณ ×1.2 · " + tile
-		"xatk": return "ATK ×1.2 · " + tile
-		"goldify": return "เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: เป็นการ์ดทองถาวร ตกช่องแล้วทำงานซ้ำ 2 รอบ"
-		"destroy": return "เลือก Gem 2 ใบ แล้วแตะการ์ดนี้: ทำลายออกจากสำรับถาวร"
-		"crystal": return "แตะการ์ดนี้แล้วแตะช่องว่างบนกระดาน วางผลึก Gem (HP 5) · ตอนเดินแวะช่องนี้ ATK ที่สะสมจะหักเลือดผลึก ผลึกแตกแล้วได้ Gem สุ่ม +3 ใบ (เข้ามือและเพิ่มในสำรับถาวร) · วาง Gem บนช่องนี้ไม่ได้"
-	return ""
+	var d := ArtifactSystem.chaos_def(c)
+	return d.desc if d != null else ""
 
 
 ## Cover art like the draft's itemCover(): SVG art, else the direction emblem.
@@ -151,7 +122,7 @@ func art_cover(item: Dictionary) -> Texture2D:
 		return null
 	if d.texture != null:
 		return d.texture
-	return _main.EMBLEMS.get(d.emblem_dir) if d.emblem_dir != "" else null
+	return GameAssets.EMBLEMS.get(d.emblem_dir) if d.emblem_dir != "" else null
 
 
 var _main: Node
@@ -238,26 +209,26 @@ func _update_tab_buttons() -> void:
 		var sb: StyleBox
 		if active:
 			var flat := StyleBoxFlat.new()
-			flat.bg_color = _main.COLORS["brass"]
-			flat.border_color = _main.COLORS["brass"]
+			flat.bg_color = GameAssets.COLORS["brass"]
+			flat.border_color = GameAssets.COLORS["brass"]
 			flat.set_border_width_all(3)
 			flat.set_corner_radius_all(18)
 			sb = flat
 		elif key == "game":
 			var outline := StyleBoxFlat.new()
 			outline.bg_color = Color(0, 0, 0, 0)
-			outline.border_color = _main.COLORS["brass"]
+			outline.border_color = GameAssets.COLORS["brass"]
 			outline.set_border_width_all(3)
 			outline.set_corner_radius_all(18)
 			sb = outline
 		else:
 			var dashed := DashedStyleBox.new()
-			dashed.border_color = _main.COLORS["brass"]
+			dashed.border_color = GameAssets.COLORS["brass"]
 			dashed.corner_radius = 18.0
 			sb = dashed
 		for st in ["normal", "hover", "pressed", "focus", "disabled"]:
 			button.add_theme_stylebox_override(st, sb)
-		var font_col: Color = Color("#2a2140") if active else _main.COLORS["brass_bright"]
+		var font_col: Color = Color("#2a2140") if active else GameAssets.COLORS["brass_bright"]
 		for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 			button.add_theme_color_override(c, font_col)
 		button.modulate = Color(1, 1, 1, 0.85) if (key != "game" and not active) else Color.WHITE
@@ -514,27 +485,10 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 
 
 func _chaos_card_look(chaos_def: Dictionary) -> Dictionary:
-	var kind: String = chaos_def["kind"]
-	var look := {"bg": Color("#a66cf2"), "text": Color.WHITE, "cover": null}
-	match kind:
-		"color":
-			look["bg"] = _main.COLORS.get(chaos_def.get("col", ""), look["bg"])
-			look["cover"] = _main.CHAOS_TEX.get("color")
-		"goldify":
-			look["bg"] = Color("#e8bf4c")
-			look["text"] = Color("#3a2a00")
-			look["cover"] = _main.CHAOS_TEX.get("goldify")
-		"destroy":
-			look["bg"] = Color("#b73e3d")
-			look["cover"] = _main.CHAOS_TEX.get("destroy")
-		"tdir":
-			look["bg"] = Color("#23978e")
-			look["cover"] = _main.EMBLEMS.get(chaos_def.get("dir", "N"))
-		"dirc":
-			look["cover"] = _main.EMBLEMS.get(chaos_def.get("dir", "N"))
-		"mtile", "crystal":
-			look["cover"] = _main.CHAOS_TEX.get(kind)
-	return look
+	var d := ArtifactSystem.chaos_def(chaos_def)
+	if d == null:
+		return {"bg": Color("#a66cf2"), "text": Color.WHITE, "cover": null}
+	return {"bg": d.card_bg, "text": d.text_color, "cover": d.cover()}
 
 
 func _add_chaos_card(chaos_def: Dictionary, price: int, available: bool, on_buy: Callable) -> void:
@@ -542,7 +496,7 @@ func _add_chaos_card(chaos_def: Dictionary, price: int, available: bool, on_buy:
 	var title: String = chaos_name(chaos_def)
 	var extra := {"text_color": look["text"]}
 	if look["cover"] == null:
-		extra["cover_text"] = {"xmult": "×1.2", "xatk": "×1.2"}.get(chaos_def["kind"], chaos_def.get("icon", ""))
+		extra["cover_text"] = ArtifactSystem.chaos_def(chaos_def).cover_text
 	_add_shop_card("CHAOS", title, chaos_desc(chaos_def), price, look["bg"], available, on_buy, title, look["cover"], extra)
 
 
@@ -557,7 +511,7 @@ func _add_offer_row(label_text: String) -> HBoxContainer:
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lab.add_theme_font_size_override("font_size", 18)
-	lab.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+	lab.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 	lab.add_theme_constant_override("line_spacing", -2)
 	row.add_child(lab)
 	_main.shop_offer_container.add_child(row)
@@ -568,7 +522,7 @@ func _owned_slot(parent: Container, kind: String, filled: bool, bg: Color) -> Bu
 	var slot := Button.new()
 	slot.custom_minimum_size = Vector2(roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * 126), 126)
 	slot.clip_text = true
-	_main.ui_renderer._style_item_slot(slot, filled, bg, _main.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
+	_main.ui_renderer._style_item_slot(slot, filled, bg, GameAssets.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
 	slot.disabled = not filled
 	parent.add_child(slot)
 	return slot
@@ -604,7 +558,7 @@ func render_shop_owned() -> void:
 		slot.expand_icon = true
 		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		slot.add_theme_constant_override("icon_max_width", 60)
-		slot.text = chaos_label(chaos_card) if look["cover"] != null else "×1.2\n" + chaos_label(chaos_card)
+		slot.text = ArtifactSystem.chaos_def(chaos_card).slot_prefix + chaos_label(chaos_card)
 		slot.add_theme_font_size_override("font_size", 19)
 		slot.add_theme_color_override("font_color", look["text"])
 		slot.tooltip_text = "%s\nแตะเพื่อขาย 🪙 %d" % [chaos_title, get_chaos_sell_price(chaos_card)]
@@ -612,33 +566,10 @@ func render_shop_owned() -> void:
 		slot.pressed.connect(func(): confirm_sell_chaos(sell_chaos_idx))
 
 
-func get_chaos_title(chaos_card: Dictionary) -> String:
-	for definition in CHAOS_CATALOG:
-		if definition["kind"] != chaos_card.get("kind"):
-			continue
-		if definition.get("col", "") != chaos_card.get("col", ""):
-			continue
-		if definition.get("dir", "") != chaos_card.get("dir", ""):
-			continue
-		return definition["name"]
-	return "Chaos"
-
-
-func get_chaos_icon(chaos_card: Dictionary) -> String:
-	for definition in CHAOS_CATALOG:
-		if definition["kind"] != chaos_card.get("kind"):
-			continue
-		if definition.get("col", "") == chaos_card.get("col", "") and definition.get("dir", "") == chaos_card.get("dir", ""):
-			return definition["icon"]
-	return "✴"
-
-
 func get_chaos_sell_price(chaos_card: Dictionary) -> int:
-	for definition in CHAOS_CATALOG:
-		if definition["kind"] != chaos_card.get("kind"):
-			continue
-		if definition.get("col", "") == chaos_card.get("col", "") and definition.get("dir", "") == chaos_card.get("dir", ""):
-			return int(definition["price"]) if _main.artifact_sys.has_rule(&"full_sell") else 1
+	var d := ArtifactSystem.chaos_def(chaos_card)
+	if d != null and _main.artifact_sys.has_rule(&"full_sell"):
+		return d.price
 	return 1
 
 
@@ -693,7 +624,7 @@ func _add_section(title: String) -> void:
 	lab.theme_type_variation = &"BoldLabel"
 	lab.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lab.add_theme_font_size_override("font_size", 18)
-	lab.add_theme_color_override("font_color", _main.COLORS["brass_bright"])
+	lab.add_theme_color_override("font_color", GameAssets.COLORS["brass_bright"])
 	if not first:
 		var line := StyleBoxFlat.new()
 		line.bg_color = Color(0, 0, 0, 0)
@@ -889,12 +820,7 @@ func buy_chaos(definition: Dictionary) -> void:
 		return
 	_main.coins -= definition["price"]
 	_main.sfx.play("coin")
-	var chaos_card: Dictionary = {"kind": definition["kind"]}
-	if definition.has("col"):
-		chaos_card["col"] = definition["col"]
-	if definition.has("dir"):
-		chaos_card["dir"] = definition["dir"]
-	_main.chaos[slot] = chaos_card
+	_main.chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
 	_main.update_all_ui()
 	render_shop_owned()
 	render_shop_offers()

@@ -1,13 +1,23 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_ggk1n"]
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/dir_chaos.gd" id="1_hpu1n"]
+
+[sub_resource type="Resource" id="Resource_w3y22"]
+script = ExtResource("1_hpu1n")
 
 [resource]
 script = ExtResource("1_ggk1n")
 kind = "dirc"
 dir = "N"
+id = "dirc_N"
 name = "Chaos เปลี่ยนทิศเหนือ"
 icon = "🧭"
 price = 4
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 catalog_order = 4
+effect = SubResource("Resource_w3y22")
+label = "เหนือ"
+title = "Chaos เปลี่ยนทิศ Gemเหนือ"
+desc = "เลือก Gem ในมือ 1 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นทิศเหนือ ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+cover_key = "emblem:N"

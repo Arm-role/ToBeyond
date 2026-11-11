@@ -12,83 +12,6 @@ const COLOR_ORDER: Array[String] = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array[String] = ["N", "E", "S", "W"]
 const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"]
 
-const COLORS = {
-	"red": Color("#d63a3a"),
-	"green": Color("#2e9e5b"),
-	"orange": Color("#f08a24"),
-	"blue": Color("#2f7fd6"),
-	"blank": Color("#555566"),
-	"empty_tile": Color("#2b2250"),
-	"brass": Color("#d3a64a"),
-	"brass_bright": Color("#f0cf86"),
-	"gold": Color("#F2B63C"),
-	"bg": Color("#1f1836"),
-	"text_dim": Color("#a79fc4"),
-	"text_bright": Color("#f3ead7")
-}
-
-var EMBLEMS = {}           # dir -> Texture2D (white)
-var EMBLEMS_GOLD = {}      # dir -> Texture2D (gold, matched)
-var CHAOS_TEX = {}         # chaos kind -> Texture2D
-var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
-var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
-var PLACED_TILE_TEX = {}   # "idx_color_dir" or "idx_blank" -> Texture2D
-var CARD_TEMPLATE_TEX: Texture2D = null
-var CRYSTAL_TEX: Texture2D = null
-var BALL_TEXTURE: Texture2D = null
-
-func init_textures() -> void:
-	if ResourceLoader.exists("res://assets/frames/card_template.svg"):
-		CARD_TEMPLATE_TEX = load("res://assets/frames/card_template.svg")
-
-	# Emblems (white & gold variants)
-	for d in ["N", "E", "S", "W"]:
-		var dl = d.to_lower()
-		var pw = "res://assets/emblems/emblem_%s.svg" % dl
-		var pg = "res://assets/emblems/emblem_%s_gold.svg" % dl
-		if ResourceLoader.exists(pw):
-			EMBLEMS[d] = load(pw)
-		if ResourceLoader.exists(pg):
-			EMBLEMS_GOLD[d] = load(pg)
-
-	# Chaos SVGs
-	var chaos_keys = ["color","mtile","goldify","crystal","destroy"]
-	for key in chaos_keys:
-		var p = "res://assets/chaos/%s.svg" % key
-		if ResourceLoader.exists(p):
-			CHAOS_TEX[key] = load(p)
-
-	# Gem frames (placed card)
-	for col in ["red","green","orange","blue","blank"]:
-		var p = "res://assets/frames/gem_frame_%s.svg" % col
-		if ResourceLoader.exists(p):
-			GEM_FRAME_TEX[col] = load(p)
-
-	# Tile empty SVGs (per slot)
-	for i in range(N_TILES):
-		var p = "res://assets/tiles/tile_empty_%d.svg" % i
-		if ResourceLoader.exists(p):
-			TILE_EMPTY_TEX[i] = load(p)
-
-	# Placed tile SVGs (exact match with To_Beyond_Draft.html syncTiles)
-	for i in range(N_TILES):
-		for col in ["red", "green", "orange", "blue"]:
-			for d in ["N", "E", "S", "W"]:
-				var p = "res://assets/tiles/placed/tile_%d_%s_%s.svg" % [i, col, d]
-				if ResourceLoader.exists(p):
-					PLACED_TILE_TEX["%d_%s_%s" % [i, col, d]] = load(p)
-		var pb = "res://assets/tiles/placed/tile_%d_blank.svg" % i
-		if ResourceLoader.exists(pb):
-			PLACED_TILE_TEX["%d_blank" % i] = load(pb)
-
-	# Crystal
-	if ResourceLoader.exists("res://assets/crystal.svg"):
-		CRYSTAL_TEX = load("res://assets/crystal.svg")
-
-	# Ball
-	if ResourceLoader.exists("res://assets/ball.svg"):
-		BALL_TEXTURE = load("res://assets/ball.svg")
-
 # --- Stone Formulas ---
 var stone_formulas: Array[Dictionary] = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
 
@@ -239,12 +162,14 @@ var artifacts: Array = []  # Array of null or Dict
 var battle_mgr: BattleManager
 var shop_mgr: ShopManager
 var ui_renderer: UiRenderer
+var board_calc: BoardCalc
+var toolbar: ToolbarControls
+var action_dlg: ActionDialog
+var slot_drag: SlotDrag
+var chaos_ctl: ChaosController
+var reward_flow: RewardFlow
 var action_dialog: Control
 var pending_dialog_action: Callable
-var drag_kind: String = ""
-var drag_from: int = -1
-var drag_start: Vector2 = Vector2.ZERO
-var drag_moved: bool = false
 
 
 func _ready() -> void:
@@ -253,14 +178,20 @@ func _ready() -> void:
 	var bg_mat := ShaderMaterial.new()
 	bg_mat.shader = preload("res://assets/shaders/bg_drift.gdshader")
 	$Background.material = bg_mat
-	init_textures()
+	GameAssets.load_all(N_TILES)
 	setup_token_visual()
 	_setup_beams()
+	toolbar = ToolbarControls.new(self)
+	action_dlg = ActionDialog.new(self)
+	slot_drag = SlotDrag.new(self)
+	chaos_ctl = ChaosController.new(self)
+	reward_flow = RewardFlow.new(self)
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
 	artifact_sys = ArtifactSystem.new(self)
 	shop_mgr = ShopManager.new(self)
 	ui_renderer = UiRenderer.new(self)
+	board_calc = BoardCalc.new(self)
 	_setup_action_dialog()
 	setup_stone_modal_content()
 	_style_sort_button(sort_color_btn, sort_mode == "color")
@@ -277,10 +208,10 @@ func setup_token_visual() -> void:
 	# Draft: ball height = tile × 0.7, aspect 98:168 → about 84×143 here.
 	token.custom_minimum_size = Vector2(84, 143)
 	token.size = Vector2(84, 143)
-	if BALL_TEXTURE != null:
+	if GameAssets.BALL_TEXTURE != null:
 		var tex_rect = TextureRect.new()
 		tex_rect.name = "BallTexture"
-		tex_rect.texture = BALL_TEXTURE
+		tex_rect.texture = GameAssets.BALL_TEXTURE
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.custom_minimum_size = Vector2(84, 143)
@@ -359,197 +290,16 @@ func connect_ui_signals() -> void:
 		chaos_slot.pressed.connect(func(): _on_chaos_slot_pressed(chaos_idx))
 
 
-## Buy/sell popup styled like the draft's `.pop` / `.popbox`:
-## title, description, action button and a "ปิด" button.
 func _setup_action_dialog() -> void:
-	action_dialog = Control.new()
-	action_dialog.name = "ActionPopup"
-	action_dialog.visible = false
-	action_dialog.z_index = 200
-	action_dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	action_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.6)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.gui_input.connect(func(e: InputEvent):
-		if e is InputEventMouseButton and e.pressed:
-			action_dialog.visible = false
-	)
-	action_dialog.add_child(dim)
-	var center := CenterContainer.new()
-	center.name = "Center"
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	action_dialog.add_child(center)
-	var box := PanelContainer.new()
-	box.name = "Box"
-	box.custom_minimum_size = Vector2(660, 0)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("#2d2450")
-	sb.border_color = COLORS["brass"]
-	sb.set_border_width_all(3)
-	sb.set_corner_radius_all(21)
-	sb.content_margin_left = 33.0
-	sb.content_margin_right = 33.0
-	sb.content_margin_top = 27.0
-	sb.content_margin_bottom = 27.0
-	box.add_theme_stylebox_override("panel", sb)
-	center.add_child(box)
-	var vb := VBoxContainer.new()
-	vb.name = "VB"
-	vb.add_theme_constant_override("separation", 15)
-	box.add_child(vb)
-	var title := Label.new()
-	title.name = "Title"
-	title.theme_type_variation = &"BoldLabel"
-	title.add_theme_font_size_override("font_size", 33)
-	title.add_theme_color_override("font_color", COLORS["brass_bright"])
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vb.add_child(title)
-	var rar := Label.new()
-	rar.name = "Rar"
-	rar.theme_type_variation = &"BoldLabel"
-	rar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	rar.add_theme_font_size_override("font_size", 18)
-	vb.add_child(rar)
-	var desc := Label.new()
-	desc.name = "Desc"
-	desc.add_theme_font_size_override("font_size", 22)
-	desc.add_theme_color_override("font_color", COLORS["text_bright"])
-	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vb.add_child(desc)
-	var acts := HBoxContainer.new()
-	acts.name = "Acts"
-	acts.add_theme_constant_override("separation", 12)
-	vb.add_child(acts)
-	var ok := Button.new()
-	ok.name = "Ok"
-	var close := Button.new()
-	close.name = "Close"
-	close.text = "ปิด"
-	for b in [ok, close]:
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 66)
-		b.add_theme_font_size_override("font_size", 22)
-		var bs := StyleBoxFlat.new()
-		bs.bg_color = COLORS["brass_bright"] if b == ok else Color("#c9c0e6")
-		if b == ok:
-			bs.border_width_bottom = 66
-			bs.border_color = COLORS["brass"]
-			bs.border_blend = true
-			bs.content_margin_top = 0.0
-			bs.content_margin_bottom = 0.0
-		bs.set_corner_radius_all(15)
-		for st in ["normal", "hover", "pressed", "disabled", "focus"]:
-			b.add_theme_stylebox_override(st, bs)
-		for c in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color", "font_focus_color"]:
-			b.add_theme_color_override(c, Color("#2a2140"))
-		acts.add_child(b)
-	ok.pressed.connect(func():
-		action_dialog.visible = false
-		if pending_dialog_action.is_valid():
-			pending_dialog_action.call()
-		pending_dialog_action = Callable()
-	)
-	close.pressed.connect(func(): action_dialog.visible = false)
-	add_child(action_dialog)
+	action_dlg.setup()
 
 
 func show_action_dialog(title_text: String, detail: String, confirm_text: String, action: Callable, disabled: bool = false, rarity: String = "") -> void:
-	pending_dialog_action = action
-	var rar := action_dialog.get_node("Center/Box/VB/Rar") as Label
-	rar.visible = rarity != ""
-	if rarity != "":
-		# Draft `.rar` pill: COMMON / UNCOMMON / RARE.
-		var pal := {"common": [Color("#3a3560"), Color("#d6d9ea")], "uncommon": [Color("#1e4a37"), Color("#6df0a8")], "rare": [Color("#4a3a10"), Color("#ffcf5a")]}
-		var colors: Array = pal.get(rarity, pal["common"])
-		var pill := StyleBoxFlat.new()
-		pill.bg_color = colors[0]
-		pill.set_corner_radius_all(99)
-		pill.content_margin_left = 15.0
-		pill.content_margin_right = 15.0
-		pill.content_margin_top = 3.0
-		pill.content_margin_bottom = 3.0
-		rar.add_theme_stylebox_override("normal", pill)
-		rar.add_theme_color_override("font_color", colors[1])
-		rar.text = rarity.to_upper()
-	action_dialog.get_node("Center/Box/VB/Title").text = title_text
-	action_dialog.get_node("Center/Box/VB/Desc").text = detail
-	var ok := action_dialog.get_node("Center/Box/VB/Acts/Ok") as Button
-	ok.text = confirm_text
-	ok.disabled = disabled
-	ok.modulate.a = 0.4 if disabled else 1.0
-	action_dialog.visible = true
+	action_dlg.show_dialog(title_text, detail, confirm_text, action, disabled, rarity)
 
 
 func _input(event: InputEvent) -> void:
-	if action_dialog != null and action_dialog.visible:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			_begin_slot_drag(event.position)
-		elif not drag_kind.is_empty():
-			_finish_slot_drag(event.position)
-	elif event is InputEventMouseMotion and not drag_kind.is_empty():
-		if event.position.distance_to(drag_start) >= 10.0:
-			drag_moved = true
-
-
-func _begin_slot_drag(mouse_pos: Vector2) -> void:
-	if is_busy:
-		return
-	for i in range(MAX_ARTIFACTS):
-		var artifact_slot = artifact_row.get_child(i + 1) as Control
-		if artifacts[i] != null and artifact_slot.get_global_rect().has_point(mouse_pos):
-			drag_kind = "artifact"
-			drag_from = i
-			drag_start = mouse_pos
-			drag_moved = false
-			return
-	for i in range(chaos_slots.get_child_count()):
-		var chaos_slot = chaos_slots.get_child(i) as Control
-		if chaos[i] != null and chaos_slot.get_global_rect().has_point(mouse_pos):
-			drag_kind = "chaos"
-			drag_from = i
-			drag_start = mouse_pos
-			drag_moved = false
-			return
-
-
-func _finish_slot_drag(mouse_pos: Vector2) -> void:
-	var kind := drag_kind
-	var from := drag_from
-	var moved := drag_moved
-	drag_kind = ""
-	drag_from = -1
-	drag_moved = false
-	if not moved:
-		return
-	var target := -1
-	if kind == "artifact":
-		for i in range(MAX_ARTIFACTS):
-			var slot = artifact_row.get_child(i + 1) as Control
-			if slot.get_global_rect().has_point(mouse_pos):
-				target = i
-				break
-		if target >= 0 and target != from:
-			var held = artifacts[from]
-			artifacts[from] = artifacts[target]
-			artifacts[target] = held
-			sync_totems()
-	elif kind == "chaos":
-		for i in range(chaos_slots.get_child_count()):
-			var slot = chaos_slots.get_child(i) as Control
-			if slot.get_global_rect().has_point(mouse_pos):
-				target = i
-				break
-		if target >= 0 and target != from:
-			var held = chaos[from]
-			chaos[from] = chaos[target]
-			chaos[target] = held
-	if target >= 0:
-		update_all_ui()
-		get_viewport().set_input_as_handled()
+	slot_drag.on_input(event)
 
 
 # ==============================================================================
@@ -725,92 +475,20 @@ func set_sort_mode(mode: String) -> void:
 	render_hand()
 
 
-## Round fullscreen button next to Speed (web only). Browsers only allow
-## fullscreen from a tap, so it has to be a button. Hidden when the page is
-## already an installed app (PWA fullscreen/standalone) or the browser can't
-## do fullscreen (iPhone).
 func _setup_fullscreen_button() -> void:
-	if not OS.has_feature("web"):
-		return
-	var can: bool = JavaScriptBridge.eval("!!document.fullscreenEnabled && !(window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true)", true)
-	if not can:
-		return
-	var btn := Button.new()
-	btn.name = "FullscreenBtn"
-	btn.layout_mode = 1
-	btn.anchors_preset = Control.PRESET_TOP_RIGHT
-	btn.anchor_left = 1.0
-	btn.anchor_right = 1.0
-	btn.offset_left = -249.0
-	btn.offset_right = -189.0
-	btn.offset_top = 12.0
-	btn.offset_bottom = 72.0
-	btn.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	btn.tooltip_text = "เต็มจอ"
-	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
-		var sb := restart_btn.get_theme_stylebox("normal" if st == "focus" else st)
-		if sb != null:
-			btn.add_theme_stylebox_override(st, sb)
-	if ResourceLoader.exists("res://assets/ui/fullscreen.svg"):
-		btn.icon = load("res://assets/ui/fullscreen.svg")
-		btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn.expand_icon = true
-		btn.add_theme_constant_override("icon_max_width", 33)
-	else:
-		btn.text = "เต็มจอ"
-	btn.pressed.connect(_toggle_fullscreen)
-	$TopBar.add_child(btn)
+	toolbar._setup_fullscreen_button()
 
 
-## Round speaker button (mute / unmute), left of the fullscreen button.
 func _setup_audio_button() -> void:
-	var btn := Button.new()
-	btn.name = "AudioBtn"
-	btn.layout_mode = 1
-	btn.anchors_preset = Control.PRESET_TOP_RIGHT
-	btn.anchor_left = 1.0
-	btn.anchor_right = 1.0
-	var slot := -321.0 if $TopBar.has_node("FullscreenBtn") else -249.0
-	btn.offset_left = slot
-	btn.offset_right = slot + 60.0
-	btn.offset_top = 12.0
-	btn.offset_bottom = 72.0
-	btn.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
-		var sb := restart_btn.get_theme_stylebox("normal" if st == "focus" else st)
-		if sb != null:
-			btn.add_theme_stylebox_override(st, sb)
-	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		btn.add_theme_color_override(c, Color("#2a2140"))
-	btn.add_theme_font_size_override("font_size", 28)
-	btn.text = "🔇" if sfx.muted else "🔊"
-	btn.pressed.connect(func():
-		sfx.set_muted(not sfx.muted)
-		btn.text = "🔇" if sfx.muted else "🔊"
-		if not sfx.muted:
-			sfx.play("coin"))
-	$TopBar.add_child(btn)
+	toolbar._setup_audio_button()
 
 
 func _toggle_fullscreen() -> void:
-	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-		return
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-	# Android: also lock to landscape (only allowed while fullscreen).
-	JavaScriptBridge.eval("try{screen.orientation.lock('landscape').catch(function(){})}catch(e){}")
+	toolbar._toggle_fullscreen()
 
 
 func _style_sort_button(btn: Button, active: bool) -> void:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = COLORS["brass"] if active else Color(0, 0, 0, 0)
-	sb.content_margin_left = 27.0
-	sb.content_margin_right = 27.0
-	for state in ["normal", "hover", "pressed", "focus"]:
-		btn.add_theme_stylebox_override(state, sb)
-	var font_col := Color("#2a2140") if active else Color("#a79fc4")
-	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		btn.add_theme_color_override(c, font_col)
+	toolbar._style_sort_button(btn, active)
 
 
 # ==============================================================================
@@ -828,216 +506,24 @@ func _on_hand_card_clicked(card_id: int) -> void:
 
 
 func _on_chaos_slot_pressed(slot_idx: int) -> void:
-	if is_busy or slot_idx < 0 or slot_idx >= chaos.size():
-		return
-	var chaos_card = chaos[slot_idx]
-	if chaos_card == null:
-		return
-	var kind: String = chaos_card["kind"]
-	if kind in ["tdir", "mtile", "xmult", "xatk", "crystal"]:
-		selected_chaos_slot = -1 if selected_chaos_slot == slot_idx else slot_idx
-		chaos_msg("แตะช่องที่ต้องการวาง" if selected_chaos_slot >= 0 else "ยกเลิกแล้ว")
-		update_all_ui()
-		return
-	_apply_hand_chaos(slot_idx)
-
-
-func _apply_hand_chaos(slot_idx: int) -> void:
-	var chaos_card = chaos[slot_idx]
-	if chaos_card == null:
-		return
-	var picked: Array[Dictionary] = []
-	for card in hand:
-		if selected_card_ids.has(card["id"]):
-			picked.append(card)
-	var kind: String = chaos_card["kind"]
-	if kind != "destroy" and picked.any(func(c): return c.get("is_blank", false)):
-		chaos_msg("การ์ดเปล่าใช้ Chaos ไม่ได้")
-		return
-	if kind == "color":
-		if picked.is_empty():
-			chaos_msg("เลือก Gem ในมือก่อน (สูงสุด 2 ใบ)")
-			return
-		if picked.size() > 2:
-			chaos_msg("เปลี่ยนสีได้สูงสุด 2 ใบ")
-			return
-		if picked.all(func(c): return c["color"] == chaos_card["col"]):
-			chaos_msg("Gem ที่เลือกเป็นสี%sอยู่แล้ว" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-			return
-		for card in picked:
-			if card.get("is_blank", false):
-				continue
-			deck_mods.append({"from": card["color"], "dir": card["dir"], "to": chaos_card["col"], "to_dir": card["dir"]})
-			card["color"] = chaos_card["col"]
-		_finish_chaos(slot_idx, "🎨 เปลี่ยนเป็นสี%sถาวร" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-	elif kind == "dirc":
-		if picked.is_empty():
-			chaos_msg("เลือก Gem ในมือก่อน (1 ใบ)")
-			return
-		if picked.size() > 1:
-			chaos_msg("เปลี่ยนทิศได้ทีละ 1 ใบ")
-			return
-		if picked[0]["dir"] == chaos_card["dir"]:
-			chaos_msg("Gem ที่เลือกเป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		var card = picked[0]
-		deck_mods.append({"from": card["color"], "dir": card["dir"], "to": card["color"], "to_dir": chaos_card["dir"]})
-		card["dir"] = chaos_card["dir"]
-		_finish_chaos(slot_idx, "🧭 เปลี่ยนเป็นทิศ%sถาวร" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-	elif kind == "goldify":
-		if picked.size() != 1:
-			chaos_msg("เลือก Gem ในมือ 1 ใบก่อน")
-			return
-		if picked[0].get("gold", false):
-			chaos_msg("ใบนี้เป็นการ์ดทองอยู่แล้ว")
-			return
-		picked[0]["gold"] = true
-		gold_mods.append({"color": picked[0]["color"], "dir": picked[0]["dir"]})
-		_finish_chaos(slot_idx, "✨ เป็นการ์ดทองถาวร")
-	elif kind == "destroy":
-		if picked.size() != 2:
-			chaos_msg("เลือก Gem ในมือ 2 ใบก่อน")
-			return
-		for card in picked:
-			if not card.get("is_blank", false):
-				deck_removals.append({"color": card["color"], "dir": card["dir"]})
-			hand.erase(card)
-		_finish_chaos(slot_idx, "💥 ทำลาย Gem 2 ใบถาวร")
-
-
-func _apply_chaos_to_tile(tile_idx: int) -> void:
-	if selected_chaos_slot < 0 or selected_chaos_slot >= chaos.size():
-		return
-	var chaos_card = chaos[selected_chaos_slot]
-	if chaos_card == null:
-		selected_chaos_slot = -1
-		return
-	var kind: String = chaos_card["kind"]
-	if kind == "tdir":
-		if TILE_DIR[tile_idx] == chaos_card["dir"]:
-			chaos_msg("ช่องนี้เป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		TILE_DIR[tile_idx] = chaos_card["dir"]
-	elif kind == "mtile":
-		if chaos_mult_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_mult_tiles[tile_idx] = true
-	elif kind == "xmult":
-		if chaos_xmult_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_xmult_tiles[tile_idx] = true
-	elif kind == "xatk":
-		if chaos_xatk_tiles.has(tile_idx):
-			chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		chaos_xatk_tiles[tile_idx] = true
-	elif kind == "crystal":
-		if placed_cards.has(tile_idx) or chaos_crystals.has(tile_idx):
-			chaos_msg("วางผลึกได้เฉพาะช่องว่าง")
-			return
-		chaos_crystals[tile_idx] = CRYSTAL_HP
-	else:
-		return
-	_finish_chaos(selected_chaos_slot, "")
+	chaos_ctl.on_slot_pressed(slot_idx)
 
 
 func _finish_chaos(slot_idx: int, message: String) -> void:
-	chaos[slot_idx] = null
-	selected_chaos_slot = -1
-	selected_card_ids.clear()
-	artifact_sys.chaos_used()
-	if message != "":
-		chaos_msg(message)
-	update_all_ui()
-	refresh_calc()
+	chaos_ctl.finish(slot_idx, message)
 
 
 func hit_crystal(tile_idx: int) -> Dictionary:
-	if not chaos_crystals.has(tile_idx):
-		return {"used": 0, "broken": false}
-	var current_hp: int = chaos_crystals[tile_idx]
-	var incoming: int = maxi(1, walk_base_damage)
-	var used: int = mini(incoming, current_hp)
-	walk_base_damage = maxi(0, walk_base_damage - used)
-	current_hp -= used
-	if current_hp > 0:
-		chaos_crystals[tile_idx] = current_hp
-		update_all_ui()
-		return {"used": used, "broken": false}
-	chaos_crystals.erase(tile_idx)
-	for _i in range(CRYSTAL_GEMS):
-		var color: String = COLOR_ORDER[randi_range(0, COLOR_ORDER.size() - 1)]
-		var direction: String = DIR_ORDER[randi_range(0, DIR_ORDER.size() - 1)]
-		var deck_card := {"id": card_uid_counter, "color": color, "dir": direction, "is_blank": false, "gold": false}
-		card_uid_counter += 1
-		deck.append(deck_card)
-		var hand_card := deck_card.duplicate()
-		hand_card["id"] = card_uid_counter
-		card_uid_counter += 1
-		hand.append(hand_card)
-	msg_label.text = "💎 ผลึกแตก! ได้ Gem +%d" % CRYSTAL_GEMS
-	update_all_ui()
-	return {"used": used, "broken": true}
+	return chaos_ctl.hit_crystal(tile_idx)
 
 
 func _on_tile_clicked(tile_idx: int) -> void:
-	if is_busy: return
-	if selected_chaos_slot >= 0:
-		_apply_chaos_to_tile(tile_idx)
-		return
-	if chaos_crystals.has(tile_idx):
-		msg_label.text = "ช่องนี้มีผลึก Gem วาง Gem ไม่ได้"
-		return
-
-	# Rule: If tile already has card, return it to hand!
-	if placed_cards.has(tile_idx):
-		if hand.size() >= hand_max:
-			msg_label.text = "มือเต็ม เอา Gem กลับไม่ได้"
-			return
-		var card = placed_cards[tile_idx]
-		placed_cards.erase(tile_idx)
-		hand.append(card)
-		update_all_ui()
-		refresh_calc()
-		return
-
-	# If exactly one card selected in hand, place it here
-	if selected_card_ids.size() == 1:
-		var target_id = selected_card_ids[0]
-		var found_card = null
-		for card in hand:
-			if card["id"] == target_id:
-				found_card = card
-				break
-		if found_card != null:
-			hand.erase(found_card)
-			placed_cards[tile_idx] = found_card
-			selected_card_ids.clear()
-			update_all_ui()
-			refresh_calc()
-			pop_tile_anim(tile_idx)
+	chaos_ctl.on_tile_clicked(tile_idx)
 
 
 func _on_discard_pressed() -> void:
-	if is_busy or selected_card_ids.is_empty() or discards_left <= 0:
-		return
-	if placed_cards.size() > 0 and not artifact_sys.has_rule(&"free_discard"):
-		msg_label.text = "⚠️ วาง Gem แล้วทิ้งไม่ได้ (ดึง Gem กลับก่อน)"
-		return
+	chaos_ctl.on_discard_pressed()
 
-	discards_left -= 1
-	var to_remove = []
-	for card in hand:
-		if selected_card_ids.has(card["id"]):
-			to_remove.append(card)
-	for card in to_remove:
-		hand.erase(card)
-	selected_card_ids.clear()
-	draw_up_to_hand(hand_max)
-	update_all_ui()
-	refresh_calc()
 
 
 # ==============================================================================
@@ -1045,63 +531,23 @@ func _on_discard_pressed() -> void:
 # ==============================================================================
 
 func calculate_groups() -> Dictionary:
-	var result: Dictionary = StoneCalc.calculate_groups(placed_cards, TILE_DIR, stone_formulas, N_TILES)
-	# Equalizer lifts every completed Stone group to the highest group value.
-	# This mirrors the draft's updateGroups() rule and changes real walk damage,
-	# not merely the number printed under a tile.
-	if artifact_sys.has_rule(&"equal_groups") and result["groups"].size() >= 2:
-		var highest := 0
-		for group in result["groups"]:
-			highest = maxi(highest, int(group["res"]["a"]))
-		for group in result["groups"]:
-			group["res"]["a"] = highest
-			for tile_idx in group["idxs"]:
-				result["grp_val"][tile_idx] = highest
-		var total := 0
-		for tile_idx in range(N_TILES):
-			if placed_cards.has(tile_idx) and not placed_cards[tile_idx].get("is_blank", false):
-				total += int(result["grp_val"].get(tile_idx, 1))
-		result["base_dmg"] = total
-	return result
+	return board_calc.calculate_groups()
 
 
 func tile_direction_count(direction: String) -> int:
-	var count := 0
-	for tile_direction in TILE_DIR:
-		if tile_direction == direction:
-			count += 1
-	return count
+	return board_calc.tile_direction_count(direction)
 
 
 func tile_direction_run(direction: String) -> int:
-	var best := 0
-	var run := 0
-	for tile_direction in TILE_DIR:
-		run = run + 1 if tile_direction == direction else 0
-		best = maxi(best, run)
-	return best
+	return board_calc.tile_direction_run(direction)
 
 
 func matching_group_count(direction: String, color: String) -> int:
-	var count := 0
-	for group in calculate_groups()["groups"]:
-		var matches := 0
-		for tile_idx in group["idxs"]:
-			var card = placed_cards.get(tile_idx)
-			if card != null and TILE_DIR[tile_idx] == direction and card.get("dir") == direction and (color.is_empty() or card.get("color") == color):
-				matches += 1
-		if matches >= 2:
-			count += 1
-	return count
+	return board_calc.matching_group_count(direction, color)
 
 
 func matching_card_count(direction: String, color: String) -> int:
-	var count := 0
-	for tile_idx in placed_cards:
-		var card = placed_cards[tile_idx]
-		if TILE_DIR[tile_idx] == direction and card.get("dir") == direction and card.get("color") == color:
-			count += 1
-	return count
+	return board_calc.matching_card_count(direction, color)
 
 
 func give_random_chaos() -> bool:
@@ -1109,12 +555,7 @@ func give_random_chaos() -> bool:
 	if slot < 0:
 		return false
 	var definition: Dictionary = ShopManager.CHAOS_CATALOG[randi_range(0, ShopManager.CHAOS_CATALOG.size() - 1)]
-	var card: Dictionary = {"kind": definition["kind"]}
-	if definition.has("col"):
-		card["col"] = definition["col"]
-	if definition.has("dir"):
-		card["dir"] = definition["dir"]
-	chaos[slot] = card
+	chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
 	return true
 
 
@@ -1125,38 +566,19 @@ func prepare_walk_artifacts() -> void:
 
 
 func sync_totems() -> void:
-	var desired := mini(N_TILES, artifact_sys.rule_count(&"totem"))
-	while totem_tiles.size() > desired:
-		totem_tiles.pop_back()
-	while totem_tiles.size() < desired:
-		for tile_idx in range(N_TILES):
-			if not totem_tiles.has(tile_idx):
-				totem_tiles.append(tile_idx)
-				break
+	board_calc.sync_totems()
 
 
 func totem_attack(tile_idx: int) -> int:
-	return int(round(20.0 + 40.0 * pow(float(N_TILES - 1 - tile_idx) / float(N_TILES - 1), 2.0)))
+	return board_calc.totem_attack(tile_idx)
 
 
 func passive_chaos_tile_count() -> int:
-	return chaos_mult_tiles.size() + chaos_xmult_tiles.size() + chaos_xatk_tiles.size()
+	return board_calc.passive_chaos_tile_count()
 
 
-## Final attack. `steps` (optional, passed by the caller) is filled like the
-## draft's attackSeq(): steps[0] is the raw walk total, then one entry per
-## artifact that fired: {"slot": artifact slot, "atk": float, "mult": float}.
 func compute_attack(steps: Array = []) -> Dictionary:
-	var calc = calculate_groups()
-	var atk: float = 1 + (walk_base_damage if is_busy else calc["base_dmg"])
-	var mult: float = 1.0 + (walk_mult_bonus if is_busy else 0.0)
-	steps.append({"slot": -1, "atk": atk, "mult": mult})
-
-	# Artifacts in slot order like the draft's attackSeq() (South-five first).
-	var result: Dictionary = artifact_sys.attack(calc, atk, mult, steps)
-	atk = result["atk"]
-	mult = result["mult"]
-	return {"atk": int(round(atk)), "mult": mult, "dmg": int(round(atk * mult))}
+	return board_calc.compute_attack(steps)
 
 
 func artifact_slot(type_key: String) -> int:
@@ -1183,23 +605,7 @@ func begin_walk_damage() -> void:
 
 
 func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictionary:
-	var card = placed_cards.get(tile_idx)
-	if card == null or card.get("is_blank", false):
-		return {"gain": 0, "extra": 0, "fired": []}
-
-	var gain = int(calculate_groups()["grp_val"].get(tile_idx, 1))
-	walk_base_damage += gain
-	if chaos_mult_tiles.has(tile_idx):
-		walk_mult_bonus += 5.0
-	if chaos_xmult_tiles.has(tile_idx):
-		walk_mult_bonus = (1.0 + walk_mult_bonus) * 1.2 - 1.0
-	if chaos_xatk_tiles.has(tile_idx):
-		walk_base_damage = int(round(walk_base_damage * 1.2))
-	var landed: Dictionary = artifact_sys.land(tile_idx, card, gain, helper_pass)
-	var extra: int = landed["extra"]
-	var fired: Array = landed["fired"]  # landing artifacts that took effect (for the flash + sparks)
-	var coin_won: bool = landed["coin_won"]
-	return {"gain": gain, "extra": extra, "fired": fired, "coin_won": coin_won}
+	return board_calc.apply_tile_walk_effects(tile_idx, helper_pass)
 
 
 ## Number formatting from the HTML draft: integers without decimals,
@@ -1253,11 +659,11 @@ func refresh_calc() -> void:
 		if placed_cards.has(i) and not placed_cards[i].get("is_blank", false):
 			var val = result["grp_val"].get(i, 1)
 			lbl.text = "+%d" % val
-			var g_col = COLORS["brass"]
+			var g_col = GameAssets.COLORS["brass"]
 			for g in result["groups"]:
 				if g["idxs"].has(i):
 					if g["col"] != null:
-						g_col = COLORS.get(g["col"], COLORS["brass"])
+						g_col = GameAssets.COLORS.get(g["col"], GameAssets.COLORS["brass"])
 					else:
 						g_col = Color("#E040FB")
 					break
@@ -1316,34 +722,7 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 
 
 func on_victory() -> void:
-	is_busy = false
-	msg_label.text = "ชนะ!"
-
-	# Matching draft reward: base + walks + interest + reward artifacts.
-	var base_reward = 4
-	var interest = mini(10, int(coins / 5))
-	var walk_reward = walks_left
-	var rewards: Dictionary = artifact_sys.victory()
-	var arti_pay: int = rewards["rows"].get("arti", 0)
-	var fate_pay: int = rewards["rows"].get("fate", 0)
-	var walk_coin_bonus: int = rewards["rows"].get("walk", 0)
-	var reward_fx: Array = rewards["fx"]
-	if is_boss() and chaos.has(null):
-		chaos[chaos.find(null)] = {"kind": "crystal"}
-		msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
-	var total_gain = base_reward + walk_reward + interest + int(rewards["total"])
-	coins += total_gain
-	if not reward_fx.is_empty():
-		# The artifact row is hidden behind the reward panel, so show it paying out first.
-		render_artifact_row()
-		await battle_mgr.fx_artifact_types(reward_fx)
-		await get_tree().create_timer(0.45 / speed_multiplier).timeout
-	sfx.play("coin")
-
-	VfxManager.coin_rain(effects_layer, clampi(total_gain * 3, 12, 40), size.x * 0.6)
-	render_reward_summary(base_reward, walks_left, walk_reward, coins - total_gain, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
-	update_all_ui()
-	reward_modal.visible = true
+	await reward_flow.on_victory()
 
 
 func artifact_count_any() -> int:
@@ -1354,56 +733,6 @@ func artifact_count_any() -> int:
 	return count
 
 
-func render_reward_summary(base_reward: int, walks_remaining: int, walk_reward: int, held_coins: int, interest: int, total_gain: int, arti_pay: int = 0, fate_pay: int = 0, walk_coin_bonus: int = 0) -> void:
-	for child in reward_info.get_children():
-		child.queue_free()
-	_add_reward_row("ชนะศัตรู", "🪙 +%d" % base_reward)
-	_add_reward_row("เลือดที่เหลือ (รับได้อีก %d ครั้ง) × 1" % walks_remaining, "🪙 +%d" % walk_reward)
-	_add_reward_row("ดอกเบี้ย (มี %d ÷ 5 · สูงสุด 10)" % held_coins, "🪙 +%d" % interest)
-	if arti_pay > 0:
-		_add_reward_row("รายได้ Artifact", "🪙 +%d" % arti_pay)
-	if fate_pay > 0:
-		_add_reward_row("รายได้ Gem", "🪙 +%d" % fate_pay)
-	if walk_coin_bonus > 0:
-		_add_reward_row("เดินประหยัด", "🪙 +%d" % walk_coin_bonus)
-	_add_reward_row("รวม", "🪙 +%d" % total_gain, true)
-
-
-func _add_reward_row(left_text: String, right_text: String, is_total: bool = false) -> void:
-	var row := PanelContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var row_style := StyleBoxFlat.new()
-	row_style.bg_color = Color(0, 0, 0, 0)
-	if not is_total:
-		row_style.border_width_bottom = 1
-		row_style.border_color = Color(0.827451, 0.65098, 0.290196, 0.3)
-	row_style.content_margin_left = 6.0
-	row_style.content_margin_top = 12.0
-	row_style.content_margin_right = 6.0
-	row_style.content_margin_bottom = 12.0
-	row.add_theme_stylebox_override("panel", row_style)
-
-	var hbox := HBoxContainer.new()
-	row.add_child(hbox)
-	var left := Label.new()
-	left.text = left_text
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	if is_total:
-		left.theme_type_variation = &"BoldLabel"
-	left.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
-	hbox.add_child(left)
-	var right := Label.new()
-	right.text = right_text
-	right.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	if is_total:
-		right.theme_type_variation = &"BoldLabel"
-	right.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
-	right.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hbox.add_child(right)
-	reward_info.add_child(row)
-
-
 func _on_reward_shop_pressed() -> void:
 	reward_modal.visible = false
 	open_shop()
@@ -1411,30 +740,6 @@ func _on_reward_shop_pressed() -> void:
 
 func open_shop() -> void:
 	shop_mgr.open_shop()
-
-
-func _render_shop_owned() -> void:
-	shop_mgr.render_shop_owned()
-
-
-func _render_shop_offers() -> void:
-	shop_mgr.render_shop_offers()
-
-
-func _buy_stat(stat_type: String, price: int) -> void:
-	shop_mgr.buy_stat(stat_type, price)
-
-
-func _buy_stone_upgrade(formula_idx: int, cost: int) -> void:
-	shop_mgr.buy_stone_upgrade(formula_idx, cost)
-
-
-func _buy_artifact(item: Dictionary) -> void:
-	shop_mgr.buy_artifact(item)
-
-
-func _sell_artifact(slot_idx: int) -> void:
-	shop_mgr.sell_artifact(slot_idx)
 
 
 func _on_shop_leave() -> void:

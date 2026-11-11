@@ -1,11 +1,23 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/color_chaos.gd" id="1_hoj8x"]
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_xd348"]
+
+[sub_resource type="Resource" id="Resource_k3ta5"]
+script = ExtResource("1_hoj8x")
 
 [resource]
 script = ExtResource("1_xd348")
 col = "green"
+id = "color_green"
 name = "Chaos เปลี่ยนสีเขียว"
 icon = "🎨"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
 catalog_order = 1
+effect = SubResource("Resource_k3ta5")
+label = "เขียว"
+title = "Chaos เปลี่ยนสีเขียว"
+desc = "เลือก Gem ในมือสูงสุด 2 ใบ แล้วแตะการ์ดนี้: เปลี่ยนเป็นสีเขียว ถาวร (การ์ดในสำรับเปลี่ยนตลอดเกม)"
+card_bg = Color(0.18039216, 0.61960787, 0.35686275, 1)
+slot_bg = Color(0.18039216, 0.61960787, 0.35686275, 1)
+cover_key = "chaos:color"

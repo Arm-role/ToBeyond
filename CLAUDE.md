@@ -19,6 +19,12 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 - Block: force push, skipping git hooks or signing, `Read` of a file over 40 KB without `offset`/`limit`.
 - `node tools/hooks/test.js` checks all rules (run it after any change to the hook).
 
+## Code layout (after the main.gd split, done)
+- `scripts/main.gd` (~850 lines): node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
+- Split classes (each holds `_main`): `BoardCalc`, `ToolbarControls`, `ActionDialog`, `SlotDrag`, `ChaosController`, `RewardFlow`, plus the managers (`BattleManager`, `ShopManager`, `UiRenderer`, `ArtifactSystem`).
+- Artifacts and Chaos are data: `data/artifacts/*.tres`, `data/chaos/*.tres`. New Chaos card: `docs/plan-chaos-data-driven.md` ("How to add").
+- Chaos/regression checks (run before and after a refactor and diff): `tools/parity/artifact_regress.gd`, `chaos_use.gd`, `chaos_dump.gd`.
+
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
 - Each pushed branch deploys to `https://arm-role.github.io/ToBeyond/preview/<branch>/` (`main` → site root).
