@@ -9,7 +9,7 @@ extends StyleBox
 @export var border_color: Color = Color.WHITE
 @export var border_width: float = 3.0
 @export var dash: float = 9.0
-@export var gap: float = 6.0
+@export var gap: float = 0.0
 @export var corner_radius: float = 12.0
 
 

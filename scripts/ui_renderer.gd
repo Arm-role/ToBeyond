@@ -501,7 +501,6 @@ func render_hand() -> void:
 			dash.border_color = Color("#6b6b78")
 			dash.border_width = 4.0
 			dash.dash = 9.0
-			dash.gap = 6.0
 			dash.corner_radius = 12.0
 			bk.add_theme_stylebox_override("panel", dash)
 			bk.position = CARD_SIZE * 0.26
@@ -590,6 +589,7 @@ func _set_rarity_aura(slot: Control, rarity: String) -> void:
 
 
 func render_artifact_row() -> void:
+	_main.get_node("ArtCount").text = "%d/%d" % [_main.artifacts.filter(func(a): return a != null).size(), ShopManager.MAX_ARTIFACTS]
 	for i in range(ShopManager.MAX_ARTIFACTS):
 		var slot = _main.artifact_row.get_child(i + 1) as Button
 		if slot == null: continue
@@ -618,12 +618,11 @@ func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind
 	slot.custom_minimum_size.x = roundf(slot.custom_minimum_size.y * CARD_WIDTH_TO_HEIGHT)
 	if not filled:
 		set_card_template(slot, false)
-		for state in ["normal", "hover", "pressed", "disabled", "focus"]:
-			slot.remove_theme_stylebox_override(state)
-		var tex := StyleBoxTexture.new()
-		tex.texture = load("res://assets/ui/slot_dashed_%s.svg" % ("purple" if kind == "chaos" else "brass"))
+		var empty := StyleBoxFlat.new()
+		empty.bg_color = Color(0, 0, 0, 0)
+		empty.set_corner_radius_all(12)
 		for state in ["normal", "hover", "pressed", "disabled"]:
-			slot.add_theme_stylebox_override(state, tex)
+			slot.add_theme_stylebox_override(state, empty)
 		slot.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		return
 	var sb := StyleBoxFlat.new()
@@ -644,6 +643,7 @@ func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind
 
 
 func render_chaos_row() -> void:
+	_main.get_node("ChaosRow/Label").text = "%d/%d" % [_main.chaos.filter(func(c): return c != null).size(), _main.chaos.size()]
 	for i in range(_main.chaos_slots.get_child_count()):
 		var slot := _main.chaos_slots.get_child(i) as Button
 		var chaos_card = _main.chaos[i]

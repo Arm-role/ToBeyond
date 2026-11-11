@@ -160,7 +160,7 @@ async function stack(browser, rows, file, w = 1280) {
 }
 // --seq: pass 1 logs every change of the damage formula (polled every 40 ms),
 // pass 2 (unless --no-shot) replays the attack and takes frames.
-const CALC = 'Preview/PreviewHBox/HeroCol/CalcLabel', LOG_SECONDS = 7;
+const CALC = 'Preview/CalcLabel', LOG_SECONDS = 7;
 async function attack(page) { for (const [x, y, wait] of SEQ_CLICKS) { await page.mouse.click(x, y); if (wait) await sleep(wait); } }
 async function calcLog(page, readCalc) {
   await attack(page);

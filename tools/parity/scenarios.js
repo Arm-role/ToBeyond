@@ -12,7 +12,7 @@ const MAIN = {
   'speed btn': ['#spd', 'TopBar/SpeedBtn'],
   'restart btn': ['#rst', 'TopBar/RestartBtn'],
   'hero pic': ['#hero', P + 'HeroCol/HeroPic'],
-  'calc': ['#calc', P + 'HeroCol/CalcLabel'],
+  'calc': ['#calc', 'Preview/CalcLabel'],
   'hero hp bar': ['.php .hpbar', P + 'HeroCol/PhpBox/HeroHPBar'],
   'hero hp text': ['.php .hptxt', P + 'HeroCol/PhpBox/HeroHPText'],
   'enemy name': ['#ename', P + 'EnemyCol/EnemyName'],

@@ -93,7 +93,8 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var hero_hp_bar: ProgressBar = $Preview/PreviewHBox/HeroCol/PhpBox/HeroHPBar
 @onready var hero_hp_label: Label = $Preview/PreviewHBox/HeroCol/PhpBox/HeroHPText
 @onready var hero_pic: Label = $Preview/PreviewHBox/HeroCol/HeroPic
-@onready var calc_label: RichTextLabel = $Preview/PreviewHBox/HeroCol/CalcLabel
+@onready var calc_label: RichTextLabel = $Preview/CalcLabel
+@onready var summary_label: Label = $Preview/SummaryLabel
 
 @onready var enemy_name: Label = $Preview/PreviewHBox/EnemyCol/EnemyName
 @onready var enemy_pic: Label = $Preview/PreviewHBox/EnemyCol/EnemyPic
@@ -630,9 +631,9 @@ static func fmt_num(v: float) -> String:
 	return txt
 
 
-## Draft showCalc(): `ATK × MULT = TOTAL`.
+## Live calc: `ATK × MULT` only. The total is shown big by BattleManager._show_summary once every trigger has resolved.
 func show_calc(atk: float, mult: float) -> void:
-	var new_text := "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][color=#a79fc4] = [/color]%s[/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01)), fmt_num(round(atk * mult))]
+	var new_text := "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01))]
 	var changed: bool = calc_label.text != new_text
 	calc_label.text = new_text
 	if changed and is_busy:
@@ -648,6 +649,7 @@ func refresh_calc() -> void:
 		show_calc(1.0 + walk_base_damage, 1.0 + walk_mult_bonus)
 	else:
 		show_calc(1.0, 1.0)
+		summary_label.visible = false
 
 	# Check for new Stone formula discoveries
 	for g in result["groups"]:

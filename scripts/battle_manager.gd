@@ -321,7 +321,10 @@ func _on_walk_finished() -> void:
 	if tier > 0:
 		_main.calc_label.modulate = Color("#ffd36b") if tier == 1 else Color("#ff8a50")
 		_ct().tween_property(_main.calc_label, "modulate", Color.WHITE, 0.9 / _spd())
-	await _timer(0.25)
+	# Every trigger has resolved: slam the total in big above the calc, hold a beat to read it.
+	await _timer(0.2)
+	_show_summary(pre_dmg, tier)
+	await _timer(0.6 + 0.15 * tier)
 
 	# 1. Fireball (draft strike()): cubic Bézier from the token to the hero —
 	#    keeps heading right first, then curves in from below; 750 ms.
@@ -366,6 +369,7 @@ func _on_walk_finished() -> void:
 	_main.fire_laser_beam(_main.beam_line, p3, enemy_center, Color.WHITE, 15.0, 0.05)
 	await _timer(0.3)
 	_burst(enemy_center)
+	_hide_summary()
 	_main.msg_label.text = ""
 	_main.sfx.play("hit", 1.0 - 0.18 * tier, 1.5 * tier)
 	_hit_stop(tier)
@@ -391,6 +395,37 @@ func _on_walk_finished() -> void:
 	else:
 		await _timer(0.9)
 		_enemy_counter_attack()
+
+
+## Big total above the live calc: slams in from ×2.4 with overshoot, tinted by hit tier.
+func _show_summary(total: int, tier: int) -> void:
+	var lbl: Label = _main.summary_label
+	lbl.text = _main.fmt_num(total)
+	lbl.visible = true
+	lbl.pivot_offset = lbl.size * 0.5
+	lbl.scale = Vector2(2.4, 2.4)
+	lbl.rotation = deg_to_rad(-4.0)
+	lbl.modulate = Color(1, 1, 1, 0)
+	var tint: Color = [Color.WHITE, Color("#ffd36b"), Color("#ff8a50")][tier]
+	var t := _ct().set_parallel(true)
+	t.tween_property(lbl, "modulate", tint, 0.08 / _spd())
+	t.tween_property(lbl, "scale", Vector2.ONE, 0.3 / _spd()).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_property(lbl, "rotation", 0.0, 0.3 / _spd()).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_main.sfx.play("chime", 1.0 + 0.25 * tier)
+	_main.shake_node(_main.calc_label, 6.0 + 4.0 * tier, 0.25, 0.0)
+	var ring_to: Vector2 = Vector2.ONE * (1.0 + 0.06 * tier)
+	t.chain().tween_property(lbl, "scale", ring_to, 0.25 / _spd()).set_trans(Tween.TRANS_SINE)
+
+
+## The total flies into the enemy with the beam: swell and fade out on impact.
+func _hide_summary() -> void:
+	var lbl: Label = _main.summary_label
+	if not lbl.visible: return
+	var t := _ct().set_parallel(true)
+	t.tween_property(lbl, "scale", lbl.scale * 1.5, 0.3 / _spd()).set_ease(Tween.EASE_OUT)
+	t.tween_property(lbl, "modulate:a", 0.0, 0.3 / _spd())
+	t.chain().tween_callback(func(): lbl.visible = false)
+
 
 
 ## Brief freeze on impact (draft has none; makes hits feel heavy). Uses real
