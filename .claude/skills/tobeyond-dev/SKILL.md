@@ -1,6 +1,6 @@
 ---
 name: tobeyond-dev
-description: Work on ToBeyond, the Godot 4.7 GDScript port of To_Beyond_Draft.html - make screens, text, numbers and animations match the HTML draft ("ให้เหมือนต้นฉบับ"), port or fix game logic, build the Web export, compare it with the draft, deploy previews. Use for any change under scripts/, scenes/ or assets/, and before running or testing the game.
+description: Work on ToBeyond, the Godot 4.7 GDScript game - change screens, text, numbers, game logic and game feel (animation, easing, timing, sfx on the beat, juice, hit-stop, shake, pacing), build the Web export, record animations to check them, compare layout with the old draft when the user orders it, deploy previews. Use for any change under scripts/, scenes/ or assets/, for animation / game feel / juice requests ("ให้ลื่น", "เร็วไป", "พุ่ง", "ค้าง"), and before running or testing the game.
 ---
 
 # ToBeyond development
@@ -50,10 +50,13 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 
 ## Other tools
 
+- `node tools/parity/record.js <scenario> --steps="x,y;wN;…" [--region=x,y,w,h] [--fps=12]`: records the Godot web build while clicking, writes a contact sheet `build/record/<name>.png` of the frames after the last click. For animation/feel checks (no draft needed); details in `reference/feel.md`.
+
 - `tools/parity/build.sh [--check]`: logs in `build/import.log`, `build/export.log`.
 - `python3 tools/parity/token_report.py`: turns, context size and cache use per request of this session. Use it to report cost at the end of a large task.
 
 ## Reference (read only the part you need)
 
 - `reference/map.md`: feature → draft section/functions → Godot file/functions, data tables, draft CSS selectors.
+- `reference/feel.md`: game feel: current timings, rules (speed_multiplier, no idle frames, sfx on landing), checklist, and `record.js` usage. Read it for any animation / juice / timing change.
 - `reference/pitfalls.md`: Godot/web traps already hit in this project (fonts, SVG text, z-index, type inference, class cache, …).
