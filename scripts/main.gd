@@ -167,6 +167,7 @@ var toolbar: ToolbarControls
 var action_dlg: ActionDialog
 var slot_drag: SlotDrag
 var chaos_ctl: ChaosController
+var reward_flow: RewardFlow
 var action_dialog: Control
 var pending_dialog_action: Callable
 
@@ -184,6 +185,7 @@ func _ready() -> void:
 	action_dlg = ActionDialog.new(self)
 	slot_drag = SlotDrag.new(self)
 	chaos_ctl = ChaosController.new(self)
+	reward_flow = RewardFlow.new(self)
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
 	artifact_sys = ArtifactSystem.new(self)
@@ -741,34 +743,7 @@ func _spawn_tile_popup(tile_idx: int) -> void:
 
 
 func on_victory() -> void:
-	is_busy = false
-	msg_label.text = "ชนะ!"
-
-	# Matching draft reward: base + walks + interest + reward artifacts.
-	var base_reward = 4
-	var interest = mini(10, int(coins / 5))
-	var walk_reward = walks_left
-	var rewards: Dictionary = artifact_sys.victory()
-	var arti_pay: int = rewards["rows"].get("arti", 0)
-	var fate_pay: int = rewards["rows"].get("fate", 0)
-	var walk_coin_bonus: int = rewards["rows"].get("walk", 0)
-	var reward_fx: Array = rewards["fx"]
-	if is_boss() and chaos.has(null):
-		chaos[chaos.find(null)] = {"kind": "crystal"}
-		msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
-	var total_gain = base_reward + walk_reward + interest + int(rewards["total"])
-	coins += total_gain
-	if not reward_fx.is_empty():
-		# The artifact row is hidden behind the reward panel, so show it paying out first.
-		render_artifact_row()
-		await battle_mgr.fx_artifact_types(reward_fx)
-		await get_tree().create_timer(0.45 / speed_multiplier).timeout
-	sfx.play("coin")
-
-	VfxManager.coin_rain(effects_layer, clampi(total_gain * 3, 12, 40), size.x * 0.6)
-	render_reward_summary(base_reward, walks_left, walk_reward, coins - total_gain, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
-	update_all_ui()
-	reward_modal.visible = true
+	await reward_flow.on_victory()
 
 
 func artifact_count_any() -> int:
@@ -780,53 +755,11 @@ func artifact_count_any() -> int:
 
 
 func render_reward_summary(base_reward: int, walks_remaining: int, walk_reward: int, held_coins: int, interest: int, total_gain: int, arti_pay: int = 0, fate_pay: int = 0, walk_coin_bonus: int = 0) -> void:
-	for child in reward_info.get_children():
-		child.queue_free()
-	_add_reward_row("ชนะศัตรู", "🪙 +%d" % base_reward)
-	_add_reward_row("เลือดที่เหลือ (รับได้อีก %d ครั้ง) × 1" % walks_remaining, "🪙 +%d" % walk_reward)
-	_add_reward_row("ดอกเบี้ย (มี %d ÷ 5 · สูงสุด 10)" % held_coins, "🪙 +%d" % interest)
-	if arti_pay > 0:
-		_add_reward_row("รายได้ Artifact", "🪙 +%d" % arti_pay)
-	if fate_pay > 0:
-		_add_reward_row("รายได้ Gem", "🪙 +%d" % fate_pay)
-	if walk_coin_bonus > 0:
-		_add_reward_row("เดินประหยัด", "🪙 +%d" % walk_coin_bonus)
-	_add_reward_row("รวม", "🪙 +%d" % total_gain, true)
+	reward_flow.render_summary(base_reward, walks_remaining, walk_reward, held_coins, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 
 
 func _add_reward_row(left_text: String, right_text: String, is_total: bool = false) -> void:
-	var row := PanelContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var row_style := StyleBoxFlat.new()
-	row_style.bg_color = Color(0, 0, 0, 0)
-	if not is_total:
-		row_style.border_width_bottom = 1
-		row_style.border_color = Color(0.827451, 0.65098, 0.290196, 0.3)
-	row_style.content_margin_left = 6.0
-	row_style.content_margin_top = 12.0
-	row_style.content_margin_right = 6.0
-	row_style.content_margin_bottom = 12.0
-	row.add_theme_stylebox_override("panel", row_style)
-
-	var hbox := HBoxContainer.new()
-	row.add_child(hbox)
-	var left := Label.new()
-	left.text = left_text
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	if is_total:
-		left.theme_type_variation = &"BoldLabel"
-	left.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
-	hbox.add_child(left)
-	var right := Label.new()
-	right.text = right_text
-	right.add_theme_font_size_override("font_size", 36 if is_total else 27)
-	if is_total:
-		right.theme_type_variation = &"BoldLabel"
-	right.add_theme_color_override("font_color", Color("#f0cf86") if is_total else Color("#f3ead7"))
-	right.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hbox.add_child(right)
-	reward_info.add_child(row)
+	reward_flow.add_row(left_text, right_text, is_total)
 
 
 func _on_reward_shop_pressed() -> void:
