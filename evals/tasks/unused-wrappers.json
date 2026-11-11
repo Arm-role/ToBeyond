@@ -1,0 +1,13 @@
+{
+ "id": "unused-wrappers",
+ "source": "51d1e82",
+ "kind": "cleanup",
+ "prompt": "main.gd still has wrappers nobody calls after the split into classes. Find the unused ones (at least _apply_hand_chaos, _apply_chaos_to_tile, render_reward_summary) and remove them without changing behaviour.",
+ "checks": [
+  "! grep -q 'func _apply_hand_chaos' scripts/main.gd",
+  "! grep -q 'func _apply_chaos_to_tile' scripts/main.gd",
+  "! grep -q 'func render_reward_summary' scripts/main.gd",
+  "tools/parity/build.sh --check"
+ ],
+ "base": "51d1e82^"
+}

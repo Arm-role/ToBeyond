@@ -53,6 +53,7 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 
 - `node tools/parity/record.js <scenario> --steps="x,y;wN;…" [--region=x,y,w,h] [--fps=12]`: records the Godot web build while clicking, writes a contact sheet `build/record/<name>.png` of the frames after the last click. For animation/feel checks (no draft needed); details in `reference/feel.md`.
 
+- Evals: `python3 evals/run.py list|validate|setup <id>|check <id>|record …` replay real past changes to measure whether the setup (skill, agents) helps; it never runs an agent itself. Add a task whenever a pushed change would make a good test, then `validate` it.
 - Build logs: `build/import.log`, `build/export.log`. `python3 tools/parity/token_report.py` reports turns, context size and cache use per request; use it to report cost at the end of a large task. Other commands: `CLAUDE.md`.
 
 ## Reference (read only the part you need)
