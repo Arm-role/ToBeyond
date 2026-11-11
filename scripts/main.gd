@@ -701,7 +701,7 @@ func auto_place_selected() -> void:
 	update_all_ui()
 	refresh_calc()
 	for k in range(slots.size()):
-		pop_tile_anim(slots[k], k * 0.09)
+		pop_tile_anim(slots[k], k * 0.04)
 
 
 # ==============================================================================
