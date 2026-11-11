@@ -263,7 +263,7 @@ static func show_center_toast(toast: PanelContainer, duration: float = 2.6) -> v
 	tween.tween_callback(func(): toast.visible = false)
 
 ## Quick pop bounce when placing or moving a tile card (.tile.tplace)
-static func pop_tile_anim(tile_btn: Control, delay: float = 0.0) -> void:
+static func pop_tile_anim(tile_btn: Control, delay: float = 0.0, landed: bool = false) -> void:
 	if not tile_btn: return
 	tile_btn.pivot_offset = tile_btn.size / 2.0
 	# Card "lands" on the tile: starts big and faint, slams down with a small
@@ -271,8 +271,10 @@ static func pop_tile_anim(tile_btn: Control, delay: float = 0.0) -> void:
 	# Start pose is applied at once (no frame where the finished card sits
 	# still while it waits its turn); the stagger between cards is kept short
 	# so the empty-slot gap never reads as a stall.
-	tile_btn.scale = Vector2(1.6, 1.6)
-	tile_btn.self_modulate = Color(2.2, 2.2, 2.2, 0.0)
+	# `landed`: a flying card just arrived, so the tile is already solid; only
+	# give it an impact squash and a white flash.
+	tile_btn.scale = Vector2(1.2, 1.2) if landed else Vector2(1.6, 1.6)
+	tile_btn.self_modulate = Color(2.2, 2.2, 2.2, 1.0 if landed else 0.0)
 	var tween = tile_btn.create_tween().set_parallel(true)
 	tween.tween_property(tile_btn, "scale", Vector2.ONE, 0.3).set_delay(delay) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -291,8 +293,9 @@ static func pop_tile_anim(tile_btn: Control, delay: float = 0.0) -> void:
 	ring.modulate.a = 0.0
 	tile_btn.add_child(ring)
 	var rt = ring.create_tween().set_parallel(true)
-	rt.tween_property(ring, "modulate:a", 1.0, 0.01).set_delay(delay + 0.12)
-	rt.tween_property(ring, "scale", Vector2(1.5, 1.5), 0.35).set_delay(delay + 0.12).set_ease(Tween.EASE_OUT)
+	var rd: float = 0.0 if landed else 0.12
+	rt.tween_property(ring, "modulate:a", 1.0, 0.01).set_delay(delay + rd)
+	rt.tween_property(ring, "scale", Vector2(1.5, 1.5), 0.35).set_delay(delay + rd).set_ease(Tween.EASE_OUT)
 	rt.tween_property(ring, "modulate:a", 0.0, 0.3).set_delay(delay + 0.14)
 	rt.chain().tween_callback(ring.queue_free)
 

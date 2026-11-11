@@ -682,6 +682,14 @@ func refresh_calc() -> void:
 
 
 # --- Smart Auto-Placement Solver ---
+## Cards placed one at a time: each hand card leaves the hand, swoops to its
+## tile (accelerating, with a small arc) and lands with a pop and a rising
+## note, one beat after the previous card.
+const PLACE_BEAT := 0.15     # seconds between launches
+const PLACE_FLIGHT := 0.3    # seconds in the air
+var _placing: bool = false
+
+
 func auto_place_selected() -> void:
 	var cards_to_place = []
 	for card in hand:
@@ -693,6 +701,24 @@ func auto_place_selected() -> void:
 	var slots: Array = result["slots"]
 	if slots.is_empty(): return
 
+	# Copy each card's hand visual before the hand is rebuilt.
+	var flights: Array = []
+	for k in range(best_cards.size()):
+		var idx: int = hand.find(best_cards[k])
+		var proxy: Control = null
+		var from_rect := Rect2()
+		if idx >= 0 and idx < hand_container.get_child_count():
+			var src := hand_container.get_child(idx) as Control
+			from_rect = src.get_global_rect()
+			proxy = src.duplicate() as Control
+			var sway := proxy.get_node_or_null("CardSway")
+			if sway != null:
+				proxy.remove_child(sway)
+				sway.free()
+			proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var tile_btn := tiles_container.get_child(slots[k]) as Button
+		flights.append({"proxy": proxy, "from": from_rect, "tile": tile_btn, "empty_icon": tile_btn.icon})
+
 	for k in range(best_cards.size()):
 		hand.erase(best_cards[k])
 		placed_cards[slots[k]] = best_cards[k]
@@ -700,8 +726,50 @@ func auto_place_selected() -> void:
 	selected_card_ids.clear()
 	update_all_ui()
 	refresh_calc()
-	for k in range(slots.size()):
-		pop_tile_anim(slots[k], k * 0.04)
+
+	_placing = true
+	for k in range(flights.size()):
+		var fl: Dictionary = flights[k]
+		var tile_btn: Button = fl["tile"]
+		var placed_icon = tile_btn.icon
+		tile_btn.icon = fl["empty_icon"]   # empty slot until the card lands
+		var proxy: Control = fl["proxy"]
+		var last: bool = k == flights.size() - 1
+		if proxy == null:
+			get_tree().create_timer(k * PLACE_BEAT).timeout.connect(
+				_land_card.bind(tile_btn, placed_icon, null, k, last))
+			continue
+		add_child(proxy)
+		proxy.z_index = 200
+		proxy.pivot_offset = proxy.size * 0.5
+		var from_rect: Rect2 = fl["from"]
+		var to_rect := tile_btn.get_global_rect()
+		var p0 := from_rect.get_center()
+		var p1 := to_rect.get_center()
+		var s1 := Vector2.ONE * minf(to_rect.size.x / maxf(from_rect.size.x, 1.0), to_rect.size.y / maxf(from_rect.size.y, 1.0))
+		var r0 := proxy.rotation
+		proxy.global_position = p0 - proxy.size * 0.5
+		var tw := proxy.create_tween()
+		tw.tween_interval(k * PLACE_BEAT)
+		tw.tween_callback(sfx.play.bind("whoosh", 1.0 + 0.08 * k, -12.0))
+		tw.tween_method(func(t: float) -> void:
+			var pos := p0.lerp(p1, t) + Vector2(0.0, -sin(PI * t) * 70.0)
+			proxy.global_position = pos - proxy.size * 0.5
+			proxy.scale = Vector2.ONE.lerp(s1, t)
+			proxy.rotation = lerpf(r0, 0.0, t), 0.0, 1.0, PLACE_FLIGHT) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(_land_card.bind(tile_btn, placed_icon, proxy, k, last))
+
+
+func _land_card(tile_btn: Button, placed_icon: Texture2D, proxy: Control, k: int, last: bool) -> void:
+	if is_instance_valid(proxy):
+		proxy.queue_free()
+	if is_instance_valid(tile_btn):
+		tile_btn.icon = placed_icon
+		sfx.step(k)
+		VfxManager.pop_tile_anim(tile_btn, 0.0, true)
+	if last:
+		_placing = false
 
 
 # ==============================================================================
@@ -709,7 +777,7 @@ func auto_place_selected() -> void:
 # ==============================================================================
 
 func _on_walk_pressed() -> void:
-	if is_busy: return
+	if is_busy or _placing: return
 
 	# If cards selected, click walk executes auto-placement
 	if selected_card_ids.size() > 0:
