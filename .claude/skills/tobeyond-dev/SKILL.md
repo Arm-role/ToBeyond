@@ -28,7 +28,7 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 
 ## The loop
 
-1. **Locate**: `reference/map.md` → draft function + Godot function → `grep -n`.
+1. **Locate**: `reference/map.md` → Godot file: function → `grep -n`. The map is checked by `build.sh --check`; if you move or rename something it lists, update the map.
 2. **Spec**: read the Godot code and the user's request. Don't open the draft unless the user orders it.
 3. **Edit** the GDScript / scene.
 4. **Check**: `tools/parity/build.sh --check`.
