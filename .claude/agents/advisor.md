@@ -24,5 +24,7 @@ One of: **go**, **go with changes**, **stop**, plus one sentence why.
 - concrete issue, with `file:line` and what breaks (skip if none).
 ## Do next
 - numbered steps the worker can follow directly.
+## New pitfall?
+- one line `symptom → cause → fix` if this case is a trap not in `pitfalls.md`, else `none`.
 
 Be direct. Don't restate the task; don't suggest redesigns the user didn't ask for.

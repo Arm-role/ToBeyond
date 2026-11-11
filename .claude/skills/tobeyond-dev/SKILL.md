@@ -35,7 +35,8 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 5. **Compare** (the parity tools compare with the draft; use them for layout/animation checks or when the user orders a draft comparison): `node tools/parity/parity.js <scenarios> --fast` for layout/text numbers without a build; `tools/parity/build.sh` then `node tools/parity/parity.js <scenarios> [--seq]` for the real web build, animation timing and images.
 6. **Visual pass** when the change is visual: `parity-check` skill with the scenario (and `--region`).
 7. **Review** (large or risky tasks only): ask `advisor` with the diff summary before calling it done.
-8. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
+8. **Learn**: if the task needed more than 2 fix rounds, or `advisor` said **stop** or listed a new pitfall, add one line to `reference/pitfalls.md` (Lessons log, format there). Skip it for routine tasks.
+9. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
 
 ## parity.js
 
