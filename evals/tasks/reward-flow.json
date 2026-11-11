@@ -1,0 +1,14 @@
+{
+ "id": "reward-flow",
+ "source": "1f1917c",
+ "kind": "refactor",
+ "prompt": "Continue the main.gd split (docs/refactor-main-split.md): move the victory payout and reward rows (on_victory, render_reward_summary, _add_reward_row) out of main.gd into a new class RewardFlow in scripts/reward_flow.gd, following the pattern of the other split classes. main.gd keeps one-line wrappers for the moved functions. Behaviour must not change.",
+ "checks": [
+  "test -f scripts/reward_flow.gd",
+  "grep -q '^class_name RewardFlow' scripts/reward_flow.gd",
+  "grep -q 'RewardFlow' scripts/main.gd",
+  "test $(wc -l < scripts/main.gd) -lt 940",
+  "tools/parity/build.sh --check"
+ ],
+ "base": "1f1917c^"
+}

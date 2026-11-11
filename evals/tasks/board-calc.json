@@ -1,0 +1,18 @@
+{
+ "id": "board-calc",
+ "source": "506c039",
+ "kind": "refactor+regress",
+ "regress": [
+  "artifact_regress"
+ ],
+ "prompt": "Do block 2 of docs/refactor-main-split.md: move the group/direction counting (calculate_groups, tile_direction_*, matching_*) and the walk/attack maths (compute_attack, apply_tile_walk_effects, totems) out of main.gd into a new class BoardCalc in scripts/board_calc.gd, following the _main pattern of the other split classes. Keep one-line wrappers on main. Behaviour must not change: the artifact regression output (tools/parity/regress.sh) must stay identical.",
+ "checks": [
+  "test -f scripts/board_calc.gd",
+  "grep -q '^class_name BoardCalc' scripts/board_calc.gd",
+  "grep -q 'BoardCalc' scripts/main.gd",
+  "test $(wc -l < scripts/main.gd) -lt 1430",
+  "tools/parity/build.sh --check",
+  "tools/parity/regress.sh"
+ ],
+ "base": "506c039^"
+}

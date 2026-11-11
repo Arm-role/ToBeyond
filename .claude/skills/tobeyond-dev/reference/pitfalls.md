@@ -37,3 +37,7 @@
 - Non-uniform scale on a flying card stretches its emblem into an ellipse: use one uniform scale factor.
 - Sound synthesis (`SfxManager._stream`) is cheap (2-40 ms); it was not the cause of a placement stall. Measure (`Time.get_ticks_usec`) before blaming it.
 - Swiftshader runs ~15 fps and `page.screenshot()` is slower than the animation: screenshots miss short motion. Use `tools/parity/record.js` (video + ffmpeg).
+
+## Lessons log (newest last)
+One line per lesson, added by the worker after a task (rule: step 9 of the loop in `SKILL.md`). Format: `YYYY-MM-DD | symptom → cause → fix (commit)`. Only things confirmed by a fix that worked; no guesses. If a lesson fits a section above, put it there instead.
+- 2026-11-08 | converting a global position to a Control's local space with `to_local()` → `to_local()` is a Node2D method, not a Control one → use `node.get_global_transform().affine_inverse() * global_pos` (4729858)

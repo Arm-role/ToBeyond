@@ -20,10 +20,10 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 - `node tools/hooks/test.js` checks all rules (run it after any change to the hook).
 
 ## Code layout (after the main.gd split, done)
-- `scripts/main.gd` (~850 lines): node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
+- `scripts/main.gd`: node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
 - Split classes (each holds `_main`): `BoardCalc`, `ToolbarControls`, `ActionDialog`, `SlotDrag`, `ChaosController`, `RewardFlow`, plus the managers (`BattleManager`, `ShopManager`, `UiRenderer`, `ArtifactSystem`).
 - Artifacts and Chaos are data: `data/artifacts/*.tres`, `data/chaos/*.tres`. New Chaos card: `docs/plan-chaos-data-driven.md` ("How to add").
-- Chaos/regression checks (run before and after a refactor and diff): `tools/parity/artifact_regress.gd`, `chaos_use.gd`, `chaos_dump.gd`.
+- Logic regression: `tools/parity/build.sh --regress` diffs `artifact_regress.gd`, `chaos_use.gd`, `chaos_dump.gd` against `tools/parity/baseline/`. Run it after any change to artifacts, Chaos, walk or damage code. After an *intended* number change run `--regress --update` and commit the baseline diff.
 
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
@@ -31,8 +31,7 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 
 ## Keep sessions cheap
 - One task per session; `/clear` or a new session after pushing.
-- Model roles: the main session runs on Sonnet (project default in `.claude/settings.json`) and does the work; the `advisor` agent (Opus) is consulted at checkpoints; `runner` (Haiku) take repetitive or long-output work. Don't `/model` mid-session: it re-caches the whole context. Delegate to an agent instead.
-- Don't read big files whole: `grep -n`, then `sed -n 'a,bp' | cut -c1-220`.
+- Model roles (Sonnet main, `advisor`, `runner`) and the big-file reading rule: `tobeyond-dev` skill. Don't `/model` mid-session: it re-caches the whole context; delegate to an agent instead.
 - Screenshots go to the `parity-checker` agent (`parity-check` skill); the main session reads text reports.
 
 ## Compact instructions

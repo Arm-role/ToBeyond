@@ -1,0 +1,13 @@
+{
+ "id": "place-timing",
+ "source": "e99f034",
+ "kind": "tweak",
+ "prompt": "Slow down the card placement animation: the beat between card launches 0.28 s, the flight 0.48 s, and use a sine ease-in-out for the flight instead of quad ease-in.",
+ "checks": [
+  "grep -q 'PLACE_BEAT := 0.28' scripts/main.gd",
+  "grep -q 'PLACE_FLIGHT := 0.48' scripts/main.gd",
+  "grep -q 'TRANS_SINE' scripts/main.gd",
+  "tools/parity/build.sh --check"
+ ],
+ "base": "e99f034^"
+}
