@@ -57,7 +57,7 @@ def worktree(tid, rev, name):
 def run_checks(task, d):
     results = []
     for c in task["checks"]:
-        rc, out = sh(c, d)
+        rc, out = sh("TB_SKIP_REFS=1 " + c if c.startswith("tools/parity/build.sh") else c, d)
         results.append((c, rc == 0, out))
     return results
 
@@ -90,6 +90,7 @@ def cmd_setup(tid):
     d = worktree(tid, t["base"], tid)
     for p in (".claude", "CLAUDE.md", "tools"):
         sh(f"git -C '{ROOT}' archive HEAD {p} | tar -x -C '{d}'", ROOT)
+    print("note: the current map.md describes the current code, so run `build.sh --check` with TB_SKIP_REFS=1 here")
     print(f"work tree: {d}\nbase: {t['base']}  (source change: {t['source']})\n\nPROMPT:\n{t['prompt']}")
     return 0
 
