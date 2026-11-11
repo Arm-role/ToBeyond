@@ -15,8 +15,10 @@ func on_slot_pressed(slot_idx: int) -> void:
 	var chaos_card = _main.chaos[slot_idx]
 	if chaos_card == null:
 		return
-	var kind: String = chaos_card["kind"]
-	if kind in ["tdir", "mtile", "xmult", "xatk", "crystal"]:
+	var effect := _effect_of(chaos_card)
+	if effect == null:
+		return
+	if effect.needs_tile:
 		_main.selected_chaos_slot = -1 if _main.selected_chaos_slot == slot_idx else slot_idx
 		_main.chaos_msg("แตะช่องที่ต้องการวาง" if _main.selected_chaos_slot >= 0 else "ยกเลิกแล้ว")
 		_main.update_all_ui()
@@ -24,67 +26,26 @@ func on_slot_pressed(slot_idx: int) -> void:
 	apply_hand(slot_idx)
 
 
+func _effect_of(chaos_card: Dictionary) -> ChaosEffect:
+	var definition := ArtifactSystem.chaos_def(chaos_card)
+	return definition.effect if definition != null else null
+
+
 func apply_hand(slot_idx: int) -> void:
 	var chaos_card = _main.chaos[slot_idx]
 	if chaos_card == null:
+		return
+	var effect := _effect_of(chaos_card)
+	if effect == null:
 		return
 	var picked: Array[Dictionary] = []
 	for card in _main.hand:
 		if _main.selected_card_ids.has(card["id"]):
 			picked.append(card)
-	var kind: String = chaos_card["kind"]
-	if kind != "destroy" and picked.any(func(c): return c.get("is_blank", false)):
+	if not effect.allow_blank and picked.any(func(c): return c.get("is_blank", false)):
 		_main.chaos_msg("การ์ดเปล่าใช้ Chaos ไม่ได้")
 		return
-	if kind == "color":
-		if picked.is_empty():
-			_main.chaos_msg("เลือก Gem ในมือก่อน (สูงสุด 2 ใบ)")
-			return
-		if picked.size() > 2:
-			_main.chaos_msg("เปลี่ยนสีได้สูงสุด 2 ใบ")
-			return
-		if picked.all(func(c): return c["color"] == chaos_card["col"]):
-			_main.chaos_msg("Gem ที่เลือกเป็นสี%sอยู่แล้ว" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-			return
-		for card in picked:
-			if card.get("is_blank", false):
-				continue
-			_main.deck_mods.append({"from": card["color"], "dir": card["dir"], "to": chaos_card["col"], "to_dir": card["dir"]})
-			card["color"] = chaos_card["col"]
-		finish(slot_idx, "🎨 เปลี่ยนเป็นสี%sถาวร" % ShopManager.COL_TH.get(chaos_card["col"], ""))
-	elif kind == "dirc":
-		if picked.is_empty():
-			_main.chaos_msg("เลือก Gem ในมือก่อน (1 ใบ)")
-			return
-		if picked.size() > 1:
-			_main.chaos_msg("เปลี่ยนทิศได้ทีละ 1 ใบ")
-			return
-		if picked[0]["dir"] == chaos_card["dir"]:
-			_main.chaos_msg("Gem ที่เลือกเป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		var card = picked[0]
-		_main.deck_mods.append({"from": card["color"], "dir": card["dir"], "to": card["color"], "to_dir": chaos_card["dir"]})
-		card["dir"] = chaos_card["dir"]
-		finish(slot_idx, "🧭 เปลี่ยนเป็นทิศ%sถาวร" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-	elif kind == "goldify":
-		if picked.size() != 1:
-			_main.chaos_msg("เลือก Gem ในมือ 1 ใบก่อน")
-			return
-		if picked[0].get("gold", false):
-			_main.chaos_msg("ใบนี้เป็นการ์ดทองอยู่แล้ว")
-			return
-		picked[0]["gold"] = true
-		_main.gold_mods.append({"color": picked[0]["color"], "dir": picked[0]["dir"]})
-		finish(slot_idx, "✨ เป็นการ์ดทองถาวร")
-	elif kind == "destroy":
-		if picked.size() != 2:
-			_main.chaos_msg("เลือก Gem ในมือ 2 ใบก่อน")
-			return
-		for card in picked:
-			if not card.get("is_blank", false):
-				_main.deck_removals.append({"color": card["color"], "dir": card["dir"]})
-			_main.hand.erase(card)
-		finish(slot_idx, "💥 ทำลาย Gem 2 ใบถาวร")
+	_finish_use(effect.use_hand(_main, chaos_card, picked), slot_idx)
 
 
 func apply_to_tile(tile_idx: int) -> void:
@@ -94,35 +55,17 @@ func apply_to_tile(tile_idx: int) -> void:
 	if chaos_card == null:
 		_main.selected_chaos_slot = -1
 		return
-	var kind: String = chaos_card["kind"]
-	if kind == "tdir":
-		if _main.TILE_DIR[tile_idx] == chaos_card["dir"]:
-			_main.chaos_msg("ช่องนี้เป็นทิศ%sอยู่แล้ว" % ShopManager.DIR_TH.get(chaos_card["dir"], ""))
-			return
-		_main.TILE_DIR[tile_idx] = chaos_card["dir"]
-	elif kind == "mtile":
-		if _main.chaos_mult_tiles.has(tile_idx):
-			_main.chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		_main.chaos_mult_tiles[tile_idx] = true
-	elif kind == "xmult":
-		if _main.chaos_xmult_tiles.has(tile_idx):
-			_main.chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		_main.chaos_xmult_tiles[tile_idx] = true
-	elif kind == "xatk":
-		if _main.chaos_xatk_tiles.has(tile_idx):
-			_main.chaos_msg("ช่องนี้มี Chaos ชนิดนี้แล้ว")
-			return
-		_main.chaos_xatk_tiles[tile_idx] = true
-	elif kind == "crystal":
-		if _main.placed_cards.has(tile_idx) or _main.chaos_crystals.has(tile_idx):
-			_main.chaos_msg("วางผลึกได้เฉพาะช่องว่าง")
-			return
-		_main.chaos_crystals[tile_idx] = _main.CRYSTAL_HP
-	else:
+	var effect := _effect_of(chaos_card)
+	if effect == null or not effect.needs_tile:
 		return
-	finish(_main.selected_chaos_slot, "")
+	_finish_use(effect.use_tile(_main, chaos_card, tile_idx), _main.selected_chaos_slot)
+
+
+func _finish_use(result: Dictionary, slot_idx: int) -> void:
+	if result["ok"]:
+		finish(slot_idx, result["msg"])
+	else:
+		_main.chaos_msg(result["msg"])
 
 
 func finish(slot_idx: int, message: String) -> void:

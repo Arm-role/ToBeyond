@@ -1,6 +1,11 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_h3if7"]
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/tile_dir_chaos.gd" id="1_lwtjp"]
+
+[sub_resource type="Resource" id="Resource_7u8l5"]
+script = ExtResource("1_lwtjp")
+needs_tile = true
 
 [resource]
 script = ExtResource("1_h3if7")
@@ -12,6 +17,7 @@ icon = "🧭"
 price = 4
 color = Color(0.21960784, 0.76862746, 0.72156864, 1)
 catalog_order = 11
+effect = SubResource("Resource_7u8l5")
 label = "ช่อง W"
 title = "Chaos เปลี่ยนทิศช่องตะวันตก"
 desc = "แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็นตะวันตก ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศตะวันตกที่วางบนช่องนี้จะนับว่าตรงทิศ"

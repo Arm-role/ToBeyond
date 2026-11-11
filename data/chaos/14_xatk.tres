@@ -1,6 +1,12 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/tile_mark_chaos.gd" id="1_dap02"]
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_rr1fv"]
+
+[sub_resource type="Resource" id="Resource_1kt3m"]
+script = ExtResource("1_dap02")
+state_var = &"chaos_xatk_tiles"
+needs_tile = true
 
 [resource]
 script = ExtResource("1_rr1fv")
@@ -11,6 +17,7 @@ icon = "✴"
 price = 6
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 catalog_order = 14
+effect = SubResource("Resource_1kt3m")
 label = "ATK"
 title = "Chaos ช่อง ×1.2 ATK"
 desc = "ATK ×1.2 · แตะการ์ดนี้แล้วแตะช่องบนกระดาน (อยู่ถาวรจนจบเกม) · ทำงานเมื่อเดินตกช่องที่มี Gem และทิศการ์ดตรงกับทิศช่อง"

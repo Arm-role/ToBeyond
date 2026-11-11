@@ -1,6 +1,11 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/tile_dir_chaos.gd" id="1_bu8ky"]
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_r7rjj"]
+
+[sub_resource type="Resource" id="Resource_41blf"]
+script = ExtResource("1_bu8ky")
+needs_tile = true
 
 [resource]
 script = ExtResource("1_r7rjj")
@@ -12,6 +17,7 @@ icon = "🧭"
 price = 4
 color = Color(0.21960784, 0.76862746, 0.72156864, 1)
 catalog_order = 10
+effect = SubResource("Resource_41blf")
 label = "ช่อง S"
 title = "Chaos เปลี่ยนทิศช่องใต้"
 desc = "แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็นใต้ ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศใต้ที่วางบนช่องนี้จะนับว่าตรงทิศ"

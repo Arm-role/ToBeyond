@@ -1,6 +1,11 @@
 [gd_resource type="Resource" script_class="ChaosData" format=3]
 
 [ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_4vyks"]
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/tile_dir_chaos.gd" id="1_klykk"]
+
+[sub_resource type="Resource" id="Resource_l84vx"]
+script = ExtResource("1_klykk")
+needs_tile = true
 
 [resource]
 script = ExtResource("1_4vyks")
@@ -12,6 +17,7 @@ icon = "🧭"
 price = 4
 color = Color(0.21960784, 0.76862746, 0.72156864, 1)
 catalog_order = 8
+effect = SubResource("Resource_l84vx")
 label = "ช่อง N"
 title = "Chaos เปลี่ยนทิศช่องเหนือ"
 desc = "แตะการ์ดนี้แล้วแตะช่องบนกระดาน: เปลี่ยนทิศของช่องเป็นเหนือ ถาวรจนจบเกม (วางทับช่องที่เปลี่ยนแล้วเพื่อเปลี่ยนอีกได้) · Gem ทิศเหนือที่วางบนช่องนี้จะนับว่าตรงทิศ"

@@ -1,7 +1,7 @@
 class_name ChaosData
 extends Resource
 ## One Chaos card sold in the shop (res://data/chaos/*.tres). What the card
-## does is keyed by `kind` in ChaosController (apply_hand / apply_to_tile).
+## does is the `effect` resource (ChaosEffect subclasses in scripts/artifacts/chaos/).
 
 @export_enum("color", "dirc", "tdir", "mtile", "xmult", "xatk", "goldify", "destroy", "crystal") var kind: String = "color"
 @export var col: String = ""  # "" = any/none
@@ -13,6 +13,8 @@ extends Resource
 @export var price: int = 5
 @export var color: Color = Color.WHITE
 @export var catalog_order: int = 0
+## What the card does (see ChaosEffect).
+@export var effect: ChaosEffect
 ## Texts and look (Thai text from the draft, written out in full).
 @export var label: String = ""          # short text on slots and cards
 @export var title: String = ""          # card name in the shop and dialogs
