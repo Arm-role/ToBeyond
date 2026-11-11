@@ -54,10 +54,31 @@ def worktree(tid, rev, name):
     return d
 
 
+def env_for(task):
+    e = "TB_SKIP_REFS=1 "
+    if task.get("regress"):
+        e += "TB_REGRESS_SCRIPTS=" + ",".join(task["regress"]) + " "
+    return e
+
+
+def overlay_regress(task, d):
+    """Old trees lack regress.sh / baseline support: lay the current tools/parity over them."""
+    if task.get("regress"):
+        sh(f"git -C '{ROOT}' archive HEAD tools/parity | tar -x -C '{d}'", ROOT)
+
+
+def make_baseline(task, d):
+    """Baseline = what the unchanged base tree prints. A behaviour-preserving change must reproduce it."""
+    if task.get("regress"):
+        rc, out = sh(env_for(task) + "tools/parity/regress.sh --update", d)
+        if rc:
+            sys.exit("baseline failed: " + out[:400])
+
+
 def run_checks(task, d):
     results = []
     for c in task["checks"]:
-        rc, out = sh("TB_SKIP_REFS=1 " + c if c.startswith("tools/parity/build.sh") else c, d)
+        rc, out = sh(env_for(task) + c if c.startswith("tools/parity/") else c, d)
         results.append((c, rc == 0, out))
     return results
 
@@ -70,8 +91,15 @@ def cmd_validate(only):
     bad = 0
     for tid in [only] if only else ids():
         t = load(tid)
-        base = run_checks(t, worktree(tid, t["base"], tid + "-base"))
-        src = run_checks(t, worktree(tid, t["source"], tid + "-source"))
+        bd = worktree(tid, t["base"], tid + "-base")
+        overlay_regress(t, bd)
+        make_baseline(t, bd)
+        base = run_checks(t, bd)
+        sd = worktree(tid, t["source"], tid + "-source")
+        overlay_regress(t, sd)
+        if t.get("regress"):
+            sh(f"mkdir -p '{sd}/tools/parity/baseline' && cp '{bd}'/tools/parity/baseline/*.txt '{sd}/tools/parity/baseline/'", ROOT)
+        src = run_checks(t, sd)
         base_fail, src_pass = not verdict(base), verdict(src)
         print(f"{tid}: fails at base={base_fail}  passes at source={src_pass}")
         if not src_pass:
@@ -90,6 +118,7 @@ def cmd_setup(tid):
     d = worktree(tid, t["base"], tid)
     for p in (".claude", "CLAUDE.md", "tools"):
         sh(f"git -C '{ROOT}' archive HEAD {p} | tar -x -C '{d}'", ROOT)
+    make_baseline(t, d)
     print("note: the current map.md describes the current code, so run `build.sh --check` with TB_SKIP_REFS=1 here")
     print(f"work tree: {d}\nbase: {t['base']}  (source change: {t['source']})\n\nPROMPT:\n{t['prompt']}")
     return 0

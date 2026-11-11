@@ -1,0 +1,18 @@
+{
+ "id": "chaos-controller",
+ "source": "800bd11",
+ "kind": "refactor+regress",
+ "regress": [
+  "artifact_regress"
+ ],
+ "prompt": "Do block 5 of docs/refactor-main-split.md: move Chaos use (_apply_hand_chaos, _apply_chaos_to_tile, hit_crystal), the tile click and the discard handling out of main.gd into a new class ChaosController in scripts/chaos_controller.gd, following the _main pattern of the other split classes. Keep one-line wrappers on main. Behaviour must not change: the artifact regression output (tools/parity/regress.sh) must stay identical. Mind await and tweens: keep tween owners on main.",
+ "checks": [
+  "test -f scripts/chaos_controller.gd",
+  "grep -q '^class_name ChaosController' scripts/chaos_controller.gd",
+  "grep -q 'ChaosController' scripts/main.gd",
+  "test $(wc -l < scripts/main.gd) -lt 1050",
+  "tools/parity/build.sh --check",
+  "tools/parity/regress.sh"
+ ],
+ "base": "800bd11^"
+}

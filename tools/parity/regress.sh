@@ -2,13 +2,13 @@
 # Compare the headless regression scripts with the committed baseline in tools/parity/baseline/.
 #   tools/parity/regress.sh            run artifact_regress, chaos_use, chaos_dump and diff (exit 1 on any diff)
 #   tools/parity/regress.sh --update   rewrite the baseline (do this only for an intended change, commit the diff)
-# The scripts are deterministic (two runs are byte-identical); only Godot's banner line is dropped.
+# TB_REGRESS_SCRIPTS=a,b limits the scripts (evals on old code bases). The scripts are deterministic (two runs are byte-identical); only Godot's banner line is dropped.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 GODOT=${GODOT:-$(command -v godot || bash tools/parity/setup_godot.sh)}
 mkdir -p tools/parity/baseline build/regress
 fail=0
-for s in artifact_regress chaos_use chaos_dump; do
+for s in $(echo "${TB_REGRESS_SCRIPTS:-artifact_regress,chaos_use,chaos_dump}" | tr , " "); do
   out=build/regress/$s.txt
   timeout 120 "$GODOT" --headless --path . --script "res://tools/parity/$s.gd" 2>&1 | grep -v '^Godot Engine v' | sed '/./,$!d' > "$out"
   if grep -qE "SCRIPT ERROR|^ERROR" "$out" || [ ! -s "$out" ]; then
