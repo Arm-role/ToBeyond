@@ -233,3 +233,5 @@ crystal tile1 | msg=ช่องนี้มีผลึก Gem วาง Gem �
 crystal resel | msg=ช่องนี้มีผลึก Gem วาง Gem ไม่ได้ | toast=แตะช่องที่ต้องการวาง | chaos=["-", "-", "-"] | hand=["reE", "reW", "reW", "grE", "grS", "orW", "blE", "blW"] | mods=0 gold=0 rem=0 | dirs=NNEESSWW | m=[] x=[] a=[] cry={ 0: 5 } | placed=[] | sel=-1
 crystal desel | msg=ช่องนี้มีผลึก Gem วาง Gem ไม่ได้ | toast=แตะช่องที่ต้องการวาง | chaos=["-", "-", "-"] | hand=["reE", "reW", "reW", "grE", "grS", "orW", "blE", "blW"] | mods=0 gold=0 rem=0 | dirs=NNEESSWW | m=[] x=[] a=[] cry={ 0: 5 } | placed=[] | sel=-1
 CHAOS_USE_DONE
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
