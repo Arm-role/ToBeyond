@@ -38,6 +38,12 @@ func on_victory() -> void:
 	render_summary(base_reward, _main.walks_left, walk_reward, _main.coins - total_gain, interest, total_gain, arti_pay, fate_pay, walk_coin_bonus)
 	_main.update_all_ui()
 	_main.reward_modal.visible = true
+	# Same as the shop: slide up from the bottom, stop at the preview/gameplay divider.
+	var top: float = _main.get_node("Preview").offset_bottom
+	_main.reward_modal.offset_top = _main.size.y
+	var slide: Tween = _main.reward_modal.create_tween()
+	slide.tween_property(_main.reward_modal, "offset_top", top, 0.35 / _main.speed_multiplier) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func render_summary(base_reward: int, walks_remaining: int, walk_reward: int, held_coins: int, interest: int, total_gain: int, arti_pay: int = 0, fate_pay: int = 0, walk_coin_bonus: int = 0) -> void:
