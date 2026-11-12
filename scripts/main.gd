@@ -729,6 +729,8 @@ func auto_place_selected() -> void:
 	for k in range(best_cards.size()):
 		hand.erase(best_cards[k])
 		placed_cards[slots[k]] = best_cards[k]
+	for card in best_cards:
+		artifact_sys.card_played(card)
 
 	selected_card_ids.clear()
 	update_all_ui()

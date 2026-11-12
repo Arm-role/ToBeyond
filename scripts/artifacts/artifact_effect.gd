@@ -10,6 +10,7 @@ extends Resource
 ## ----------------+----------------------------------------+---------
 ## round_start     | a new enemy starts (after the shop)    | per copy
 ## chaos_used      | a Chaos card was used                  | per copy
+## card_played     | a Gem was placed from the hand        | per copy
 ## pre_walk        | right before the fireball walks        | per copy
 ## land            | the walk lands on a Gem                | per type
 ## attack_early    | final attack, before every other card  | per copy
@@ -25,6 +26,7 @@ extends Resource
 
 func round_start(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func chaos_used(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
+func card_played(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func pre_walk(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func land(_ctx: ArtifactContext, _count: int) -> bool: return false
 func attack_early(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false

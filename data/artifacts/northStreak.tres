@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ArtifactData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/effects/streak_effect.gd" id="1_strk"]
+[ext_resource type="Script" path="res://scripts/artifacts/effects/stat_effect.gd" id="2_stat"]
+[ext_resource type="Script" path="res://scripts/artifacts/artifact_data.gd" id="3_data"]
+
+[sub_resource type="Resource" id="Resource_streak"]
+script = ExtResource("1_strk")
+dir = "N"
+amount = 1
+
+[sub_resource type="Resource" id="Resource_stat"]
+script = ExtResource("2_stat")
+stat = "mult"
+source = "counter"
+skip_if_zero = true
+
+[resource]
+script = ExtResource("3_data")
+id = "northStreak"
+name = "ลมเหนือ"
+icon = "↑+0"
+desc = "เล่นการ์ดทิศเหนือต่อเนื่อง ตัวคูณ +1 ต่อใบ"
+color = Color(0.18039216, 0.61960787, 0.35686275, 1)
+draft_name = "ลมเหนือ"
+draft_desc = "ทุกครั้งที่เล่นการ์ดทิศเหนือ: ตัวคูณของการ์ดนี้ +1 · เล่นการ์ดทิศอื่นแล้วรีเซ็ตเป็น 0 · ตอนโจมตี: ตัวคูณ + ตามตัวสะสม"
+emblem_dir = "N"
+has_counter = true
+catalog_order = 39
+effects = Array[Resource]([SubResource("Resource_streak"), SubResource("Resource_stat")])

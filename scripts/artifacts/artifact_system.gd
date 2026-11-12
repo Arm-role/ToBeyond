@@ -168,6 +168,15 @@ func pre_walk() -> void:
 	main.battle_mgr.fx_artifact_types(_types(fired))
 
 
+## A Gem was placed from the hand onto the board (streak counters).
+func card_played(card: Dictionary) -> void:
+	var ctx := _ctx()
+	ctx.card = card
+	var fired := _per_copy("card_played", ctx)
+	main.render_artifact_row()
+	main.battle_mgr.fx_artifact_types(_types(fired))
+
+
 func chaos_used() -> void:
 	var fired := _per_copy("chaos_used", _ctx())
 	if not fired.is_empty():

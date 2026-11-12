@@ -187,6 +187,7 @@ func place_from_hand(card_id: int, tile_idx: int) -> bool:
 	if _main.placed_cards.has(tile_idx):
 		_main.hand.append(_main.placed_cards[tile_idx])
 	_main.placed_cards[tile_idx] = found
+	_main.artifact_sys.card_played(found)
 	_main.selected_card_ids.clear()
 	_main.update_all_ui()
 	_main.refresh_calc()
