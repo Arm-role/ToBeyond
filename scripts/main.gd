@@ -154,6 +154,8 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopTabs/ArtifactTab
 @onready var shop_chaos_tab: Button = $ShopModal/ShopVBox/ShopTabs/ChaosTab
 @onready var shop_upgrade_tab: Button = $ShopModal/ShopVBox/ShopTabs/UpgradeTab
+@onready var shop_items_container: Container = $ShopModal/ShopVBox/ShopOwnedRow/ShopItemsContainer
+@onready var shop_chaos_container: Container = $ShopModal/ShopVBox/ShopOwnedRow/ShopChaosContainer
 @onready var shop_offer_frame: PanelContainer = $ShopModal/ShopVBox/ShopOfferFrame
 @onready var shop_offer_container: Container = $ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
 
