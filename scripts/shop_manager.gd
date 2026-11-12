@@ -187,7 +187,6 @@ func open_shop() -> void:
 	frame.corner_radius = 21.0
 	frame.set_content_margin_all(12.0)
 	_main.shop_offer_frame.add_theme_stylebox_override("panel", frame)
-	render_shop_owned()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 	_update_tab_buttons()
@@ -517,54 +516,6 @@ func _add_offer_row(label_text: String) -> HBoxContainer:
 	return row
 
 
-func _owned_slot(parent: Container, kind: String, filled: bool, bg: Color) -> Button:
-	var slot := Button.new()
-	slot.custom_minimum_size = Vector2(roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * 126), 126)
-	slot.clip_text = true
-	_main.ui_renderer._style_item_slot(slot, filled, bg, GameAssets.COLORS["brass"] if kind == "art" else Color("#c79bff"), kind)
-	slot.disabled = not filled
-	parent.add_child(slot)
-	return slot
-
-
-func render_shop_owned() -> void:
-	for child in _main.shop_items_container.get_children():
-		child.queue_free()
-	for child in _main.shop_chaos_container.get_children():
-		child.queue_free()
-
-	for i in range(MAX_ARTIFACTS):
-		var art = _main.artifacts[i]
-		var slot := _owned_slot(_main.shop_items_container, "art", art != null, art.get("color", Color.BLACK) if art != null else Color.BLACK)
-		if art == null:
-			continue
-		slot.icon = art_cover(art)
-		slot.expand_icon = slot.icon != null
-		slot.text = "" if slot.icon != null else str(art["icon"])
-		slot.add_theme_font_size_override("font_size", 30)
-		slot.tooltip_text = "%s\n%s\nแตะเพื่อขาย 🪙 %d" % [display_name(art), display_desc(art), get_sell_price(art)]
-		var sell_idx = i
-		slot.pressed.connect(func(): confirm_sell_artifact(sell_idx))
-
-	for i in range(_main.chaos.size()):
-		var chaos_card = _main.chaos[i]
-		var look := _chaos_card_look(chaos_card) if chaos_card != null else {"bg": Color.BLACK}
-		var slot := _owned_slot(_main.shop_chaos_container, "chaos", chaos_card != null, look["bg"])
-		if chaos_card == null:
-			continue
-		var chaos_title := chaos_name(chaos_card)
-		slot.icon = look["cover"]
-		slot.expand_icon = true
-		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		slot.add_theme_constant_override("icon_max_width", 60)
-		slot.text = ArtifactSystem.chaos_def(chaos_card).slot_prefix + chaos_label(chaos_card)
-		slot.add_theme_font_size_override("font_size", 19)
-		slot.add_theme_color_override("font_color", look["text"])
-		slot.tooltip_text = "%s\nแตะเพื่อขาย 🪙 %d" % [chaos_title, get_chaos_sell_price(chaos_card)]
-		var sell_chaos_idx: int = i
-		slot.pressed.connect(func(): confirm_sell_chaos(sell_chaos_idx))
-
-
 func get_chaos_sell_price(chaos_card: Dictionary) -> int:
 	var d := ArtifactSystem.chaos_def(chaos_card)
 	if d != null and _main.artifact_sys.has_rule(&"full_sell"):
@@ -807,7 +758,6 @@ func buy_artifact(item: Dictionary) -> void:
 	_main.artifacts[slot] = item.duplicate()
 	_main.sync_totems()
 	_main.update_all_ui()
-	render_shop_owned()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 	_main.render_artifact_row()
@@ -821,7 +771,6 @@ func buy_chaos(definition: Dictionary) -> void:
 	_main.sfx.play("coin")
 	_main.chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
 	_main.update_all_ui()
-	render_shop_owned()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 
@@ -835,7 +784,6 @@ func sell_artifact(slot_idx: int) -> void:
 	_main.artifacts[slot_idx] = null
 	_main.sync_totems()
 	_main.update_all_ui()
-	render_shop_owned()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 	_main.render_artifact_row()
@@ -851,7 +799,6 @@ func sell_chaos(slot_idx: int) -> void:
 	_main.sfx.play("coin")
 	_main.chaos[slot_idx] = null
 	_main.update_all_ui()
-	render_shop_owned()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 

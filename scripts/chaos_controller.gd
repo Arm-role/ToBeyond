@@ -10,6 +10,9 @@ func _init(main: Node) -> void:
 
 
 func on_slot_pressed(slot_idx: int) -> void:
+	if _main.shop_modal.visible:
+		_main.shop_mgr.confirm_sell_chaos(slot_idx)
+		return
 	if _main.is_busy or slot_idx < 0 or slot_idx >= _main.chaos.size():
 		return
 	var chaos_card = _main.chaos[slot_idx]
