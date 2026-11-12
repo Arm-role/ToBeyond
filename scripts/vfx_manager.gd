@@ -300,6 +300,28 @@ static func pop_tile_anim(tile_btn: Control, delay: float = 0.0, landed: bool = 
 	rt.chain().tween_callback(ring.queue_free)
 
 
+## Glowing frame around a tile that fades out by itself (Chaos changed it,
+## Totem moved onto it).
+static func tile_glow(tile_btn: Control, color: Color, duration: float = 1.4) -> void:
+	if tile_btn == null or not is_instance_valid(tile_btn): return
+	var frame := Panel.new()
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(color.r, color.g, color.b, 0.12)
+	sb.set_border_width_all(6)
+	sb.border_color = color
+	sb.set_corner_radius_all(10)
+	sb.shadow_color = Color(color.r, color.g, color.b, 0.8)
+	sb.shadow_size = 18
+	frame.add_theme_stylebox_override("panel", sb)
+	tile_btn.add_child(frame)
+	var t := frame.create_tween()
+	t.tween_interval(duration * 0.3)
+	t.tween_property(frame, "modulate:a", 0.0, duration * 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	t.tween_callback(frame.queue_free)
+
+
 const HIT_FLASH_SHADER: Shader = preload("res://assets/shaders/hit_flash.gdshader")
 
 ## "Trigger" juice when a tile, artifact or number fires: a quick scale punch,

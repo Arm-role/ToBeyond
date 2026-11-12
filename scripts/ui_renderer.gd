@@ -171,6 +171,7 @@ func render_tiles() -> void:
 		_render_tile_number(tile_btn, i)
 		_render_crystal(tile_btn, i)
 		_render_totem(tile_btn, i)
+		_render_chaos_target(tile_btn, i)
 		# Placed cards on the board sway a little less than cards in hand.
 		set_card_sway(tile_btn, _main.placed_cards.has(i), 0.8, 0.008)
 
@@ -367,6 +368,63 @@ func _render_crystal(tile_btn: Button, tile_idx: int) -> void:
 		existing.add_theme_constant_override("outline_size", 2)
 		tile_btn.add_child(existing)
 	existing.text = "💎\n%d" % int(_main.chaos_crystals[tile_idx])
+
+
+## While a tile-targeting Chaos is picked: every tile gets a pulsing gold frame,
+## and a direction Chaos also previews the new emblem on each tile it would change.
+func _render_chaos_target(tile_btn: Button, tile_idx: int) -> void:
+	var hint := tile_btn.get_node_or_null("ChaosTarget") as Panel
+	var preview := tile_btn.get_node_or_null("ChaosPreview") as TextureRect
+	var card = null
+	var slot: int = _main.selected_chaos_slot
+	if slot >= 0 and slot < _main.chaos.size():
+		card = _main.chaos[slot]
+	var effect: ChaosEffect = null
+	if card != null:
+		var def := ArtifactSystem.chaos_def(card)
+		effect = def.effect if def != null else null
+	if effect == null or not effect.needs_tile or _main.is_busy:
+		if hint != null:
+			hint.queue_free()
+		if preview != null:
+			preview.queue_free()
+		return
+	if hint == null:
+		hint = Panel.new()
+		hint.name = "ChaosTarget"
+		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(1, 0.85, 0.35, 0.10)
+		sb.set_border_width_all(5)
+		sb.border_color = Color("#ffd966")
+		sb.set_corner_radius_all(10)
+		sb.shadow_color = Color(1, 0.85, 0.35, 0.55)
+		sb.shadow_size = 12
+		hint.add_theme_stylebox_override("panel", sb)
+		tile_btn.add_child(hint)
+		var pulse := hint.create_tween().set_loops()
+		pulse.tween_property(hint, "modulate:a", 0.35, 0.55).set_trans(Tween.TRANS_SINE)
+		pulse.tween_property(hint, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_SINE)
+	var new_dir: String = card.get("dir", "") if effect is TileDirChaos else ""
+	var show_preview: bool = new_dir != "" and _main.TILE_DIR[tile_idx] != new_dir and GameAssets.EMBLEMS.has(new_dir)
+	if show_preview:
+		if preview == null:
+			preview = TextureRect.new()
+			preview.name = "ChaosPreview"
+			preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			preview.offset_left = tile_btn.size.x * 0.22
+			preview.offset_right = -tile_btn.size.x * 0.22
+			preview.offset_top = tile_btn.size.y * 0.22
+			preview.offset_bottom = -tile_btn.size.y * 0.22
+			preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			preview.modulate = Color(1, 0.85, 0.35, 0.8)
+			tile_btn.add_child(preview)
+		preview.texture = GameAssets.EMBLEMS[new_dir]
+	elif preview != null:
+		preview.queue_free()
 
 
 func _render_totem(tile_btn: Button, tile_idx: int) -> void:
@@ -658,6 +716,8 @@ func render_chaos_row() -> void:
 		if chaos_card == null:
 			slot.text = ""
 			slot.tooltip_text = "ช่อง Chaos ว่าง"
+			slot.scale = Vector2.ONE
+			slot.z_index = 0
 			continue
 		var look: Dictionary = _main.shop_mgr._chaos_card_look(chaos_card)
 		var label: String = ShopManager.chaos_label(chaos_card)
@@ -673,6 +733,14 @@ func render_chaos_row() -> void:
 		slot.add_theme_color_override("font_pressed_color", look["text"])
 		slot.tooltip_text = "%s\n%s" % [ShopManager.chaos_name(chaos_card), ShopManager.chaos_desc(chaos_card)]
 		slot.modulate = Color.WHITE
+		# Picked card lifts and grows so it feels held.
+		var picked: bool = i == _main.selected_chaos_slot
+		slot.pivot_offset = slot.size * 0.5
+		slot.z_index = 5 if picked else 0
+		var want := Vector2(1.14, 1.14) if picked else Vector2.ONE
+		if slot.scale != want:
+			var lift := slot.create_tween()
+			lift.tween_property(slot, "scale", want, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## Small card like the draft's `.mc` (colour + direction emblem).

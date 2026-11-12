@@ -82,6 +82,26 @@ func sync_totems() -> void:
 				break
 
 
+## Totems hop to new tiles after every round (crystals are avoided when possible).
+func shuffle_totems() -> void:
+	var count: int = _main.totem_tiles.size()
+	if count == 0:
+		return
+	var free: Array[int] = []
+	var crystal: Array[int] = []
+	for i in range(_main.N_TILES):
+		if _main.chaos_crystals.has(i):
+			crystal.append(i)
+		else:
+			free.append(i)
+	free.shuffle()
+	crystal.shuffle()
+	free.append_array(crystal)
+	_main.totem_tiles.clear()
+	for i in range(count):
+		_main.totem_tiles.append(free[i])
+
+
 func totem_attack(tile_idx: int) -> int:
 	return int(round(20.0 + 40.0 * pow(float(_main.N_TILES - 1 - tile_idx) / float(_main.N_TILES - 1), 2.0)))
 

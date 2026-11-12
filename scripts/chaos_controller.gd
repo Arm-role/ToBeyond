@@ -61,7 +61,11 @@ func apply_to_tile(tile_idx: int) -> void:
 	var effect := _effect_of(chaos_card)
 	if effect == null or not effect.needs_tile:
 		return
-	_finish_use(effect.use_tile(_main, chaos_card, tile_idx), _main.selected_chaos_slot)
+	var result := effect.use_tile(_main, chaos_card, tile_idx)
+	_finish_use(result, _main.selected_chaos_slot)
+	if result["ok"]:
+		_main.sfx.play("place")
+		VfxManager.tile_glow(_main.tiles_container.get_child(tile_idx) as Control, Color("#ffd966"))
 
 
 func _finish_use(result: Dictionary, slot_idx: int) -> void:

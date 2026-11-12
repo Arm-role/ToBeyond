@@ -442,8 +442,13 @@ func start_new_round() -> void:
 	placed_cards.clear()
 	selected_card_ids.clear()
 	draw_up_to_hand(hand_max)
+	var old_totems := totem_tiles.duplicate()
+	board_calc.shuffle_totems()
 	update_all_ui()
 	refresh_calc()
+	for t in totem_tiles:
+		if not old_totems.has(t):
+			VfxManager.tile_glow(tiles_container.get_child(t) as Control, Color("#7fd0ff"))
 
 
 # ==============================================================================
