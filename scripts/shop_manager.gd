@@ -446,7 +446,12 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 		cover.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		cover.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		vb.add_child(cover)
-		vb.add_child(_card_label(title, 17, text_color))
+		if category == "ARTIFACT":
+			# Same look as the owned slot: cover only (details via tap / tooltip).
+			cover.custom_minimum_size = Vector2(0, 90)
+			cover.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		else:
+			vb.add_child(_card_label(opts.get("label_text", title), opts.get("label_size", 17), text_color))
 	else:
 		var big: String = opts.get("big", title)
 		var n := big.length()
@@ -492,10 +497,12 @@ func _chaos_card_look(chaos_def: Dictionary) -> Dictionary:
 func _add_chaos_card(chaos_def: Dictionary, price: int, available: bool, on_buy: Callable) -> void:
 	var look := _chaos_card_look(chaos_def)
 	var title: String = chaos_name(chaos_def)
-	var extra := {"text_color": look["text"]}
+	var cdef := ArtifactSystem.chaos_def(chaos_def)
+	# Owned-slot look: slot colour, prefix + short label, same text size.
+	var extra := {"text_color": look["text"], "label_text": cdef.slot_prefix + chaos_label(chaos_def), "label_size": 19}
 	if look["cover"] == null:
-		extra["cover_text"] = ArtifactSystem.chaos_def(chaos_def).cover_text
-	_add_shop_card("CHAOS", title, chaos_desc(chaos_def), price, look["bg"], available, on_buy, title, look["cover"], extra)
+		extra["cover_text"] = cdef.cover_text
+	_add_shop_card("CHAOS", title, chaos_desc(chaos_def), price, cdef.slot_bg, available, on_buy, title, look["cover"], extra)
 
 
 func _add_offer_row(label_text: String) -> HBoxContainer:
