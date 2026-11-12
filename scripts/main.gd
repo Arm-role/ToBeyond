@@ -150,12 +150,12 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var shop_coins_label: Label = $ShopModal/ShopVBox/ShopHeader/ShopCoinsLabel
 @onready var shop_reroll_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopRerollBtn
 @onready var shop_leave_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopLeaveBtn
-@onready var shop_game_tab: Button = $ShopModal/ShopVBox/ShopTabs/GameTab
-@onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopTabs/ArtifactTab
-@onready var shop_chaos_tab: Button = $ShopModal/ShopVBox/ShopTabs/ChaosTab
-@onready var shop_upgrade_tab: Button = $ShopModal/ShopVBox/ShopTabs/UpgradeTab
-@onready var shop_offer_frame: PanelContainer = $ShopModal/ShopVBox/ShopOfferFrame
-@onready var shop_offer_container: Container = $ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
+@onready var shop_game_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/GameTab
+@onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/ArtifactTab
+@onready var shop_chaos_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/ChaosTab
+@onready var shop_upgrade_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/UpgradeTab
+@onready var shop_offer_frame: PanelContainer = $ShopModal/ShopVBox/ShopBody/ShopOfferFrame
+@onready var shop_offer_container: Container = $ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
 
 
 var battle_mgr: BattleManager

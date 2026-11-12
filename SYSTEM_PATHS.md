@@ -131,14 +131,14 @@ Main (Control)
         ShopItemsContainer (HBoxContainer)  $ShopModal/ShopVBox/ShopOwnedRow/ShopItemsContainer
         ChaosOwnedLabel (Label)  $ShopModal/ShopVBox/ShopOwnedRow/ChaosOwnedLabel
         ShopChaosContainer (HBoxContainer)  $ShopModal/ShopVBox/ShopOwnedRow/ShopChaosContainer
-      ShopTabs (HBoxContainer)  $ShopModal/ShopVBox/ShopTabs
-        GameTab (Button)  $ShopModal/ShopVBox/ShopTabs/GameTab
-        ArtifactTab (Button)  $ShopModal/ShopVBox/ShopTabs/ArtifactTab
-        ChaosTab (Button)  $ShopModal/ShopVBox/ShopTabs/ChaosTab
-        UpgradeTab (Button)  $ShopModal/ShopVBox/ShopTabs/UpgradeTab
-      ShopOfferFrame (PanelContainer)  $ShopModal/ShopVBox/ShopOfferFrame
-        ShopOfferScroll (ScrollContainer)  $ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll
-          ShopOfferContainer (VBoxContainer)  $ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
+      ShopTabs (VBoxContainer)  $ShopModal/ShopVBox/ShopBody/ShopTabs
+        GameTab (Button)  $ShopModal/ShopVBox/ShopBody/ShopTabs/GameTab
+        ArtifactTab (Button)  $ShopModal/ShopVBox/ShopBody/ShopTabs/ArtifactTab
+        ChaosTab (Button)  $ShopModal/ShopVBox/ShopBody/ShopTabs/ChaosTab
+        UpgradeTab (Button)  $ShopModal/ShopVBox/ShopBody/ShopTabs/UpgradeTab
+      ShopOfferFrame (PanelContainer)  $ShopModal/ShopVBox/ShopBody/ShopOfferFrame
+        ShopOfferScroll (ScrollContainer)  $ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll
+          ShopOfferContainer (VBoxContainer)  $ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
   EffectsLayer (Control)  $EffectsLayer
     BeamLine (Line2D)  $EffectsLayer/BeamLine
     EnemyBeamLine (Line2D)  $EffectsLayer/EnemyBeamLine
@@ -202,14 +202,14 @@ Main (Control)
 | `shop_coins_label` | `$ShopModal/ShopVBox/ShopHeader/ShopCoinsLabel` | `Label` | main.gd |
 | `shop_reroll_btn` | `$ShopModal/ShopVBox/ShopHeader/ShopRerollBtn` | `Button` | main.gd |
 | `shop_leave_btn` | `$ShopModal/ShopVBox/ShopHeader/ShopLeaveBtn` | `Button` | main.gd |
-| `shop_game_tab` | `$ShopModal/ShopVBox/ShopTabs/GameTab` | `Button` | main.gd |
-| `shop_artifact_tab` | `$ShopModal/ShopVBox/ShopTabs/ArtifactTab` | `Button` | main.gd |
-| `shop_chaos_tab` | `$ShopModal/ShopVBox/ShopTabs/ChaosTab` | `Button` | main.gd |
-| `shop_upgrade_tab` | `$ShopModal/ShopVBox/ShopTabs/UpgradeTab` | `Button` | main.gd |
+| `shop_game_tab` | `$ShopModal/ShopVBox/ShopBody/ShopTabs/GameTab` | `Button` | main.gd |
+| `shop_artifact_tab` | `$ShopModal/ShopVBox/ShopBody/ShopTabs/ArtifactTab` | `Button` | main.gd |
+| `shop_chaos_tab` | `$ShopModal/ShopVBox/ShopBody/ShopTabs/ChaosTab` | `Button` | main.gd |
+| `shop_upgrade_tab` | `$ShopModal/ShopVBox/ShopBody/ShopTabs/UpgradeTab` | `Button` | main.gd |
 | `shop_items_container` | `$ShopModal/ShopVBox/ShopOwnedRow/ShopItemsContainer` | `Container` | main.gd |
 | `shop_chaos_container` | `$ShopModal/ShopVBox/ShopOwnedRow/ShopChaosContainer` | `Container` | main.gd |
-| `shop_offer_frame` | `$ShopModal/ShopVBox/ShopOfferFrame` | `PanelContainer` | main.gd |
-| `shop_offer_container` | `$ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer` | `Container` | main.gd |
+| `shop_offer_frame` | `$ShopModal/ShopVBox/ShopBody/ShopOfferFrame` | `PanelContainer` | main.gd |
+| `shop_offer_container` | `$ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer` | `Container` | main.gd |
 
 ---
 

@@ -1335,45 +1335,50 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
 text = "เล่นต่อ ▶"
 
-[node name="ShopTabs" type="HBoxContainer" parent="ShopModal/ShopVBox"]
-custom_minimum_size = Vector2(1140, 69)
+[node name="ShopBody" type="HBoxContainer" parent="ShopModal/ShopVBox"]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="ShopTabs" type="VBoxContainer" parent="ShopModal/ShopVBox/ShopBody"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="GameTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
+[node name="GameTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
+custom_minimum_size = Vector2(0, 69)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 22
 text = "ในเกม"
 
-[node name="ArtifactTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
+[node name="ArtifactTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
+custom_minimum_size = Vector2(0, 69)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 19
 text = "TEST · ARTIFACT"
 
-[node name="ChaosTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
+[node name="ChaosTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
+custom_minimum_size = Vector2(0, 69)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 19
 text = "TEST · CHAOS"
 
-[node name="UpgradeTab" type="Button" parent="ShopModal/ShopVBox/ShopTabs"]
+[node name="UpgradeTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
+custom_minimum_size = Vector2(0, 69)
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 19
 text = "TEST · อัปเกรด"
 
-[node name="ShopOfferFrame" type="PanelContainer" parent="ShopModal/ShopVBox"]
+[node name="ShopOfferFrame" type="PanelContainer" parent="ShopModal/ShopVBox/ShopBody"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ShopOfferScroll" type="ScrollContainer" parent="ShopModal/ShopVBox/ShopOfferFrame"]
+[node name="ShopOfferScroll" type="ScrollContainer" parent="ShopModal/ShopVBox/ShopBody/ShopOfferFrame"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="ShopOfferContainer" type="VBoxContainer" parent="ShopModal/ShopVBox/ShopOfferFrame/ShopOfferScroll"]
+[node name="ShopOfferContainer" type="VBoxContainer" parent="ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 15
