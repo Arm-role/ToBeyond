@@ -181,6 +181,12 @@ func open_shop() -> void:
 	shop_bought.clear()
 	generate_game_offers()
 	_main.shop_modal.visible = true
+	# Slide up from the bottom edge; stop at the preview/gameplay divider.
+	var shop_top: float = _main.get_node("Preview").offset_bottom
+	_main.shop_modal.offset_top = _main.size.y
+	var slide: Tween = _main.shop_modal.create_tween()
+	slide.tween_property(_main.shop_modal, "offset_top", shop_top, 0.35 / _main.speed_multiplier) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	# Draft `.shopscroll`: dashed, rounded frame around the offers.
 	var frame := DashedStyleBox.new()
 	frame.border_color = Color(0.827451, 0.65098, 0.290196, 0.35)
