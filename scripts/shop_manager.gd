@@ -406,6 +406,11 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 			_main.show_action_dialog(title, detail, label, on_buy, blocked, rar)
 		)
 	card.add_child(action)
+	if not sold and category != "":
+		# SlotDrag: drag this card out of the shop to buy it (opens the same dialog).
+		card.add_to_group(&"shop_card")
+		card.set_meta("drag_action", action)
+		card.set_meta("drag_kind", "artifact" if category == "ARTIFACT" else ("chaos" if category == "CHAOS" else "other"))
 
 	var price_text: String = opts.get("price_text", "ซื้อแล้ว" if sold else ("สูงสุด" if price < 0 else "🪙 %d" % price))
 	if opts.get("closed", false):

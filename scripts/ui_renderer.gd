@@ -535,6 +535,7 @@ func render_hand() -> void:
 			_add_card_shine(btn)
 
 		var card_id = card["id"]
+		btn.set_meta("card_id", card_id)
 		btn.pressed.connect(func(): _main._on_hand_card_clicked(card_id))
 		_main.hand_container.add_child(btn)
 		if not known_hand_ids.has(card_id):

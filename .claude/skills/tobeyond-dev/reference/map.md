@@ -28,7 +28,7 @@ Line numbers drift, so grep the name. The draft columns live in the appendix at 
 | Discovery toast | `main.gd: show_discovery_toast` · `vfx_manager.gd: show_center_toast` |
 | Speed ×1–×5 | `main.gd: _on_speed_toggle` · `battle_manager.gd: _spd _timer` |
 | Game over, new game | `main.gd: on_game_over start_new_game` |
-| Drag artifact/chaos slots | `slot_drag.gd: on_input begin finish` |
+| Drag cards (slots swap/sell, hand→board, board↔board/hand, shop card→buy) | `slot_drag.gd: on_input begin finish` · `chaos_controller.gd: place_from_hand move_board_card return_board_card` |
 | Toolbar (fullscreen, audio, sort buttons) | `toolbar_controls.gd: _setup_fullscreen_button _setup_audio_button _style_sort_button` |
 | Effects, sound, hit stop (game feel, not in the draft) | `vfx_manager.gd: fire_laser_beam shake_node spawn_damage_number show_center_toast pop_tile_anim` · `battle_manager.gd: _hit_stop` · `sfx_manager.gd` (synthesised sounds, `main.sfx.play(name)`) |
 

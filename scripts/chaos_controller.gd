@@ -166,3 +166,53 @@ func on_discard_pressed() -> void:
 	_main.draw_up_to_hand(_main.hand_max)
 	_main.update_all_ui()
 	_main.refresh_calc()
+
+
+## Drag-and-drop helpers (SlotDrag). All return true when something changed.
+func place_from_hand(card_id: int, tile_idx: int) -> bool:
+	if _main.is_busy or _main.chaos_crystals.has(tile_idx):
+		return false
+	var found = null
+	for card in _main.hand:
+		if card["id"] == card_id:
+			found = card
+			break
+	if found == null:
+		return false
+	_main.hand.erase(found)
+	if _main.placed_cards.has(tile_idx):
+		_main.hand.append(_main.placed_cards[tile_idx])
+	_main.placed_cards[tile_idx] = found
+	_main.selected_card_ids.clear()
+	_main.update_all_ui()
+	_main.refresh_calc()
+	_main.pop_tile_anim(tile_idx)
+	return true
+
+
+func move_board_card(from_tile: int, to_tile: int) -> bool:
+	if _main.is_busy or from_tile == to_tile or not _main.placed_cards.has(from_tile) or _main.chaos_crystals.has(to_tile):
+		return false
+	var held = _main.placed_cards[from_tile]
+	if _main.placed_cards.has(to_tile):
+		_main.placed_cards[from_tile] = _main.placed_cards[to_tile]
+	else:
+		_main.placed_cards.erase(from_tile)
+	_main.placed_cards[to_tile] = held
+	_main.update_all_ui()
+	_main.refresh_calc()
+	_main.pop_tile_anim(to_tile)
+	return true
+
+
+func return_board_card(tile_idx: int) -> bool:
+	if _main.is_busy or not _main.placed_cards.has(tile_idx):
+		return false
+	if _main.hand.size() >= _main.hand_max:
+		_main.msg_label.text = "มือเต็ม เอา Gem กลับไม่ได้"
+		return false
+	_main.hand.append(_main.placed_cards[tile_idx])
+	_main.placed_cards.erase(tile_idx)
+	_main.update_all_ui()
+	_main.refresh_calc()
+	return true
