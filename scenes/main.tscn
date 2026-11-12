@@ -1335,33 +1335,6 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
 text = "เล่นต่อ ▶"
 
-[node name="ShopOwnedRow" type="HBoxContainer" parent="ShopModal/ShopVBox"]
-layout_mode = 2
-theme_override_constants/separation = 21
-alignment = 1
-
-[node name="ArtOwnedLabel" type="Label" parent="ShopModal/ShopVBox/ShopOwnedRow"]
-layout_mode = 2
-theme_type_variation = &"BoldLabel"
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_font_sizes/font_size = 18
-text = "ARTIFACT ที่มี (แตะเพื่อดู / ขาย)"
-
-[node name="ShopItemsContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopOwnedRow"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="ChaosOwnedLabel" type="Label" parent="ShopModal/ShopVBox/ShopOwnedRow"]
-layout_mode = 2
-theme_type_variation = &"BoldLabel"
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_font_sizes/font_size = 18
-text = "CHAOS ที่มี (แตะเพื่อขาย)"
-
-[node name="ShopChaosContainer" type="HBoxContainer" parent="ShopModal/ShopVBox/ShopOwnedRow"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
 [node name="ShopTabs" type="HBoxContainer" parent="ShopModal/ShopVBox"]
 custom_minimum_size = Vector2(1140, 69)
 layout_mode = 2
