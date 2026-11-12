@@ -6,7 +6,8 @@
 
 [sub_resource type="Resource" id="Resource_ym34s"]
 script = ExtResource("1_i1kdk")
-amount = 2.0
+stat = "mult"
+amount = 1.0
 source = "empty_tiles"
 skip_if_zero = true
 
@@ -15,10 +16,10 @@ script = ExtResource("2_nh2gw")
 id = "emptyAtk"
 name = "Empty Fist"
 icon = "👊"
-desc = "+2 ATK ต่อช่องกระดานที่ว่างเปล่า"
+desc = "ตัวคูณ +1 ต่อช่องกระดานที่ว่างเปล่า"
 color = Color(0.6509804, 0.42352942, 0.9490196, 1)
 draft_name = "พลังช่องว่าง"
-draft_desc = "ตอนโจมตี: ATK +2 ต่อช่องว่างบนกระดาน (ช่องที่ไม่มี Gem)"
+draft_desc = "ตอนโจมตี: ตัวคูณ +1 ต่อช่องว่างบนกระดาน (ช่องที่ไม่มี Gem)"
 texture = ExtResource("3_j0j4t")
 catalog_order = 3
 effects = Array[Resource]([SubResource("Resource_ym34s")])
