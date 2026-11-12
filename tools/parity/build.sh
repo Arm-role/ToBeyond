@@ -31,6 +31,7 @@ echo "check OK"
 [ "${1:-}" = "--regress" ] && exec bash tools/parity/regress.sh "${2:-}"
 
 start=$(date +%s)
+git rev-parse --short HEAD > build_info.txt 2>/dev/null || true
 "$GODOT" --headless --path . --import > build/import.log 2>&1
 mkdir -p build/web
 "$GODOT" --headless --path . --export-release "Web" build/web/index.html > build/export.log 2>&1

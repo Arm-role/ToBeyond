@@ -9,3 +9,6 @@ build/
 # Local node server
 node_modules/
 
+
+# Generated build stamp
+build_info.txt

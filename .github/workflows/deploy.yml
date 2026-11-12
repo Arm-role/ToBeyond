@@ -50,6 +50,9 @@ jobs:
             echo "url_path=preview/$SAFE/" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Stamp build
+        run: echo "$(git rev-parse --short HEAD)" > build_info.txt
+
       - name: Import assets
         # The first import of new assets logs errors for resources that
         # reference not-yet-imported files; the export step below is the real check.
