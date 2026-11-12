@@ -810,6 +810,8 @@ func sell_chaos(slot_idx: int) -> void:
 	_main.coins += get_chaos_sell_price(chaos_card)
 	_main.sfx.play("coin")
 	_main.chaos[slot_idx] = null
+	if _main.selected_chaos_slot == slot_idx:
+		_main.selected_chaos_slot = -1
 	_main.update_all_ui()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)

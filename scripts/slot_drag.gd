@@ -18,7 +18,8 @@ var _shop_kind: String = ""
 var _ghost: Control = null
 var _src_alpha: float = 1.0
 ## Drop here (middle of the screen) to sell the dragged Artifact / Chaos.
-const SELL_ZONE := Rect2(480, 330, 960, 420)
+const SELL_ZONE := Rect2(480, 230, 960, 300)  # outside the shop: above the board tiles
+const DRAG_THRESHOLD: float = 16.0
 var _sell_hint: PanelContainer = null
 
 
@@ -35,7 +36,7 @@ func on_input(event: InputEvent) -> void:
 		elif not drag_kind.is_empty():
 			finish(event.position)
 	elif event is InputEventMouseMotion and not drag_kind.is_empty():
-		if not drag_moved and event.position.distance_to(drag_start) >= 10.0:
+		if not drag_moved and event.position.distance_to(drag_start) >= DRAG_THRESHOLD:
 			drag_moved = true
 			_start_visuals()
 		if drag_moved and _ghost != null:
@@ -47,6 +48,11 @@ func _hit(c: Control, pos: Vector2) -> bool:
 
 
 func begin(mouse_pos: Vector2) -> void:
+	# A release can be lost (focus loss, touch cancel): never keep a stale drag.
+	if not drag_kind.is_empty() or _ghost != null:
+		drag_kind = ""
+		drag_moved = false
+		_end_visuals()
 	if _main.is_busy:
 		return
 	var shop_open: bool = _main.shop_modal.visible
@@ -139,13 +145,15 @@ func finish(mouse_pos: Vector2) -> void:
 	var moved := drag_moved
 	var action := _shop_action
 	var shop_kind := _shop_kind
+	var over_src: bool = _src != null and is_instance_valid(_src) and _hit(_src, mouse_pos)
 	drag_kind = ""
 	drag_from = -1
 	drag_moved = false
 	_shop_action = null
 	_shop_kind = ""
 	_end_visuals()
-	if not moved:
+	# Released on its own control (a tap with finger jitter): let it be a click.
+	if not moved or over_src:
 		return
 	# A real drag never counts as a click on the button under the cursor.
 	_main.get_viewport().set_input_as_handled()
@@ -175,8 +183,15 @@ func finish(mouse_pos: Vector2) -> void:
 			_finish_slot(kind, from, mouse_pos)
 
 
+## While the shop is open its whole panel is the sell zone.
+func _sell_rect() -> Rect2:
+	if _main.shop_modal.visible:
+		return _main.shop_modal.get_global_rect()
+	return SELL_ZONE
+
+
 func _finish_slot(kind: String, from: int, mouse_pos: Vector2) -> void:
-	if SELL_ZONE.has_point(mouse_pos):
+	if _sell_rect().has_point(mouse_pos):
 		if kind == "artifact":
 			_main.shop_mgr.confirm_sell_artifact(from)
 		else:
@@ -202,6 +217,11 @@ func _finish_slot(kind: String, from: int, mouse_pos: Vector2) -> void:
 			var held = _main.chaos[from]
 			_main.chaos[from] = _main.chaos[target]
 			_main.chaos[target] = held
+			# The picked card keeps its "picked" state when it moves.
+			if _main.selected_chaos_slot == from:
+				_main.selected_chaos_slot = target
+			elif _main.selected_chaos_slot == target:
+				_main.selected_chaos_slot = from
 	if target >= 0:
 		_main.update_all_ui()
 
@@ -212,9 +232,7 @@ func _show_sell_hint(on: bool) -> void:
 			return
 		_sell_hint = PanelContainer.new()
 		_sell_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_sell_hint.z_index = 90
-		_sell_hint.position = SELL_ZONE.position
-		_sell_hint.size = SELL_ZONE.size
+		_sell_hint.z_index = 150
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.83, 0.65, 0.29, 0.12)
 		sb.set_border_width_all(3)
@@ -230,4 +248,8 @@ func _show_sell_hint(on: bool) -> void:
 		lab.add_theme_color_override("font_color", Color(0.83, 0.65, 0.29, 0.9))
 		_sell_hint.add_child(lab)
 		_main.add_child(_sell_hint)
+	if on:
+		var r := _sell_rect()
+		_sell_hint.position = r.position
+		_sell_hint.size = r.size
 	_sell_hint.visible = on

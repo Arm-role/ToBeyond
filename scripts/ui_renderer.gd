@@ -739,7 +739,11 @@ func render_chaos_row() -> void:
 		slot.z_index = 5 if picked else 0
 		var want := Vector2(1.14, 1.14) if picked else Vector2.ONE
 		if slot.scale != want:
+			var old_lift = slot.get_meta("lift_tween") if slot.has_meta("lift_tween") else null
+			if old_lift != null and old_lift.is_valid():
+				old_lift.kill()
 			var lift := slot.create_tween()
+			slot.set_meta("lift_tween", lift)
 			lift.tween_property(slot, "scale", want, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
