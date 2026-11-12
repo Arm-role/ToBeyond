@@ -187,6 +187,8 @@ func open_shop() -> void:
 	frame.corner_radius = 21.0
 	frame.set_content_margin_all(12.0)
 	_main.shop_offer_frame.add_theme_stylebox_override("panel", frame)
+	if not _main.shop_offer_frame.resized.is_connected(_on_offer_frame_resized):
+		_main.shop_offer_frame.resized.connect(_on_offer_frame_resized)
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 	_update_tab_buttons()
@@ -544,12 +546,19 @@ func confirm_sell_chaos(slot_idx: int) -> void:
 	_main.show_action_dialog(chaos_name(chaos_card), chaos_desc(chaos_card), "ขาย 🪙 %d" % price, func(): sell_chaos(slot_idx))
 
 
+func _on_offer_frame_resized() -> void:
+	if shop_tab == "game" and _main.shop_modal.visible:
+		render_shop_offers.call_deferred()
+
+
 func render_shop_offers() -> void:
 	for child in _main.shop_offer_container.get_children():
 		child.queue_free()
 	_offer_target = null
 	if shop_tab == "game":
-		_card_height = 159.0
+		# Two rows of cards share the frame's full height (re-rendered on resize).
+		var avail: float = _main.shop_offer_frame.size.y - 24.0 - 15.0
+		_card_height = clampf(floorf(avail / 2.0), 159.0, 320.0) if avail > 0.0 else 159.0
 		_render_game_offers()
 	else:
 		_card_height = 183.0
