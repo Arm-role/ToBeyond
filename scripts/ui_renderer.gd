@@ -2,6 +2,8 @@ class_name UiRenderer
 extends RefCounted
 
 const CARD_WIDTH_TO_HEIGHT: float = 5.0 / 7.0
+## One card size everywhere: hand, owned Artifact/Chaos slots, shop offers.
+const CARD_SIZE := Vector2(100, 140)
 
 # ==============================================================================
 # UiRenderer — Handles board tiles, hand cards, artifact row, and modals UI
@@ -453,7 +455,6 @@ func render_hand() -> void:
 	for child in _main.hand_container.get_children():
 		child.queue_free()
 
-	const CARD_SIZE := Vector2(100, 140)
 	const IDEAL_GAP := 9.0
 	const MIN_STEP := 18.0
 	var card_count = _main.hand.size()
@@ -616,7 +617,7 @@ func render_artifact_row() -> void:
 ## Empty item slots keep the dashed texture from the scene; filled slots get a
 ## solid colour card like the draft's `.islot.has`.
 func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind: String) -> void:
-	slot.custom_minimum_size.x = roundf(slot.custom_minimum_size.y * CARD_WIDTH_TO_HEIGHT)
+	slot.custom_minimum_size = CARD_SIZE
 	if not filled:
 		set_card_template(slot, false)
 		var empty := StyleBoxFlat.new()

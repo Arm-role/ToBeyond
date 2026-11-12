@@ -321,7 +321,7 @@ func reroll_shop() -> void:
 # ------------------------------------------------------------------------------
 
 var _offer_target: Container = null
-var _card_height: float = 183.0
+var _card_height: float = UiRenderer.CARD_SIZE.y
 
 
 func _card_box(bg: Color) -> StyleBoxFlat:
@@ -364,7 +364,7 @@ func _card_label(text: String, size: int, color: Color = Color.WHITE) -> Label:
 ## name/up/lv), text_color, sold (bool), on_click (Callable).
 func _add_shop_card(category: String, title: String, detail: String, price: int, color: Color, available: bool, on_buy: Callable, tooltip: String = "", icon_texture: Texture2D = null, opts: Dictionary = {}) -> void:
 	var card := Control.new()
-	var card_width := roundf(UiRenderer.CARD_WIDTH_TO_HEIGHT * _card_height)
+	var card_width := UiRenderer.CARD_SIZE.x
 	card.custom_minimum_size = Vector2(card_width, _card_height)
 	card.tooltip_text = tooltip
 	var sold: bool = price == -2
@@ -419,25 +419,25 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	vb.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	vb.offset_left = 6.0
 	vb.offset_right = -6.0
-	vb.offset_top = 10.0
-	vb.offset_bottom = -9.0
+	vb.offset_top = 6.0
+	vb.offset_bottom = -6.0
 	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vb.alignment = BoxContainer.ALIGNMENT_CENTER
-	vb.add_theme_constant_override("separation", 3)
+	vb.add_theme_constant_override("separation", 2)
 	card.add_child(vb)
 
 	if opts.has("stone"):
 		var st: Dictionary = opts["stone"]
-		vb.add_child(_card_label(st["name"], 16, text_color))
+		vb.add_child(_card_label(st["name"], 14, text_color))
 		var spv := HBoxContainer.new()
 		spv.alignment = BoxContainer.ALIGNMENT_CENTER
 		spv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		spv.add_theme_constant_override("separation", 3)
 		for c in st.get("pv", []):
-			spv.add_child(_main.ui_renderer.make_mini_card(c[0], c[1], Vector2(29, 39)))
+			spv.add_child(_main.ui_renderer.make_mini_card(c[0], c[1], Vector2(22, 30)))
 		vb.add_child(spv)
-		vb.add_child(_card_label("+%d" % st["up"], 33, text_color))
-		vb.add_child(_card_label("Lv%d → %d" % [st["lv"], st["lv"] + 1], 15, Color(1, 1, 1, 0.8)))
+		vb.add_child(_card_label("+%d" % st["up"], 26, text_color))
+		vb.add_child(_card_label("Lv%d → %d" % [st["lv"], st["lv"] + 1], 13, Color(1, 1, 1, 0.8)))
 	elif opts.has("cover_text"):
 		var ct := _card_label(opts["cover_text"], 28, Color("#fff6d6"))
 		ct.custom_minimum_size = Vector2(0, 60)
@@ -460,7 +460,7 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	else:
 		var big: String = opts.get("big", title)
 		var n := big.length()
-		var big_size := 36 if big.contains("\n") else (33 if n <= 4 else (26 if n <= 7 else 21))
+		var big_size := 28 if big.contains("\n") else (28 if n <= 4 else (22 if n <= 7 else 18))
 		var big_label := _card_label(big, big_size, text_color)
 		big_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		vb.add_child(big_label)
@@ -561,10 +561,10 @@ func render_shop_offers() -> void:
 		child.queue_free()
 	_offer_target = null
 	if shop_tab == "game":
-		_card_height = 159.0
+		_card_height = UiRenderer.CARD_SIZE.y
 		_render_game_offers()
 	else:
-		_card_height = 183.0
+		_card_height = UiRenderer.CARD_SIZE.y
 		if shop_tab == "artifact":
 			_render_artifact_catalog()
 		elif shop_tab == "chaos":
