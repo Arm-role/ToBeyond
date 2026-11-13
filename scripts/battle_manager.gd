@@ -177,7 +177,7 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false, repeat: bool = 
 			_hit_flash(tile_btn, Color("#ffd24a"))
 			VfxManager.trigger_juice(tile_btn, _spd(), 1.25, 8.0)
 		else:
-			_tile_pop(tile_idx, "+%d" % gain)
+			_tile_pop(tile_idx, _gain_text(card, gain), _gain_color(card))
 			VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
 
 	if int(applied["extra"]) > 0:
@@ -221,6 +221,22 @@ func _trigger_gem_buffs() -> void:
 
 ## Draft `.spop`: big blue number with a white glow above the tile,
 ## pops to ×1.25 then drifts up and fades (0.9 s).
+func _gain_text(card: Dictionary, gain: int) -> String:
+	match str(card.get("color", "")):
+		"blue": return "🛡+%d" % gain
+		"green": return "💚+%d" % gain
+		"orange": return "🪙+%d" % gain
+	return "+%d" % gain
+
+
+func _gain_color(card: Dictionary) -> Color:
+	match str(card.get("color", "")):
+		"blue": return Color("#2f7fd6")
+		"green": return Color("#2fa866")
+		"orange": return Color("#d98a1c")
+	return Color("#e5484d")
+
+
 func _tile_pop(tile_idx: int, text: String, col: Color = Color("#1f7ae0")) -> void:
 	_pop_at(_main.tiles_container.get_child(tile_idx) as Control, text, col)
 
@@ -587,12 +603,22 @@ func _enemy_counter_attack() -> void:
 	_main.fire_laser_beam(_main.enemy_beam_line, enemy_center, hero_center, Color.WHITE, 15.0, 0.05)
 	await _timer(0.3)
 
+	# Green Gems heal first, then blue Gems' shield absorbs part of the hit.
+	if _main.walk_heal > 0:
+		var healed: float = minf(float(_main.walk_heal), _main.player_max_hp - _main.player_hp)
+		_main.player_hp += healed
+		_main.spawn_damage_number("+%s" % _main.fmt_num(roundi(healed)), hero_center, Color("#5fd48a"), false)
 	var before: float = _main.player_hp
-	# Real HP: each enemy hit removes enemy_atk (was atk * walks_left, a round counter).
-	_main.player_hp = maxf(0.0, _main.player_hp - _main.enemy_atk)
-	_main.spawn_damage_number("-%s" % _main.fmt_num(roundi(before - _main.player_hp)), hero_center, Color("#ff4d5e"), true)
-	_hero_ouch(hero_pic)
-	_main.hero_hp_label.text = "HP %s / %s" % [_main.fmt_num(roundi(_main.player_hp)), _main.fmt_num(roundi(_main.player_max_hp))]
+	var hit: float = maxf(0.0, _main.enemy_atk - float(_main.walk_block))
+	_main.player_hp = maxf(0.0, _main.player_hp - hit)
+	if hit < _main.enemy_atk:
+		_main.spawn_damage_number("🛡 -%s" % _main.fmt_num(roundi(_main.enemy_atk - hit)), hero_center + Vector2(0, -60), Color("#5fb0ff"), false)
+	if hit > 0.0:
+		_main.spawn_damage_number("-%s" % _main.fmt_num(roundi(before - _main.player_hp)), hero_center, Color("#ff4d5e"), true)
+		_hero_ouch(hero_pic)
+	_main.walk_block = 0
+	_main.walk_heal = 0
+	_main.ui_renderer.update_hero_hp_label()
 	_ct().tween_property(_main.hero_hp_bar, "value", float(_main.player_hp), 0.4 / _spd())
 	await _timer(0.55)
 

@@ -15,13 +15,32 @@ func _init(main: Node) -> void:
 ## the result, empty, so callers keep their shape; P4 replaces this with Gem types.
 const GEM_ATK: int = 2
 
+## Gem power: GEM_ATK + 1 per same-colour Gem on a neighbouring tile (chain),
+## doubled when the Gem's direction matches its tile (attuned).
+func gem_value(tile_idx: int) -> int:
+	var card = _main.placed_cards.get(tile_idx)
+	if card == null or card.get("is_blank", false):
+		return 0
+	var v: int = GEM_ATK
+	for n in [tile_idx - 1, tile_idx + 1]:
+		var other = _main.placed_cards.get(n)
+		if other != null and not other.get("is_blank", false) and other.get("color") == card.get("color"):
+			v += 1
+	if card.get("dir", "") == _main.TILE_DIR[tile_idx]:
+		v *= 2
+	return v
+
+
+## Per-tile Gem power for the preview chips; `base_dmg` is the red (attack) total.
 func calculate_groups() -> Dictionary:
 	var grp_val: Dictionary = {}
 	var total := 0
 	for tile_idx in range(_main.N_TILES):
-		if _main.placed_cards.has(tile_idx) and not _main.placed_cards[tile_idx].get("is_blank", false):
-			grp_val[tile_idx] = GEM_ATK
-			total += GEM_ATK
+		var v := gem_value(tile_idx)
+		if v > 0:
+			grp_val[tile_idx] = v
+			if _main.placed_cards[tile_idx].get("color") == "red":
+				total += v
 	return {"groups": [], "grp_val": grp_val, "base_dmg": total}
 
 
@@ -120,8 +139,16 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 	if card == null or card.get("is_blank", false):
 		return {"gain": 0, "extra": 0, "fired": []}
 
-	var gain = int(calculate_groups()["grp_val"].get(tile_idx, 1))
-	_main.walk_base_damage += gain
+	var gain := gem_value(tile_idx)
+	match str(card.get("color", "")):
+		"blue": _main.walk_block += gain
+		"green": _main.walk_heal += gain
+		"orange":
+			# Orange pays gold: half the Gem's power, rounded up.
+			gain = int(ceil(gain / 2.0))
+			_main.coins += gain
+			_main.update_all_ui()
+		_: _main.walk_base_damage += gain
 	var landed: Dictionary = _main.artifact_sys.land(tile_idx, card, gain, helper_pass)
 	var extra: int = landed["extra"]
 	var fired: Array = landed["fired"]  # landing artifacts that took effect (for the flash + sparks)

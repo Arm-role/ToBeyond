@@ -73,12 +73,22 @@ func _add_card_shine(control: Control) -> void:
 	control.add_child(shine)
 
 
+## "HP a / b" plus this walk's shield / heal totals (blue / green Gems).
+func update_hero_hp_label() -> void:
+	var t := "HP %d / %d" % [roundi(_main.player_hp), roundi(_main.player_max_hp)]
+	if _main.walk_block > 0:
+		t += "  🛡%d" % _main.walk_block
+	if _main.walk_heal > 0:
+		t += "  💚+%d" % _main.walk_heal
+	_main.hero_hp_label.text = t
+
+
 func update_all_ui() -> void:
 	_main.stage_label.text = "ด่าน %d" % _main.stage
 	_main.coins_label.text = "🪙 %d" % _main.coins
 	_main.deck_count_btn.text = "🂠 กอง %d ใบ · กดดู" % _main.deck.size()
 
-	_main.hero_hp_label.text = "HP %d / %d" % [roundi(_main.player_hp), roundi(_main.player_max_hp)]
+	update_hero_hp_label()
 	_main.hero_hp_bar.max_value = _main.player_max_hp
 	_main.hero_hp_bar.value = _main.player_hp
 

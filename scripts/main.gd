@@ -56,6 +56,8 @@ var speed_multiplier: float = 1.0
 ## Damage is accumulated as the token visits cards during a walk.
 var walk_base_damage: int = 0
 var walk_mult_bonus: float = 0.0
+var walk_block: int = 0   # blue Gems: absorbs the enemy hit that follows this walk
+var walk_heal: int = 0    # green Gems: HP restored before the enemy hits
 var first_gem_triggered: bool = false
 var first_gem_tile: int = -1
 var artifact_sys: ArtifactSystem
@@ -451,6 +453,7 @@ func update_all_ui() -> void:
 
 func render_tiles() -> void:
 	ui_renderer.render_tiles()
+	ui_renderer.update_hero_hp_label()
 
 
 func pop_tile_anim(tile_idx: int, delay: float = 0.0) -> void:
@@ -565,6 +568,8 @@ func flash_artifact(slot_idx: int) -> void:
 func begin_walk_damage() -> void:
 	walk_base_damage = 0
 	walk_mult_bonus = 0.0
+	walk_block = 0
+	walk_heal = 0
 	first_gem_triggered = false
 	first_gem_tile = -1
 	prepare_walk_artifacts()
@@ -613,6 +618,7 @@ func refresh_calc() -> void:
 		summary_label.visible = false
 
 	ui_renderer.render_tiles()
+	ui_renderer.update_hero_hp_label()
 
 
 # --- Auto-placement ---
