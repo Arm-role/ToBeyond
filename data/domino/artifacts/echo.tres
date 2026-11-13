@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"nth": 1, "cause": "pass"}
+effect = &"repop"
+args = {"where": "same"}
+once = &"walk"
+
+[resource]
+script = ExtResource("1_a")
+id = "echo"
+name_th = "เสียงสะท้อน"
+icon = "🔔"
+text_th = "Gem ใบแรกที่ป๊อปในแต่ละรอบ ป๊อปซ้ำอีกครั้ง"
+archetype = "route"
+rarity = "common"
+price = 6
+catalog_order = 2
+rules = Array[Resource]([SubResource("Resource_r0")])

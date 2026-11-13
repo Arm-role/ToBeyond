@@ -123,4 +123,36 @@ func _initialize() -> void:
 	sim = _setup(BOARDS.full, [])
 	sim.slots = [verbs]
 	_run("verbs", sim, 2)
+	_phase4()
 	quit()
+
+
+const SINGLES := ["echo", "ring", "thorns", "push", "furnace", "fuse", "stoke", "twin", "alchemy"]
+const COMBOS := [
+	["mirror", "riposte", "ring"],
+	["echo", "twin", "mirror"],
+	["coal", "furnace", "fuse"],
+	["push", "ring"],
+	["push", "mirror"],
+	["stoke", "mirror", "echo"],
+	["thorns", "riposte"],
+	["ring", "mirror", "echo", "twin", "stoke"],
+]
+
+
+## Phase 4: each new artifact alone and the dangerous combos; ceiling lines show in the output.
+func _phase4() -> void:
+	var more := {"red_run": {"gems": {0: "red", 1: "red", 2: "red", 3: "blue", 4: "red", 5: "red", 6: "blue", 7: "red"}, "flag": 5, "hp": 40.0},
+		"blue_run": {"gems": {0: "blue", 1: "blue", 2: "blue", 3: "blue", 4: "blue", 5: "red"}, "flag": 4, "hp": 40.0}}
+	for name in ["full", "flag_red", "flag_end"]:
+		for id in SINGLES:
+			_run("p4 %s [%s]" % [name, id], _setup(BOARDS[name], [id]), 2 if id in ["furnace"] else 1)
+	for name in more:
+		for id in SINGLES:
+			_run("p4 %s [%s]" % [name, id], _setup(more[name], [id]))
+	for ids in COMBOS:
+		for name in ["red_run", "blue_run"]:
+			_run("p4 combo %s [%s]" % [name, ",".join(ids)], _setup(more[name], ids), 2 if "coal" in ids else 1)
+	# coal + furnace: kept Gems pop doubled on the next walk
+	var cf = _setup(more.red_run, ["coal", "furnace"])
+	_run("p4 coal+furnace", cf, 3)

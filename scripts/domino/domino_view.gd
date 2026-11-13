@@ -7,6 +7,11 @@ extends Control
 
 const Sim := preload("res://scripts/domino/domino_sim.gd")
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
+const Reward := preload("res://scripts/domino/domino_reward.gd")
+const SLOTS := 5
+const MAX_STAGE := 10
+const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกัน", "ember": "ถ่าน", "blaze": "เปลวไฟ"}
+const RARITY_TH := {"common": "สามัญ", "uncommon": "พบน้อย", "rare": "หายาก"}
 const N := Sim.N
 const HAND_SIZE := Sim.HAND_SIZE
 const TILE := 160.0
@@ -32,8 +37,11 @@ var selected: int = -1
 var busy: bool = false
 var over: bool = false
 
-var art_btns: Dictionary = {}       # artifact id -> toggle button
+var slot_arr: Array = []            # SLOTS entries, null = empty; sim.slots = the non-null ones in order
+var slot_btns: Array[Button] = []
+var slot_sel: int = -1              # slot picked for a swap (tap two slots to swap them)
 var art_tip: Label
+var reward_ui: Control
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
 # home positions (never relative), so rapid pops cannot make them drift.
@@ -64,6 +72,7 @@ func _ready() -> void:
 	sim.rng.randomize()
 	_build()
 	_add_version_stamp()
+	_start_arts()
 	sim.start_fight(1)
 	_sync()
 	_new_turn()
@@ -209,34 +218,87 @@ func _build() -> void:
 	go_btn.add_theme_font_size_override("font_size", 44)
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
-	var ay := 560.0
-	for d in Catalog.all():
+	for i in SLOTS:
+		slot_arr.append(null)
 		var ab := Button.new()
-		ab.toggle_mode = true
-		ab.text = "%s %s" % [d.icon, d.name_th]
-		ab.position = Vector2(30, ay)
-		ab.size = Vector2(230, 80)
+		ab.position = Vector2(30, 545.0 + i * 100.0)
+		ab.size = Vector2(230, 88)
 		ab.add_theme_font_size_override("font_size", 26)
-		ab.toggled.connect(_on_art.bind(d))
+		ab.pressed.connect(_on_slot.bind(i))
 		add_child(ab)
-		art_btns[d.id] = ab
-		ay += 95.0
-	art_tip = _label("Artifact ทดสอบ (กดเปิด/ปิด)", 24, Vector2(30, 850), 380.0)
+		slot_btns.append(ab)
+	art_tip = _label("", 26, Vector2(1660, 545), 250.0)
 	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	art_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	art_tip.size = Vector2(380, 160)
+	art_tip.size = Vector2(250, 420)
 	msg = _label("", 40, Vector2(460, 230), 1000.0)
 
 
-func _on_art(_on: bool, d: Resource) -> void:
-	# Slots keep catalog order, left to right (the order artifacts react in).
+## Slot order = reaction order. Tap a slot for its text, tap a second slot to swap them.
+func _on_slot(i: int) -> void:
+	if busy or over:
+		return
+	if slot_sel == -1:
+		if slot_arr[i] != null:
+			slot_sel = i
+			_slot_tip(slot_arr[i])
+	elif slot_sel == i:
+		slot_sel = -1
+	else:
+		var t = slot_arr[slot_sel]
+		slot_arr[slot_sel] = slot_arr[i]
+		slot_arr[i] = t
+		slot_sel = -1
+		_apply_slots()
+		sfx.play("place", 1.3, -8.0)
+	_refresh_slots()
+
+
+func _slot_tip(d: Resource) -> void:
+	art_tip.text = "%s %s\n(%s · %s)\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th]
+
+
+func _apply_slots() -> void:
 	var owned: Array = []
-	for a in Catalog.all():
-		if art_btns[a.id].button_pressed:
-			owned.append(a)
+	for d in slot_arr:
+		if d != null:
+			owned.append(d)
 	sim.slots = owned
-	art_tip.text = "%s %s\n%s" % [d.icon, d.name_th, d.text_th]
-	sfx.play("place", 1.3, -8.0)
+
+
+func _refresh_slots() -> void:
+	for i in SLOTS:
+		var d = slot_arr[i]
+		var b := slot_btns[i]
+		b.text = ("%d  %s %s" % [i + 1, d.icon, d.name_th]) if d != null else "%d  —" % (i + 1)
+		b.tooltip_text = d.text_th if d != null else ""
+		b.disabled = busy
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("#3a2f55") if d != null else Color("#221c30")
+		sb.set_corner_radius_all(14)
+		sb.set_border_width_all(6 if i == slot_sel else 2)
+		sb.border_color = Color("#ffd966") if i == slot_sel else Color(1, 1, 1, 0.2)
+		for st in ["normal", "hover", "pressed", "disabled"]:
+			b.add_theme_stylebox_override(st, sb)
+
+
+## Debug: ?arts=mirror,coal (web) or -- --arts=mirror,coal starts with those artifacts.
+func _start_arts() -> void:
+	var arg := ""
+	if OS.has_feature("web"):
+		var m := RegEx.create_from_string("[?&]arts=([A-Za-z0-9_,]+)").search(str(JavaScriptBridge.eval("location.search", true)))
+		arg = m.get_string(1) if m != null else ""
+	else:
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--arts="):
+				arg = a.substr(7)
+	var i := 0
+	for id in arg.split(",", false):
+		var d := Catalog.get_def(id)
+		if d != null and i < SLOTS:
+			slot_arr[i] = d
+			i += 1
+	_apply_slots()
 
 
 ## Copies the sim's state to the shown values (between walks only).
@@ -294,8 +356,7 @@ func _refresh() -> void:
 		_style(hand_btns[i], c, i == selected)
 	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - 100.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
-	for k in art_btns:
-		art_btns[k].disabled = busy
+	_refresh_slots()
 
 
 func _on_hand(i: int) -> void:
@@ -578,6 +639,16 @@ func _win() -> void:
 	sfx.play("win")
 	msg.text = "ชนะด่าน %d!" % stage
 	await get_tree().create_timer(1.1).timeout
+	if stage >= MAX_STAGE:
+		over = true
+		msg.text = "ผ่านครบ %d ด่าน! 🎉" % MAX_STAGE
+		_restart_button()
+		_refresh()
+		return
+	var offers := Reward.offer(sim)
+	if not offers.is_empty():
+		msg.text = ""
+		await _reward(offers)
 	stage += 1
 	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
@@ -587,6 +658,10 @@ func _lose() -> void:
 	over = true
 	sfx.play("lose")
 	msg.text = "แพ้ที่ด่าน %d · แตะเพื่อเริ่มใหม่" % stage
+	_restart_button()
+
+
+func _restart_button() -> void:
 	var b := Button.new()
 	b.text = "เริ่มใหม่"
 	b.position = Vector2(810, 700)
@@ -594,3 +669,78 @@ func _lose() -> void:
 	b.add_theme_font_size_override("font_size", 40)
 	b.pressed.connect(func(): get_tree().reload_current_scene())
 	add_child(b)
+
+
+signal reward_done
+
+
+## Reward screen: pick 1 of the offered artifacts (or skip). With full slots the
+## pick asks which owned artifact to replace.
+func _reward(offers: Array) -> void:
+	reward_ui = Control.new()
+	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reward_ui.z_index = 100
+	add_child(reward_ui)
+	_reward_offers(offers)
+	await reward_done
+	reward_ui.queue_free()
+	slot_sel = -1
+	_apply_slots()
+	_refresh_slots()
+
+
+func _rw_clear(title: String) -> void:
+	for c in reward_ui.get_children():
+		c.queue_free()
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.82)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reward_ui.add_child(dim)
+	var l := Label.new()
+	l.text = title
+	l.add_theme_font_size_override("font_size", 52)
+	l.position = Vector2(0, 50)
+	l.size = Vector2(1920, 90)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reward_ui.add_child(l)
+
+
+func _rw_button(text: String, pos: Vector2, size: Vector2, font: int) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.position = pos
+	b.size = size
+	b.add_theme_font_size_override("font_size", font)
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	reward_ui.add_child(b)
+	return b
+
+
+func _reward_offers(offers: Array) -> void:
+	_rw_clear("เลือก Artifact 1 ใบ")
+	var x0 := (1920.0 - (offers.size() * 440.0 + (offers.size() - 1) * 40.0)) * 0.5
+	for i in offers.size():
+		var d: Resource = offers[i]
+		var b := _rw_button("%s\n%s\n(%s · %s)\n\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th],
+			Vector2(x0 + i * 480.0, 180), Vector2(440, 520), 34)
+		b.pressed.connect(_reward_pick.bind(d, offers))
+	var skip := _rw_button("ข้าม", Vector2(810, 780), Vector2(300, 100), 40)
+	skip.pressed.connect(func(): reward_done.emit())
+
+
+func _reward_pick(d: Resource, offers: Array) -> void:
+	sfx.play("place", 1.3, -8.0)
+	for i in SLOTS:
+		if slot_arr[i] == null:
+			slot_arr[i] = d
+			reward_done.emit()
+			return
+	_rw_clear("ช่องเต็ม: เลือกช่องที่จะแทนด้วย %s %s" % [d.icon, d.name_th])
+	for i in SLOTS:
+		var o: Resource = slot_arr[i]
+		var b := _rw_button("%d  %s %s\n%s" % [i + 1, o.icon, o.name_th, o.text_th], Vector2(150 + i * 320.0, 250), Vector2(300, 420), 30)
+		b.pressed.connect(func():
+			slot_arr[i] = d
+			reward_done.emit())
+	var back := _rw_button("กลับ", Vector2(810, 780), Vector2(300, 100), 40)
+	back.pressed.connect(func(): _reward_offers(offers))

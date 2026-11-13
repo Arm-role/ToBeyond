@@ -17,16 +17,17 @@
 | 2 | Artifact 3 ใบฮาร์ดโค้ดผ่านปุ่มสลับ (กำแพงกระจก, ถ่านไฟ, ตอบโต้) | **เสร็จ** v0.1.19 |
 | (2.5) | จอแบ่งครึ่ง: พรีวิวต่อสู้ด้านบน + เล่นด้านล่าง, ตัวละครและเลเซอร์ | **เสร็จ** v0.1.21 |
 | 3 | event stream + Artifact เป็นข้อมูล + เพดานกันลูป | **เสร็จ** v0.1.22 (รอผู้ใช้เล่นเทียบ v0.1.21) → `domino/phase-3.md` |
-| 4 | Artifact 12 ใบ + เลือก 1 จาก 3 หลังชนะ + แถบช่อง 5 ช่อง | ยังไม่เริ่ม → `domino/phase-4.md` |
+| 4 | Artifact 12 ใบ + เลือก 1 จาก 3 หลังชนะ + แถบช่อง 5 ช่อง | **เสร็จ** v0.1.25 (รอผู้ใช้เล่นจริง 3 บิลด์) → `domino/phase-4.md` |
 | 5 | เหรียญ ร้านค้า บอส (บอสละหนึ่งกฎ) | ยังไม่เริ่ม → `domino/phase-5.md` |
 | 6 | ทำให้ Domino เป็นเกมหลัก ลบของเก่า | ยังไม่เริ่ม → `domino/phase-6.md` |
 
 ผู้ใช้เล่น greybox แล้วบอกว่า "สนุก คุ้มที่จะเปลี่ยน" (เฟส 1–2.5).
 
-## ของที่มีอยู่ตอนนี้ (v0.1.22)
+## ของที่มีอยู่ตอนนี้ (v0.1.25)
 - เปิดด้วย `?mode=greybox` (web) หรือ `-- --mode=greybox` ตัวเกมหลักเดิม (`scenes/main.tscn`) ยังอยู่และไม่ถูกแตะ
 - `scenes/greybox.tscn` → `scripts/domino/domino_view.gd` (วาดอย่างเดียว เล่นซ้ำ event) + `scripts/domino/domino_sim.gd` (กฎล้วน ไม่มี UI/await) + `domino_rule/artifact/catalog.gd` (ไม่มี `class_name` ใช้ `preload`)
-- Artifact เป็นข้อมูล `data/domino/artifacts/*.tres` (mirror, coal, riposte); ปุ่มสลับเติม `sim.slots` ตามลำดับแคตาล็อก
+- Artifact เป็นข้อมูล `data/domino/artifacts/*.tres` 12 ใบ; ผู้เล่นเริ่มด้วยช่องว่าง 5 ช่อง (แตะช่องเพื่อดูคำอธิบาย แตะสองช่องเพื่อสลับลำดับ) ได้ใบใหม่จากหน้ารางวัลหลังชนะ (`domino_reward.gd`); 10 ด่านแล้วหน้าจบ; ทดสอบเร็วด้วย `?arts=mirror,coal`
+- กริยาที่ sim รองรับ: damage shield heal repop bounce reflect_strike keep_gems spawn_gem move_flag set_route convert add_stat (`gold` เฟส 5); `convert` เป็น modifier ทำงานก่อนผลในตัวของ pop
 - regress: `tools/parity/domino_regress.gd` (รันใน `build.sh --regress`); smoke `build.sh --check` พิมพ์ `TB_DOMINO_OK`
 - `main.gd::_launch_arg("mode")` สลับฉาก
 - ตัวละคร: `HERO_HOME`, `ENEMY_HOME`, `_react()` (tween ไป/กลับจากตำแหน่งบ้านเสมอ), `_laser()`, `_badge()`

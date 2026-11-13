@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"ignite"
+cond = {}
+effect = &"set_route"
+args = {"start": "after_flag", "wrap": true}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "ring"
+name_th = "วงแหวน"
+icon = "⭕"
+text_th = "ลูกไฟเริ่มช่องถัดจากธงแล้ววนรอบ ธงถูกตีเป็นช่องสุดท้าย"
+archetype = "route"
+rarity = "rare"
+price = 12
+catalog_order = 3
+rules = Array[Resource]([SubResource("Resource_r0")])

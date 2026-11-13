@@ -23,6 +23,8 @@ const MAX_STEPS := 24         # 3 x 8 steps per walk
 const MAX_EVENTS := 400       # hitting this ends the walk at once
 
 ## Triggers an artifact may use. `hit` and `shield` are not among them (no damage feeding damage).
+## Verbs that change the event they react to; they run before its built-in effect (the other verbs run after it).
+const MODIFIERS := ["convert"]
 const TRIGGERS := ["ignite", "pass", "pop", "strike", "reach_end", "kill", "walk_end", "fight_start"]
 
 var hp: float = 30.0
@@ -56,6 +58,9 @@ var _stopped: bool = false
 var _bounce_req: bool = false
 var _bounces: int = 0
 var _struck: int = 0
+var _route: Array[int] = []      # tiles in walking order (set_route may rewrite it at ignite)
+var _ridx: int = 0               # index of the fireball in _route
+var _flag_moves: int = 0
 
 
 # --- setup / hand --------------------------------------------------------------
@@ -122,6 +127,22 @@ func _reset_walk() -> void:
 	_bounces = 0
 	_struck = 0
 	stats = {}
+	_route = default_route()
+	_ridx = 0
+	_flag_moves = 0
+
+
+static func default_route() -> Array[int]:
+	var r: Array[int] = []
+	for t in N:
+		r.append(t)
+	return r
+
+
+## Tile after `tile` walking in `dir` along the current route, or -1 past its end.
+func _route_next(tile: int, dir: int) -> int:
+	var i := _route.find(tile) + dir
+	return _route[i] if i >= 0 and i < _route.size() else -1
 
 
 func run_walk() -> Array:
@@ -129,15 +150,17 @@ func run_walk() -> Array:
 	events = []
 	walk_no += 1
 	_fire(_emit("ignite", {"walk": walk_no}))
-	var tile := 0
+	var idx := 0
 	var dir := 1
 	while not _stopped:
 		if _step >= MAX_STEPS:
 			_cap("steps")
 			break
 		_step += 1
+		var tile: int = _route[idx]
 		_tile = tile
 		_dir = dir
+		_ridx = idx
 		_fire(_emit("pass", {"tile": tile}))
 		if _stopped:
 			break
@@ -147,9 +170,9 @@ func run_walk() -> Array:
 			_do_strike(tile)
 		if _stopped:
 			break
-		var at_end: bool = (dir == 1 and tile == N - 1) or (dir == -1 and tile == 0)
+		var at_end: bool = (dir == 1 and idx == _route.size() - 1) or (dir == -1 and idx == 0)
 		if not at_end:
-			tile += dir
+			idx += dir
 			continue
 		_bounce_req = false
 		_fire(_emit("reach_end"))
@@ -259,16 +282,17 @@ func _do_pop(tile: int, cause: String) -> void:
 	_pops += 1
 	var g: Dictionary = board[tile]
 	var red: bool = g.color == "red"
-	var base: int = RED_DMG if red else BLUE_BLOCK
+	var base: int = (RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK
 	var src := "base" if cause == "pass" else cause
 	var ev := _emit("pop", {"tile": tile, "color": g.color, "nth": _pops, "tile_pops": tp + 1,
 		"cause": cause, "kept": g.kept, "temp": g.temp, "base": base}, src)
 	if ev.is_empty():
 		return
-	if red:
-		_hit("enemy", float(RED_DMG), "base", "pop")
+	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
+	if red or ev.get("convert", "") == "damage":
+		_hit("enemy", float(base), "base", "pop")
 	else:
-		_shield(BLUE_BLOCK, "base")
+		_shield(base, "base")
 	_fire(ev)
 
 
@@ -301,7 +325,7 @@ func _do_strike(tile: int) -> void:
 # --- rule engine ---------------------------------------------------------------
 
 ## Runs every matching artifact rule for `ev`: slots left to right, rules in written order.
-func _fire(ev: Dictionary) -> void:
+func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 	if ev.is_empty() or not (ev.k in TRIGGERS):
 		return
 	for si in slots.size():
@@ -310,7 +334,7 @@ func _fire(ev: Dictionary) -> void:
 			if _stopped and ev.k != "kill":
 				return
 			var r: Resource = def.rules[ri]
-			if String(r.trigger) != ev.k or not _match(r, ev):
+			if String(r.trigger) != ev.k or (String(r.effect) in MODIFIERS) != modifiers or not _match(r, ev):
 				continue
 			var okey := "%s:%d" % [def.id, ri]
 			var once := String(r.once)
@@ -359,8 +383,8 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 			if want is String:
 				match want:
 					"flag": return flags.has(tile)
-					"first": return tile == 0
-					"last": return tile == N - 1
+					"first": return tile == _route[0]
+					"last": return tile == _route[_route.size() - 1]
 				return false
 			return tile == int(want)
 		"dir":
@@ -377,8 +401,10 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 			return _color_at(tile - 1) == want or _color_at(tile + 1) == want
 		"before_flag":
 			var ahead := false
+			var ci := _route.find(tile)
 			for f in flags:
-				if (f > tile) if ev.dir == 1 else (f < tile):
+				var fi := _route.find(f)
+				if (fi > ci) if ev.dir == 1 else (fi >= 0 and fi < ci):
 					ahead = true
 			return ahead == want
 		"flag_struck":
@@ -407,7 +433,7 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 			hp = minf(max_hp, hp + _amt(a.get("amount", 0), ev))
 			_emit("heal", {"amount": _amt(a.get("amount", 0), ev), "hp_after": hp}, src)
 		"repop":
-			var t: int = ev.tile if a.get("where", "same") == "same" else ev.tile + ev.dir
+			var t: int = ev.tile if a.get("where", "same") == "same" else _route_next(ev.tile, ev.dir)
 			if t >= 0 and t < N and board.has(t):
 				_do_pop(t, src)
 		"bounce":
@@ -430,9 +456,27 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 					_emit("spawn", {"tile": t, "color": a.get("color", "red")}, src)
 					break
 		"move_flag":
-			var from: int = flags[0]
-			flags[0] = clampi(from + int(a.get("delta", 0)), 0, N - 1)
-			_emit("flag_move", {"from": from, "to": flags[0]}, src)
+			# delta counts along the walking direction; the flag stays on the route, never past its end
+			var fi := _route.find(flags[0])
+			if fi >= 0 and _flag_moves < int(a.get("max", 999)):
+				var ni := clampi(fi + int(a.get("delta", 0)) * ev.dir, 0, _route.size() - 1)
+				if ni != fi:
+					_flag_moves += 1
+					var from: int = flags[0]
+					flags[0] = _route[ni]
+					_emit("flag_move", {"from": from, "to": flags[0]}, src)
+		"set_route":
+			# start: "after_flag" begins on the tile after the flag and wraps, so the flag is struck last
+			if a.get("start", "") == "after_flag":
+				var f: int = flags[0]
+				var route: Array[int] = []
+				for t in range(f + 1, N):
+					route.append(t)
+				for t in range(0, f + 1):
+					route.append(t)
+				_route = route
+		"convert":
+			ev["convert"] = String(a.get("to", "damage"))
 		"add_stat":
 			var s: String = a.get("stat", "")
 			stats[s] = minf(float(a.get("max", 999999)), float(stats.get(s, 0.0)) + float(a.get("amount", 0)))

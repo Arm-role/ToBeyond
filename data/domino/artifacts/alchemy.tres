@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"color": "blue", "flag_struck": true}
+effect = &"convert"
+args = {"to": "damage"}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "alchemy"
+name_th = "หลอมสี"
+icon = "⚗"
+text_th = "Gem น้ำเงินที่ป๊อปหลังธงตีแล้ว กลายเป็นโจมตีแทนโล่"
+archetype = "blaze"
+rarity = "rare"
+price = 12
+catalog_order = 12
+rules = Array[Resource]([SubResource("Resource_r0")])

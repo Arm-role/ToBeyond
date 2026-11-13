@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"ignite"
+cond = {}
+effect = &"spawn_gem"
+args = {"color": "red", "where": "first_empty", "temp": true}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "fuse"
+name_th = "สายชนวน"
+icon = "🧨"
+text_th = "เริ่มเดิน: ช่องว่างแรกได้ Gem แดงชั่วคราว"
+archetype = "ember"
+rarity = "common"
+price = 6
+catalog_order = 9
+rules = Array[Resource]([SubResource("Resource_r0")])

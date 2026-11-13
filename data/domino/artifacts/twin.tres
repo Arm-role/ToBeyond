@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"color": "red", "neighbor": "red", "cause": "pass"}
+effect = &"repop"
+args = {"where": "same"}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "twin"
+name_th = "ประกายคู่"
+icon = "✨"
+text_th = "Gem แดงที่ติดกับแดงอีกใบ ป๊อปซ้ำ"
+archetype = "blaze"
+rarity = "uncommon"
+price = 9
+catalog_order = 11
+rules = Array[Resource]([SubResource("Resource_r0")])
