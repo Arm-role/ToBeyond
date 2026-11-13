@@ -10,7 +10,8 @@ const RED_DMG := 4
 const BLUE_BLOCK := 3
 const TILE := 160.0
 const GAP := 12.0
-const ROW_Y := 400.0
+const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
+const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
 const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6")}
 
 var sfx: Node
@@ -41,12 +42,10 @@ var art_tip: Label
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
 # home positions (never relative), so rapid pops cannot make them drift.
-const HERO_HOME := Vector2(60.0, 395.0)
-const ENEMY_HOME := Vector2(1660.0, 395.0)
+const HERO_HOME := Vector2(260.0, 120.0)
+const ENEMY_HOME := Vector2(1460.0, 120.0)
 var hero: Label
 var enemy: Label
-var hero_hp_small: Label
-var enemy_hp_small: Label
 var badge: Label
 var _react_tw: Dictionary = {}
 
@@ -97,10 +96,10 @@ func _char(emoji: String, home: Vector2) -> Label:
 	return l
 
 
-func _bar(pos: Vector2, col: Color) -> ProgressBar:
+func _bar(pos: Vector2, col: Color, w: float = 600.0) -> ProgressBar:
 	var b := ProgressBar.new()
 	b.position = pos
-	b.size = Vector2(600, 26)
+	b.size = Vector2(w, 26)
 	b.show_percentage = false
 	var fill := StyleBoxFlat.new()
 	fill.bg_color = col
@@ -115,10 +114,23 @@ func _build() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	# Top half: fight preview. Bottom half: the game you play.
+	var pv := Panel.new()
+	pv.position = Vector2.ZERO
+	pv.size = Vector2(1920, PREVIEW_H)
+	var pvs := StyleBoxFlat.new()
+	pvs.bg_color = Color("#241d3a")
+	pvs.border_color = Color("#c9a24b")
+	pvs.border_width_bottom = 5
+	pv.add_theme_stylebox_override("panel", pvs)
+	pv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(pv)
 	stage_lbl = _label("", 34, Vector2(660, 20))
-	enemy_lbl = _label("", 40, Vector2(660, 70))
-	enemy_bar = _bar(Vector2(660, 130), Color("#c0392b"))
-	intent_lbl = _label("", 34, Vector2(660, 170))
+	intent_lbl = _label("", 40, Vector2(660, 75))
+	enemy_bar = _bar(ENEMY_HOME + Vector2(-80, 215), Color("#c0392b"), 360.0)
+	enemy_lbl = _label("", 32, ENEMY_HOME + Vector2(-200, 245), 600.0)
+	hp_bar = _bar(HERO_HOME + Vector2(-80, 215), Color("#2fa866"), 360.0)
+	hp_lbl = _label("", 32, HERO_HOME + Vector2(-200, 245), 600.0)
 	var x0 := (1920.0 - (N * TILE + (N - 1) * GAP)) * 0.5
 	for i in N:
 		var b := Button.new()
@@ -137,8 +149,6 @@ func _build() -> void:
 		b.add_child(n)
 	hero = _char("🧙", HERO_HOME)
 	enemy = _char("👹", ENEMY_HOME)
-	hero_hp_small = _label("", 34, HERO_HOME + Vector2(0, 190), 200.0)
-	enemy_hp_small = _label("", 34, ENEMY_HOME + Vector2(0, 190), 200.0)
 	badge = _label("", 52, HERO_HOME + Vector2(0, -75), 200.0)
 	badge.visible = false
 	badge.pivot_offset = Vector2(100, 40)
@@ -158,38 +168,36 @@ func _build() -> void:
 	add_child(fire)
 	for i in HAND_SIZE:
 		var h := Button.new()
-		h.position = Vector2(660 + i * 210, 700)
-		h.size = Vector2(190, 190)
+		h.position = Vector2(660 + i * 210, 850)
+		h.size = Vector2(190, 170)
 		h.add_theme_font_size_override("font_size", 46)
 		h.pressed.connect(_on_hand.bind(i))
 		add_child(h)
 		hand_btns.append(h)
 	go_btn = Button.new()
 	go_btn.text = "เดิน ▶"
-	go_btn.position = Vector2(1320, 740)
+	go_btn.position = Vector2(1320, 870)
 	go_btn.size = Vector2(300, 110)
 	go_btn.add_theme_font_size_override("font_size", 44)
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
-	var ay := 20.0
+	var ay := 560.0
 	for k in ARTS:
 		var ab := Button.new()
 		ab.toggle_mode = true
 		ab.text = ARTS[k][0]
 		ab.position = Vector2(30, ay)
-		ab.size = Vector2(300, 80)
-		ab.add_theme_font_size_override("font_size", 30)
+		ab.size = Vector2(230, 80)
+		ab.add_theme_font_size_override("font_size", 26)
 		ab.toggled.connect(_on_art.bind(k))
 		add_child(ab)
 		art_btns[k] = ab
 		ay += 95.0
-	art_tip = _label("Artifact ทดสอบ (กดเปิด/ปิด)", 24, Vector2(1320, 30), 520.0)
+	art_tip = _label("Artifact ทดสอบ (กดเปิด/ปิด)", 24, Vector2(30, 850), 380.0)
 	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	art_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	art_tip.size = Vector2(540, 160)
-	hp_bar = _bar(Vector2(660, 930), Color("#2fa866"))
-	hp_lbl = _label("", 34, Vector2(660, 960))
-	msg = _label("", 36, Vector2(460, 620), 1000.0)
+	art_tip.size = Vector2(380, 160)
+	msg = _label("", 40, Vector2(460, 230), 1000.0)
 
 
 func _on_art(on: bool, key: String) -> void:
@@ -247,8 +255,6 @@ func _refresh() -> void:
 		hand_btns[i].disabled = c == "" or busy
 		_style(hand_btns[i], c, i == selected)
 	flag.position = Vector2(tile_btns[strike_tile].position.x, ROW_Y - 100.0)
-	hero_hp_small.text = "%d" % roundi(maxf(hp, 0.0))
-	enemy_hp_small.text = "%d" % maxi(enemy_hp, 0)
 	go_btn.disabled = busy or over or board.is_empty()
 	for k in art_btns:
 		art_btns[k].disabled = busy
@@ -341,20 +347,39 @@ func _badge_break() -> void:
 	tw.tween_callback(func(): badge.visible = false)
 
 
-## A ⚔ flies from the flag tile to the hero (hit / blocked) or the enemy (riposte).
-func _strike_fx(t: int, kind: String) -> void:
-	var l := Label.new()
-	l.text = "⚔"
-	l.add_theme_font_size_override("font_size", 80)
-	l.position = tile_btns[t].position + Vector2(TILE * 0.5 - 40.0, -60.0)
-	l.z_index = 15
-	if kind == "riposte":
-		l.modulate = Color("#ffd966")
+func _hero_c() -> Vector2:
+	return HERO_HOME + Vector2(100, 95)
+
+
+func _enemy_c() -> Vector2:
+	return ENEMY_HOME + Vector2(100, 95)
+
+
+## Laser beam like the main game's: a line that grows from `a` to `b`, then fades.
+func _laser(a: Vector2, b: Vector2, col: Color, w: float = 15.0) -> void:
+	var l := Line2D.new()
+	l.default_color = col
+	l.width = w
+	l.z_index = 30
+	l.add_point(a)
+	l.add_point(a)
 	add_child(l)
-	var target: Vector2 = enemy.position + Vector2(60, 30) if kind == "riposte" else HERO_HOME + Vector2(60, 30)
 	var tw := create_tween()
-	tw.tween_property(l, "position", target, 0.1)
+	tw.tween_method(func(p: Vector2): l.set_point_position(1, p), a, b, 0.08)
+	tw.tween_interval(0.03)
+	tw.tween_property(l, "modulate:a", 0.0, 0.10)
 	tw.tween_callback(l.queue_free)
+
+
+## The strike lands: the enemy fires a laser at the hero (hit / blocked, the beam
+## stops at the shield badge) or the hero returns it, gold, at the enemy (riposte).
+func _strike_fx(_t: int, kind: String) -> void:
+	if kind == "riposte":
+		_laser(_hero_c(), _enemy_c(), Color("#ffd966"), 22.0)
+	elif kind == "blocked":
+		_laser(_enemy_c(), HERO_HOME + Vector2(100, 10), Color("#9fd0ff"), 15.0)
+	else:
+		_laser(_enemy_c(), _hero_c(), Color.WHITE, 15.0)
 
 
 func _pop(b: Control, s: float) -> void:
@@ -428,6 +453,8 @@ func _run() -> void:
 			_pop(tile_btns[t], 1.3)
 			if c == "red":
 				enemy_hp -= RED_DMG
+				_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
+				_react(hero, HERO_HOME, 18.0, Color.WHITE)
 				_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
 				_float_text("-%d" % RED_DMG, ENEMY_HOME + Vector2(60, 0), COL["red"])
 				_refresh()
