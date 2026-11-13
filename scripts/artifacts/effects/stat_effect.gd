@@ -1,6 +1,6 @@
 class_name StatEffect
 extends ArtifactEffect
-## Data-only ATK / multiplier change.
+## Data-only ATK change.
 ##   value = amount × source        (source: see ArtifactContext.source)
 ##   add:        stat += value
 ##   mul:        stat *= value      (amount × counter, or amount alone with source "one")
@@ -9,7 +9,6 @@ extends ArtifactEffect
 ## (value × copies) when the landing Gem matches card_dir / card_color.
 
 @export_enum("attack", "land") var hook: String = "attack"
-@export_enum("atk", "mult") var stat: String = "atk"
 @export_enum("add", "mul", "mul_linear") var op: String = "add"
 @export var amount: float = 1.0
 @export var source: String = "one"
@@ -35,13 +34,9 @@ func land(ctx: ArtifactContext, count: int) -> bool:
 	if card_color != "" and ctx.card.get("color", "") != card_color:
 		return false
 	# Landing bonuses go to the walk totals, which the final attack starts from.
-	var before := ctx.mult
-	ctx.mult = ctx.main.walk_mult_bonus
 	ctx.atk = ctx.main.walk_base_damage
 	var fired := _apply(ctx, {}, count)
-	ctx.main.walk_mult_bonus = ctx.mult
 	ctx.main.walk_base_damage = int(ctx.atk)
-	ctx.mult = before
 	return fired
 
 
@@ -50,13 +45,10 @@ func _apply(ctx: ArtifactContext, art: Dictionary, copies: int) -> bool:
 	if skip_if_zero and src == 0.0:
 		return false
 	var value: float = amount * src * copies
-	var x: float = ctx.atk if stat == "atk" else ctx.mult
+	var x: float = ctx.atk
 	match op:
 		"add": x += value
 		"mul": x *= value
 		"mul_linear": x *= 1.0 + value
-	if stat == "atk":
-		ctx.atk = x
-	else:
-		ctx.mult = x
+	ctx.atk = x
 	return true

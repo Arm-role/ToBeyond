@@ -207,9 +207,9 @@ func _trigger_gem_buffs() -> void:
 			for rep in reps:
 				var fx_col := Color("#ffd24a") if rep > 0 else Color("#c79bff")
 				match type:
-					"mult":
-						_main.walk_mult_bonus += amount
-						_pop_at(card_ctl, ("⭐" if rep > 0 else "") + "MULT +%d" % amount, Color("#f2b63c") if rep > 0 else Color("#c79bff"))
+					"atk":
+						_main.walk_base_damage += amount
+						_pop_at(card_ctl, ("⭐" if rep > 0 else "") + "ATK +%d" % amount, Color("#f2b63c") if rep > 0 else Color("#c79bff"))
 				_trigger_fx(card_ctl.global_position + card_ctl.size * 0.5, fx_col, k)
 				VfxManager.trigger_juice(card_ctl, _spd(), 1.15, 6.0)
 				_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(k, 0, 6)]) / 12.0), -3.0)
@@ -352,12 +352,12 @@ func _on_walk_finished() -> void:
 	await _trigger_gem_buffs()
 	var steps: Array = []
 	_main.compute_attack(steps)
-	_main.show_calc(steps[0]["atk"], steps[0]["mult"])
+	_main.show_calc(steps[0]["atk"])
 	await _timer(0.35)
 	for i in range(1, steps.size()):
 		_artifact_fx(int(steps[i]["slot"]), i - 1)
 		_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24][clampi(i - 1, 0, 10)]) / 12.0))
-		_main.show_calc(steps[i]["atk"], steps[i]["mult"])
+		_main.show_calc(steps[i]["atk"])
 		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.15, 4.0, 0.0)
 		await _timer(0.45)
 	# Final total: a bigger pop, tinted by how big the hit is compared with the enemy's HP.

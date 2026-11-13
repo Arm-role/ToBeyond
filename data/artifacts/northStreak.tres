@@ -11,7 +11,6 @@ amount = 1
 
 [sub_resource type="Resource" id="Resource_stat"]
 script = ExtResource("2_stat")
-stat = "mult"
 source = "counter"
 skip_if_zero = true
 
@@ -20,10 +19,10 @@ script = ExtResource("3_data")
 id = "northStreak"
 name = "ลมเหนือ"
 icon = "↑+0"
-desc = "เดินหลังวางการ์ดทิศเหนือ ตัวคูณ +1 ต่อการเดิน"
+desc = "เดินหลังวางการ์ดทิศเหนือ ATK +1 ต่อการเดิน"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
 draft_name = "ลมเหนือ"
-draft_desc = "ทุกครั้งที่เดินหลังวางการ์ดทิศเหนือ: ตัวคูณของการ์ดนี้ +1 ต่อการเดิน 1 ครั้ง · ถ้าวางการ์ดทิศอื่นจะรีเซ็ตเป็น 0 · ตอนโจมตี: ตัวคูณ + ตามตัวสะสม"
+draft_desc = "ทุกครั้งที่เดินหลังวางการ์ดทิศเหนือ: ATKของการ์ดนี้ +1 ต่อการเดิน 1 ครั้ง · ถ้าวางการ์ดทิศอื่นจะรีเซ็ตเป็น 0 · ตอนโจมตี: ATK + ตามตัวสะสม"
 emblem_dir = "N"
 has_counter = true
 catalog_order = 39

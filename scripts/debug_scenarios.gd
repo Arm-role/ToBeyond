@@ -57,11 +57,11 @@ func run(scenario: String, restart: bool = true) -> void:
 		"gembuff":
 			# Cards 4-7 placed on tiles, 0-3 stay in the hand. Buffs: hand cards 0 (+1), 1 (+2), 3 (+1)
 			# trigger after the walk; placed card 5 (+1) must not.
-			main.hand[0]["buffs"] = {"mult": 1}
-			main.hand[1]["buffs"] = {"mult": 2}
-			main.hand[3]["buffs"] = {"mult": 1}
+			main.hand[0]["buffs"] = {"atk": 1}
+			main.hand[1]["buffs"] = {"atk": 2}
+			main.hand[3]["buffs"] = {"atk": 1}
 			main.hand[3]["gold"] = true  # gold + buff: triggers twice
-			main.hand[5]["buffs"] = {"mult": 1}
+			main.hand[5]["buffs"] = {"atk": 1}
 			main.selected_card_ids.clear()
 			for i in range(4, main.hand.size()):
 				main.selected_card_ids.append(int(main.hand[i]["id"]))
@@ -97,15 +97,15 @@ func run(scenario: String, restart: bool = true) -> void:
 			# Gold: 0 and 4 (placed), 7 (stays in hand with buff +2); hand 1 stays with buff +1.
 			# Tiles are chosen by auto_place_selected, so which tiles they land on varies.
 			var gslot := 0
-			for t in ["north5", "greenCoin", "mult2"]:
+			for t in ["north5", "greenCoin", "add5"]:
 				for it in ShopManager.ARTIFACT_CATALOG:
 					if it["type"] == t:
 						main.artifacts[gslot] = it.duplicate()
 						gslot += 1
 			main.hand[0]["gold"] = true
 			main.hand[4]["gold"] = true
-			main.hand[1]["buffs"] = {"mult": 1}
-			main.hand[7]["buffs"] = {"mult": 2}
+			main.hand[1]["buffs"] = {"atk": 1}
+			main.hand[7]["buffs"] = {"atk": 2}
 			main.hand[7]["gold"] = true
 			main.selected_card_ids.clear()
 			for i in [0, 2, 3, 4, 5, 6]:
@@ -118,11 +118,11 @@ func run(scenario: String, restart: bool = true) -> void:
 			for i in [0, 5, 12, 20, 33]:
 				main.deck[i]["gold"] = true
 			for i in [5, 8, 21, 40]:
-				main.deck[i]["buffs"] = {"mult": 1}
+				main.deck[i]["buffs"] = {"atk": 1}
 			main.open_deck_modal()
 		"arts":
 			var slot := 0
-			for t in ["add5", "mult2", "atk15"]:
+			for t in ["add5", "add5", "atk15"]:
 				for it in ShopManager.ARTIFACT_CATALOG:
 					if it["type"] == t:
 						main.artifacts[slot] = it.duplicate()
@@ -139,7 +139,7 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.update_all_ui()
 		"rare":
 			var rslot := 0
-			for t in ["add5", "mult2", "north5"]:
+			for t in ["add5", "add5", "north5"]:
 				for it in ShopManager.ARTIFACT_CATALOG:
 					if it["type"] == t:
 						main.artifacts[rslot] = it.duplicate()

@@ -120,18 +120,16 @@ func totem_attack(tile_idx: int) -> int:
 
 ## Final attack. `steps` (optional, passed by the caller) is filled like the
 ## draft's attackSeq(): steps[0] is the raw walk total, then one entry per
-## artifact that fired: {"slot": artifact slot, "atk": float, "mult": float}.
+## artifact that fired: {"slot": artifact slot, "atk": float}.
 func compute_attack(steps: Array = []) -> Dictionary:
 	var calc = calculate_groups()
 	var atk: float = 1 + (_main.walk_base_damage if _main.is_busy else calc["base_dmg"])
-	var mult: float = 1.0 + (_main.walk_mult_bonus if _main.is_busy else 0.0)
-	steps.append({"slot": -1, "atk": atk, "mult": mult})
+	steps.append({"slot": -1, "atk": atk})
 
 	# Artifacts in slot order like the draft's attackSeq() (South-five first).
-	var result: Dictionary = _main.artifact_sys.attack(calc, atk, mult, steps)
+	var result: Dictionary = _main.artifact_sys.attack(calc, atk, steps)
 	atk = result["atk"]
-	mult = result["mult"]
-	return {"atk": int(round(atk)), "mult": mult, "dmg": int(round(atk * mult))}
+	return {"atk": int(round(atk)), "dmg": int(round(atk))}
 
 
 func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictionary:

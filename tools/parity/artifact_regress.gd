@@ -19,16 +19,16 @@ const BOARDS := {
 }
 
 const COMBOS := [
-	["add5", "mult2", "atk15"],
+	["add5", "atk15", "dirNHit"],
 	["add5", "add5", "atk15", "atk15"],
-	["add5", "mult2", "north5", "atk15", "atk15"],
-	["reverse", "firstGem", "isoGem", "dirEHit", "eastG"],
+	["add5", "dirSHit", "northStreak", "atk15", "atk15"],
+	["reverse", "firstGem", "isoGem", "dirEHit", "dirWHit"],
 	["helperOdd", "helperEven", "firstGem", "greenCoin", "dirSHit"],
-	["discardStack", "add5", "stone7W", "stone7E", "mult2"],
+	["discardStack", "add5", "stone7W", "stone7E", "dirEHit"],
 	["totem", "totem", "reverse", "emptyAtk", "add5"],
-	["add5", "add5", "mult2", "mult2", "atk15"],
+	["add5", "add5", "dirNHit", "dirWHit", "atk15"],
 	["artiPay", "fatePay", "walkCoin", "fullSell", "freediscard"],
-	["emptyAtk", "emptyMult", "emptyGrow", "mult2", "atk15"],
+	["emptyAtk", "emptyGrow", "add5", "atk15"],
 	["redGem", "blueGem", "greenGem", "orangeGem", "add5"],
 ]
 
@@ -100,13 +100,13 @@ func _case(board_key: String, set: Array) -> void:
 			main.walk_base_damage += main.totem_attack(idx)
 	out.append("route=" + " ".join(route))
 	out.append("land=" + " ".join(fired))
-	out.append("walk=%d/%s" % [main.walk_base_damage, main.fmt_num(main.walk_mult_bonus)])
+	out.append("walk=%d" % main.walk_base_damage)
 	var steps: Array = []
 	var atk: Dictionary = main.compute_attack(steps)
 	var st: Array[String] = []
 	for s in steps:
-		st.append("%d:%s/%s" % [s["slot"], main.fmt_num(s["atk"]), main.fmt_num(s["mult"])])
-	out.append("atk=%d/%s/%d" % [atk["atk"], main.fmt_num(atk["mult"]), atk["dmg"]])
+		st.append("%d:%s" % [s["slot"], main.fmt_num(s["atk"])])
+	out.append("atk=%d/%d" % [atk["atk"], atk["dmg"]])
 	out.append("steps=" + " ".join(st))
 	main.is_busy = false
 	# Victory reward.

@@ -208,7 +208,7 @@ func _add_gold_mark(btn: Control) -> void:
 	btn.add_child(star)
 
 
-## Gem with a MULT buff in the hand: violet rim + "MULT +N" tag (triggers from the hand after the walk).
+## Gem with a ATK buff in the hand: violet rim + "ATK +N" tag (triggers from the hand after the walk).
 func _add_buff_mark(btn: Control, amount: int) -> void:
 	var rim := Panel.new()
 	rim.name = "BuffMark"
@@ -221,7 +221,7 @@ func _add_buff_mark(btn: Control, amount: int) -> void:
 	rsb.set_corner_radius_all(20)
 	rim.add_theme_stylebox_override("panel", rsb)
 	btn.add_child(rim)
-	var tag := _gstrip_chip("MULT +%d" % amount, Color("#c79bff"), 18)
+	var tag := _gstrip_chip("ATK +%d" % amount, Color("#c79bff"), 18)
 	tag.name = "BuffTag"
 	tag.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	tag.offset_left = -50.0
@@ -477,7 +477,7 @@ func render_hand() -> void:
 		set_card_template(btn, true, Color("#ffd966") if is_sel else Color.WHITE)
 		if is_sel:
 			_add_card_shine(btn)
-		var hand_buff := int(card.get("buffs", {}).get("mult", 0)) if not is_blank else 0
+		var hand_buff := int(card.get("buffs", {}).get("atk", 0)) if not is_blank else 0
 		if hand_buff > 0:
 			_add_buff_mark(btn, hand_buff)
 		if card.get("gold", false) and not is_blank:
@@ -642,7 +642,7 @@ func make_mini_card(col: String, dir: String, size: Vector2, gold: bool = false,
 		rsb.set_corner_radius_all(int(round(size.x * 0.18)))
 		rim.add_theme_stylebox_override("panel", rsb)
 		card.add_child(rim)
-		var tag := _gstrip_chip("M+%d" % buff_mult, Color("#c79bff"), 13)
+		var tag := _gstrip_chip("A+%d" % buff_mult, Color("#c79bff"), 13)
 		tag.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 		tag.offset_left = -size.x * 0.5
 		tag.offset_right = size.x * 0.5
@@ -707,7 +707,7 @@ func open_deck_modal() -> void:
 		row.add_theme_constant_override("h_separation", 7)
 		row.add_theme_constant_override("v_separation", 7)
 		for c in cards:
-			row.add_child(make_mini_card(col, "" if col == "blank" else c.get("dir", ""), Vector2(57, 75), c.get("gold", false), int(c.get("buffs", {}).get("mult", 0))))
+			row.add_child(make_mini_card(col, "" if col == "blank" else c.get("dir", ""), Vector2(57, 75), c.get("gold", false), int(c.get("buffs", {}).get("atk", 0))))
 		grp.add_child(row)
 		_main.deck_modal_list.add_child(grp)
 	_main.deck_modal.visible = true

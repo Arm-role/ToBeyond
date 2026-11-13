@@ -6,9 +6,8 @@ extends RefCounted
 
 var main: Node
 
-# Attack hooks: the running ATK / multiplier.
+# Attack hooks: the running ATK.
 var atk: float = 0.0
-var mult: float = 1.0
 var calc: Dictionary = {}          # main.calculate_groups() for this attack (groups always empty)
 
 # Land hook.

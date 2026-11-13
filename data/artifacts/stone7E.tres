@@ -13,18 +13,17 @@ color = "green"
 
 [sub_resource type="Resource" id="Resource_fqxu7"]
 script = ExtResource("2_hutyl")
-stat = "mult"
 source = "counter"
 
 [resource]
 script = ExtResource("3_2rs31")
 id = "stone7E"
-name = "คูณตะวันออก"
+name = "พลังตะวันออก"
 icon = "E+0"
 desc = "โบนัสตะวันออก"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
 rarity = "uncommon"
-draft_name = "คูณตะวันออก"
+draft_name = "พลังตะวันออก"
 emblem_dir = "E"
 catalog_order = 34
 effects = Array[Resource]([SubResource("Resource_1kvcn"), SubResource("Resource_fqxu7")])

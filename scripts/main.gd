@@ -63,7 +63,6 @@ var speed_multiplier: float = 1.0
 
 ## Damage is accumulated as the token visits cards during a walk.
 var walk_base_damage: int = 0
-var walk_mult_bonus: float = 0.0
 var walk_block: int = 0   # blue Gems: absorbs the enemy hit that follows this walk
 var walk_heal: int = 0    # green Gems: HP restored before the enemy hits
 var first_gem_triggered: bool = false
@@ -334,7 +333,6 @@ func start_new_game() -> void:
 	artifacts.clear()
 	for i in range(MAX_ARTIFACTS): artifacts.append(null)
 	walk_base_damage = 0
-	walk_mult_bonus = 0.0
 	first_gem_triggered = false
 	first_gem_tile = -1
 	totem_tiles.clear()
@@ -575,7 +573,6 @@ func flash_artifact(slot_idx: int) -> void:
 
 func begin_walk_damage() -> void:
 	walk_base_damage = 0
-	walk_mult_bonus = 0.0
 	walk_block = 0
 	walk_heal = 0
 	first_gem_triggered = false
@@ -606,9 +603,9 @@ static func fmt_num(v: float) -> String:
 	return txt
 
 
-## Live calc: `ATK × MULT` only. The total is shown big by BattleManager._show_summary once every trigger has resolved.
-func show_calc(atk: float, mult: float) -> void:
-	var new_text := "[center][b][color=#5fb0ff]%s[/color][color=#a79fc4] × [/color][color=#ff6b6b]%s[/color][/b][/center]" % [fmt_num(snappedf(atk, 0.01)), fmt_num(snappedf(mult, 0.01))]
+## Live calc: the running ATK. The total is shown big by BattleManager._show_summary once every trigger has resolved.
+func show_calc(atk: float) -> void:
+	var new_text := "[center][b][color=#5fb0ff]%s[/color][/b][/center]" % fmt_num(snappedf(atk, 0.01))
 	var changed: bool = calc_label.text != new_text
 	calc_label.text = new_text
 	if changed and is_busy:
@@ -616,13 +613,13 @@ func show_calc(atk: float, mult: float) -> void:
 
 
 func refresh_calc() -> void:
-	# Draft refreshCalc(): `1 × 1 = 1` while placing; during the walk the totals
+	# Draft refreshCalc(): `1` while placing; during the walk the totals
 	# the fireball has collected so far. Artifacts are applied one by one after
 	# the walk (BattleManager), not in this preview.
 	if is_busy:
-		show_calc(1.0 + walk_base_damage, 1.0 + walk_mult_bonus)
+		show_calc(1.0 + walk_base_damage)
 	else:
-		show_calc(1.0, 1.0)
+		show_calc(1.0)
 		summary_label.visible = false
 
 	ui_renderer.render_tiles()

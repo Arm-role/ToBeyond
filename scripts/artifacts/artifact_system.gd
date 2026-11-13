@@ -170,17 +170,16 @@ func land(tile_idx: int, card: Dictionary, gain: int, helper_pass: bool) -> Dict
 
 
 ## Final attack like the draft's attackSeq(): "early" cards first, then every
-## card in slot order. Appends {"slot", "atk", "mult"} to `steps` per card fired.
-func attack(calc: Dictionary, atk: float, mult: float, steps: Array) -> Dictionary:
+## card in slot order. Appends {"slot", "atk"} to `steps` per card fired.
+func attack(calc: Dictionary, atk: float, steps: Array) -> Dictionary:
 	var ctx := _ctx()
 	ctx.calc = calc
 	ctx.atk = atk
-	ctx.mult = mult
 	var record := func(slot: int) -> void:
-		steps.append({"slot": slot, "atk": ctx.atk, "mult": ctx.mult})
+		steps.append({"slot": slot, "atk": ctx.atk})
 	_per_copy("attack_early", ctx, record)
 	_per_copy("attack", ctx, record)
-	return {"atk": ctx.atk, "mult": ctx.mult}
+	return {"atk": ctx.atk}
 
 
 ## Enemy died. Returns {"rows": {row: coins}, "total": coins, "fx": [types]};

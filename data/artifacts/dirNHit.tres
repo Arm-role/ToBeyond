@@ -6,19 +6,18 @@
 [sub_resource type="Resource" id="Resource_xey0d"]
 script = ExtResource("1_6mjgt")
 hook = "land"
-stat = "mult"
 amount = 3.0
 card_dir = "N"
 
 [resource]
 script = ExtResource("2_oerja")
 id = "dirNHit"
-name = "คูณทิศเหนือ"
+name = "พลังทิศเหนือ"
 icon = "↑+3"
 desc = "โบนัสโจมตีทิศเหนือ"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
-draft_name = "คูณทิศเหนือ"
-draft_desc = "เดินไปตกช่องที่วาง Gem ทิศเหนือ (ทิศของการ์ด): ตัวคูณ +3"
+draft_name = "พลังทิศเหนือ"
+draft_desc = "เดินไปตกช่องที่วาง Gem ทิศเหนือ (ทิศของการ์ด): ATK +3"
 emblem_dir = "N"
 catalog_order = 22
 order = 60

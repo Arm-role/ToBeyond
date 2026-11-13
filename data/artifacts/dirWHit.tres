@@ -6,19 +6,18 @@
 [sub_resource type="Resource" id="Resource_hcpro"]
 script = ExtResource("1_a23yf")
 hook = "land"
-stat = "mult"
 amount = 3.0
 card_dir = "W"
 
 [resource]
 script = ExtResource("2_bcqco")
 id = "dirWHit"
-name = "คูณทิศตะวันตก"
+name = "พลังทิศตะวันตก"
 icon = "←+3"
 desc = "โบนัสโจมตีทิศตะวันตก"
 color = Color(0.18039216, 0.61960787, 0.35686275, 1)
-draft_name = "คูณทิศตะวันตก"
-draft_desc = "เดินไปตกช่องที่วาง Gem ทิศตะวันตก (ทิศของการ์ด): ตัวคูณ +3"
+draft_name = "พลังทิศตะวันตก"
+draft_desc = "เดินไปตกช่องที่วาง Gem ทิศตะวันตก (ทิศของการ์ด): ATK +3"
 emblem_dir = "W"
 catalog_order = 25
 order = 60
