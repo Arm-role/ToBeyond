@@ -91,8 +91,11 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.auto_place_selected()
 			await get_tree().create_timer(1.2).timeout
 		"goldarts":
-			# Artifacts (north5, greenCoin, mult2) + gold Gems on tiles + buffed Gems in the hand
-			# (one of them gold): placed 0 (gold, red N), 2-6; hand keeps 1 (buff +1) and 7 (gold, buff +2).
+			# Artifacts (north5, greenCoin, mult2) + gold Gems on tiles + buffed Gems in the hand.
+			# update_all_ui() has already sorted the hand (colour, then direction), so the indices
+			# are: 0 red N, 1 red N, 2 red S, 3 green S, 4 orange W, 5-6 blue E, 7 blue W.
+			# Gold: 0 and 4 (placed), 7 (stays in hand with buff +2); hand 1 stays with buff +1.
+			# Tiles are chosen by auto_place_selected, so which tiles they land on varies.
 			var gslot := 0
 			for t in ["north5", "greenCoin", "mult2"]:
 				for it in ShopManager.ARTIFACT_CATALOG:
