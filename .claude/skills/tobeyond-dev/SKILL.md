@@ -36,7 +36,7 @@ The Godot code is the source of truth. `To_Beyond_Draft.html` is read or searche
 6. **Visual pass** when the change is visual: `parity-check` skill with the scenario (and `--region`).
 7. **Review** (large or risky tasks only): ask `advisor` with the diff summary before calling it done.
 8. **Learn**: if the task needed more than 2 fix rounds, or `advisor` said **stop** or listed a new pitfall, add one line to `reference/pitfalls.md` (Lessons log, format there). Skip it for routine tasks.
-9. **Commit** with a clear message and push (`git push -u origin <branch>`). Tell the user what changed, what you checked, and the preview URL.
+9. **Commit**: first bump the patch of `config/version` in `project.godot` (once per push; skip for `.md`-only pushes; see `CLAUDE.md`), then commit with a clear message and push (`git push -u origin <branch>`). Tell the user the new version, what changed, what you checked, and the preview URL.
 
 ## parity.js
 

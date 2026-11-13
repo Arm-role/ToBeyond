@@ -27,6 +27,7 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
+- Version: every push that changes more than `.md` files bumps `application/config/version` in `project.godot` (shown bottom-right with the commit): patch +1 per push (0.1.0 → 0.1.1), once per push, not per commit; minor/major only when the user says. Edit only that line. User rule (2026-11).
 - Each pushed branch deploys to `https://arm-role.github.io/ToBeyond/preview/<branch>/` (`main` → site root).
 
 ## Keep sessions cheap

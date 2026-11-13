@@ -29,6 +29,7 @@ const COMBOS := [
 	["totem", "totem", "reverse", "emptyAtk", "chaosAtk"],
 	["equalG", "stone3", "tileAtk", "west5", "orangeN"],
 	["artiPay", "fatePay", "walkCoin", "fullSell", "freediscard"],
+	["emptyAtk", "emptyMult", "emptyGrow", "mult2", "atk15"],
 ]
 
 var main: Node

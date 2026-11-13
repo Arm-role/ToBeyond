@@ -9,7 +9,7 @@ extends Node
 ## and window.tbReady = <name> once the state is on screen.
 ## Keep the list in sync with tools/parity/scenarios.js.
 
-const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone"]
+const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts"]
 ## Same 8 cards as tools/parity/scenarios.js, so both hands match.
 const FIXED_HAND := [["red", "N"], ["red", "N"], ["blue", "E"], ["blue", "E"],
 	["green", "S"], ["orange", "W"], ["red", "S"], ["blue", "W"]]
@@ -59,6 +59,11 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.on_victory()
 		"shop":
 			main.open_shop()
+		"shopart":
+			# Shop "artifact" tab lists the whole catalog (new cards included).
+			main.open_shop()
+			main.shop_mgr.set_tab("artifact")
+			await get_tree().create_timer(0.6).timeout
 		"lose":
 			main.on_game_over()
 		"deck":
@@ -73,6 +78,15 @@ func run(scenario: String, restart: bool = true) -> void:
 					if it["type"] == t:
 						main.artifacts[slot] = it.duplicate()
 						slot += 1
+			main.update_all_ui()
+		"newarts":
+			# Start playing with Empty Fist + Void Lens + Hollow Heart equipped.
+			var nslot := 0
+			for t in ["emptyAtk", "emptyMult", "emptyGrow"]:
+				for it in ShopManager.ARTIFACT_CATALOG:
+					if it["type"] == t:
+						main.artifacts[nslot] = it.duplicate()
+						nslot += 1
 			main.update_all_ui()
 		"rare":
 			var rslot := 0
