@@ -9,7 +9,7 @@ extends Node
 ## and window.tbReady = <name> once the state is on screen.
 ## Keep the list in sync with tools/parity/scenarios.js.
 
-const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts", "gembuff", "deckmarks", "goldwalk"]
+const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts", "gembuff", "deckmarks", "goldwalk", "goldarts"]
 ## Same 8 cards as tools/parity/scenarios.js, so both hands match.
 const FIXED_HAND := [["red", "N"], ["red", "N"], ["blue", "E"], ["blue", "E"],
 	["green", "S"], ["orange", "W"], ["red", "S"], ["blue", "W"]]
@@ -90,6 +90,26 @@ func run(scenario: String, restart: bool = true) -> void:
 				main.selected_card_ids.append(int(c["id"]))
 			main.auto_place_selected()
 			await get_tree().create_timer(1.2).timeout
+		"goldarts":
+			# Artifacts (north5, greenCoin, mult2) + gold Gems on tiles + buffed Gems in the hand
+			# (one of them gold): placed 0 (gold, red N), 2-6; hand keeps 1 (buff +1) and 7 (gold, buff +2).
+			var gslot := 0
+			for t in ["north5", "greenCoin", "mult2"]:
+				for it in ShopManager.ARTIFACT_CATALOG:
+					if it["type"] == t:
+						main.artifacts[gslot] = it.duplicate()
+						gslot += 1
+			main.hand[0]["gold"] = true
+			main.hand[4]["gold"] = true
+			main.hand[1]["buffs"] = {"mult": 1}
+			main.hand[7]["buffs"] = {"mult": 2}
+			main.hand[7]["gold"] = true
+			main.selected_card_ids.clear()
+			for i in [0, 2, 3, 4, 5, 6]:
+				main.selected_card_ids.append(int(main.hand[i]["id"]))
+			main.auto_place_selected()
+			await get_tree().create_timer(1.2).timeout
+			main.update_all_ui()
 		"deckmarks":
 			# Deck modal with a few gold and buffed Gems among plain ones.
 			for i in [0, 5, 12, 20, 33]:
