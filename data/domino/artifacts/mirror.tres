@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"reach_end"
+cond = {"dir": "fwd"}
+effect = &"bounce"
+args = {}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "mirror"
+name_th = "กำแพงกระจก"
+icon = "🪞"
+text_th = "ลูกไฟเด้งกลับที่ช่อง 8 ทุกอย่างป๊อปสองรอบ (ธงด้วย)"
+archetype = "route"
+rarity = "uncommon"
+price = 6
+catalog_order = 1
+rules = Array[Resource]([SubResource("Resource_r0")])

@@ -4,7 +4,7 @@
 #                                   (check_refs.py), and run the game headless
 #                                   into the "main" test state (a few seconds, no export)
 #   (TB_SKIP_REFS=1 skips the reference check; evals use it on old code bases)
-#   tools/parity/build.sh --regress [--update]   the check, then the artifact regression
+#   tools/parity/build.sh --regress [--update]   the check, then the artifact + domino regression
 #                                   against tools/parity/baseline (--update rewrites it)
 #   tools/parity/build.sh           the check, then import + Web export to build/web (~1 min)
 # Full logs: build/import.log, build/export.log
@@ -13,7 +13,7 @@ cd "$(dirname "$0")/../.."
 GODOT=${GODOT:-$(command -v godot || bash tools/parity/setup_godot.sh)}
 mkdir -p build
 fail=0
-for f in scripts/*.gd; do
+for f in $(find scripts -name '*.gd' | sort); do
   if ! out=$("$GODOT" --headless --path . --check-only --script "res://$f" 2>&1); then
     echo "$out" | grep -E "ERROR|at: " | head -6; fail=1
   fi
@@ -26,6 +26,12 @@ if ! echo "$run" | grep -q "^TB_RECTS"; then
   echo "$errs"; echo "check FAILED (the game did not reach the test state)"; exit 1
 fi
 [ -n "$errs" ] && echo "$errs" && echo "check: runtime errors above"
+# Domino greybox smoke: the view prints TB_DOMINO_OK once the first hand is dealt
+drun=$(timeout 60 "$GODOT" --headless --path . -- --mode=greybox --domino-smoke 2>&1)
+if ! echo "$drun" | grep -q "^TB_DOMINO_OK"; then
+  echo "$drun" | grep -E "SCRIPT ERROR|^ERROR|^ +at: " | head -8
+  echo "check FAILED (greybox did not reach the first hand)"; exit 1
+fi
 echo "check OK"
 [ "${1:-}" = "--check" ] && exit 0
 [ "${1:-}" = "--regress" ] && exec bash tools/parity/regress.sh "${2:-}"

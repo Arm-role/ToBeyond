@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 GODOT=${GODOT:-$(command -v godot || bash tools/parity/setup_godot.sh)}
 mkdir -p tools/parity/baseline build/regress
 fail=0
-for s in $(echo "${TB_REGRESS_SCRIPTS:-artifact_regress}" | tr , " "); do
+for s in $(echo "${TB_REGRESS_SCRIPTS:-artifact_regress,domino_regress}" | tr , " "); do
   out=build/regress/$s.txt
   timeout 120 "$GODOT" --headless --path . --script "res://tools/parity/$s.gd" 2>&1 | grep -v '^Godot Engine v' | sed '/./,$!d' > "$out"
   if grep -qE "SCRIPT ERROR|^ERROR" "$out" || [ ! -s "$out" ]; then

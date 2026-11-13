@@ -1,43 +1,38 @@
 extends Control
-## Domino Run greybox (docs/plan-domino-run.md, phases 1-2). Self-contained.
-## Red/blue Gems, one enemy after another, real HP on both sides. Three
-## hard-coded Artifacts sit behind the toggles on the left (phase 2 test).
+## Domino Run view (docs/domino/phase-3.md). All rules live in DominoSim; this
+## node only draws: a walk is replayed from the sim's event list (_play_walk).
+## HP, shield and the Gems on the row come from event fields during playback
+## (v_* values), never from the sim's live state.
 ## Open with ?mode=greybox (web) or -- --mode=greybox.
 
-const N := 8
-const HAND_SIZE := 3
-const RED_DMG := 4
-const BLUE_BLOCK := 3
+const Sim := preload("res://scripts/domino/domino_sim.gd")
+const Catalog := preload("res://scripts/domino/domino_catalog.gd")
+const N := Sim.N
+const HAND_SIZE := Sim.HAND_SIZE
 const TILE := 160.0
 const GAP := 12.0
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
 const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6")}
+const MAX_WALK_TIME := 2.2   # fireball travel budget per walk (strike pauses do not count)
 
+var sim := Sim.new()
 var sfx: Node
-var hp: float = 30.0
-var max_hp: float = 30.0
 var stage: int = 1
-var enemy_hp: int = 0
-var enemy_max: int = 18
-var strike_dmg: float = 8.0
-var strike_tile: int = 4
+# Shown values: synced from the sim between walks, set from event fields while a walk plays.
+var v_hp: float = 30.0
+var v_max_hp: float = 30.0
+var v_enemy_hp: int = 0
+var v_enemy_max: int = 18
+var v_strike: float = 8.0
+var v_flag: int = 3
+var v_board: Dictionary = {}        # tile -> {color, kept, ...}
 var hand: Array[String] = []        # "" = slot already placed
-var board: Dictionary = {}          # tile -> colour
 var selected: int = -1
 var busy: bool = false
 var over: bool = false
 
-# Phase 2 artifacts (toggles): MIRROR bounces back at the last tile, COAL keeps
-# popped Gems for one more walk, RIPOSTE reflects the strike off a blue Gem on the flag tile.
-const ARTS := {
-	"mirror": ["🪞 กำแพงกระจก", "ลูกไฟเด้งกลับที่ช่อง 8 ทุกอย่างป๊อปสองรอบ (ธงด้วย)"],
-	"coal": ["♨ ถ่านไฟ", "Gem ที่ป๊อปแล้วอยู่ต่ออีกหนึ่งรอบ"],
-	"riposte": ["↩ ตอบโต้", "Gem น้ำเงินบนช่องธง สะท้อนการตีกลับไปที่ศัตรู"],
-}
-var art_on: Dictionary = {"mirror": false, "coal": false, "riposte": false}
-var locked: Dictionary = {}          # tiles holding a kept (coal) Gem
-var art_btns: Dictionary = {}
+var art_btns: Dictionary = {}       # artifact id -> toggle button
 var art_tip: Label
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
@@ -66,9 +61,21 @@ var go_btn: Button
 func _ready() -> void:
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
+	sim.rng.randomize()
 	_build()
-	_new_enemy()
+	sim.start_fight(1)
+	_sync()
 	_new_turn()
+	if "--domino-smoke" in OS.get_cmdline_user_args():
+		# Headless check (build.sh --check): catalog loads, a walk with every artifact runs.
+		var t := Sim.new()
+		t.start_fight(1)
+		for d in Catalog.all():
+			t.slots.append(d)
+		t.place(0, "red")
+		t.place(3, "blue")
+		print("TB_DOMINO_OK artifacts=%d events=%d" % [Catalog.all().size(), t.run_walk().size()])
+		get_tree().quit()
 
 
 func _label(text: String, size: int, pos: Vector2, w: float = 600.0) -> Label:
@@ -182,16 +189,16 @@ func _build() -> void:
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
 	var ay := 560.0
-	for k in ARTS:
+	for d in Catalog.all():
 		var ab := Button.new()
 		ab.toggle_mode = true
-		ab.text = ARTS[k][0]
+		ab.text = "%s %s" % [d.icon, d.name_th]
 		ab.position = Vector2(30, ay)
 		ab.size = Vector2(230, 80)
 		ab.add_theme_font_size_override("font_size", 26)
-		ab.toggled.connect(_on_art.bind(k))
+		ab.toggled.connect(_on_art.bind(d))
 		add_child(ab)
-		art_btns[k] = ab
+		art_btns[d.id] = ab
 		ay += 95.0
 	art_tip = _label("Artifact ทดสอบ (กดเปิด/ปิด)", 24, Vector2(30, 850), 380.0)
 	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -200,30 +207,39 @@ func _build() -> void:
 	msg = _label("", 40, Vector2(460, 230), 1000.0)
 
 
-func _on_art(on: bool, key: String) -> void:
-	art_on[key] = on
-	art_tip.text = "%s\n%s" % [ARTS[key][0], ARTS[key][1]]
+func _on_art(_on: bool, d: Resource) -> void:
+	# Slots keep catalog order, left to right (the order artifacts react in).
+	var owned: Array = []
+	for a in Catalog.all():
+		if art_btns[a.id].button_pressed:
+			owned.append(a)
+	sim.slots = owned
+	art_tip.text = "%s %s\n%s" % [d.icon, d.name_th, d.text_th]
 	sfx.play("place", 1.3, -8.0)
 
 
-func _new_enemy() -> void:
-	enemy_hp = enemy_max
-	strike_tile = randi_range(2, 7) - 1
+## Copies the sim's state to the shown values (between walks only).
+func _sync() -> void:
+	v_hp = sim.hp
+	v_max_hp = sim.max_hp
+	v_enemy_hp = sim.enemy_hp
+	v_enemy_max = sim.enemy_max
+	v_strike = sim.strike_dmg
+	v_flag = sim.flags[0]
+	v_board = sim.board.duplicate(true)
 
 
 func _new_turn() -> void:
-	hand.clear()
-	for i in HAND_SIZE:
-		hand.append("red" if randf() < 0.6 else "blue")
+	hand = sim.deal_hand()
 	selected = -1
-	strike_tile = randi_range(1, N - 1)
 	busy = false
 	msg.text = ""
+	_sync()
 	_refresh()
 
 
 func _gem_text(c: String) -> String:
-	return "⚔ %d" % RED_DMG if c == "red" else "🛡 %d" % BLUE_BLOCK
+	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
 
 
 func _style(b: Button, c: String, picked: bool = false) -> void:
@@ -238,24 +254,25 @@ func _style(b: Button, c: String, picked: bool = false) -> void:
 
 func _refresh() -> void:
 	stage_lbl.text = "ด่าน %d" % stage
-	enemy_lbl.text = "👹 HP %d / %d" % [maxi(enemy_hp, 0), enemy_max]
-	enemy_bar.max_value = enemy_max
-	enemy_bar.value = maxi(enemy_hp, 0)
-	intent_lbl.text = "ตีแรง %d ที่ช่อง %d" % [roundi(strike_dmg), strike_tile + 1]
-	hp_lbl.text = "HP %d / %d" % [roundi(maxf(hp, 0.0)), roundi(max_hp)]
-	hp_bar.max_value = max_hp
-	hp_bar.value = maxf(hp, 0.0)
+	enemy_lbl.text = "👹 HP %d / %d" % [maxi(v_enemy_hp, 0), v_enemy_max]
+	enemy_bar.max_value = v_enemy_max
+	enemy_bar.value = maxi(v_enemy_hp, 0)
+	intent_lbl.text = "ตีแรง %d ที่ช่อง %d" % [roundi(v_strike), v_flag + 1]
+	hp_lbl.text = "HP %d / %d" % [roundi(maxf(v_hp, 0.0)), roundi(v_max_hp)]
+	hp_bar.max_value = v_max_hp
+	hp_bar.value = maxf(v_hp, 0.0)
 	for i in N:
-		var c: String = board.get(i, "")
-		tile_btns[i].text = (_gem_text(c) + ("\n♨" if locked.has(i) else "")) if c != "" else ""
+		var g: Dictionary = v_board.get(i, {})
+		var c: String = g.get("color", "")
+		tile_btns[i].text = (_gem_text(c) + ("\n♨" if g.get("kept", false) else "")) if c != "" else ""
 		_style(tile_btns[i], c)
 	for i in HAND_SIZE:
 		var c: String = hand[i]
 		hand_btns[i].text = _gem_text(c) if c != "" else ""
 		hand_btns[i].disabled = c == "" or busy
 		_style(hand_btns[i], c, i == selected)
-	flag.position = Vector2(tile_btns[strike_tile].position.x, ROW_Y - 100.0)
-	go_btn.disabled = busy or over or board.is_empty()
+	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - 100.0)
+	go_btn.disabled = busy or over or sim.board.is_empty()
 	for k in art_btns:
 		art_btns[k].disabled = busy
 
@@ -271,21 +288,22 @@ func _on_hand(i: int) -> void:
 func _on_tile(t: int) -> void:
 	if busy or over:
 		return
-	if locked.has(t):
-		return
-	if board.has(t):
-		# Take the Gem back to its hand slot.
-		for i in HAND_SIZE:
-			if hand[i] == "":
-				hand[i] = board[t]
-				board.erase(t)
-				break
+	if sim.board.has(t):
+		# Take the Gem back to its hand slot (kept Gems stay).
+		var c := sim.take(t)
+		if c != "":
+			for i in HAND_SIZE:
+				if hand[i] == "":
+					hand[i] = c
+					break
 	elif selected >= 0:
-		board[t] = hand[selected]
+		sim.place(t, hand[selected])
 		hand[selected] = ""
 		selected = -1
 		sfx.play("place")
+		v_board = sim.board.duplicate(true)
 		_pop(tile_btns[t], 1.15)
+	v_board = sim.board.duplicate(true)
 	_refresh()
 
 
@@ -412,128 +430,137 @@ func _shake(amount: float) -> void:
 
 
 func _on_go() -> void:
-	if busy or over or board.is_empty():
+	if busy or over or sim.board.is_empty():
 		return
 	busy = true
 	selected = -1
+	v_board = sim.board.duplicate(true)   # the row as it was before the walk
 	_refresh()
-	_run()
+	var evs: Array = sim.run_walk()
+	await _play_walk(evs)
 
 
-func _run() -> void:
-	var seq: Array[int] = []
-	for t in N:
-		seq.append(t)
-	if art_on["mirror"]:
-		seq.append(N - 1)
-		for t in range(N - 2, -1, -1):
-			seq.append(t)
-	var block := 0
-	var pops := 0
-	fire.position = Vector2(HERO_HOME.x + 20.0, ROW_Y - 20.0)
-	fire.visible = true
-	_badge(0)
-	_react(hero, HERO_HOME, 0.0, Color.WHITE, 1.15)
-	for k in seq.size():
-		var t: int = seq[k]
-		var dur: float = lerpf(0.20, 0.07, float(k) / float(maxi(seq.size() - 1, 1)))
-		if k + 1 < seq.size() and seq[k + 1] == strike_tile:
-			_windup()
-		if k > 0 and seq[k - 1] == t:
-			await get_tree().create_timer(0.08).timeout
-		else:
-			var tw := create_tween()
-			tw.tween_property(fire, "position", Vector2(tile_btns[t].position.x, ROW_Y - 20.0), dur)
-			await tw.finished
-		if board.has(t):
-			var c: String = board[t]
-			var centre := tile_btns[t].position + Vector2(40, 0)
-			sfx.step(pops)
-			pops += 1
-			_pop(tile_btns[t], 1.3)
-			if c == "red":
-				enemy_hp -= RED_DMG
-				_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
-				_react(hero, HERO_HOME, 18.0, Color.WHITE)
-				_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
-				_float_text("-%d" % RED_DMG, ENEMY_HOME + Vector2(60, 0), COL["red"])
-				_refresh()
-				if enemy_hp <= 0:
-					await _win()
-					return
-			else:
-				block += BLUE_BLOCK
-				_badge(block)
-				_float_text("🛡+%d" % BLUE_BLOCK, centre, Color("#7fb8ff"))
-		if t == strike_tile:
-			if art_on["riposte"] and board.get(t, "") == "blue":
-				# Riposte: the whole strike goes back at the enemy.
-				enemy_hp -= roundi(strike_dmg)
-				sfx.play("hit")
-				_shake(10.0)
-				_strike_fx(t, "riposte")
-				_react(enemy, ENEMY_HOME, 24.0, Color("#ffe08a"), 1.1)
-				_float_text("↩ -%d" % roundi(strike_dmg), ENEMY_HOME + Vector2(40, 0), Color("#ffd966"))
-				_refresh()
-				if enemy_hp <= 0:
-					await _win()
-					return
-			else:
-				var dmg := maxf(0.0, strike_dmg - block)
-				_react(enemy, ENEMY_HOME, 0.0, Color.WHITE)   # end of the windup lean
-				if dmg > 0.0:
-					hp -= dmg
+## Index of the next `pass` event after j, or -1.
+func _next_pass(evs: Array, j: int) -> int:
+	for q in range(j + 1, evs.size()):
+		if evs[q].k == "pass":
+			return q
+	return -1
+
+
+## True when the walk strikes right after entering the tile of pass event p.
+func _strike_after(evs: Array, p: int) -> bool:
+	for q in range(p + 1, evs.size()):
+		if evs[q].k == "pass":
+			return false
+		if evs[q].k == "strike":
+			return true
+	return false
+
+
+func _play_walk(evs: Array) -> void:
+	var steps := 0
+	for ev in evs:
+		if ev.k == "pass":
+			steps += 1
+	var step_dur: float = minf(0.20, MAX_WALK_TIME / float(maxi(steps, 1)))
+	var seen := 0
+	var prev_tile := -1
+	var result := ""
+	for j in evs.size():
+		var ev: Dictionary = evs[j]
+		match ev.k:
+			"ignite":
+				fire.position = Vector2(HERO_HOME.x + 20.0, ROW_Y - 20.0)
+				fire.visible = true
+				_badge(0)
+				_react(hero, HERO_HOME, 0.0, Color.WHITE, 1.15)
+			"pass":
+				seen += 1
+				var np := _next_pass(evs, j)
+				if np >= 0 and _strike_after(evs, np):
+					_windup()
+				if ev.tile == prev_tile:
+					await get_tree().create_timer(0.08).timeout   # bounce: enter the same tile again
+				else:
+					var dur: float = lerpf(step_dur, step_dur * 0.35, float(seen) / float(maxi(steps, 1)))
+					var tw := create_tween()
+					tw.tween_property(fire, "position", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 20.0), dur)
+					await tw.finished
+				prev_tile = ev.tile
+			"pop":
+				sfx.step(ev.nth - 1)
+				_pop(tile_btns[ev.tile], 1.3)
+			"hit":
+				if ev.target == "enemy":
+					v_enemy_hp = roundi(ev.hp_after)
+					if ev.via == "reflect":
+						sfx.play("hit")
+						_shake(10.0)
+						_strike_fx(ev.tile, "riposte")
+						_react(enemy, ENEMY_HOME, 24.0, Color("#ffe08a"), 1.1)
+						_float_text("↩ -%d" % roundi(ev.amount), ENEMY_HOME + Vector2(40, 0), Color("#ffd966"))
+					else:
+						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
+						_react(hero, HERO_HOME, 18.0, Color.WHITE)
+						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
+						_float_text("-%d" % roundi(ev.amount), ENEMY_HOME + Vector2(60, 0), COL["red"])
+				else:
+					v_hp = ev.hp_after
 					sfx.play("hurt")
 					_shake(14.0)
-					_strike_fx(t, "hit")
+					_strike_fx(ev.tile, "hit")
 					_react(hero, HERO_HOME, -14.0, Color("#ff6b6b"))
-					_float_text("-%d" % roundi(dmg), HERO_HOME + Vector2(60, 0), Color("#ff4d5e"))
-				else:
+					_float_text("-%d" % roundi(ev.amount), HERO_HOME + Vector2(60, 0), Color("#ff4d5e"))
+				_refresh()
+			"heal":
+				v_hp = ev.hp_after
+				_float_text("+%d" % roundi(ev.amount), HERO_HOME + Vector2(60, 0), Color("#7be0a0"))
+				_refresh()
+			"shield":
+				_badge(ev.total)
+				_float_text("🛡+%d" % ev.amount, tile_btns[ev.tile].position + Vector2(40, 0), Color("#7fb8ff"))
+			"strike":
+				_react(enemy, ENEMY_HOME, 0.0, Color.WHITE)   # end of the windup lean
+				if ev.redirect == "" and ev.dealt <= 0.0:
 					sfx.play("chime", 1.5)
-					_strike_fx(t, "blocked")
+					_strike_fx(ev.tile, "blocked")
 					_float_text("กันได้!", HERO_HOME + Vector2(20, 0), Color("#7fb8ff"))
-			block = 0
-			_badge_break()
-			_refresh()
-			await get_tree().create_timer(0.3).timeout
-			if hp <= 0.0:
-				_lose()
-				return
+			"shield_break":
+				_badge_break()
+				_refresh()
+				await get_tree().create_timer(0.3).timeout
+			"flag_move":
+				v_flag = ev.to
+				_refresh()
+			"spawn":
+				v_board[ev.tile] = {"color": ev.color, "kept": false}
+				_refresh()
+			"capped":
+				_float_text("สุดทาง", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 120.0), Color("#c8c8d0"))
+			"kill":
+				result = ev.target
 	fire.visible = false
-	await get_tree().create_timer(0.35).timeout
-	_end_walk()
-	_new_turn()
-
-
-## After a walk: popped Gems are cleared, except Coal Bed keeps fresh ones for one more walk.
-func _end_walk() -> void:
-	var keep: Dictionary = {}
-	if art_on["coal"]:
-		for t in board:
-			if not locked.has(t):
-				keep[t] = board[t]
-	board = keep
-	locked = keep.duplicate()
+	if result == "enemy":
+		await _win()
+	elif result == "hero":
+		_lose()
+	else:
+		await get_tree().create_timer(0.35).timeout
+		_new_turn()
 
 
 func _win() -> void:
-	fire.visible = false
 	sfx.play("win")
 	msg.text = "ชนะด่าน %d!" % stage
 	await get_tree().create_timer(1.1).timeout
 	stage += 1
-	enemy_max = roundi(enemy_max * 1.25)
-	strike_dmg *= 1.15
-	hp = minf(max_hp, hp + max_hp * 0.4)
-	board.clear()
-	locked.clear()
-	_new_enemy()
+	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
 
 
 func _lose() -> void:
 	over = true
-	fire.visible = false
 	sfx.play("lose")
 	msg.text = "แพ้ที่ด่าน %d · แตะเพื่อเริ่มใหม่" % stage
 	var b := Button.new()

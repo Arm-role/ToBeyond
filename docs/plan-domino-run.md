@@ -16,18 +16,19 @@
 | 1 | Greybox: แถว 1×8, แดง/น้ำเงิน, ธง, HP จริง | **เสร็จ** v0.1.17 |
 | 2 | Artifact 3 ใบฮาร์ดโค้ดผ่านปุ่มสลับ (กำแพงกระจก, ถ่านไฟ, ตอบโต้) | **เสร็จ** v0.1.19 |
 | (2.5) | จอแบ่งครึ่ง: พรีวิวต่อสู้ด้านบน + เล่นด้านล่าง, ตัวละครและเลเซอร์ | **เสร็จ** v0.1.21 |
-| 3 | event stream + Artifact เป็นข้อมูล + เพดานกันลูป | ยังไม่เริ่ม → `domino/phase-3.md` |
+| 3 | event stream + Artifact เป็นข้อมูล + เพดานกันลูป | **เสร็จ** v0.1.22 (รอผู้ใช้เล่นเทียบ v0.1.21) → `domino/phase-3.md` |
 | 4 | Artifact 12 ใบ + เลือก 1 จาก 3 หลังชนะ + แถบช่อง 5 ช่อง | ยังไม่เริ่ม → `domino/phase-4.md` |
 | 5 | เหรียญ ร้านค้า บอส (บอสละหนึ่งกฎ) | ยังไม่เริ่ม → `domino/phase-5.md` |
 | 6 | ทำให้ Domino เป็นเกมหลัก ลบของเก่า | ยังไม่เริ่ม → `domino/phase-6.md` |
 
 ผู้ใช้เล่น greybox แล้วบอกว่า "สนุก คุ้มที่จะเปลี่ยน" (เฟส 1–2.5).
 
-## ของที่มีอยู่ตอนนี้ (v0.1.21)
+## ของที่มีอยู่ตอนนี้ (v0.1.22)
 - เปิดด้วย `?mode=greybox` (web) หรือ `-- --mode=greybox` ตัวเกมหลักเดิม (`scenes/main.tscn`) ยังอยู่และไม่ถูกแตะ
-- `scenes/greybox.tscn` → `scripts/greybox/greybox.gd` (~480 บรรทัด ใช้ตัวเดียวจบ: กฎ + อนิเมชันปนกันใน `_run()`)
+- `scenes/greybox.tscn` → `scripts/domino/domino_view.gd` (วาดอย่างเดียว เล่นซ้ำ event) + `scripts/domino/domino_sim.gd` (กฎล้วน ไม่มี UI/await) + `domino_rule/artifact/catalog.gd` (ไม่มี `class_name` ใช้ `preload`)
+- Artifact เป็นข้อมูล `data/domino/artifacts/*.tres` (mirror, coal, riposte); ปุ่มสลับเติม `sim.slots` ตามลำดับแคตาล็อก
+- regress: `tools/parity/domino_regress.gd` (รันใน `build.sh --regress`); smoke `build.sh --check` พิมพ์ `TB_DOMINO_OK`
 - `main.gd::_launch_arg("mode")` สลับฉาก
-- Artifact ทดสอบ 3 ใบ: `art_on` (mirror, coal, riposte) ใน `_run()` / `_end_walk()`
 - ตัวละคร: `HERO_HOME`, `ENEMY_HOME`, `_react()` (tween ไป/กลับจากตำแหน่งบ้านเสมอ), `_laser()`, `_badge()`
 - จูนค่า: `RED_DMG=4`, `BLUE_BLOCK=3`, HP ผู้เล่น 30, ศัตรู 18 ×1.25/ด่าน, ตีแรง 8 ×1.15/ด่าน, ชนะแล้วเติม HP 40%
 

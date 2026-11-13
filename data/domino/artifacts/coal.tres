@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"walk_end"
+cond = {"kept": false, "temp": false}
+effect = &"keep_gems"
+args = {"walks": 1}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "coal"
+name_th = "ถ่านไฟ"
+icon = "♨"
+text_th = "Gem ที่ป๊อปแล้วอยู่ต่ออีกหนึ่งรอบ"
+archetype = "ember"
+rarity = "common"
+price = 6
+catalog_order = 2
+rules = Array[Resource]([SubResource("Resource_r0")])
