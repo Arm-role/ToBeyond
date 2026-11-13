@@ -10,14 +10,17 @@ const DEFAULT_TILE_DIR: Array[String] = ["N", "N", "E", "E", "S", "S", "W", "W"]
 var TILE_DIR: Array[String] = DEFAULT_TILE_DIR.duplicate()
 const COLOR_ORDER: Array[String] = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array[String] = ["N", "E", "S", "W"]
+# Deck mix: 48 Gems split by share, rounded (red 29, green 7, orange 5, blue 7).
+const DECK_SIZE: int = 48
+const COLOR_SHARE: Dictionary = {"red": 0.60, "green": 0.15, "orange": 0.10, "blue": 0.15}
 const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"]
 
 
 # --- Progression & Stat Limits (Matching Draft) ---
 const EATK_START: int = 10
 const PHP_GROW: float = 1.2        # enemy ATK growth per stage
-const EHP_START: int = 18
-const EHP_GROW: float = 1.25       # enemy HP growth per stage
+const EHP_START: int = 45
+const EHP_GROW: float = 1.3        # enemy HP growth per stage
 const PLAYER_HP_START: int = 30
 const PLAYER_HP_PER_WALK: int = 10  # max HP gained with each extra walk
 const HEAL_ON_CLEAR: float = 0.5    # share of max HP restored after each enemy
@@ -382,16 +385,16 @@ func build_deck() -> void:
 	deck.clear()
 	card_uid_counter = 0
 	for col in COLOR_ORDER:
-		for dir in DIR_ORDER:
-			for k in range(3):
-				deck.append({
-					"id": card_uid_counter,
-					"color": col,
-					"dir": dir,
-					"is_blank": false,
-					"gold": false
-				})
-				card_uid_counter += 1
+		# Directions are dealt round-robin so each colour covers them evenly.
+		for k in range(roundi(DECK_SIZE * COLOR_SHARE[col])):
+			deck.append({
+				"id": card_uid_counter,
+				"color": col,
+				"dir": DIR_ORDER[k % DIR_ORDER.size()],
+				"is_blank": false,
+				"gold": false
+			})
+			card_uid_counter += 1
 	apply_deck_mods()
 	deck.shuffle()
 
