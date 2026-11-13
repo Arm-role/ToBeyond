@@ -29,16 +29,11 @@ func _init(main_node: Node) -> void:
 
 # --- Board -------------------------------------------------------------------
 func empty_tiles() -> int:
-	return main.N_TILES - main.placed_cards.size() - main.chaos_crystals.size()
+	return main.N_TILES - main.placed_cards.size()
 
 func dir_count(direction: String) -> int:
 	return main.tile_direction_count(direction)
 
-func dir_run(direction: String) -> int:
-	return main.tile_direction_run(direction)
-
-func special_tiles() -> int:
-	return main.passive_chaos_tile_count()
 
 ## Gems of `color` and `direction` on tiles of that direction.
 func matching_cards(direction: String, color: String) -> int:
@@ -48,12 +43,7 @@ func has_gem(idx: int) -> bool:
 	return main.placed_cards.has(idx)
 
 # --- Resources and collections ----------------------------------------------
-func chaos_held() -> int:
-	var n := 0
-	for c in main.chaos:
-		if c != null:
-			n += 1
-	return n
+
 
 func artifacts_owned() -> int:
 	return main.artifact_count_any()
@@ -74,8 +64,6 @@ func source(key: String, art: Dictionary = {}, fallback: float = 0.0, direction:
 		"one": return 1.0
 		"counter": return float(art.get("m", fallback))
 		"empty_tiles": return empty_tiles()
-		"chaos_held": return chaos_held()
-		"special_tiles": return special_tiles()
 		"discards_left": return discards_left()
 		"walks_left": return walks_left()
 		"artifacts_owned": return artifacts_owned()

@@ -61,15 +61,6 @@ func tile_direction_count(direction: String) -> int:
 	return count
 
 
-func tile_direction_run(direction: String) -> int:
-	var best := 0
-	var run := 0
-	for tile_direction in _main.TILE_DIR:
-		run = run + 1 if tile_direction == direction else 0
-		best = maxi(best, run)
-	return best
-
-
 func matching_card_count(direction: String, color: String) -> int:
 	var count := 0
 	for tile_idx in _main.placed_cards:
@@ -90,21 +81,15 @@ func sync_totems() -> void:
 				break
 
 
-## Totems hop to new tiles after every round (crystals are avoided when possible).
+## Totems hop to new tiles after every round.
 func shuffle_totems() -> void:
 	var count: int = _main.totem_tiles.size()
 	if count == 0:
 		return
 	var free: Array[int] = []
-	var crystal: Array[int] = []
 	for i in range(_main.N_TILES):
-		if _main.chaos_crystals.has(i):
-			crystal.append(i)
-		else:
-			free.append(i)
+		free.append(i)
 	free.shuffle()
-	crystal.shuffle()
-	free.append_array(crystal)
 	_main.totem_tiles.clear()
 	for i in range(count):
 		_main.totem_tiles.append(free[i])
@@ -112,10 +97,6 @@ func shuffle_totems() -> void:
 
 func totem_attack(tile_idx: int) -> int:
 	return int(round(20.0 + 40.0 * pow(float(_main.N_TILES - 1 - tile_idx) / float(_main.N_TILES - 1), 2.0)))
-
-
-func passive_chaos_tile_count() -> int:
-	return _main.chaos_mult_tiles.size() + _main.chaos_xmult_tiles.size() + _main.chaos_xatk_tiles.size()
 
 
 ## Final attack. `steps` (optional, passed by the caller) is filled like the
@@ -141,12 +122,6 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 
 	var gain = int(calculate_groups()["grp_val"].get(tile_idx, 1))
 	_main.walk_base_damage += gain
-	if _main.chaos_mult_tiles.has(tile_idx):
-		_main.walk_mult_bonus += 5.0
-	if _main.chaos_xmult_tiles.has(tile_idx):
-		_main.walk_mult_bonus = (1.0 + _main.walk_mult_bonus) * 1.2 - 1.0
-	if _main.chaos_xatk_tiles.has(tile_idx):
-		_main.walk_base_damage = int(round(_main.walk_base_damage * 1.2))
 	var landed: Dictionary = _main.artifact_sys.land(tile_idx, card, gain, helper_pass)
 	var extra: int = landed["extra"]
 	var fired: Array = landed["fired"]  # landing artifacts that took effect (for the flash + sparks)

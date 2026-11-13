@@ -10,13 +10,6 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxTexture_chaos_slot"]
-bg_color = Color(0, 0, 0, 0)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot_area"]
 bg_color = Color(0, 0, 0, 0.3)
 corner_radius_top_left = 18
@@ -585,18 +578,6 @@ offset_bottom = 208.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_slot_area")
 
-[node name="ChaosArea" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 118.5
-offset_top = 58.0
-offset_right = 454.5
-offset_bottom = 208.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot_area")
-
 [node name="ArtifactRow" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 5
@@ -656,52 +637,6 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 17
 text = "0/5"
-horizontal_alignment = 2
-theme_type_variation = &"BoldLabel"
-
-[node name="ChaosRow" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_top = 0.0
-anchor_right = 0.5
-anchor_bottom = 0.0
-offset_left = 130.5
-offset_top = 66.0
-offset_right = 442.5
-offset_bottom = 228.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 15
-
-[node name="Slots" type="HBoxContainer" parent="ChaosRow"]
-layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="Slot1" type="Button" parent="ChaosRow/Slots"]
-custom_minimum_size = Vector2(100, 140)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_chaos_slot")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_chaos_slot")
-
-[node name="Slot2" type="Button" parent="ChaosRow/Slots"]
-custom_minimum_size = Vector2(100, 140)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_chaos_slot")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_chaos_slot")
-
-[node name="Slot3" type="Button" parent="ChaosRow/Slots"]
-custom_minimum_size = Vector2(100, 140)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_chaos_slot")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_chaos_slot")
-
-[node name="Label" type="Label" parent="ChaosRow"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.780392, 0.607843, 1, 1)
-theme_override_font_sizes/font_size = 17
-text = "0/3"
 horizontal_alignment = 2
 theme_type_variation = &"BoldLabel"
 
@@ -1265,12 +1200,6 @@ custom_minimum_size = Vector2(0, 69)
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "TEST · ARTIFACT"
-
-[node name="ChaosTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
-custom_minimum_size = Vector2(0, 69)
-layout_mode = 2
-theme_override_font_sizes/font_size = 19
-text = "TEST · CHAOS"
 
 [node name="UpgradeTab" type="Button" parent="ShopModal/ShopVBox/ShopBody/ShopTabs"]
 custom_minimum_size = Vector2(0, 69)

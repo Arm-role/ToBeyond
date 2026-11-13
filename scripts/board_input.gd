@@ -1,9 +1,8 @@
 class_name BoardInput
 extends RefCounted
 
-## Tile click, discard and drag-drop card moves (moved out of ChaosController
-## so the Chaos system can be removed without touching card input).
-## State stays on main. The Chaos branches below go away with Chaos (plan-gem-types P3).
+## Tile click, discard and drag-drop card moves.
+## State stays on main.
 
 var _main: Node
 
@@ -13,12 +12,6 @@ func _init(main: Node) -> void:
 
 func on_tile_clicked(tile_idx: int) -> void:
 	if _main.is_busy: return
-	if _main.selected_chaos_slot >= 0:
-		_main.chaos_ctl.apply_to_tile(tile_idx)
-		return
-	if _main.chaos_crystals.has(tile_idx):
-		_main.msg_label.text = "ช่องนี้มีผลึก Gem วาง Gem ไม่ได้"
-		return
 
 	# Rule: If tile already has card, return it to _main.hand!
 	if _main.placed_cards.has(tile_idx):
@@ -71,7 +64,7 @@ func on_discard_pressed() -> void:
 
 ## Drag-and-drop helpers (SlotDrag). All return true when something changed.
 func place_from_hand(card_id: int, tile_idx: int) -> bool:
-	if _main.is_busy or _main.chaos_crystals.has(tile_idx):
+	if _main.is_busy:
 		return false
 	var found = null
 	for card in _main.hand:
@@ -93,7 +86,7 @@ func place_from_hand(card_id: int, tile_idx: int) -> bool:
 
 
 func move_board_card(from_tile: int, to_tile: int) -> bool:
-	if _main.is_busy or from_tile == to_tile or not _main.placed_cards.has(from_tile) or _main.chaos_crystals.has(to_tile):
+	if _main.is_busy or from_tile == to_tile or not _main.placed_cards.has(from_tile):
 		return false
 	var held = _main.placed_cards[from_tile]
 	if _main.placed_cards.has(to_tile):

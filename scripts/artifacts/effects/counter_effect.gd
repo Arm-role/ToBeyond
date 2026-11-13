@@ -4,7 +4,7 @@ extends ArtifactEffect
 ## amount × source (skipped when that is 0). Read it back with a StatEffect
 ## whose source is "counter".
 
-@export_enum("chaos_used", "pre_walk", "victory", "round_start") var hook: String = "chaos_used"
+@export_enum("pre_walk", "victory", "round_start") var hook: String = "pre_walk"
 @export var amount: float = 1.0
 @export var source: String = "one"
 ## For source matching_cards.
@@ -16,7 +16,6 @@ extends ArtifactEffect
 @export var snap: float = 0.0
 
 
-func chaos_used(ctx: ArtifactContext, art: Dictionary) -> bool: return _grow(ctx, art, "chaos_used")
 func pre_walk(ctx: ArtifactContext, art: Dictionary) -> bool: return _grow(ctx, art, "pre_walk")
 func victory(ctx: ArtifactContext, art: Dictionary) -> bool: return _grow(ctx, art, "victory")
 func round_start(ctx: ArtifactContext, art: Dictionary) -> bool: return _grow(ctx, art, "round_start")

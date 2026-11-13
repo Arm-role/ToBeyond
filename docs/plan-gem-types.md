@@ -73,7 +73,7 @@
 | P0 | ย้ายโค้ดอินพุตออกจาก `ChaosController` ไม่เปลี่ยนพฤติกรรม |
 | P1 (ทำแล้ว: ศัตรูตี = `player_hp -= enemy_atk`, เติมเต็มทุกศัตรูเหมือนเดิม; HP ต่อเนื่องข้ามศัตรูยังไม่ทำ รอจูน P5) | **HP จริง + intent ของศัตรู** (ดาเมจยังเป็น atk×mult ชั่วคราว) ปรับ `on_shop_leave` ที่คูณ HP ×1.5 |
 | P2 (ทำแล้ว: Gem ละ 2 ATK คงที่ `BoardCalc.GEM_ATK`, auto-place greedy, ลบ equalG/stone3/stoneUp/redS/orangeN) | ลบ Stone: Gem ให้ค่าคงที่ต่อใบ (`calculate_groups` คืนกลุ่มว่าง `grp_val` = ค่าการ์ด คงซิกเนเจอร์ไว้ก่อน), ลบ/เขียน Artifact ที่อ่านกลุ่ม, auto-place เป็น greedy แบบง่าย, ลบไฟล์/โมดัล/gstrip/toast |
-| P3 | ลบ Chaos ตามลำดับ: รางวัล+แท็บร้าน → ช่อง/แถว/ลาก → คริสตัลในการเดิน → data+scripts → parity tools+baseline → map.md |
+| P3 (ทำแล้ว: ลบ Chaos ทั้งระบบ, บอสให้ Artifact แทนผลึก, ลบ south5/west5/chaosAtk/chaosStack/tileAtk) | ลบ Chaos ตามลำดับ: รางวัล+แท็บร้าน → ช่อง/แถว/ลาก → คริสตัลในการเดิน → data+scripts → parity tools+baseline → map.md |
 | P4 | ชนิด Gem ตามสี + สายสีเดียวกัน + attuned + เลิกใช้ mult ร่วม |
 | P5 | ปรับ Artifact/ร้าน/รางวัลให้เข้ากับ resource ใหม่ จูนตัวเลข `--regress --update` |
 

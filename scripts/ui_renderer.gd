@@ -2,7 +2,7 @@ class_name UiRenderer
 extends RefCounted
 
 const CARD_WIDTH_TO_HEIGHT: float = 5.0 / 7.0
-## One card size everywhere: hand, owned Artifact/Chaos slots, shop offers.
+## One card size everywhere: hand, owned Artifact slots, shop offers.
 const CARD_SIZE := Vector2(100, 140)
 
 # ==============================================================================
@@ -113,7 +113,6 @@ func update_all_ui() -> void:
 	render_tiles()
 	render_hand()
 	render_artifact_row()
-	render_chaos_row()
 
 
 func render_tiles() -> void:
@@ -169,9 +168,7 @@ func render_tiles() -> void:
 
 		_apply_tile_state(tile_btn, i, calc)
 		_render_tile_number(tile_btn, i)
-		_render_crystal(tile_btn, i)
 		_render_totem(tile_btn, i)
-		_render_chaos_target(tile_btn, i)
 		# Placed cards on the board sway a little less than cards in hand.
 		set_card_sway(tile_btn, _main.placed_cards.has(i), 0.8, 0.008)
 
@@ -244,7 +241,7 @@ func _gstrip_chip(text: String, col: Color, size: int) -> Label:
 
 ## Group strip under the board, like the draft's `.gstrip`: a coloured bar
 ## spanning the group's tiles, a black value chip under each placed Gem and
-## extra chips for Totem / Chaos tiles (🗿+N, ⚡+5, ×1.2).
+## an extra chip for Totem tiles (🗿+N).
 func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 	var cell = _main.gstrip_container.get_child(i) as Label
 	cell.text = ""
@@ -276,12 +273,7 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 
 	if _main.totem_tiles.has(i):
 		row.add_child(_gstrip_chip("🗿+%d" % _main.totem_attack(i), Color("#7fd0ff"), 22))
-	if _main.chaos_mult_tiles.has(i):
-		row.add_child(_gstrip_chip("⚡+5", Color("#c79bff"), 22))
-	if _main.chaos_xmult_tiles.has(i):
-		row.add_child(_gstrip_chip("×1.2", Color("#ff6b6b"), 22))
-	if _main.chaos_xatk_tiles.has(i):
-		row.add_child(_gstrip_chip("×1.2", Color("#5fb0ff"), 22))
+
 
 
 func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> void:
@@ -308,25 +300,6 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · Gem ทอง: ทำงานสองครั้ง"
 	elif matches_tile:
 		hint += " · ทิศตรงช่อง"
-	# Draft shows tile Chaos only as chips in the strip below the board.
-	if _main.chaos_mult_tiles.has(tile_idx):
-		hint += " · Chaos MULT +5"
-	if _main.chaos_xmult_tiles.has(tile_idx):
-		hint += " · Chaos MULT ×1.2"
-	if _main.chaos_xatk_tiles.has(tile_idx):
-		hint += " · Chaos ATK ×1.2"
-	if _main.TILE_DIR[tile_idx] != _main.DEFAULT_TILE_DIR[tile_idx]:
-		# Draft `.tile.chaosd .tfr{stroke:#c79bff}`: purple frame on a tile whose
-		# direction was changed by Chaos.
-		hint += " · Chaos เปลี่ยนทิศ"
-		if width == 0:
-			accent = Color("#c79bff")
-			width = 5
-			glow_alpha = 0.45
-	if _main.chaos_crystals.has(tile_idx):
-		hint += " · ผลึก Gem HP %d" % int(_main.chaos_crystals[tile_idx])
-		accent = Color("#72d8ff")
-		glow_alpha = maxf(glow_alpha, 0.75)
 
 	tile_btn.tooltip_text = hint
 	var normal = _make_tile_frame(accent, width, glow_alpha)
@@ -355,88 +328,6 @@ func _render_tile_number(tile_btn: Button, tile_idx: int) -> void:
 	num.position = Vector2(c - 20.0, c - 20.0)
 	num.size = Vector2(40, 40)
 	num.text = str(tile_idx + 1)
-
-
-func _render_crystal(tile_btn: Button, tile_idx: int) -> void:
-	var existing := tile_btn.get_node_or_null("ChaosCrystal") as Label
-	if not _main.chaos_crystals.has(tile_idx):
-		if existing != null:
-			existing.queue_free()
-		return
-	if existing == null:
-		existing = Label.new()
-		existing.name = "ChaosCrystal"
-		existing.set_anchors_preset(Control.PRESET_CENTER)
-		existing.offset_left = -45.0
-		existing.offset_top = -39.0
-		existing.offset_right = 45.0
-		existing.offset_bottom = 39.0
-		existing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		existing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		existing.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		existing.add_theme_font_size_override("font_size", 36)
-		existing.add_theme_color_override("font_color", Color("#72d8ff"))
-		existing.add_theme_color_override("font_outline_color", Color("#ffffff"))
-		existing.add_theme_constant_override("outline_size", 2)
-		tile_btn.add_child(existing)
-	existing.text = "💎\n%d" % int(_main.chaos_crystals[tile_idx])
-
-
-## While a tile-targeting Chaos is picked: every tile gets a pulsing gold frame,
-## and a direction Chaos also previews the new emblem on each tile it would change.
-func _render_chaos_target(tile_btn: Button, tile_idx: int) -> void:
-	var hint := tile_btn.get_node_or_null("ChaosTarget") as Panel
-	var preview := tile_btn.get_node_or_null("ChaosPreview") as TextureRect
-	var card = null
-	var slot: int = _main.selected_chaos_slot
-	if slot >= 0 and slot < _main.chaos.size():
-		card = _main.chaos[slot]
-	var effect: ChaosEffect = null
-	if card != null:
-		var def := ArtifactSystem.chaos_def(card)
-		effect = def.effect if def != null else null
-	if effect == null or not effect.needs_tile or _main.is_busy:
-		if hint != null:
-			hint.queue_free()
-		if preview != null:
-			preview.queue_free()
-		return
-	if hint == null:
-		hint = Panel.new()
-		hint.name = "ChaosTarget"
-		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		hint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color(1, 0.85, 0.35, 0.10)
-		sb.set_border_width_all(5)
-		sb.border_color = Color("#ffd966")
-		sb.set_corner_radius_all(10)
-		sb.shadow_color = Color(1, 0.85, 0.35, 0.55)
-		sb.shadow_size = 12
-		hint.add_theme_stylebox_override("panel", sb)
-		tile_btn.add_child(hint)
-		var pulse := hint.create_tween().set_loops()
-		pulse.tween_property(hint, "modulate:a", 0.35, 0.55).set_trans(Tween.TRANS_SINE)
-		pulse.tween_property(hint, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_SINE)
-	var new_dir: String = card.get("dir", "") if effect is TileDirChaos else ""
-	var show_preview: bool = new_dir != "" and _main.TILE_DIR[tile_idx] != new_dir and GameAssets.EMBLEMS.has(new_dir)
-	if show_preview:
-		if preview == null:
-			preview = TextureRect.new()
-			preview.name = "ChaosPreview"
-			preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			preview.offset_left = tile_btn.size.x * 0.22
-			preview.offset_right = -tile_btn.size.x * 0.22
-			preview.offset_top = tile_btn.size.y * 0.22
-			preview.offset_bottom = -tile_btn.size.y * 0.22
-			preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			preview.modulate = Color(1, 0.85, 0.35, 0.8)
-			tile_btn.add_child(preview)
-		preview.texture = GameAssets.EMBLEMS[new_dir]
-	elif preview != null:
-		preview.queue_free()
 
 
 func _render_totem(tile_btn: Button, tile_idx: int) -> void:
@@ -689,51 +580,6 @@ func _style_item_slot(slot: Button, filled: bool, bg: Color, border: Color, kind
 	slot.add_theme_stylebox_override("disabled", sb)
 	slot.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	set_card_template(slot, true, Color("#ffd966") if border == Color("#ffd966") else Color.WHITE)
-
-
-func render_chaos_row() -> void:
-	_main.get_node("ChaosRow/Label").text = "%d/%d" % [_main.chaos.filter(func(c): return c != null).size(), _main.chaos.size()]
-	for i in range(_main.chaos_slots.get_child_count()):
-		var slot := _main.chaos_slots.get_child(i) as Button
-		var chaos_card = _main.chaos[i]
-		slot.disabled = chaos_card == null
-		slot.icon = null
-		var chaos_bg := Color("#7b4fc9")
-		if chaos_card != null:
-			chaos_bg = ArtifactSystem.chaos_def(chaos_card).slot_bg
-		_style_item_slot(slot, chaos_card != null, chaos_bg, Color("#ffd966") if i == _main.selected_chaos_slot and chaos_card != null else Color("#c79bff"), "chaos")
-		if chaos_card == null:
-			slot.text = ""
-			slot.tooltip_text = "ช่อง Chaos ว่าง"
-			slot.scale = Vector2.ONE
-			slot.z_index = 0
-			continue
-		var look: Dictionary = _main.shop_mgr._chaos_card_look(chaos_card)
-		var label: String = ShopManager.chaos_label(chaos_card)
-		slot.icon = look["cover"]
-		slot.expand_icon = true
-		slot.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		slot.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		slot.add_theme_constant_override("icon_max_width", 60)
-		slot.text = ArtifactSystem.chaos_def(chaos_card).slot_prefix + label
-		slot.add_theme_font_size_override("font_size", 19 if look["cover"] != null else 22)
-		slot.add_theme_color_override("font_color", look["text"])
-		slot.add_theme_color_override("font_hover_color", look["text"])
-		slot.add_theme_color_override("font_pressed_color", look["text"])
-		slot.tooltip_text = "%s\n%s" % [ShopManager.chaos_name(chaos_card), ShopManager.chaos_desc(chaos_card)]
-		slot.modulate = Color.WHITE
-		# Picked card lifts and grows so it feels held.
-		var picked: bool = i == _main.selected_chaos_slot
-		slot.pivot_offset = slot.size * 0.5
-		slot.z_index = 5 if picked else 0
-		var want := Vector2(1.14, 1.14) if picked else Vector2.ONE
-		if slot.scale != want:
-			var old_lift = slot.get_meta("lift_tween") if slot.has_meta("lift_tween") else null
-			if old_lift != null and old_lift.is_valid():
-				old_lift.kill()
-			var lift := slot.create_tween()
-			slot.set_meta("lift_tween", lift)
-			lift.tween_property(slot, "scale", want, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## Small card like the draft's `.mc` (colour + direction emblem).

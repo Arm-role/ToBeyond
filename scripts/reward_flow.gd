@@ -22,9 +22,12 @@ func on_victory() -> void:
 	var fate_pay: int = rewards["rows"].get("fate", 0)
 	var walk_coin_bonus: int = rewards["rows"].get("walk", 0)
 	var reward_fx: Array = rewards["fx"]
-	if _main.is_boss() and _main.chaos.has(null):
-		_main.chaos[_main.chaos.find(null)] = ArtifactSystem.chaos_def({"kind": "crystal"}).make_card()
-		_main.msg_label.text = "💎 บอสทิ้ง Chaos ผลึก Gem!"
+	if _main.is_boss() and _main.artifacts.has(null):
+		var drops: Array[Dictionary] = ShopManager.get_unowned_artifact_offers(_main.artifacts, 1)
+		if not drops.is_empty():
+			_main.artifacts[_main.artifacts.find(null)] = drops[0]
+			_main.sync_totems()
+			_main.msg_label.text = "🎁 บอสทิ้ง Artifact: %s" % ShopManager.display_name(drops[0])
 	var total_gain = base_reward + walk_reward + interest + int(rewards["total"])
 	_main.coins += total_gain
 	if not reward_fx.is_empty():

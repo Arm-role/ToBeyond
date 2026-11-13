@@ -92,10 +92,10 @@ func run_walk() -> void:
 func build_walk_steps() -> Array[Dictionary]:
 	var placed_cards: Dictionary = _main.placed_cards
 	var N_TILES: int = _main.N_TILES
-	# Collect stops (Tile 0 + all cards + Chaos crystals + Totems)
+	# Collect stops (Tile 0 + all cards + Totems)
 	var active_tiles: Array[int] = [0]
 	for i in range(1, N_TILES):
-		if placed_cards.has(i) or _main.chaos_crystals.has(i) or _main.totem_tiles.has(i):
+		if placed_cards.has(i) or _main.totem_tiles.has(i):
 			active_tiles.append(i)
 
 	var forward_tiles: Array[int] = active_tiles.duplicate()
@@ -128,7 +128,7 @@ func build_walk_steps() -> Array[Dictionary]:
 
 
 func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
-	if _main.placed_cards.has(tile_idx) or _main.totem_tiles.has(tile_idx) or _main.chaos_crystals.has(tile_idx):
+	if _main.placed_cards.has(tile_idx) or _main.totem_tiles.has(tile_idx):
 		_main.sfx.step(_step_i)
 		var tile_ctl := _main.tiles_container.get_child(tile_idx) as Control
 		_trigger_fx(tile_ctl.global_position + tile_ctl.size * 0.5, _card_fx_color(tile_idx), _step_i)
@@ -137,15 +137,13 @@ func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
 		_spawn_tile_popup(tile_idx, helper_pass)
 	if _main.totem_tiles.has(tile_idx):
 		_hit_totem(tile_idx)
-	if _main.chaos_crystals.has(tile_idx):
-		_hit_crystal(tile_idx)
 
 
 # ---------------------------------------------------------------------------
 # Internal: popup "+N ATK" above a tile during walk
 # ---------------------------------------------------------------------------
 
-## Gold Gem (Chaos Goldify): its landing effects resolve a second time, with its own
+## Gold Gem (gold mod): its landing effects resolve a second time, with its own
 ## gold flash, chime and "⭐+N" popup so the retrigger is visible.
 func _retrigger_gold(tile_idx: int, helper_pass: bool) -> void:
 	var tile_ctl := _main.tiles_container.get_child(tile_idx) as Control
@@ -265,11 +263,11 @@ const FX_COLORS := {"red": "#ff6b6b", "green": "#5af08a", "orange": "#ffb04a", "
 func _card_fx_color(tile_idx: int) -> Color:
 	var card = _main.placed_cards.get(tile_idx)
 	if card == null:
-		return Color("#ffe27a")  # totem / crystal
+		return Color("#ffe27a")  # totem
 	return Color(FX_COLORS.get(str(card.get("color", "")), "#ffffff"))
 
 
-## A card/totem/crystal triggers as the token passes: a bright flash, a ring of
+## A card/totem triggers as the token passes: a bright flash, a ring of
 ## sparks in the card's colour, and a few white glints. Bigger as the combo grows.
 func _trigger_fx(at: Vector2, col: Color, combo: int) -> void:
 	var layer: Control = _main.effects_layer
@@ -302,7 +300,7 @@ func _artifact_pop(slot: int, combo: int) -> void:
 	_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(combo, 0, 6)]) / 12.0), -3.0)
 
 
-## Flash several artifacts one after another (counters grew, Chaos given, coins paid...).
+## Flash several artifacts one after another (counters grew, coins paid...).
 func fx_artifact_types(types: Array) -> void:
 	var k := 0
 	for t in types:
@@ -312,18 +310,6 @@ func fx_artifact_types(types: Array) -> void:
 		_artifact_pop(slot, k)
 		k += 1
 		await _timer(0.18)
-
-
-func _hit_crystal(tile_idx: int) -> void:
-	var tile_btn = _main.tiles_container.get_child(tile_idx) as Button
-	var result: Dictionary = _main.hit_crystal(tile_idx)
-	if int(result["used"]) <= 0:
-		return
-	var text := "💎 -%d" % int(result["used"])
-	if result["broken"]:
-		text = "💎 แตก! +%d Gem" % _main.CRYSTAL_GEMS
-	_main.spawn_damage_number(text, tile_btn.global_position + tile_btn.size * 0.5, Color("#72d8ff"), false)
-	_main.refresh_calc()
 
 
 func _hit_totem(tile_idx: int) -> void:

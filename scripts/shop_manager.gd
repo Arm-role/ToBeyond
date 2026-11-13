@@ -11,12 +11,11 @@ const OFFER_ARTIFACTS: int = 2
 const OFFER_MISC: int = 5
 # These entries are deliberately disabled in the HTML draft itself: its
 # one-row board cannot support the required route/board mechanics yet.
-## Artifact and Chaos definitions live in res://data (ArtifactData / ChaosData,
+## Artifact definitions live in res://data (ArtifactData,
 ## loaded by ArtifactSystem). These views keep the Dictionary shapes the shop
 ## and UI code use.
 static var ARTIFACT_CATALOG: Array[Dictionary] = _build_catalog()
 static var ARTIFACT_RARITY: Dictionary = _build_rarity()
-static var CHAOS_CATALOG: Array[Dictionary] = _build_chaos()
 
 
 static func _build_catalog() -> Array[Dictionary]:
@@ -31,13 +30,6 @@ static func _build_rarity() -> Dictionary:
 	for d in ArtifactSystem.all():
 		if d.rarity != "":
 			out[d.id] = d.rarity
-	return out
-
-
-static func _build_chaos() -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
-	for c in ArtifactSystem.chaos_all():
-		out.append(c.make_offer())
 	return out
 
 
@@ -68,8 +60,6 @@ static func display_desc(item: Dictionary) -> String:
 	var dc := func(d: String) -> int:
 		return live_main.tile_direction_count(d) if live_main != null else 0
 	match t:
-		"chaosStack":
-			return "ทุกครั้งที่ใช้การ์ด Chaos: ATK ของการ์ดนี้ +2 ถาวร · ตอนโจมตี ATK +%s" % _r2(mv)
 		"discardStack":
 			return "ตอนชนะศัตรู: ตัวคูณของการ์ดนี้ + จำนวนครั้งที่ทิ้งได้ที่เหลือ ถาวร · ตอนโจมตี ตัวคูณ +%s" % _r2(mv)
 		"stone7W":
@@ -91,22 +81,6 @@ static func display_desc(item: Dictionary) -> String:
 
 
 const COL_TH: Dictionary = {"red": "แดง", "green": "เขียว", "orange": "ส้ม", "blue": "น้ำเงิน"}
-
-
-## Chaos texts from the draft (label / title / desc live in data/chaos/*.tres).
-static func chaos_label(c: Dictionary) -> String:
-	var d := ArtifactSystem.chaos_def(c)
-	return d.label if d != null else ""
-
-
-static func chaos_name(c: Dictionary) -> String:
-	var d := ArtifactSystem.chaos_def(c)
-	return d.title if d != null else "Chaos"
-
-
-static func chaos_desc(c: Dictionary) -> String:
-	var d := ArtifactSystem.chaos_def(c)
-	return d.desc if d != null else ""
 
 
 ## Cover art like the draft's itemCover(): SVG art, else the direction emblem.
@@ -199,7 +173,7 @@ func set_tab(tab: String) -> void:
 
 ## Draft `.shoptabs`: active tab is solid brass; TEST tabs have dashed borders.
 func _update_tab_buttons() -> void:
-	var tabs := {"game": _main.shop_game_tab, "artifact": _main.shop_artifact_tab, "chaos": _main.shop_chaos_tab, "upgrade": _main.shop_upgrade_tab}
+	var tabs := {"game": _main.shop_game_tab, "artifact": _main.shop_artifact_tab, "upgrade": _main.shop_upgrade_tab}
 	for key in tabs:
 		var button: Button = tabs[key]
 		var active: bool = key == shop_tab
@@ -260,33 +234,20 @@ func generate_game_offers() -> void:
 
 	for _offer_index in range(OFFER_MISC):
 		for _attempt in range(60):
-			var roll := randf()
-			if roll < 0.6:
-				var chaos_indices: Array[int] = []
-				for idx in range(CHAOS_CATALOG.size()):
-					if not used.has("chaos:%d" % idx):
-						chaos_indices.append(idx)
-				if chaos_indices.is_empty():
+			var upgrade_keys: Array[String] = []
+			var stat_types: Array[String] = ["hand", "walk", "disc"]
+			for key in stat_types:
+				if shop_bought.has(key) or used.has("upgrade:%s" % key):
 					continue
-				var chaos_idx: int = chaos_indices[randi_range(0, chaos_indices.size() - 1)]
-				used["chaos:%d" % chaos_idx] = true
-				shop_offers.append({"kind": "chaos", "item": CHAOS_CATALOG[chaos_idx], "sold": false})
-				break
-			else:
-				var upgrade_keys: Array[String] = []
-				var stat_types: Array[String] = ["hand", "walk", "disc"]
-				for key in stat_types:
-					if shop_bought.has(key) or used.has("upgrade:%s" % key):
-						continue
-					if key == "hand" and _main.hand_max >= HAND_CAP:
-						continue
-					upgrade_keys.append(key)
-				if upgrade_keys.is_empty():
+				if key == "hand" and _main.hand_max >= HAND_CAP:
 					continue
-				var stat: String = upgrade_keys[randi_range(0, upgrade_keys.size() - 1)]
-				used["upgrade:%s" % stat] = true
-				shop_offers.append({"kind": "stat", "stat": stat, "sold": false})
-				break
+				upgrade_keys.append(key)
+			if upgrade_keys.is_empty():
+				continue
+			var stat: String = upgrade_keys[randi_range(0, upgrade_keys.size() - 1)]
+			used["upgrade:%s" % stat] = true
+			shop_offers.append({"kind": "stat", "stat": stat, "sold": false})
+			break
 
 
 func reroll_shop() -> void:
@@ -383,8 +344,6 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 				label = "เหรียญไม่พอ"
 			elif category == "ARTIFACT" and not _main.artifacts.has(null):
 				label = "ช่อง Artifact เต็ม"
-			elif category == "CHAOS" and not _main.chaos.has(null):
-				label = "ช่อง Chaos เต็ม"
 			elif price == -1:
 				label = "ปิดไว้ก่อน"
 		var rar: String = opts.get("rarity", "") if category == "ARTIFACT" else ""
@@ -396,7 +355,7 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 		# SlotDrag: drag this card out of the shop to buy it (opens the same dialog).
 		card.add_to_group(&"shop_card")
 		card.set_meta("drag_action", action)
-		card.set_meta("drag_kind", "artifact" if category == "ARTIFACT" else ("chaos" if category == "CHAOS" else "other"))
+		card.set_meta("drag_kind", "artifact" if category == "ARTIFACT" else "other")
 
 	var price_text: String = opts.get("price_text", "ซื้อแล้ว" if sold else ("สูงสุด" if price < 0 else "🪙 %d" % price))
 	if opts.get("closed", false):
@@ -466,24 +425,6 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	(_offer_target if _offer_target != null else _main.shop_offer_container).add_child(card)
 
 
-func _chaos_card_look(chaos_def: Dictionary) -> Dictionary:
-	var d := ArtifactSystem.chaos_def(chaos_def)
-	if d == null:
-		return {"bg": Color("#a66cf2"), "text": Color.WHITE, "cover": null}
-	return {"bg": d.card_bg, "text": d.text_color, "cover": d.cover()}
-
-
-func _add_chaos_card(chaos_def: Dictionary, price: int, available: bool, on_buy: Callable) -> void:
-	var look := _chaos_card_look(chaos_def)
-	var title: String = chaos_name(chaos_def)
-	var cdef := ArtifactSystem.chaos_def(chaos_def)
-	# Owned-slot look: slot colour, prefix + short label, same text size.
-	var extra := {"text_color": look["text"], "label_text": cdef.slot_prefix + chaos_label(chaos_def), "label_size": 19}
-	if look["cover"] == null:
-		extra["cover_text"] = cdef.cover_text
-	_add_shop_card("CHAOS", title, chaos_desc(chaos_def), price, cdef.slot_bg, available, on_buy, title, look["cover"], extra)
-
-
 func _add_offer_row(label_text: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -502,13 +443,6 @@ func _add_offer_row(label_text: String) -> HBoxContainer:
 	return row
 
 
-func get_chaos_sell_price(chaos_card: Dictionary) -> int:
-	var d := ArtifactSystem.chaos_def(chaos_card)
-	if d != null and _main.artifact_sys.has_rule(&"full_sell"):
-		return d.price
-	return 1
-
-
 func confirm_sell_artifact(slot_idx: int) -> void:
 	if slot_idx < 0 or slot_idx >= _main.artifacts.size():
 		return
@@ -518,16 +452,6 @@ func confirm_sell_artifact(slot_idx: int) -> void:
 	var price: int = get_sell_price(art)
 	var can_sell: bool = not _main.is_busy or _main.shop_modal.visible
 	_main.show_action_dialog(display_name(art), display_desc(art), "ขาย 🪙 %d" % price, func(): sell_artifact(slot_idx), not can_sell, ARTIFACT_RARITY.get(art.get("type", ""), ""))
-
-
-func confirm_sell_chaos(slot_idx: int) -> void:
-	if slot_idx < 0 or slot_idx >= _main.chaos.size():
-		return
-	var chaos_card = _main.chaos[slot_idx]
-	if chaos_card == null:
-		return
-	var price: int = get_chaos_sell_price(chaos_card)
-	_main.show_action_dialog(chaos_name(chaos_card), chaos_desc(chaos_card), "ขาย 🪙 %d" % price, func(): sell_chaos(slot_idx))
 
 
 func render_shop_offers() -> void:
@@ -541,8 +465,6 @@ func render_shop_offers() -> void:
 		_card_height = UiRenderer.CARD_SIZE.y
 		if shop_tab == "artifact":
 			_render_artifact_catalog()
-		elif shop_tab == "chaos":
-			_render_chaos_catalog()
 		else:
 			_render_upgrade_catalog()
 	_offer_target = null
@@ -579,13 +501,13 @@ func _add_section(title: String) -> void:
 
 
 func _render_game_offers() -> void:
-	# Row 1: artifacts + reroll card · Row 2: Chaos / upgrades (draft genOffers).
+	# Row 1: artifacts + reroll card · Row 2: upgrades (draft genOffers).
 	_offer_target = _add_offer_row("ARTIFACT")
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] == "artifact":
 			_render_offer(index)
 	_add_shop_card("REROLL", "🎲\nสุ่มใหม่", "", reroll_cost, Color("#473b78"), _main.coins >= reroll_cost, reroll_shop, "สุ่มสินค้าใหม่", null, {"big": "🎲\nสุ่มใหม่"})
-	_offer_target = _add_offer_row("CHAOS\nอัปเกรด")
+	_offer_target = _add_offer_row("อัปเกรด")
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] != "artifact":
 			_render_offer(index)
@@ -599,9 +521,6 @@ func _render_offer(index: int) -> void:
 	if kind == "artifact":
 		var item: Dictionary = offer["item"]
 		_add_shop_card("ARTIFACT", display_name(item), display_desc(item), -2 if sold else item["price"], item["color"], not sold and _main.artifacts.has(null) and _main.coins >= item["price"], func(): buy_game_offer(captured_index), display_desc(item), art_cover(item), {"rarity": ARTIFACT_RARITY.get(item["type"], "")})
-	elif kind == "chaos":
-		var chaos_def: Dictionary = offer["item"]
-		_add_chaos_card(chaos_def, -2 if sold else chaos_def["price"], not sold and _main.chaos.has(null) and _main.coins >= chaos_def["price"], func(): buy_game_offer(captured_index))
 	elif kind == "stat":
 		var stat: String = offer["stat"]
 		var stat_info := _get_stat_offer_info(stat)
@@ -638,13 +557,6 @@ func _render_artifact_catalog() -> void:
 		_add_shop_card("ARTIFACT", display_name(item), display_desc(item) + "\n\nปิดไว้ก่อน: ระบบที่ใช้ยังไม่รองรับกระดานแถวเดียว", -1, item["color"], false, func(): pass, display_desc(item), null, {"price_text": "ปิดไว้ก่อน", "closed": true})
 
 
-func _render_chaos_catalog() -> void:
-	_add_section("CHAOS · แตะดูรายละเอียด / ซื้อ")
-	for chaos_def in CHAOS_CATALOG:
-		var captured_chaos: Dictionary = chaos_def
-		_add_chaos_card(chaos_def, chaos_def["price"], _main.chaos.has(null) and _main.coins >= chaos_def["price"], func(): buy_chaos(captured_chaos))
-
-
 func _render_upgrade_catalog() -> void:
 	var hand_maxed: bool = _main.hand_max >= HAND_CAP
 	_add_section("อัปเกรดพื้นฐาน")
@@ -663,8 +575,6 @@ func buy_game_offer(index: int) -> void:
 	var before: int = _main.coins
 	if offer["kind"] == "artifact":
 		buy_artifact(offer["item"])
-	elif offer["kind"] == "chaos":
-		buy_chaos(offer["item"])
 	elif offer["kind"] == "stat":
 		var stat_type: String = offer["stat"]
 		buy_stat(stat_type, HAND_PRICE if stat_type == "hand" else STAT_PRICE)
@@ -709,18 +619,6 @@ func buy_artifact(item: Dictionary) -> void:
 	_main.render_artifact_row()
 
 
-func buy_chaos(definition: Dictionary) -> void:
-	var slot: int = _main.chaos.find(null)
-	if slot == -1 or _main.coins < definition["price"]:
-		return
-	_main.coins -= definition["price"]
-	_main.sfx.play("coin")
-	_main.chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
-	_main.update_all_ui()
-	render_shop_offers()
-	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
-
-
 func sell_artifact(slot_idx: int) -> void:
 	var art = _main.artifacts[slot_idx]
 	if art == null: return
@@ -733,22 +631,6 @@ func sell_artifact(slot_idx: int) -> void:
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 	_main.render_artifact_row()
-
-
-func sell_chaos(slot_idx: int) -> void:
-	if slot_idx < 0 or slot_idx >= _main.chaos.size():
-		return
-	var chaos_card = _main.chaos[slot_idx]
-	if chaos_card == null:
-		return
-	_main.coins += get_chaos_sell_price(chaos_card)
-	_main.sfx.play("coin")
-	_main.chaos[slot_idx] = null
-	if _main.selected_chaos_slot == slot_idx:
-		_main.selected_chaos_slot = -1
-	_main.update_all_ui()
-	render_shop_offers()
-	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
 
 
 func on_shop_leave() -> void:

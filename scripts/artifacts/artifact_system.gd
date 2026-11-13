@@ -1,16 +1,14 @@
 class_name ArtifactSystem
 extends RefCounted
-## Loads the artifact / Chaos definitions from res://data and runs the
+## Loads the artifact definitions from res://data and runs the
 ## artifact hooks for main.gd. See ArtifactEffect for the list of hooks.
 ## Adding an artifact = a new .tres in data/artifacts (plus an effect script
 ## only when no data-only effect fits). The game code never names artifacts.
 
 const ARTIFACT_DIR := "res://data/artifacts/"
-const CHAOS_DIR := "res://data/chaos/"
 
 static var _defs: Dictionary = {}            # id -> ArtifactData
 static var _list: Array[ArtifactData] = []   # by catalog_order
-static var _chaos: Array[ChaosData] = []
 
 
 # --- Definitions (static) ------------------------------------------------------
@@ -32,11 +30,6 @@ static func _ensure_loaded() -> void:
 			_defs[d.id] = d
 			_list.append(d)
 	_list.sort_custom(func(a, b): return a.catalog_order < b.catalog_order)
-	for path in _files(CHAOS_DIR):
-		var c := load(path) as ChaosData
-		if c != null:
-			_chaos.append(c)
-	_chaos.sort_custom(func(a, b): return a.catalog_order < b.catalog_order)
 
 
 static func all() -> Array[ArtifactData]:
@@ -47,25 +40,6 @@ static func all() -> Array[ArtifactData]:
 static func get_def(id: String) -> ArtifactData:
 	_ensure_loaded()
 	return _defs.get(id)
-
-
-static func chaos_all() -> Array[ChaosData]:
-	_ensure_loaded()
-	return _chaos
-
-
-## The definition of an owned/offered Chaos card. Cards made without an id
-## (old code, tests) are matched by kind + col + dir.
-static func chaos_def(card: Dictionary) -> ChaosData:
-	_ensure_loaded()
-	var cid: String = card.get("id", "")
-	for c in _chaos:
-		if cid != "":
-			if c.id == cid:
-				return c
-		elif c.kind == card.get("kind", "") and c.col == card.get("col", "") and c.dir == card.get("dir", ""):
-			return c
-	return null
 
 
 # --- Hooks (per game) ------------------------------------------------------------
@@ -157,14 +131,13 @@ func round_start() -> void:
 		main.battle_mgr.fx_artifact_types(_types(fired))
 
 
-## Right before the walk: counters fed by the board, Chaos makers.
+## Right before the walk: counters fed by the board.
 func pre_walk() -> void:
 	var ctx := _ctx()
 	var fired := _per_copy("pre_walk", ctx)
 	if ctx.msg != "":
 		main.msg_label.text = ctx.msg
 	main.render_artifact_row()
-	main.render_chaos_row()
 	main.battle_mgr.fx_artifact_types(_types(fired))
 
 
@@ -175,12 +148,6 @@ func card_played(card: Dictionary) -> void:
 	var fired := _per_copy("card_played", ctx)
 	main.render_artifact_row()
 	main.battle_mgr.fx_artifact_types(_types(fired))
-
-
-func chaos_used() -> void:
-	var fired := _per_copy("chaos_used", _ctx())
-	if not fired.is_empty():
-		main.battle_mgr.fx_artifact_types(_types(fired, true))
 
 
 ## The walk lands on a Gem. Returns {"extra", "fired": [types], "coin_won"}.

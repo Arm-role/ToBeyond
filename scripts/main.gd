@@ -61,19 +61,11 @@ var first_gem_tile: int = -1
 var artifact_sys: ArtifactSystem
 var totem_tiles: Array[int] = []
 
-# --- Chaos System (ported from the web draft) ---
-var chaos: Array = [null, null, null] # Array of null or { kind, col?, dir? }
-var selected_chaos_slot: int = -1
+# --- Deck modifications (gold / buff Gems, removals) ---
 var deck_mods: Array[Dictionary] = []
 var gold_mods: Array[Dictionary] = []
 var buff_mods: Array[Dictionary] = []  # {id, type, amount}: Gem buffs re-applied by base-deck card id
 var deck_removals: Array[Dictionary] = []
-var chaos_mult_tiles: Dictionary = {} # tile index -> true, MULT +5
-var chaos_xmult_tiles: Dictionary = {} # tile index -> true, MULT ×1.2
-var chaos_xatk_tiles: Dictionary = {} # tile index -> true, ATK ×1.2
-var chaos_crystals: Dictionary = {} # tile index -> current HP
-const CRYSTAL_HP: int = 5
-const CRYSTAL_GEMS: int = 3
 
 func is_boss() -> bool:
 	return stage % 3 == 0
@@ -104,7 +96,6 @@ var artifacts: Array = []  # Array of null or Dict
 
 # Artifact Row
 @onready var artifact_row: HBoxContainer = $ArtifactRow
-@onready var chaos_slots: HBoxContainer = $ChaosRow/Slots
 
 # Effects Layer References
 @onready var effects_layer: Control = $EffectsLayer
@@ -146,7 +137,6 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var shop_leave_btn: Button = $ShopModal/ShopVBox/ShopHeader/ShopLeaveBtn
 @onready var shop_game_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/GameTab
 @onready var shop_artifact_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/ArtifactTab
-@onready var shop_chaos_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/ChaosTab
 @onready var shop_upgrade_tab: Button = $ShopModal/ShopVBox/ShopBody/ShopTabs/UpgradeTab
 @onready var shop_offer_frame: PanelContainer = $ShopModal/ShopVBox/ShopBody/ShopOfferFrame
 @onready var shop_offer_container: Container = $ShopModal/ShopVBox/ShopBody/ShopOfferFrame/ShopOfferScroll/ShopOfferContainer
@@ -159,7 +149,6 @@ var board_calc: BoardCalc
 var toolbar: ToolbarControls
 var action_dlg: ActionDialog
 var slot_drag: SlotDrag
-var chaos_ctl: ChaosController
 var board_input: BoardInput
 var reward_flow: RewardFlow
 var action_dialog: Control
@@ -200,7 +189,6 @@ func _ready() -> void:
 	toolbar = ToolbarControls.new(self)
 	action_dlg = ActionDialog.new(self)
 	slot_drag = SlotDrag.new(self)
-	chaos_ctl = ChaosController.new(self)
 	board_input = BoardInput.new(self)
 	reward_flow = RewardFlow.new(self)
 	connect_ui_signals()
@@ -279,7 +267,6 @@ func connect_ui_signals() -> void:
 	shop_reroll_btn.pressed.connect(func(): shop_mgr.reroll_shop())
 	shop_game_tab.pressed.connect(func(): shop_mgr.set_tab("game"))
 	shop_artifact_tab.pressed.connect(func(): shop_mgr.set_tab("artifact"))
-	shop_chaos_tab.pressed.connect(func(): shop_mgr.set_tab("chaos"))
 	shop_upgrade_tab.pressed.connect(func(): shop_mgr.set_tab("upgrade"))
 
 	# Connect tile click events
@@ -293,12 +280,6 @@ func connect_ui_signals() -> void:
 		var slot = artifact_row.get_child(i + 1) as Button
 		var slot_idx = i
 		slot.pressed.connect(func(): _on_artifact_slot_pressed(slot_idx))
-
-	# Chaos slots are usable outside the shop, exactly like the web draft.
-	for i in range(chaos_slots.get_child_count()):
-		var chaos_slot = chaos_slots.get_child(i) as Button
-		var chaos_idx = i
-		chaos_slot.pressed.connect(func(): _on_chaos_slot_pressed(chaos_idx))
 
 
 func _setup_action_dialog() -> void:
@@ -347,7 +328,7 @@ func start_new_game() -> void:
 	first_gem_triggered = false
 	first_gem_tile = -1
 	totem_tiles.clear()
-	reset_chaos()
+	reset_deck_mods()
 
 	reward_modal.visible = false
 	gameover_modal.visible = false
@@ -408,17 +389,11 @@ func build_deck() -> void:
 	deck.shuffle()
 
 
-func reset_chaos() -> void:
-	chaos = [null, null, null]
-	selected_chaos_slot = -1
+func reset_deck_mods() -> void:
 	deck_mods.clear()
 	gold_mods.clear()
 	buff_mods.clear()
 	deck_removals.clear()
-	chaos_mult_tiles.clear()
-	chaos_xmult_tiles.clear()
-	chaos_xatk_tiles.clear()
-	chaos_crystals.clear()
 	TILE_DIR = DEFAULT_TILE_DIR.duplicate()
 
 
@@ -529,18 +504,6 @@ func _on_hand_card_clicked(card_id: int) -> void:
 	refresh_calc()
 
 
-func _on_chaos_slot_pressed(slot_idx: int) -> void:
-	chaos_ctl.on_slot_pressed(slot_idx)
-
-
-func _finish_chaos(slot_idx: int, message: String) -> void:
-	chaos_ctl.finish(slot_idx, message)
-
-
-func hit_crystal(tile_idx: int) -> Dictionary:
-	return chaos_ctl.hit_crystal(tile_idx)
-
-
 func _on_tile_clicked(tile_idx: int) -> void:
 	board_input.on_tile_clicked(tile_idx)
 
@@ -562,27 +525,12 @@ func tile_direction_count(direction: String) -> int:
 	return board_calc.tile_direction_count(direction)
 
 
-func tile_direction_run(direction: String) -> int:
-	return board_calc.tile_direction_run(direction)
-
-
-
-
 func matching_card_count(direction: String, color: String) -> int:
 	return board_calc.matching_card_count(direction, color)
 
 
-func give_random_chaos() -> bool:
-	var slot: int = chaos.find(null)
-	if slot < 0:
-		return false
-	var definition: Dictionary = ShopManager.CHAOS_CATALOG[randi_range(0, ShopManager.CHAOS_CATALOG.size() - 1)]
-	chaos[slot] = ArtifactSystem.chaos_def(definition).make_card()
-	return true
-
-
 func prepare_walk_artifacts() -> void:
-	# Counters fed by the board and Chaos makers trigger right before the
+	# Counters fed by the board trigger right before the
 	# walk, matching the draft's pre-route timing.
 	artifact_sys.pre_walk()
 
@@ -593,10 +541,6 @@ func sync_totems() -> void:
 
 func totem_attack(tile_idx: int) -> int:
 	return board_calc.totem_attack(tile_idx)
-
-
-func passive_chaos_tile_count() -> int:
-	return board_calc.passive_chaos_tile_count()
 
 
 func compute_attack(steps: Array = []) -> Dictionary:
@@ -817,10 +761,6 @@ func render_artifact_row() -> void:
 	ui_renderer.render_artifact_row()
 
 
-func render_chaos_row() -> void:
-	ui_renderer.render_chaos_row()
-
-
 func has_artifact(type_key: String) -> bool:
 	return ShopManager.has_artifact(artifacts, type_key)
 
@@ -859,39 +799,5 @@ func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = 
 	VfxManager.spawn_damage_number(effects_layer, text, target_global_pos, col, is_big, speed_multiplier)
 
 
-var _chaos_toast: PanelContainer
-var _chaos_toast_tween: Tween
 
-## Draft `.ctoast`: purple-bordered message at the top while using Chaos.
-func chaos_msg(text: String) -> void:
-	if _chaos_toast == null:
-		_chaos_toast = PanelContainer.new()
-		_chaos_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_chaos_toast.z_index = 150
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color("#241a3d")
-		sb.border_color = Color("#a66cf2")
-		sb.set_border_width_all(3)
-		sb.set_corner_radius_all(18)
-		sb.content_margin_left = 27.0
-		sb.content_margin_right = 27.0
-		sb.content_margin_top = 15.0
-		sb.content_margin_bottom = 15.0
-		_chaos_toast.add_theme_stylebox_override("panel", sb)
-		var l := Label.new()
-		l.theme_type_variation = &"BoldLabel"
-		l.add_theme_font_size_override("font_size", 22)
-		l.add_theme_color_override("font_color", Color.WHITE)
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_chaos_toast.add_child(l)
-		effects_layer.add_child(_chaos_toast)
-	(_chaos_toast.get_child(0) as Label).text = text
-	_chaos_toast.reset_size()
-	_chaos_toast.position = Vector2((size.x - _chaos_toast.size.x) * 0.5, 105.0)
-	if _chaos_toast_tween != null:
-		_chaos_toast_tween.kill()
-	_chaos_toast.modulate.a = 0.0
-	_chaos_toast_tween = create_tween()
-	_chaos_toast_tween.tween_property(_chaos_toast, "modulate:a", 1.0, 0.2)
-	_chaos_toast_tween.tween_interval(2.0)
-	_chaos_toast_tween.tween_property(_chaos_toast, "modulate:a", 0.0, 0.2)
+

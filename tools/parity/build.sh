@@ -4,7 +4,7 @@
 #                                   (check_refs.py), and run the game headless
 #                                   into the "main" test state (a few seconds, no export)
 #   (TB_SKIP_REFS=1 skips the reference check; evals use it on old code bases)
-#   tools/parity/build.sh --regress [--update]   the check, then the artifact/chaos regression
+#   tools/parity/build.sh --regress [--update]   the check, then the artifact regression
 #                                   against tools/parity/baseline (--update rewrites it)
 #   tools/parity/build.sh           the check, then import + Web export to build/web (~1 min)
 # Full logs: build/import.log, build/export.log

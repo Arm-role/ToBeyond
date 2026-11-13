@@ -2,7 +2,7 @@ class_name SlotDrag
 extends RefCounted
 
 ## Drag-and-drop for every card, moved from main.gd. Drag state lives here.
-## kinds: "artifact"/"chaos" (owned slots: swap or drop in the centre zone to
+## kinds: "artifact" (owned slots: swap or drop in the centre zone to
 ## sell), "hand" (Gem → board tile), "board" (tile → tile / back to hand),
 ## "shop" (offer card → out of the shop panel / onto its slot row to buy).
 
@@ -17,7 +17,7 @@ var _shop_action: Button = null
 var _shop_kind: String = ""
 var _ghost: Control = null
 var _src_alpha: float = 1.0
-## Drop here (middle of the screen) to sell the dragged Artifact / Chaos.
+## Drop here (middle of the screen) to sell the dragged Artifact.
 const SELL_ZONE := Rect2(480, 230, 960, 300)  # outside the shop: above the board tiles
 const DRAG_THRESHOLD: float = 16.0
 var _sell_hint: PanelContainer = null
@@ -84,11 +84,6 @@ func begin(mouse_pos: Vector2) -> void:
 		if _main.artifacts[i] != null and _hit(artifact_slot, mouse_pos):
 			_arm("artifact", i, mouse_pos, artifact_slot)
 			return
-	for i in range(_main.chaos_slots.get_child_count()):
-		var chaos_slot = _main.chaos_slots.get_child(i) as Control
-		if _main.chaos[i] != null and _hit(chaos_slot, mouse_pos):
-			_arm("chaos", i, mouse_pos, chaos_slot)
-			return
 
 
 func _arm(kind: String, from: int, pos: Vector2, src: Control) -> void:
@@ -100,7 +95,7 @@ func _arm(kind: String, from: int, pos: Vector2, src: Control) -> void:
 
 
 func _start_visuals() -> void:
-	if drag_kind == "artifact" or drag_kind == "chaos":
+	if drag_kind == "artifact":
 		_show_sell_hint(true)
 	if _src == null or not is_instance_valid(_src):
 		return
@@ -173,13 +168,11 @@ func finish(mouse_pos: Vector2) -> void:
 			match shop_kind:
 				"artifact":
 					ok = _hit(_main.artifact_row, mouse_pos)
-				"chaos":
-					ok = _hit(_main.chaos_slots, mouse_pos)
 				_:
 					ok = mouse_pos.y < _main.shop_modal.global_position.y
 			if ok and action != null and is_instance_valid(action):
 				action.pressed.emit()
-		"artifact", "chaos":
+		"artifact":
 			_finish_slot(kind, from, mouse_pos)
 
 
@@ -192,36 +185,18 @@ func _sell_rect() -> Rect2:
 
 func _finish_slot(kind: String, from: int, mouse_pos: Vector2) -> void:
 	if _sell_rect().has_point(mouse_pos):
-		if kind == "artifact":
-			_main.shop_mgr.confirm_sell_artifact(from)
-		else:
-			_main.shop_mgr.confirm_sell_chaos(from)
+		_main.shop_mgr.confirm_sell_artifact(from)
 		return
 	var target := -1
-	if kind == "artifact":
-		for i in range(_main.MAX_ARTIFACTS):
-			if _hit(_main.artifact_row.get_child(i + 1) as Control, mouse_pos):
-				target = i
-				break
-		if target >= 0 and target != from:
-			var held = _main.artifacts[from]
-			_main.artifacts[from] = _main.artifacts[target]
-			_main.artifacts[target] = held
-			_main.sync_totems()
-	else:
-		for i in range(_main.chaos_slots.get_child_count()):
-			if _hit(_main.chaos_slots.get_child(i) as Control, mouse_pos):
-				target = i
-				break
-		if target >= 0 and target != from:
-			var held = _main.chaos[from]
-			_main.chaos[from] = _main.chaos[target]
-			_main.chaos[target] = held
-			# The picked card keeps its "picked" state when it moves.
-			if _main.selected_chaos_slot == from:
-				_main.selected_chaos_slot = target
-			elif _main.selected_chaos_slot == target:
-				_main.selected_chaos_slot = from
+	for i in range(_main.MAX_ARTIFACTS):
+		if _hit(_main.artifact_row.get_child(i + 1) as Control, mouse_pos):
+			target = i
+			break
+	if target >= 0 and target != from:
+		var held = _main.artifacts[from]
+		_main.artifacts[from] = _main.artifacts[target]
+		_main.artifacts[target] = held
+		_main.sync_totems()
 	if target >= 0:
 		_main.update_all_ui()
 

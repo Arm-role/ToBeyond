@@ -146,16 +146,10 @@ func run(scenario: String, restart: bool = true) -> void:
 						rslot += 1
 			main.update_all_ui()
 		"boss":
-			main.chaos = [{"kind": "mtile"}, {"kind": "color", "col": "red"}, {"kind": "tdir", "dir": "W"}]
-			main.chaos_mult_tiles[2] = true
-			main.chaos_xmult_tiles[5] = true
-			main.chaos_xatk_tiles[5] = true
 			for h in [main.hand[6], main.hand[7]]:
 				h["is_blank"] = true
 				h["color"] = "blank"
 			main.update_all_ui()
-			await get_tree().create_timer(0.3).timeout
-			main.chaos_msg("แตะช่องที่ต้องการวาง")
 	for i in 3:
 		await get_tree().process_frame
 	await get_tree().create_timer(0.4).timeout

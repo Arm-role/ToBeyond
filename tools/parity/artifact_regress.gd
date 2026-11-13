@@ -1,6 +1,6 @@
 extends SceneTree
 ## Headless numbers check for artifacts: puts artifact sets on fixed boards,
-## runs every hook (pre-walk, route, landing, attack, chaos use, victory,
+## runs every hook (pre-walk, route, landing, attack, victory,
 ## shop) and prints one line per case. Run before and after a refactor and
 ## diff the output:
 ##   godot --headless --path . --script res://tools/parity/artifact_regress.gd > out.txt
@@ -9,8 +9,7 @@ const BOARDS := {
 	# Default tile directions N N E E S S W W.
 	"full": {"dirs": [], "cards": {0: ["red", "N"], 1: ["red", "N"], 2: ["blue", "E"], 3: ["blue", "E", true],
 		4: ["green", "S"], 5: ["orange", "W"], 6: ["red", "S"], 7: ["blue", "W"]}},
-	"sparse": {"dirs": [], "cards": {0: ["green", "E"], 2: ["orange", "N"], 3: ["red", "S"], 6: ["blue", "W"]},
-		"mtile": [2], "xmult": [3], "xatk": [6]},
+	"sparse": {"dirs": [], "cards": {0: ["green", "E"], 2: ["orange", "N"], 3: ["red", "S"], 6: ["blue", "W"]}},
 	"south": {"dirs": ["S", "S", "S", "S", "S", "N", "N", "N"],
 		"cards": {0: ["red", "S"], 1: ["red", "S"], 2: ["green", "S"], 3: ["red", "S"], 4: ["red", "S"],
 			5: ["orange", "N"], 6: ["orange", "N"], 7: ["green", "N"]}},
@@ -22,12 +21,12 @@ const BOARDS := {
 const COMBOS := [
 	["add5", "mult2", "atk15"],
 	["add5", "add5", "atk15", "atk15"],
-	["south5", "add5", "mult2", "north5", "atk15"],
+	["add5", "mult2", "north5", "atk15", "atk15"],
 	["reverse", "firstGem", "isoGem", "dirEHit", "eastG"],
 	["helperOdd", "helperEven", "firstGem", "greenCoin", "dirSHit"],
-	["chaosStack", "discardStack", "stone7W", "stone7E", "mult2"],
-	["totem", "totem", "reverse", "emptyAtk", "chaosAtk"],
-	["tileAtk", "west5", "add5", "mult2", "atk15"],
+	["discardStack", "add5", "stone7W", "stone7E", "mult2"],
+	["totem", "totem", "reverse", "emptyAtk", "add5"],
+	["add5", "add5", "mult2", "mult2", "atk15"],
 	["artiPay", "fatePay", "walkCoin", "fullSell", "freediscard"],
 	["emptyAtk", "emptyMult", "emptyGrow", "mult2", "atk15"],
 ]
@@ -73,13 +72,6 @@ func _setup(board_key: String, set: Array) -> void:
 		var c: Array = b["cards"][idx]
 		main.placed_cards[idx] = {"id": id, "color": c[0], "dir": c[1], "is_blank": false, "gold": c.size() > 2}
 		id += 1
-	main.chaos_mult_tiles.clear()
-	main.chaos_xmult_tiles.clear()
-	main.chaos_xatk_tiles.clear()
-	for t in b.get("mtile", []): main.chaos_mult_tiles[t] = true
-	for t in b.get("xmult", []): main.chaos_xmult_tiles[t] = true
-	for t in b.get("xatk", []): main.chaos_xatk_tiles[t] = true
-	main.chaos = [{"kind": "mtile"}, null, null]
 	for i in main.artifacts.size():
 		main.artifacts[i] = _catalog(set[i]) if i < set.size() else null
 	main.sync_totems()
@@ -116,9 +108,6 @@ func _case(board_key: String, set: Array) -> void:
 	out.append("atk=%d/%s/%d" % [atk["atk"], main.fmt_num(atk["mult"]), atk["dmg"]])
 	out.append("steps=" + " ".join(st))
 	main.is_busy = false
-	# Chaos use.
-	main.chaos[0] = {"kind": "mtile"}
-	main._finish_chaos(0, "")
 	# Victory reward.
 	var before: int = main.coins
 	main.walks_left = 2
@@ -140,8 +129,4 @@ func _case(board_key: String, set: Array) -> void:
 		if a != null and a.has("m"):
 			ms.append("%s=%s" % [a["type"], main.fmt_num(float(a["m"]))])
 	out.append("m=" + ",".join(ms))
-	var chaos_kinds: Array[String] = []
-	for c in main.chaos:
-		chaos_kinds.append(c["kind"] if c != null else "-")
-	out.append("chaos=" + ",".join(chaos_kinds))
 	print("CASE %s [%s] %s" % [board_key, ",".join(set), " | ".join(out)])

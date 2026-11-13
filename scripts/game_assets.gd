@@ -24,12 +24,10 @@ const COLORS = {
 
 static var EMBLEMS = {}           # dir -> Texture2D (white)
 static var EMBLEMS_GOLD = {}      # dir -> Texture2D (gold, matched)
-static var CHAOS_TEX = {}         # chaos kind -> Texture2D
 static var GEM_FRAME_TEX = {}     # color -> Texture2D (placed card frame)
 static var TILE_EMPTY_TEX = {}    # tile index -> Texture2D
 static var PLACED_TILE_TEX = {}   # "idx_color_dir" or "idx_blank" -> Texture2D
 static var CARD_TEMPLATE_TEX: Texture2D = null
-static var CRYSTAL_TEX: Texture2D = null
 static var BALL_TEXTURE: Texture2D = null
 
 static func load_all(n_tiles: int) -> void:
@@ -46,13 +44,6 @@ static func load_all(n_tiles: int) -> void:
 			EMBLEMS[d] = load(pw)
 		if ResourceLoader.exists(pg):
 			EMBLEMS_GOLD[d] = load(pg)
-
-	# Chaos SVGs
-	var chaos_keys = ["color","mtile","goldify","crystal","destroy"]
-	for key in chaos_keys:
-		var p = "res://assets/chaos/%s.svg" % key
-		if ResourceLoader.exists(p):
-			CHAOS_TEX[key] = load(p)
 
 	# Gem frames (placed card)
 	for col in ["red","green","orange","blue","blank"]:
@@ -76,10 +67,6 @@ static func load_all(n_tiles: int) -> void:
 		var pb = "res://assets/tiles/placed/tile_%d_blank.svg" % i
 		if ResourceLoader.exists(pb):
 			PLACED_TILE_TEX["%d_blank" % i] = load(pb)
-
-	# Crystal
-	if ResourceLoader.exists("res://assets/crystal.svg"):
-		CRYSTAL_TEX = load("res://assets/crystal.svg")
 
 	# Ball
 	if ResourceLoader.exists("res://assets/ball.svg"):
