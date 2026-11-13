@@ -186,6 +186,10 @@ func _add_version_stamp() -> void:
 
 
 func _ready() -> void:
+	# Domino Run greybox (docs/plan-domino-run.md): ?mode=greybox or -- --mode=greybox.
+	if _launch_arg("mode") == "greybox":
+		get_tree().change_scene_to_file.call_deferred("res://scenes/greybox.tscn")
+		return
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
 	var bg_mat := ShaderMaterial.new()
@@ -213,6 +217,17 @@ func _ready() -> void:
 	start_new_game()
 	# Test states for tools/parity (only active with ?dbg= / --dbg=).
 	add_child(preload("res://scripts/debug_scenarios.gd").new())
+
+
+func _launch_arg(key: String) -> String:
+	if OS.has_feature("web"):
+		var q := str(JavaScriptBridge.eval("location.search", true))
+		var m := RegEx.create_from_string("[?&]" + key + "=([A-Za-z0-9_]+)").search(q)
+		return m.get_string(1) if m != null else ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--" + key + "="):
+			return a.substr(key.length() + 3)
+	return ""
 
 
 func setup_token_visual() -> void:
