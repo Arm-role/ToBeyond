@@ -9,7 +9,7 @@ extends Node
 ## and window.tbReady = <name> once the state is on screen.
 ## Keep the list in sync with tools/parity/scenarios.js.
 
-const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts", "gembuff", "deckmarks"]
+const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts", "gembuff", "deckmarks", "goldwalk"]
 ## Same 8 cards as tools/parity/scenarios.js, so both hands match.
 const FIXED_HAND := [["red", "N"], ["red", "N"], ["blue", "E"], ["blue", "E"],
 	["green", "S"], ["orange", "W"], ["red", "S"], ["blue", "W"]]
@@ -80,6 +80,15 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.on_game_over()
 		"deck":
 			main.open_deck_modal()
+		"goldwalk":
+			# All 8 placed, hand cards 0, 3 and 7 are gold: each triggers twice (visible second beat).
+			for i in [0, 3, 7]:
+				main.hand[i]["gold"] = true
+			main.selected_card_ids.clear()
+			for c in main.hand:
+				main.selected_card_ids.append(int(c["id"]))
+			main.auto_place_selected()
+			await get_tree().create_timer(1.2).timeout
 		"deckmarks":
 			# Deck modal with a few gold and buffed Gems among plain ones.
 			for i in [0, 5, 12, 20, 33]:

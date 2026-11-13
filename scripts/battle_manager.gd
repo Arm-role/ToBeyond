@@ -75,6 +75,11 @@ func run_walk() -> void:
 		var target_pos = tile_btn.position + (tile_btn.size - token.size) * 0.5
 		tween.tween_property(token, "position", target_pos, step_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(_visit_tile.bind(idx, helper_pass))
+		var step_card = _main.placed_cards.get(idx)
+		if step_card != null and step_card.get("gold", false) and not step_card.get("is_blank", false):
+			# Gold Gem: a visible second beat where its landing effects trigger again.
+			tween.tween_interval(0.32 / _spd())
+			tween.tween_callback(_retrigger_gold.bind(idx, helper_pass))
 		if str(step.get("fx", "")) != "":
 			tween.tween_callback(_artifact_pop.bind(_main.artifact_slot(str(step["fx"])), 0))
 		tween.tween_interval(0.05 / _spd())
@@ -140,7 +145,17 @@ func _visit_tile(tile_idx: int, helper_pass: bool) -> void:
 # Internal: popup "+N ATK" above a tile during walk
 # ---------------------------------------------------------------------------
 
-func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
+## Gold Gem (Chaos Goldify): its landing effects resolve a second time, with its own
+## gold flash, chime and "⭐+N" popup so the retrigger is visible.
+func _retrigger_gold(tile_idx: int, helper_pass: bool) -> void:
+	var tile_ctl := _main.tiles_container.get_child(tile_idx) as Control
+	_main.sfx.step(_step_i)
+	_trigger_fx(tile_ctl.global_position + tile_ctl.size * 0.5, Color("#ffd24a"), _step_i + 2)
+	_step_i += 1
+	_spawn_tile_popup(tile_idx, helper_pass, true)
+
+
+func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false, repeat: bool = false) -> void:
 	var tiles_container  = _main.tiles_container
 	var effects_layer    = _main.effects_layer
 	var placed_cards     = _main.placed_cards
@@ -153,24 +168,19 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 	var gain = int(applied["gain"])
 	var fired: Array = applied.get("fired", []).duplicate()
 	var coin_won: bool = applied.get("coin_won", false)
-	# A gold Gem (created by Chaos Goldify) resolves its landing effects twice.
-	if card.get("gold", false):
-		var repeated = _main.apply_tile_walk_effects(tile_idx, helper_pass)
-		applied["extra"] = int(applied["extra"]) + int(repeated["extra"])
-		gain += int(repeated["gain"])
-		coin_won = coin_won or repeated.get("coin_won", false)
-		for t in repeated.get("fired", []):
-			if not fired.has(t):
-				fired.append(t)
-
 	for t in fired:
 		_artifact_pop(_main.artifact_slot(t), _step_i)
 	if fired.has("greenCoin"):
 		# Draft: "+1 🪙" in gold when the coin drops, a grey ✗ when it doesn't.
 		_main.spawn_damage_number("+1 🪙" if coin_won else "✗", tile_btn.global_position + Vector2(tile_btn.size.x * 0.5, 0.0), Color("#f2c230") if coin_won else Color("#8a86a8"), false)
 	if gain > 0 and not card.get("is_blank", false):
-		_tile_pop(tile_idx, "+%d" % gain)
-		VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
+		if repeat:
+			_tile_pop(tile_idx, "⭐+%d" % gain, Color("#f2b63c"))
+			_hit_flash(tile_btn, Color("#ffd24a"))
+			VfxManager.trigger_juice(tile_btn, _spd(), 1.25, 8.0)
+		else:
+			_tile_pop(tile_idx, "+%d" % gain)
+			VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
 
 	if int(applied["extra"]) > 0:
 		_main.spawn_damage_number("+%d" % int(applied["extra"]), tile_btn.global_position + tile_btn.size * 0.5, Color("#ffd966"), false)

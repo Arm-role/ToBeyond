@@ -180,6 +180,27 @@ func render_tiles() -> void:
 
 ## Group strip under the board, like the draft's `.gstrip`: a coloured bar
 ## spanning the group's tiles plus a black value chip under each placed Gem.
+## Gold Gem in the hand: gold rim + ⭐ (its landing effects trigger twice during the walk).
+func _add_gold_mark(btn: Control) -> void:
+	var rim := Panel.new()
+	rim.name = "GoldMark"
+	rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var gsb := StyleBoxFlat.new()
+	gsb.draw_center = false
+	gsb.set_border_width_all(5)
+	gsb.border_color = GameAssets.COLORS["gold"]
+	gsb.set_corner_radius_all(20)
+	rim.add_theme_stylebox_override("panel", gsb)
+	btn.add_child(rim)
+	var star := Label.new()
+	star.text = "⭐"
+	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	star.add_theme_font_size_override("font_size", 26)
+	star.position = Vector2(6, 2)
+	btn.add_child(star)
+
+
 ## Gem with a MULT buff in the hand: violet rim + "MULT +N" tag (triggers from the hand after the walk).
 func _add_buff_mark(btn: Control, amount: int) -> void:
 	var rim := Panel.new()
@@ -618,6 +639,8 @@ func render_hand() -> void:
 		var hand_buff := int(card.get("buffs", {}).get("mult", 0)) if not is_blank else 0
 		if hand_buff > 0:
 			_add_buff_mark(btn, hand_buff)
+		if card.get("gold", false) and not is_blank:
+			_add_gold_mark(btn)
 
 		var card_id = card["id"]
 		btn.set_meta("card_id", card_id)
