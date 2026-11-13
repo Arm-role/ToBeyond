@@ -202,7 +202,7 @@ func _push(ev: Dictionary) -> void:
 func _emit(k: String, payload: Dictionary = {}, src: String = "base") -> Dictionary:
 	if _stopped and k != "kill" and k != "capped" and k != "walk_end":
 		return {}
-	if events.size() >= MAX_EVENTS and k != "capped" and k != "walk_end":
+	if events.size() >= MAX_EVENTS and k != "capped" and k != "walk_end" and k != "kill":
 		if not _stopped:
 			_stopped = true
 			var c := {"k": "capped", "what": "events", "step": _step, "tile": _tile, "dir": _dir, "lap": _lap, "depth": _depth, "src": src}

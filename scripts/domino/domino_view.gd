@@ -544,6 +544,9 @@ func _play_walk(evs: Array) -> void:
 	if result == "enemy":
 		await _win()
 	elif result == "hero":
+		_badge_break()
+		_refresh()
+		await get_tree().create_timer(0.3).timeout
 		_lose()
 	else:
 		await get_tree().create_timer(0.35).timeout

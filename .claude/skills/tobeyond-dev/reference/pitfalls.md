@@ -45,3 +45,4 @@ One line per lesson, added by the worker after a task (rule: step 9 of the loop 
 - 2026-11-13 | card mods matched by (color,dir) pile onto one of the 3 copies (`apply_deck_mods` takes the first match) → buff_mods match by base-deck card id (0..47 stable; crystal cards id 48+ are not saved)
 - 2026-11-13 | `player_hp` looked like HP but was set to `enemy_atk * walks_left` (a round counter) → now real HP: each enemy hit does `player_hp -= enemy_atk`; shield/heal (plan-gem-types P4) can add to it (P1)
 - 2026-11-13 | greybox characters drifted off position after rapid Gem pops → overlapping relative tweens on one node → tween to/from a fixed home position and kill the previous tween first (`_react` in `scripts/domino/domino_view.gd`)
+- 2026-11-13 | lethal hit at the 400-event ceiling lost its `kill` event → the view never saw the win/lose → exempt `kill` from every cap (`_emit` in `scripts/domino/domino_sim.gd`)

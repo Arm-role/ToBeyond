@@ -41,7 +41,7 @@
 | `bounce` | — | เปลี่ยนทิศแล้วเข้าช่องเดิมซ้ำ |
 | `kill` | `target` | HP ถึง 0 การวิ่งหยุด |
 | `walk_end` | `kept_tiles` | จบรอบ |
-| `capped` | `what (pop/depth/steps/events)` | เพดานทำงาน view แสดงป้ายเล็ก "สุดทาง" |
+| `capped` | `what (pop/depth/steps/events/artifact)` | เพดานทำงาน view แสดงป้ายเล็ก "สุดทาง" |
 
 ### ลำดับที่รับประกัน
 1. ในแต่ละช่อง: `pass` → `pop` (ถ้ามี Gem) → `strike` (ถ้าช่องมีธง). คงกฎเดิมว่า Gem น้ำเงินบนช่องธงนับ
