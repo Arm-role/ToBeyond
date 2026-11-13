@@ -167,6 +167,7 @@ var toolbar: ToolbarControls
 var action_dlg: ActionDialog
 var slot_drag: SlotDrag
 var chaos_ctl: ChaosController
+var board_input: BoardInput
 var reward_flow: RewardFlow
 var action_dialog: Control
 var pending_dialog_action: Callable
@@ -207,6 +208,7 @@ func _ready() -> void:
 	action_dlg = ActionDialog.new(self)
 	slot_drag = SlotDrag.new(self)
 	chaos_ctl = ChaosController.new(self)
+	board_input = BoardInput.new(self)
 	reward_flow = RewardFlow.new(self)
 	connect_ui_signals()
 	battle_mgr = BattleManager.new(self)
@@ -558,11 +560,11 @@ func hit_crystal(tile_idx: int) -> Dictionary:
 
 
 func _on_tile_clicked(tile_idx: int) -> void:
-	chaos_ctl.on_tile_clicked(tile_idx)
+	board_input.on_tile_clicked(tile_idx)
 
 
 func _on_discard_pressed() -> void:
-	chaos_ctl.on_discard_pressed()
+	board_input.on_discard_pressed()
 
 
 

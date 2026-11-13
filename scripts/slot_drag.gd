@@ -161,13 +161,13 @@ func finish(mouse_pos: Vector2) -> void:
 		"hand":
 			var tile := _tile_at(mouse_pos)
 			if tile >= 0:
-				_main.chaos_ctl.place_from_hand(from, tile)
+				_main.board_input.place_from_hand(from, tile)
 		"board":
 			var tile := _tile_at(mouse_pos)
 			if tile >= 0:
-				_main.chaos_ctl.move_board_card(from, tile)
+				_main.board_input.move_board_card(from, tile)
 			elif _hit(_main.hand_container, mouse_pos):
-				_main.chaos_ctl.return_board_card(from)
+				_main.board_input.return_board_card(from)
 		"shop":
 			var ok := false
 			match shop_kind:

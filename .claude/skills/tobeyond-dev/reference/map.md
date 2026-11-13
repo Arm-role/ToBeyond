@@ -9,8 +9,8 @@ Line numbers drift, so grep the name. The draft columns live in the appendix at 
 | Board tiles, tile art, directions | `ui_renderer.gd: render_tiles _apply_tile_state _render_tile_number _make_tile_frame` · `main.gd: render_tiles TILE_DIR` |
 | Group strip under the board | `ui_renderer.gd: _render_gstrip_cell _gstrip_chip _group_color_for_tile _make_gstrip_badge` |
 | Totem | `board_calc.gd: sync_totems totem_attack` · `ui_renderer.gd: _render_totem` · `battle_manager.gd: _hit_totem` |
-| Deck, hand, sort, discard | `main.gd: build_deck draw_up_to_hand set_sort_mode render_hand` · `ui_renderer.gd: render_hand` · `chaos_controller.gd: on_discard_pressed` |
-| Place / take back / new round | `main.gd: _on_hand_card_clicked _on_tile_clicked start_new_round` · `chaos_controller.gd: on_tile_clicked` |
+| Deck, hand, sort, discard | `main.gd: build_deck draw_up_to_hand set_sort_mode render_hand` · `ui_renderer.gd: render_hand` · `board_input.gd: on_discard_pressed` |
+| Place / take back / new round | `main.gd: _on_hand_card_clicked _on_tile_clicked start_new_round` · `board_input.gd: on_tile_clicked` |
 | Stone formulas (groups) | `stone_calc.gd: DEFAULT_FORMULAS FLAGS calculate_groups _group_better validate_formulas` · `board_calc.gd: calculate_groups matching_group_count matching_card_count` |
 | Auto place | `stone_calc.gd: solve_best_placement` · `main.gd: auto_place_selected` |
 | Damage formula text | `main.gd: show_calc refresh_calc fmt_num` · `board_calc.gd: compute_attack` |
@@ -28,7 +28,7 @@ Line numbers drift, so grep the name. The draft columns live in the appendix at 
 | Discovery toast | `main.gd: show_discovery_toast` · `vfx_manager.gd: show_center_toast` |
 | Speed ×1–×5 | `main.gd: _on_speed_toggle` · `battle_manager.gd: _spd _timer` |
 | Game over, new game | `main.gd: on_game_over start_new_game` |
-| Drag cards (slots swap/sell, hand→board, board↔board/hand, shop card→buy) | `slot_drag.gd: on_input begin finish` · `chaos_controller.gd: place_from_hand move_board_card return_board_card` |
+| Drag cards (slots swap/sell, hand→board, board↔board/hand, shop card→buy) | `slot_drag.gd: on_input begin finish` · `board_input.gd: place_from_hand move_board_card return_board_card` |
 | Toolbar (fullscreen, audio, sort buttons) | `toolbar_controls.gd: _setup_fullscreen_button _setup_audio_button _style_sort_button` |
 | Effects, sound, hit stop (game feel, not in the draft) | `vfx_manager.gd: fire_laser_beam shake_node spawn_damage_number show_center_toast pop_tile_anim` · `battle_manager.gd: _hit_stop` · `sfx_manager.gd` (synthesised sounds, `main.sfx.play(name)`) |
 
