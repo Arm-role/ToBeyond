@@ -1,6 +1,7 @@
 extends Control
-## Domino Run greybox (docs/plan-domino-run.md, phase 1). Self-contained: no
-## Artifacts, red/blue Gems, one enemy after another, real HP on both sides.
+## Domino Run greybox (docs/plan-domino-run.md, phases 1-2). Self-contained.
+## Red/blue Gems, one enemy after another, real HP on both sides. Three
+## hard-coded Artifacts sit behind the toggles on the left (phase 2 test).
 ## Open with ?mode=greybox (web) or -- --mode=greybox.
 
 const N := 8
@@ -25,6 +26,18 @@ var board: Dictionary = {}          # tile -> colour
 var selected: int = -1
 var busy: bool = false
 var over: bool = false
+
+# Phase 2 artifacts (toggles): MIRROR bounces back at the last tile, COAL keeps
+# popped Gems for one more walk, RIPOSTE reflects the strike off a blue Gem on the flag tile.
+const ARTS := {
+	"mirror": ["🪞 กำแพงกระจก", "ลูกไฟเด้งกลับที่ช่อง 8 ทุกอย่างป๊อปสองรอบ (ธงด้วย)"],
+	"coal": ["♨ ถ่านไฟ", "Gem ที่ป๊อปแล้วอยู่ต่ออีกหนึ่งรอบ"],
+	"riposte": ["↩ ตอบโต้", "Gem น้ำเงินบนช่องธง สะท้อนการตีกลับไปที่ศัตรู"],
+}
+var art_on: Dictionary = {"mirror": false, "coal": false, "riposte": false}
+var locked: Dictionary = {}          # tiles holding a kept (coal) Gem
+var art_btns: Dictionary = {}
+var art_tip: Label
 
 var tile_btns: Array[Button] = []
 var hand_btns: Array[Button] = []
@@ -127,9 +140,31 @@ func _build() -> void:
 	go_btn.add_theme_font_size_override("font_size", 44)
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
+	var ay := 20.0
+	for k in ARTS:
+		var ab := Button.new()
+		ab.toggle_mode = true
+		ab.text = ARTS[k][0]
+		ab.position = Vector2(30, ay)
+		ab.size = Vector2(300, 80)
+		ab.add_theme_font_size_override("font_size", 30)
+		ab.toggled.connect(_on_art.bind(k))
+		add_child(ab)
+		art_btns[k] = ab
+		ay += 95.0
+	art_tip = _label("Artifact ทดสอบ (กดเปิด/ปิด)", 24, Vector2(1320, 30), 520.0)
+	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	art_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	art_tip.size = Vector2(540, 160)
 	hp_bar = _bar(Vector2(660, 930), Color("#2fa866"))
 	hp_lbl = _label("", 34, Vector2(660, 960))
 	msg = _label("", 36, Vector2(460, 620), 1000.0)
+
+
+func _on_art(on: bool, key: String) -> void:
+	art_on[key] = on
+	art_tip.text = "%s\n%s" % [ARTS[key][0], ARTS[key][1]]
+	sfx.play("place", 1.3, -8.0)
 
 
 func _new_enemy() -> void:
@@ -141,7 +176,6 @@ func _new_turn() -> void:
 	hand.clear()
 	for i in HAND_SIZE:
 		hand.append("red" if randf() < 0.6 else "blue")
-	board.clear()
 	selected = -1
 	strike_tile = randi_range(1, N - 1)
 	busy = false
@@ -174,7 +208,7 @@ func _refresh() -> void:
 	hp_bar.value = maxf(hp, 0.0)
 	for i in N:
 		var c: String = board.get(i, "")
-		tile_btns[i].text = _gem_text(c) if c != "" else ""
+		tile_btns[i].text = (_gem_text(c) + ("\n♨" if locked.has(i) else "")) if c != "" else ""
 		_style(tile_btns[i], c)
 	for i in HAND_SIZE:
 		var c: String = hand[i]
@@ -183,6 +217,8 @@ func _refresh() -> void:
 		_style(hand_btns[i], c, i == selected)
 	flag.position = Vector2(tile_btns[strike_tile].position.x, ROW_Y - 100.0)
 	go_btn.disabled = busy or over or board.is_empty()
+	for k in art_btns:
+		art_btns[k].disabled = busy
 
 
 func _on_hand(i: int) -> void:
@@ -195,6 +231,8 @@ func _on_hand(i: int) -> void:
 
 func _on_tile(t: int) -> void:
 	if busy or over:
+		return
+	if locked.has(t):
 		return
 	if board.has(t):
 		# Take the Gem back to its hand slot.
@@ -251,14 +289,25 @@ func _on_go() -> void:
 
 
 func _run() -> void:
+	var seq: Array[int] = []
+	for t in N:
+		seq.append(t)
+	if art_on["mirror"]:
+		seq.append(N - 1)
+		for t in range(N - 2, -1, -1):
+			seq.append(t)
 	var block := 0
 	var pops := 0
 	fire.visible = true
-	for t in N:
-		var dur: float = lerpf(0.20, 0.07, float(t) / float(N - 1))
-		var tw := create_tween()
-		tw.tween_property(fire, "position", Vector2(tile_btns[t].position.x, ROW_Y - 20.0), dur)
-		await tw.finished
+	for k in seq.size():
+		var t: int = seq[k]
+		var dur: float = lerpf(0.20, 0.07, float(k) / float(maxi(seq.size() - 1, 1)))
+		if k > 0 and seq[k - 1] == t:
+			await get_tree().create_timer(0.08).timeout
+		else:
+			var tw := create_tween()
+			tw.tween_property(fire, "position", Vector2(tile_btns[t].position.x, ROW_Y - 20.0), dur)
+			await tw.finished
 		if board.has(t):
 			var c: String = board[t]
 			var centre := tile_btns[t].position + Vector2(40, 0)
@@ -276,16 +325,27 @@ func _run() -> void:
 				block += BLUE_BLOCK
 				_float_text("🛡+%d" % BLUE_BLOCK, centre, Color("#7fb8ff"))
 		if t == strike_tile:
-			var dmg := maxf(0.0, strike_dmg - block)
 			var centre2 := tile_btns[t].position + Vector2(40, 0)
-			if dmg > 0.0:
-				hp -= dmg
-				sfx.play("hurt")
-				_shake(14.0)
-				_float_text("-%d" % roundi(dmg), centre2, Color("#ff4d5e"))
+			if art_on["riposte"] and board.get(t, "") == "blue":
+				# Riposte: the whole strike goes back at the enemy.
+				enemy_hp -= roundi(strike_dmg)
+				sfx.play("hit")
+				_shake(10.0)
+				_float_text("↩ -%d" % roundi(strike_dmg), centre2, Color("#ffd966"))
+				_refresh()
+				if enemy_hp <= 0:
+					await _win()
+					return
 			else:
-				sfx.play("chime", 1.5)
-				_float_text("กันได้!", centre2, Color("#7fb8ff"))
+				var dmg := maxf(0.0, strike_dmg - block)
+				if dmg > 0.0:
+					hp -= dmg
+					sfx.play("hurt")
+					_shake(14.0)
+					_float_text("-%d" % roundi(dmg), centre2, Color("#ff4d5e"))
+				else:
+					sfx.play("chime", 1.5)
+					_float_text("กันได้!", centre2, Color("#7fb8ff"))
 			block = 0
 			_refresh()
 			await get_tree().create_timer(0.3).timeout
@@ -294,7 +354,19 @@ func _run() -> void:
 				return
 	fire.visible = false
 	await get_tree().create_timer(0.35).timeout
+	_end_walk()
 	_new_turn()
+
+
+## After a walk: popped Gems are cleared, except Coal Bed keeps fresh ones for one more walk.
+func _end_walk() -> void:
+	var keep: Dictionary = {}
+	if art_on["coal"]:
+		for t in board:
+			if not locked.has(t):
+				keep[t] = board[t]
+	board = keep
+	locked = keep.duplicate()
 
 
 func _win() -> void:
@@ -306,6 +378,8 @@ func _win() -> void:
 	enemy_max = roundi(enemy_max * 1.25)
 	strike_dmg *= 1.15
 	hp = minf(max_hp, hp + max_hp * 0.4)
+	board.clear()
+	locked.clear()
 	_new_enemy()
 	_new_turn()
 
