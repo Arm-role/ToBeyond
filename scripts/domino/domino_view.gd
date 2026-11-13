@@ -63,6 +63,7 @@ func _ready() -> void:
 	add_child(sfx)
 	sim.rng.randomize()
 	_build()
+	_add_version_stamp()
 	sim.start_fight(1)
 	_sync()
 	_new_turn()
@@ -76,6 +77,26 @@ func _ready() -> void:
 		t.place(3, "blue")
 		print("TB_DOMINO_OK artifacts=%d events=%d" % [Catalog.all().size(), t.run_walk().size()])
 		get_tree().quit()
+
+
+## Bottom-right version stamp (same as the main game): project version + build commit.
+func _add_version_stamp() -> void:
+	var text: String = "v%s" % ProjectSettings.get_setting("application/config/version", "0.0.0")
+	if FileAccess.file_exists("res://build_info.txt"):
+		var info := FileAccess.get_file_as_string("res://build_info.txt").strip_edges()
+		if info != "":
+			text += " · " + info
+	var lbl := Label.new()
+	lbl.name = "VersionStamp"
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 18)
+	lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.45))
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl.z_index = 4000
+	lbl.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 10)
+	lbl.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	lbl.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(lbl)
 
 
 func _label(text: String, size: int, pos: Vector2, w: float = 600.0) -> Label:
