@@ -5,7 +5,6 @@ const MAX_ARTIFACTS: int = 5
 const HAND_CAP: int = 12
 const HAND_PRICE: int = 10
 const STAT_PRICE: int = 10
-const STONE_UPGRADE_PRICE: int = 3
 const REROLL_START: int = 5
 const REROLL_STEP: int = 2
 const OFFER_ARTIFACTS: int = 2
@@ -73,10 +72,6 @@ static func display_desc(item: Dictionary) -> String:
 			return "ทุกครั้งที่ใช้การ์ด Chaos: ATK ของการ์ดนี้ +2 ถาวร · ตอนโจมตี ATK +%s" % _r2(mv)
 		"discardStack":
 			return "ตอนชนะศัตรู: ตัวคูณของการ์ดนี้ + จำนวนครั้งที่ทิ้งได้ที่เหลือ ถาวร · ตอนโจมตี ตัวคูณ +%s" % _r2(mv)
-		"stoneUp":
-			return "ทุกครั้งที่อัปเกรด stone (ซื้อในร้าน): ตัวสะสมของการ์ดนี้ +0.2 ถาวร · ตอนโจมตี ตัวคูณ × %s" % _r2(mv if m != null else 1.0)
-		"redS":
-			return "ตอนเดิน ถ้ามีสูตรที่การ์ดสีแดงทิศ S วางบนช่องทิศ S ครบทั้ง 2 ช่อง: ตัวสะสมของการ์ดนี้ +0.5 ถาวร · ตอนโจมตี ตัวคูณ × %s" % _r2(mv if m != null else 1.0)
 		"stone7W":
 			return "ตอนเดิน ทุก Gem สีน้ำเงินทิศตะวันตกที่วางบนช่องทิศตะวันตก (นับทีละใบ): ATK ของการ์ดนี้ +3 ต่อใบ ถาวร · ตอนโจมตี ATK +%s" % _r2(mv)
 		"stone7E":
@@ -149,8 +144,6 @@ static func is_draft_enabled(type_key: String) -> bool:
 func get_sell_price(artifact: Dictionary) -> int:
 	return int(artifact.get("price", 6)) if _main.artifact_sys.has_rule(&"full_sell") else int(artifact.get("price", 6) / 3.0)
 
-static func get_stone_upgrade_cost() -> int:
-	return STONE_UPGRADE_PRICE
 
 static func get_unowned_artifact_offers(artifacts: Array, count: int = 4) -> Array[Dictionary]:
 	var owned_types: Array[String] = []
@@ -268,20 +261,7 @@ func generate_game_offers() -> void:
 	for _offer_index in range(OFFER_MISC):
 		for _attempt in range(60):
 			var roll := randf()
-			if roll < 0.35:
-				var stone_indices: Array[int] = []
-				for idx in range(_main.stone_formulas.size()):
-					var offer_key := "stone:%d" % idx
-					if (_main.discovered_formulas.has(_main.stone_formulas[idx]["key"])
-						and not shop_bought.has("stone:%d" % idx) and not used.has(offer_key)):
-						stone_indices.append(idx)
-				if stone_indices.is_empty():
-					continue
-				var stone_idx: int = stone_indices[randi_range(0, stone_indices.size() - 1)]
-				used["stone:%d" % stone_idx] = true
-				shop_offers.append({"kind": "stone", "idx": stone_idx, "sold": false})
-				break
-			elif roll < 0.75:
+			if roll < 0.6:
 				var chaos_indices: Array[int] = []
 				for idx in range(CHAOS_CATALOG.size()):
 					if not used.has("chaos:%d" % idx):
@@ -366,8 +346,8 @@ func _card_label(text: String, size: int, color: Color = Color.WHITE) -> Label:
 
 
 ## Builds one shop card.  `opts`: cover (Texture2D), big (String, shown large
-## when there is no cover), rarity ("uncommon"/"rare"), stone (Dictionary with
-## name/up/lv), text_color, sold (bool), on_click (Callable).
+## when there is no cover), rarity ("uncommon"/"rare"),
+## text_color, sold (bool), on_click (Callable).
 func _add_shop_card(category: String, title: String, detail: String, price: int, color: Color, available: bool, on_buy: Callable, tooltip: String = "", icon_texture: Texture2D = null, opts: Dictionary = {}) -> void:
 	var card := Control.new()
 	var card_width := UiRenderer.CARD_SIZE.x
@@ -432,19 +412,7 @@ func _add_shop_card(category: String, title: String, detail: String, price: int,
 	vb.add_theme_constant_override("separation", 2)
 	card.add_child(vb)
 
-	if opts.has("stone"):
-		var st: Dictionary = opts["stone"]
-		vb.add_child(_card_label(st["name"], 14, text_color))
-		var spv := HBoxContainer.new()
-		spv.alignment = BoxContainer.ALIGNMENT_CENTER
-		spv.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		spv.add_theme_constant_override("separation", 3)
-		for c in st.get("pv", []):
-			spv.add_child(_main.ui_renderer.make_mini_card(c[0], c[1], Vector2(22, 30)))
-		vb.add_child(spv)
-		vb.add_child(_card_label("+%d" % st["up"], 26, text_color))
-		vb.add_child(_card_label("Lv%d → %d" % [st["lv"], st["lv"] + 1], 13, Color(1, 1, 1, 0.8)))
-	elif opts.has("cover_text"):
+	if opts.has("cover_text"):
 		var ct := _card_label(opts["cover_text"], 28, Color("#fff6d6"))
 		ct.custom_minimum_size = Vector2(0, 60)
 		vb.add_child(ct)
@@ -611,13 +579,13 @@ func _add_section(title: String) -> void:
 
 
 func _render_game_offers() -> void:
-	# Row 1: artifacts + reroll card · Row 2: Chaos / Stone / upgrades (draft genOffers).
+	# Row 1: artifacts + reroll card · Row 2: Chaos / upgrades (draft genOffers).
 	_offer_target = _add_offer_row("ARTIFACT")
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] == "artifact":
 			_render_offer(index)
 	_add_shop_card("REROLL", "🎲\nสุ่มใหม่", "", reroll_cost, Color("#473b78"), _main.coins >= reroll_cost, reroll_shop, "สุ่มสินค้าใหม่", null, {"big": "🎲\nสุ่มใหม่"})
-	_offer_target = _add_offer_row("CHAOS\nSTONE\nอัปเกรด")
+	_offer_target = _add_offer_row("CHAOS\nอัปเกรด")
 	for index in range(shop_offers.size()):
 		if shop_offers[index]["kind"] != "artifact":
 			_render_offer(index)
@@ -634,15 +602,6 @@ func _render_offer(index: int) -> void:
 	elif kind == "chaos":
 		var chaos_def: Dictionary = offer["item"]
 		_add_chaos_card(chaos_def, -2 if sold else chaos_def["price"], not sold and _main.chaos.has(null) and _main.coins >= chaos_def["price"], func(): buy_game_offer(captured_index))
-	elif kind == "stone":
-		var stone_idx: int = offer["idx"]
-		var stone: Dictionary = _main.stone_formulas[stone_idx]
-		var stone_cost := get_stone_upgrade_cost()
-		var stone_bonus: int = int(stone["bonus"])
-		var stone_level: int = int(stone.get("lv", 1))
-		var stone_key := "stone:%d" % stone_idx
-		var is_sold: bool = sold or shop_bought.has(stone_key)
-		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], stone_level, stone_level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + stone_bonus], -2 if is_sold else stone_cost, Color("#b8741f"), not is_sold and _main.coins >= stone_cost, func(): buy_game_offer(captured_index), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": stone_bonus, "lv": stone_level, "pv": stone.get("pv", [])}})
 	elif kind == "stat":
 		var stat: String = offer["stat"]
 		var stat_info := _get_stat_offer_info(stat)
@@ -695,18 +654,6 @@ func _render_upgrade_catalog() -> void:
 		var captured_stat: String = stat
 		var unavailable: bool = shop_bought.has(stat) or (stat == "hand" and hand_maxed)
 		_add_shop_card("UPGRADE", info["title"], info["detail"], -2 if shop_bought.has(stat) else (-1 if unavailable else price), info["color"], not unavailable and _main.coins >= price, func(): buy_stat(captured_stat, price), info["detail"], null, {"big": info["big"]})
-	_add_section("STONE")
-	for idx in range(_main.stone_formulas.size()):
-		var stone: Dictionary = _main.stone_formulas[idx]
-		if not _main.discovered_formulas.has(stone["key"]):
-			continue
-		var cost := get_stone_upgrade_cost()
-		var key := "stone:%d" % idx
-		var bonus: int = int(stone["bonus"])
-		var level: int = int(stone.get("lv", 1))
-		var captured_idx := idx
-		var captured_cost := cost
-		_add_shop_card("STONE", "Stone %s Lv%d → %d" % [stone["name"], level, level + 1], "%s\nค่าเริ่ม ATK %d → %d" % [stone.get("desc", ""), stone["a"], stone["a"] + bonus], -2 if shop_bought.has(key) else cost, Color("#b8741f"), not shop_bought.has(key) and _main.coins >= cost, func(): buy_stone_upgrade(captured_idx, captured_cost), "เพิ่มพลังเริ่มต้น Stone", null, {"stone": {"name": stone["name"], "up": bonus, "lv": level, "pv": stone.get("pv", [])}})
 
 
 func buy_game_offer(index: int) -> void:
@@ -718,8 +665,6 @@ func buy_game_offer(index: int) -> void:
 		buy_artifact(offer["item"])
 	elif offer["kind"] == "chaos":
 		buy_chaos(offer["item"])
-	elif offer["kind"] == "stone":
-		buy_stone_upgrade(offer["idx"], get_stone_upgrade_cost())
 	elif offer["kind"] == "stat":
 		var stat_type: String = offer["stat"]
 		buy_stat(stat_type, HAND_PRICE if stat_type == "hand" else STAT_PRICE)
@@ -746,23 +691,6 @@ func buy_stat(stat_type: String, price: int) -> void:
 		_main.discard_max += 1
 	shop_bought.append(stat_type)
 
-	_main.update_all_ui()
-	render_shop_offers()
-	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)
-
-
-func buy_stone_upgrade(formula_idx: int, cost: int) -> void:
-	if formula_idx < 0 or formula_idx >= _main.stone_formulas.size():
-		return
-	var key := "stone:%d" % formula_idx
-	if shop_bought.has(key) or cost != STONE_UPGRADE_PRICE or _main.coins < cost:
-		return
-	_main.coins -= cost
-	_main.sfx.play("coin")
-	_main.stone_formulas[formula_idx]["a"] += int(_main.stone_formulas[formula_idx]["bonus"])
-	_main.stone_formulas[formula_idx]["lv"] = int(_main.stone_formulas[formula_idx].get("lv", 1)) + 1
-	shop_bought.append(key)
-	_main.artifact_sys.stone_upgrade()
 	_main.update_all_ui()
 	render_shop_offers()
 	_main.shop_coins_label.text = "🪙 %s" % _main.fmt_num(_main.coins)

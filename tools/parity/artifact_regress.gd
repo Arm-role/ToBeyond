@@ -22,12 +22,12 @@ const BOARDS := {
 const COMBOS := [
 	["add5", "mult2", "atk15"],
 	["add5", "add5", "atk15", "atk15"],
-	["south5", "add5", "mult2", "north5", "stoneUp"],
+	["south5", "add5", "mult2", "north5", "atk15"],
 	["reverse", "firstGem", "isoGem", "dirEHit", "eastG"],
 	["helperOdd", "helperEven", "firstGem", "greenCoin", "dirSHit"],
-	["chaosStack", "discardStack", "stone7W", "stone7E", "redS"],
+	["chaosStack", "discardStack", "stone7W", "stone7E", "mult2"],
 	["totem", "totem", "reverse", "emptyAtk", "chaosAtk"],
-	["equalG", "stone3", "tileAtk", "west5", "orangeN"],
+	["tileAtk", "west5", "add5", "mult2", "atk15"],
 	["artiPay", "fatePay", "walkCoin", "fullSell", "freediscard"],
 	["emptyAtk", "emptyMult", "emptyGrow", "mult2", "atk15"],
 ]
@@ -125,7 +125,7 @@ func _case(board_key: String, set: Array) -> void:
 	main.discards_left = 2
 	main.on_victory()
 	out.append("win=+%d" % (main.coins - before))
-	# Shop: sell price, stone upgrade, next round discards.
+	# Shop: sell price, next round discards.
 	var sells: Array[String] = []
 	for a in main.artifacts:
 		if a != null:
@@ -133,7 +133,6 @@ func _case(board_key: String, set: Array) -> void:
 	out.append("sell=" + ",".join(sells))
 	main.coins = 50
 	main.shop_mgr.shop_bought.clear()
-	main.shop_mgr.buy_stone_upgrade(0, ShopManager.STONE_UPGRADE_PRICE)
 	main.shop_mgr.on_shop_leave()
 	out.append("disc=%d" % main.discards_left)
 	var ms: Array[String] = []

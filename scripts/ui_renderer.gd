@@ -263,45 +263,16 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 	for child in row.get_children():
 		child.queue_free()
 
-	var group = null
-	for g in calc["groups"]:
-		if g["idxs"].has(i):
-			group = g
-			break
-	cell.remove_theme_stylebox_override("normal")
+	# Every placed Gem shows its flat ATK chip (Stone groups are gone).
 	var bar := cell.get_node_or_null("Bar") as Panel
-	if bar == null:
-		bar = Panel.new()
-		bar.name = "Bar"
-		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
-		bar.offset_bottom = 10.5
-		cell.add_child(bar)
-		cell.move_child(bar, 0)
-	bar.visible = group != null
-	if group == null:
-		pass
-	else:
-		# Draft .gbar: 7 px bar with a glow, rounded bottom corners at the group's ends.
-		var col := _group_color_for_tile(i, calc)
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = col
-		sb.shadow_color = Color(col.r, col.g, col.b, 0.4)
-		sb.shadow_size = 7
-		var first: bool = i == group["idxs"].min()
-		var last: bool = i == group["idxs"].max()
-		bar.offset_left = 4.5 if first else 0.0
-		bar.offset_right = -4.5 if last else 0.0
-		if first:
-			sb.corner_radius_bottom_left = 9
-		if last:
-			sb.corner_radius_bottom_right = 9
-		bar.add_theme_stylebox_override("panel", sb)
-		var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
-		if has_gem:
-			var v := _gstrip_chip(_main.fmt_num(float(calc["grp_val"].get(i, 1))), Color("#5fb0ff"), 28)
-			v.custom_minimum_size = Vector2(66, 0)
-			row.add_child(v)
+	if bar != null:
+		bar.visible = false
+	cell.remove_theme_stylebox_override("normal")
+	var has_gem = _main.placed_cards.has(i) and not _main.placed_cards[i].get("is_blank", false)
+	if has_gem:
+		var v := _gstrip_chip(_main.fmt_num(float(calc["grp_val"].get(i, 1))), Color("#5fb0ff"), 28)
+		v.custom_minimum_size = Vector2(66, 0)
+		row.add_child(v)
 
 	if _main.totem_tiles.has(i):
 		row.add_child(_gstrip_chip("🗿+%d" % _main.totem_attack(i), Color("#7fd0ff"), 22))
@@ -317,7 +288,6 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 	var card = _main.placed_cards.get(tile_idx)
 	var is_empty = card == null
 	var can_place = is_empty and not _main.is_busy and _main.selected_card_ids.size() == 1
-	var has_group = is_empty == false and not card.get("is_blank", false) and calc["grp_val"].has(tile_idx)
 	var matches_tile = is_empty == false and card.get("dir", "") == _main.TILE_DIR[tile_idx]
 	var is_gold = is_empty == false and card.get("gold", false)
 
@@ -338,8 +308,6 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · Gem ทอง: ทำงานสองครั้ง"
 	elif matches_tile:
 		hint += " · ทิศตรงช่อง"
-	elif has_group:
-		hint += " · Stone +%d" % int(calc["grp_val"].get(tile_idx, 1))
 	# Draft shows tile Chaos only as chips in the strip below the board.
 	if _main.chaos_mult_tiles.has(tile_idx):
 		hint += " · Chaos MULT +5"
@@ -507,34 +475,6 @@ func _make_tile_frame(accent: Color, border_width: int, glow_alpha: float) -> St
 	frame.shadow_size = 8 if glow_alpha > 0.0 else 0
 	frame.set_content_margin_all(0)
 	return frame
-
-
-func _group_color_for_tile(tile_idx: int, calc: Dictionary) -> Color:
-	const GCOL := {"red": Color("#e5484d"), "green": Color("#5fd48a"), "orange": Color("#f08a24"), "blue": Color("#2f7fd6")}
-	for group in calc["groups"]:
-		if group["idxs"].has(tile_idx):
-			if group["col"] != null:
-				return GCOL.get(group["col"], GameAssets.COLORS["brass_bright"])
-			if group.get("type", "") == "alt":
-				return Color("#f0cf86")
-			return Color("#E040FB")
-	return GameAssets.COLORS["brass_bright"]
-
-
-func _make_gstrip_badge(group_color: Color) -> StyleBoxFlat:
-	var badge = StyleBoxFlat.new()
-	badge.bg_color = Color(0.02, 0.02, 0.05, 0.92)
-	badge.border_color = group_color
-	badge.border_width_top = 9
-	badge.corner_radius_bottom_left = 10
-	badge.corner_radius_bottom_right = 10
-	badge.content_margin_left = 12.0
-	badge.content_margin_right = 12.0
-	badge.content_margin_top = 3.0
-	badge.content_margin_bottom = 3.0
-	badge.shadow_color = Color(group_color.r, group_color.g, group_color.b, 0.35)
-	badge.shadow_size = 5
-	return badge
 
 
 func render_hand() -> void:
@@ -710,7 +650,7 @@ func render_artifact_row() -> void:
 			slot.icon = _main.shop_mgr.art_cover(art)
 			slot.expand_icon = slot.icon != null
 			var counter = art.get("m", null)
-			var has_counter: bool = counter != null and not (art.get("type") == "stoneUp" and float(counter) == 1.0)
+			var has_counter: bool = counter != null
 			slot.text = str(counter) if has_counter else ("" if slot.icon != null else art["icon"])
 			slot.add_theme_font_size_override("font_size", 18 if has_counter and slot.icon != null else (25 if has_counter else 42))
 			slot.tooltip_text = ShopManager.display_name(art) + "\n" + ShopManager.display_desc(art)
@@ -873,64 +813,6 @@ func _rich(text: String, size: int) -> RichTextLabel:
 	r.add_theme_color_override("default_color", GameAssets.COLORS["text_bright"])
 	r.text = text
 	return r
-
-
-## Stone view like the draft's openStoneView(): one row per discovered formula.
-func setup_stone_modal_content() -> void:
-	for child in _main.stone_list.get_children():
-		child.queue_free()
-	var hidden := 0
-	for r in _main.stone_formulas:
-		if not _main.discovered_formulas.has(r["key"]):
-			hidden += 1
-			continue
-		var row := PanelContainer.new()
-		var rs := StyleBoxFlat.new()
-		rs.bg_color = Color(1, 1, 1, 0.05)
-		rs.set_corner_radius_all(12)
-		rs.content_margin_left = 12.0
-		rs.content_margin_right = 12.0
-		rs.content_margin_top = 9.0
-		rs.content_margin_bottom = 9.0
-		row.add_theme_stylebox_override("panel", rs)
-		var hb := HBoxContainer.new()
-		hb.add_theme_constant_override("separation", 18)
-		row.add_child(hb)
-		var pv := HBoxContainer.new()
-		pv.custom_minimum_size = Vector2(225, 0)
-		pv.add_theme_constant_override("separation", 4)
-		for c in r.get("pv", []):
-			var mc := make_mini_card(c[0], c[1], Vector2(36, 48))
-			mc.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			pv.add_child(mc)
-		hb.add_child(pv)
-		var lv := int(r.get("lv", 1))
-		var counts: Array[String] = []
-		for n in [2, 3, 5]:
-			if n >= int(r["min"]):
-				counts.append("%d ใบ = ใบละ %d" % [n, int(r["a"]) + int(r["g"]) * (n - 1)])
-		var txt := _rich("[b][font_size=21]%s [color=#f0cf86]Lv%d[/color][/font_size][/b]\n%s\n[color=#a79fc4]%s[/color]" % [r["name"], lv, r["desc"], " · ".join(counts)], 18)
-		txt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		hb.add_child(txt)
-		var at := _rich("[right][b][color=#5fb0ff][font_size=30]%d[/font_size] +%d/ใบ[/color][/b][/right]" % [r["a"], r["g"]], 21)
-		at.custom_minimum_size = Vector2(120, 0)
-		at.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		hb.add_child(at)
-		_main.stone_list.add_child(row)
-	if hidden > 0:
-		var h := Label.new()
-		h.text = "ยังไม่ค้นพบอีก %d สูตร · วางให้ได้เพื่อค้นพบ" % hidden
-		h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		h.add_theme_font_size_override("font_size", 21)
-		h.add_theme_color_override("font_color", GameAssets.COLORS["text_dim"])
-		var hs := StyleBoxFlat.new()
-		hs.bg_color = Color(1, 1, 1, 0.05)
-		hs.set_corner_radius_all(12)
-		hs.content_margin_top = 12.0
-		hs.content_margin_bottom = 12.0
-		h.add_theme_stylebox_override("normal", hs)
-		_main.stone_list.add_child(h)
-	_fit_view_scroll(_main.stone_list, 690.0)
 
 
 ## Deck view like the draft's openDeckView(): every remaining card, grouped by colour.

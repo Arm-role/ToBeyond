@@ -9,12 +9,12 @@ var main: Node
 # Attack hooks: the running ATK / multiplier.
 var atk: float = 0.0
 var mult: float = 1.0
-var calc: Dictionary = {}          # main.calculate_groups() for this attack
+var calc: Dictionary = {}          # main.calculate_groups() for this attack (groups always empty)
 
 # Land hook.
 var tile_idx: int = -1
 var card: Dictionary = {}
-var gain: int = 0                  # Stone ATK the landing tile gave
+var gain: int = 0                  # ATK the landing tile gave
 var extra: int = 0                 # bonus ATK shown in the tile popup
 var helper_pass: bool = false      # the helper star, not the fireball
 var coin_won: bool = false
@@ -39,17 +39,6 @@ func dir_run(direction: String) -> int:
 
 func special_tiles() -> int:
 	return main.passive_chaos_tile_count()
-
-func color_groups() -> int:
-	var n := 0
-	for group in calc.get("groups", []):
-		if group["idxs"].size() >= 2 and group["col"] != null:
-			n += 1
-	return n
-
-## Stone groups whose 2 tiles point `direction` and hold `color` Gems of that direction.
-func matching_groups(direction: String, color: String) -> int:
-	return main.matching_group_count(direction, color)
 
 ## Gems of `color` and `direction` on tiles of that direction.
 func matching_cards(direction: String, color: String) -> int:
@@ -86,13 +75,11 @@ func source(key: String, art: Dictionary = {}, fallback: float = 0.0, direction:
 		"counter": return float(art.get("m", fallback))
 		"empty_tiles": return empty_tiles()
 		"chaos_held": return chaos_held()
-		"color_groups": return color_groups()
 		"special_tiles": return special_tiles()
 		"discards_left": return discards_left()
 		"walks_left": return walks_left()
 		"artifacts_owned": return artifacts_owned()
 		"gems_per_10": return int(gems_in_deck() / 10.0)
-		"matching_groups": return matching_groups(direction, color)
 		"matching_cards": return matching_cards(direction, color)
 	push_error("ArtifactContext: unknown source '%s'" % key)
 	return 0.0

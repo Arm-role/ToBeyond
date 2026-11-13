@@ -11,25 +11,46 @@ func _init(main: Node) -> void:
 	_main = main
 
 
+## Flat ATK per placed Gem (Stone groups were removed in P2). `groups` stays in
+## the result, empty, so callers keep their shape; P4 replaces this with Gem types.
+const GEM_ATK: int = 2
+
 func calculate_groups() -> Dictionary:
-	var result: Dictionary = StoneCalc.calculate_groups(_main.placed_cards, _main.TILE_DIR, _main.stone_formulas, _main.N_TILES)
-	# Equalizer lifts every completed Stone group to the highest group value.
-	# This mirrors the draft's updateGroups() rule and changes real walk damage,
-	# not merely the number printed under a tile.
-	if _main.artifact_sys.has_rule(&"equal_groups") and result["groups"].size() >= 2:
-		var highest := 0
-		for group in result["groups"]:
-			highest = maxi(highest, int(group["res"]["a"]))
-		for group in result["groups"]:
-			group["res"]["a"] = highest
-			for tile_idx in group["idxs"]:
-				result["grp_val"][tile_idx] = highest
-		var total := 0
-		for tile_idx in range(_main.N_TILES):
-			if _main.placed_cards.has(tile_idx) and not _main.placed_cards[tile_idx].get("is_blank", false):
-				total += int(result["grp_val"].get(tile_idx, 1))
-		result["base_dmg"] = total
-	return result
+	var grp_val: Dictionary = {}
+	var total := 0
+	for tile_idx in range(_main.N_TILES):
+		if _main.placed_cards.has(tile_idx) and not _main.placed_cards[tile_idx].get("is_blank", false):
+			grp_val[tile_idx] = GEM_ATK
+			total += GEM_ATK
+	return {"groups": [], "grp_val": grp_val, "base_dmg": total}
+
+
+## Auto-place: cards sorted by colour then direction; each takes the first free
+## tile that points the same way as the card, else the first free tile.
+func greedy_placement(cards_to_place: Array) -> Dictionary:
+	const COLORS := ["red", "green", "orange", "blue"]
+	const DIRS := ["N", "E", "S", "W"]
+	var free: Array[int] = []
+	for i in range(_main.N_TILES):
+		if not _main.placed_cards.has(i):
+			free.append(i)
+	var use: Array = cards_to_place.slice(0, mini(cards_to_place.size(), free.size()))
+	use.sort_custom(func(a, b):
+		var ca: int = COLORS.find(str(a["color"]))
+		var cb: int = COLORS.find(str(b["color"]))
+		if ca != cb:
+			return ca < cb
+		return DIRS.find(str(a["dir"])) < DIRS.find(str(b["dir"])))
+	var slots: Array = []
+	for card in use:
+		var pick: int = free[0]
+		for t in free:
+			if _main.TILE_DIR[t] == card["dir"]:
+				pick = t
+				break
+		free.erase(pick)
+		slots.append(pick)
+	return {"cards": use, "slots": slots}
 
 
 func tile_direction_count(direction: String) -> int:
@@ -47,19 +68,6 @@ func tile_direction_run(direction: String) -> int:
 		run = run + 1 if tile_direction == direction else 0
 		best = maxi(best, run)
 	return best
-
-
-func matching_group_count(direction: String, color: String) -> int:
-	var count := 0
-	for group in calculate_groups()["groups"]:
-		var matches := 0
-		for tile_idx in group["idxs"]:
-			var card = _main.placed_cards.get(tile_idx)
-			if card != null and _main.TILE_DIR[tile_idx] == direction and card.get("dir") == direction and (color.is_empty() or card.get("color") == color):
-				matches += 1
-		if matches >= 2:
-			count += 1
-	return count
 
 
 func matching_card_count(direction: String, color: String) -> int:

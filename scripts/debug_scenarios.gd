@@ -9,7 +9,7 @@ extends Node
 ## and window.tbReady = <name> once the state is on screen.
 ## Keep the list in sync with tools/parity/scenarios.js.
 
-const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "stone", "shopart", "newarts", "gembuff", "deckmarks", "goldwalk", "goldarts"]
+const SCENARIOS := ["main", "placed", "win", "shop", "lose", "boss", "arts", "rare", "deck", "shopart", "newarts", "gembuff", "deckmarks", "goldwalk", "goldarts"]
 ## Same 8 cards as tools/parity/scenarios.js, so both hands match.
 const FIXED_HAND := [["red", "N"], ["red", "N"], ["blue", "E"], ["blue", "E"],
 	["green", "S"], ["orange", "W"], ["red", "S"], ["blue", "W"]]
@@ -120,9 +120,6 @@ func run(scenario: String, restart: bool = true) -> void:
 			for i in [5, 8, 21, 40]:
 				main.deck[i]["buffs"] = {"mult": 1}
 			main.open_deck_modal()
-		"stone":
-			main.setup_stone_modal_content()
-			main.stone_modal.visible = true
 		"arts":
 			var slot := 0
 			for t in ["add5", "mult2", "atk15"]:
@@ -142,7 +139,7 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.update_all_ui()
 		"rare":
 			var rslot := 0
-			for t in ["add5", "stoneUp", "north5"]:
+			for t in ["add5", "mult2", "north5"]:
 				for it in ShopManager.ARTIFACT_CATALOG:
 					if it["type"] == t:
 						main.artifacts[rslot] = it.duplicate()
@@ -158,7 +155,6 @@ func run(scenario: String, restart: bool = true) -> void:
 				h["color"] = "blank"
 			main.update_all_ui()
 			await get_tree().create_timer(0.3).timeout
-			main.show_discovery_toast("cd")
 			main.chaos_msg("แตะช่องที่ต้องการวาง")
 	for i in 3:
 		await get_tree().process_frame

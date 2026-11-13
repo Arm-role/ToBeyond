@@ -239,6 +239,3 @@ func victory() -> Dictionary:
 	return {"rows": rows, "total": total, "fx": fx}
 
 
-## Shop purchase: the artifact row is hidden there, so no flash.
-func stone_upgrade() -> void:
-	_per_copy("stone_upgrade", _ctx())

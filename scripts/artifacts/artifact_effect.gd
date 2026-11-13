@@ -17,10 +17,9 @@ extends Resource
 ## attack          | final attack, in slot order (draft)    | per copy
 ## victory         | the enemy died (counters)              | per copy
 ## reward          | the enemy died: coins to add           | per type
-## stone_upgrade   | a Stone formula was bought in the shop | per copy
 ## grants(rule)    | rule switches read by the game code    | query
 ##
-## Rules in use: walk_back, helper_odd, helper_even, totem, equal_groups,
+## Rules in use: walk_back, helper_odd, helper_even, totem,
 ## free_discard, full_sell.
 
 
@@ -33,5 +32,4 @@ func attack_early(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func attack(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func victory(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func reward(_ctx: ArtifactContext, _count: int) -> int: return 0
-func stone_upgrade(_ctx: ArtifactContext, _art: Dictionary) -> bool: return false
 func grants(_rule: StringName) -> bool: return false

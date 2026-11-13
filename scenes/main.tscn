@@ -1006,21 +1006,6 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_vbtn")
 text = "🃏 กอง 40 ใบ · กดดู"
 alignment = 0
 
-[node name="StoneBtn" type="Button" parent="ToolCol"]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_type_variation = &"PlainButton"
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_colors/font_hover_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_colors/font_pressed_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 21
-theme_override_styles/normal = SubResource("StyleBoxFlat_vbtn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_vbtn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_vbtn")
-theme_override_styles/focus = SubResource("StyleBoxFlat_vbtn")
-text = "📜 สูตร Stone"
-alignment = 0
-
 [node name="RewardModal" type="PanelContainer" parent="."]
 visible = false
 z_index = 100
@@ -1126,82 +1111,6 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_go_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_go_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_go_btn")
 text = "New Game"
-
-[node name="StoneModal" type="Control" parent="."]
-visible = false
-z_index = 100
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Dim" type="ColorRect" parent="StoneModal"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
-
-[node name="Center" type="CenterContainer" parent="StoneModal"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Panel" type="PanelContainer" parent="StoneModal/Center"]
-custom_minimum_size = Vector2(960, 0)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_view_panel")
-
-[node name="VBox" type="VBoxContainer" parent="StoneModal/Center/Panel"]
-layout_mode = 2
-theme_override_constants/separation = 15
-
-[node name="Title" type="Label" parent="StoneModal/Center/Panel/VBox"]
-layout_mode = 2
-theme_type_variation = &"BoldLabel"
-theme_override_colors/font_color = Color(0.941176, 0.811765, 0.52549, 1)
-theme_override_font_sizes/font_size = 30
-text = "Stone (สูตรเรียง Gem)"
-horizontal_alignment = 1
-
-[node name="Note" type="Label" parent="StoneModal/Center/Panel/VBox"]
-custom_minimum_size = Vector2(916, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.654902, 0.623529, 0.768627, 1)
-theme_override_font_sizes/font_size = 18
-text = "ATK ต่อ Gem = ค่าเริ่ม + ค่าเพิ่ม × (จำนวนใบ − 1) · สูตรยากได้ค่าเพิ่มต่อใบสูงกว่า · อัปเกรดในร้านเพิ่มค่าเริ่ม · ระบบเลือกกลุ่มที่ได้ ATK รวมสูงสุดให้เอง"
-autowrap_mode = 3
-
-[node name="Scroll" type="ScrollContainer" parent="StoneModal/Center/Panel/VBox"]
-custom_minimum_size = Vector2(0, 300)
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="List" type="VBoxContainer" parent="StoneModal/Center/Panel/VBox/Scroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 15
-
-[node name="CloseBtn" type="Button" parent="StoneModal/Center/Panel/VBox"]
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_colors/font_hover_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_colors/font_pressed_color = Color(0.164706, 0.129412, 0.25098, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_sec_btn")
-theme_override_styles/hover = SubResource("StyleBoxFlat_sec_btn")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_sec_btn")
-theme_override_styles/focus = SubResource("StyleBoxFlat_sec_btn")
-text = "ปิด"
 
 [node name="DeckModal" type="Control" parent="."]
 visible = false

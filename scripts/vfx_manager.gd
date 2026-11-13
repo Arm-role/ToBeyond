@@ -226,23 +226,6 @@ static func spawn_damage_number(effects_layer: Control, text: String, target_glo
 	tween.tween_callback(pop.queue_free)
 
 
-## Displays formula discovery toast banner
-static func show_discovery_toast(toast: PanelContainer, toast_label: Label, f_info: Dictionary, speed_multiplier: float = 1.0) -> void:
-	if not toast or not toast_label or f_info.is_empty(): return
-	toast_label.text = "✨ ค้นพบสูตรใหม่! · %s (%s) · ATK +%d" % [f_info.get("name", ""), f_info.get("desc", ""), f_info.get("a", 1)]
-	toast.visible = true
-	toast.modulate.a = 0.0
-	var orig_y = 70.0
-	toast.position.y = orig_y - 25.0
-
-	var tween = toast.create_tween()
-	tween.tween_property(toast, "position:y", orig_y, 0.28 / speed_multiplier).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(toast, "modulate:a", 1.0, 0.25 / speed_multiplier)
-	tween.tween_interval(2.2 / speed_multiplier)
-	tween.tween_property(toast, "position:y", orig_y - 20.0, 0.25 / speed_multiplier)
-	tween.parallel().tween_property(toast, "modulate:a", 0.0, 0.25 / speed_multiplier)
-	tween.tween_callback(func(): toast.visible = false)
-
 ## Draft `.disc-toast`: centred at 36% height, fades in rising 15 px,
 ## holds, then fades out rising another 15 px.
 static func show_center_toast(toast: PanelContainer, duration: float = 2.6) -> void:

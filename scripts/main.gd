@@ -12,8 +12,6 @@ const COLOR_ORDER: Array[String] = ["red", "green", "orange", "blue"]
 const DIR_ORDER: Array[String] = ["N", "E", "S", "W"]
 const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"]
 
-# --- Stone Formulas ---
-var stone_formulas: Array[Dictionary] = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
 
 # --- Progression & Stat Limits (Matching Draft) ---
 const EATK_START: int = 10
@@ -54,7 +52,6 @@ var is_busy: bool = false
 var speed_multiplier: float = 1.0
 ## The web draft exposes these four base recipes from the beginning. The two
 ## higher-value recipes remain discoveries.
-var discovered_formulas: Array[String] = ["col", "dsame", "alt", "dtile"]
 
 ## Damage is accumulated as the token visits cards during a walk.
 var walk_base_damage: int = 0
@@ -122,7 +119,6 @@ var artifacts: Array = []  # Array of null or Dict
 
 @onready var hand_container: Control = $BottomSection/HandContainer
 @onready var deck_count_btn: Button = $ToolCol/DeckCountBtn
-@onready var stone_btn: Button = $ToolCol/StoneBtn
 @onready var sort_color_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortColorBtn
 @onready var sort_dir_btn: Button = $BottomSection/ControlsRow/ActionCol/SortGroup/SortFrame/HBox/SortDirBtn
 @onready var walk_btn: Button = $BottomSection/ControlsRow/ActionCol/WalkBtn
@@ -137,9 +133,6 @@ var artifacts: Array = []  # Array of null or Dict
 @onready var gameover_info: Label = $GameOverModal/Center/Panel/VBox/GameOverInfo
 @onready var gameover_btn: Button = $GameOverModal/Center/Panel/VBox/RetryBtn
 
-@onready var stone_modal: Control = $StoneModal
-@onready var stone_list: VBoxContainer = $StoneModal/Center/Panel/VBox/Scroll/List
-@onready var stone_close_btn: Button = $StoneModal/Center/Panel/VBox/CloseBtn
 
 # Deck Modal
 @onready var deck_modal: Control = $DeckModal
@@ -216,9 +209,7 @@ func _ready() -> void:
 	shop_mgr = ShopManager.new(self)
 	ui_renderer = UiRenderer.new(self)
 	board_calc = BoardCalc.new(self)
-	StoneCalc.validate_formulas(stone_formulas)
 	_setup_action_dialog()
-	setup_stone_modal_content()
 	_style_sort_button(sort_color_btn, sort_mode == "color")
 	_style_sort_button(sort_dir_btn, sort_mode == "dir")
 	hand_container.resized.connect(render_hand)
@@ -275,13 +266,8 @@ func connect_ui_signals() -> void:
 	discard_btn.pressed.connect(_on_discard_pressed)
 	sort_color_btn.pressed.connect(func(): set_sort_mode("color"))
 	sort_dir_btn.pressed.connect(func(): set_sort_mode("dir"))
-	stone_btn.pressed.connect(func():
-		setup_stone_modal_content()
-		stone_modal.visible = true
-	)
-	stone_close_btn.pressed.connect(func(): stone_modal.visible = false)
 	# Like the draft's `.vw`: tapping outside the panel closes the view.
-	for view in [stone_modal, deck_modal]:
+	for view in [deck_modal]:
 		var v: Control = view
 		v.get_node("Dim").gui_input.connect(func(e: InputEvent):
 			if e is InputEventMouseButton and e.pressed:
@@ -356,19 +342,15 @@ func start_new_game() -> void:
 	selected_card_ids.clear()
 	artifacts.clear()
 	for i in range(MAX_ARTIFACTS): artifacts.append(null)
-	discovered_formulas = ["col", "dsame", "alt", "dtile"]
 	walk_base_damage = 0
 	walk_mult_bonus = 0.0
 	first_gem_triggered = false
 	first_gem_tile = -1
-	stone_formulas = StoneCalc.DEFAULT_FORMULAS.duplicate(true)
-	StoneCalc.validate_formulas(stone_formulas)
 	totem_tiles.clear()
 	reset_chaos()
 
 	reward_modal.visible = false
 	gameover_modal.visible = false
-	stone_modal.visible = false
 	shop_modal.visible = false
 	deck_modal.visible = false
 	token.visible = false
@@ -569,7 +551,7 @@ func _on_discard_pressed() -> void:
 
 
 # ==============================================================================
-# Stone Calculations & Group Combinations (Matching Draft calcGroups)
+# Flat per-Gem ATK (Stone groups removed)
 # ==============================================================================
 
 func calculate_groups() -> Dictionary:
@@ -584,8 +566,6 @@ func tile_direction_run(direction: String) -> int:
 	return board_calc.tile_direction_run(direction)
 
 
-func matching_group_count(direction: String, color: String) -> int:
-	return board_calc.matching_group_count(direction, color)
 
 
 func matching_card_count(direction: String, color: String) -> int:
@@ -679,7 +659,6 @@ func show_calc(atk: float, mult: float) -> void:
 
 
 func refresh_calc() -> void:
-	var result = calculate_groups()
 	# Draft refreshCalc(): `1 × 1 = 1` while placing; during the walk the totals
 	# the fireball has collected so far. Artifacts are applied one by one after
 	# the walk (BattleManager), not in this preview.
@@ -689,39 +668,10 @@ func refresh_calc() -> void:
 		show_calc(1.0, 1.0)
 		summary_label.visible = false
 
-	# Check for new Stone formula discoveries
-	for g in result["groups"]:
-		var key = g["type"]
-		if not discovered_formulas.has(key):
-			discovered_formulas.append(key)
-			show_discovery_toast(key)
-
-	# Update Gstrip badges
-	for i in range(N_TILES):
-		var lbl = gstrip_container.get_child(i) as Label
-		if placed_cards.has(i) and not placed_cards[i].get("is_blank", false):
-			var val = result["grp_val"].get(i, 1)
-			lbl.text = "+%d" % val
-			var g_col = GameAssets.COLORS["brass"]
-			for g in result["groups"]:
-				if g["idxs"].has(i):
-					if g["col"] != null:
-						g_col = GameAssets.COLORS.get(g["col"], GameAssets.COLORS["brass"])
-					else:
-						g_col = Color("#E040FB")
-					break
-			lbl.modulate = g_col
-		else:
-			lbl.text = "•"
-			lbl.modulate = Color(0.35, 0.35, 0.45)
-
-	# Render the richer connected Stone badges after the legacy label update.
-	# The temporary legacy loop remains here while this dirty-worktree refactor is
-	# being consolidated, but it no longer controls the visible result.
 	ui_renderer.render_tiles()
 
 
-# --- Smart Auto-Placement Solver ---
+# --- Auto-placement ---
 ## Cards placed one at a time: each hand card leaves the hand, swoops to its
 ## tile (accelerating, with a small arc) and lands with a pop and a rising
 ## note, one beat after the previous card.
@@ -736,7 +686,7 @@ func auto_place_selected() -> void:
 		if selected_card_ids.has(card["id"]):
 			cards_to_place.append(card)
 
-	var result = StoneCalc.solve_best_placement(cards_to_place, placed_cards, TILE_DIR, stone_formulas, N_TILES)
+	var result = board_calc.greedy_placement(cards_to_place)
 	var best_cards: Array = result["cards"]
 	var slots: Array = result["slots"]
 	if slots.is_empty(): return
@@ -884,10 +834,6 @@ func on_game_over() -> void:
 	gameover_modal.visible = true
 
 
-func setup_stone_modal_content() -> void:
-	ui_renderer.setup_stone_modal_content()
-
-
 func _on_speed_toggle() -> void:
 	speed_multiplier = 1.0 if speed_multiplier >= 5.0 else speed_multiplier + 1.0
 	speed_btn.text = "▶ x1" if speed_multiplier == 1.0 else "⏩ x%d" % int(speed_multiplier)
@@ -911,16 +857,6 @@ func shake_node(node: Control, intensity: float = 14.0, duration: float = 0.38, 
 
 func spawn_damage_number(text: String, target_global_pos: Vector2, col: Color = Color("#ff4d5e"), is_big: bool = true) -> void:
 	VfxManager.spawn_damage_number(effects_layer, text, target_global_pos, col, is_big, speed_multiplier)
-
-
-func show_discovery_toast(formula_key: String) -> void:
-	for k in range(stone_formulas.size()):
-		var f: Dictionary = stone_formulas[k]
-		if f["key"] == formula_key:
-			# Draft disc-toast: "✨ ค้นพบสูตรใหม่ · stone N name · ATK a"
-			toast_label.text = "✨ ค้นพบสูตรใหม่ · stone %d %s · ATK %d" % [k + 1, f["name"], f["a"]]
-			VfxManager.show_center_toast(toast, 2.6)
-			return
 
 
 var _chaos_toast: PanelContainer
