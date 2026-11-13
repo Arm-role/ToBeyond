@@ -595,8 +595,8 @@ func buy_stat(stat_type: String, price: int) -> void:
 	elif stat_type == "walk":
 		_main.walk_max += 1
 		_main.walks_left = _main.walk_max
-		_main.player_max_hp = _main.enemy_atk * _main.walk_max
-		_main.player_hp = _main.player_max_hp
+		_main.player_max_hp += _main.PLAYER_HP_PER_WALK
+		_main.player_hp += _main.PLAYER_HP_PER_WALK
 	elif stat_type == "disc":
 		_main.discard_max += 1
 	shop_bought.append(stat_type)
@@ -640,13 +640,13 @@ func on_shop_leave() -> void:
 	_main.enemy_pic.scale = Vector2.ONE
 
 	# Enemy scaling per draft
-	_main.enemy_max_hp = roundi(_main.enemy_max_hp * 1.5)
+	_main.enemy_max_hp = roundi(_main.enemy_max_hp * _main.EHP_GROW)
 	_main.enemy_hp = _main.enemy_max_hp
 	_main.enemy_atk = _main.enemy_atk * _main.PHP_GROW
 
 	_main.walks_left = _main.walk_max
-	_main.player_max_hp = _main.enemy_atk * _main.walk_max
-	_main.player_hp = _main.player_max_hp
+	# HP carries over between enemies; a share of it is restored.
+	_main.player_hp = minf(_main.player_max_hp, _main.player_hp + _main.player_max_hp * _main.HEAL_ON_CLEAR)
 
 	# Wild Shuffle permits discarding after placement, in exchange for one use.
 	_main.discards_left = maxi(0, _main.discard_max - (1 if _main.artifact_sys.has_rule(&"free_discard") else 0))

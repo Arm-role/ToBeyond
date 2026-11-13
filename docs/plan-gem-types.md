@@ -75,7 +75,7 @@
 | P2 (ทำแล้ว: Gem ละ 2 ATK คงที่ `BoardCalc.GEM_ATK`, auto-place greedy, ลบ equalG/stone3/stoneUp/redS/orangeN) | ลบ Stone: Gem ให้ค่าคงที่ต่อใบ (`calculate_groups` คืนกลุ่มว่าง `grp_val` = ค่าการ์ด คงซิกเนเจอร์ไว้ก่อน), ลบ/เขียน Artifact ที่อ่านกลุ่ม, auto-place เป็น greedy แบบง่าย, ลบไฟล์/โมดัล/gstrip/toast |
 | P3 (ทำแล้ว: ลบ Chaos ทั้งระบบ, บอสให้ Artifact แทนผลึก, ลบ south5/west5/chaosAtk/chaosStack/tileAtk) | ลบ Chaos ตามลำดับ: รางวัล+แท็บร้าน → ช่อง/แถว/ลาก → คริสตัลในการเดิน → data+scripts → parity tools+baseline → map.md |
 | P4 (ทำแล้ว: แดง=โจมตี น้ำเงิน=โล่ เขียว=รักษา ส้ม=ทอง, สายสีเดียวกัน +1/เพื่อนบ้าน, attuned ×2, mult ใช้กับโจมตีเท่านั้น) | ชนิด Gem ตามสี + สายสีเดียวกัน + attuned + เลิกใช้ mult ร่วม |
-| P5 | ปรับ Artifact/ร้าน/รางวัลให้เข้ากับ resource ใหม่ จูนตัวเลข `--regress --update` |
+| P5 (ทำแล้ว: HP ศัตรู 18 ×1.25, HP ผู้เล่นต่อเนื่อง, Artifact สี 4 ใบ; จูนจากบอทจำลอง ยังไม่ผ่านการเล่นจริง) | ปรับ Artifact/ร้าน/รางวัลให้เข้ากับ resource ใหม่ จูนตัวเลข `--regress --update` |
 
 ## 6. ความเสี่ยง
 

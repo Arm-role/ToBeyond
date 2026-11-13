@@ -144,8 +144,8 @@ func apply_tile_walk_effects(tile_idx: int, helper_pass: bool = false) -> Dictio
 		"blue": _main.walk_block += gain
 		"green": _main.walk_heal += gain
 		"orange":
-			# Orange pays gold: half the Gem's power, rounded up.
-			gain = int(ceil(gain / 2.0))
+			# Orange pays gold: a third of the Gem's power, rounded up.
+			gain = int(ceil(gain / 3.0))
 			_main.coins += gain
 			_main.update_all_ui()
 		_: _main.walk_base_damage += gain

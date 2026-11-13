@@ -15,7 +15,12 @@ const BOSS_PICS: Array[String] = ["👹", "👺", "👻", "💀", "🐲", "🧟"
 
 # --- Progression & Stat Limits (Matching Draft) ---
 const EATK_START: int = 10
-const PHP_GROW: float = 1.2
+const PHP_GROW: float = 1.2        # enemy ATK growth per stage
+const EHP_START: int = 18
+const EHP_GROW: float = 1.25       # enemy HP growth per stage
+const PLAYER_HP_START: int = 30
+const PLAYER_HP_PER_WALK: int = 10  # max HP gained with each extra walk
+const HEAL_ON_CLEAR: float = 0.5    # share of max HP restored after each enemy
 const WALK_START: int = 3
 const DISCARD_START: int = 3
 const HAND_START: int = 8
@@ -30,11 +35,11 @@ var enemy_atk: float = EATK_START
 var walks_left: int = WALK_START
 var discards_left: int = DISCARD_START
 
-var player_max_hp: float = enemy_atk * walk_max
+var player_max_hp: float = PLAYER_HP_START
 var player_hp: float = player_max_hp
 
-var enemy_max_hp: int = 50
-var enemy_hp: int = 50
+var enemy_max_hp: int = EHP_START
+var enemy_hp: int = EHP_START
 
 # --- State Variables ---
 var deck: Array[Dictionary] = []
@@ -313,10 +318,10 @@ func start_new_game() -> void:
 	walks_left = walk_max
 	discards_left = discard_max
 
-	player_max_hp = enemy_atk * walk_max
+	player_max_hp = PLAYER_HP_START
 	player_hp = player_max_hp
 
-	enemy_max_hp = 50
+	enemy_max_hp = EHP_START
 	enemy_hp = enemy_max_hp
 
 	is_busy = false
