@@ -19,6 +19,6 @@ icon = "♨"
 text_th = "Gem ที่ป๊อปแล้วอยู่ต่ออีกหนึ่งรอบ"
 archetype = "ember"
 rarity = "common"
-price = 6
+price = 4
 catalog_order = 7
 rules = Array[Resource]([SubResource("Resource_r0")])

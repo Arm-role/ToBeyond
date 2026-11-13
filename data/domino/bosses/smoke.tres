@@ -1,0 +1,17 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_boss.gd" id="1_b"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[resource]
+script = ExtResource("1_b")
+id = "smoke"
+name_th = "ม่านควัน"
+icon = "🌫"
+text_th = "ซ่อนธงจนกว่าลูกไฟจะเข้าใกล้ภายใน 2 ช่อง"
+hp_mult = 1.4
+dmg_mult = 1.0
+rule = &"smoke"
+args = {"reveal": 2}
+rules = Array[Resource]([])
+catalog_order = 4

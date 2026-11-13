@@ -27,6 +27,6 @@ icon = "🔥"
 text_th = "Gem ที่อยู่ต่อจากรอบก่อน ป๊อปแรงเป็นสองเท่า"
 archetype = "ember"
 rarity = "uncommon"
-price = 9
+price = 6
 catalog_order = 8
 rules = Array[Resource]([SubResource("Resource_r0"), SubResource("Resource_r1")])

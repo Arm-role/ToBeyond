@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"kill"
+cond = {"target": "enemy"}
+effect = &"gold"
+args = {"amount": 2}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "bounty"
+name_th = "ค่าหัว"
+icon = "💰"
+text_th = "ศัตรูตาย: +2 เหรียญ"
+archetype = "blaze"
+rarity = "common"
+price = 4
+catalog_order = 14
+rules = Array[Resource]([SubResource("Resource_r0")])

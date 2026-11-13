@@ -8,6 +8,7 @@ extends Control
 const Sim := preload("res://scripts/domino/domino_sim.gd")
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const Reward := preload("res://scripts/domino/domino_reward.gd")
+const Shop := preload("res://scripts/domino/domino_shop.gd")
 const SLOTS := 5
 const MAX_STAGE := 10
 const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกัน", "ember": "ถ่าน", "blaze": "เปลวไฟ"}
@@ -31,6 +32,10 @@ var v_enemy_hp: int = 0
 var v_enemy_max: int = 18
 var v_strike: float = 8.0
 var v_flag: int = 3
+var v_flag2: int = -1               # second flag (twin-flag boss), -1 = none
+var v_gold: int = 0
+var v_boss: Resource = null
+var flag_seen: bool = false         # smoke boss: a flag is revealed once the fireball is within 2 tiles
 var v_board: Dictionary = {}        # tile -> {color, kept, ...}
 var hand: Array[String] = []        # "" = slot already placed
 var selected: int = -1
@@ -56,6 +61,9 @@ var tile_btns: Array[Button] = []
 var hand_btns: Array[Button] = []
 var fire: Label
 var flag: Label
+var flag2: Label
+var gold_lbl: Label
+var boss_lbl: Label
 var stage_lbl: Label
 var enemy_lbl: Label
 var enemy_bar: ProgressBar
@@ -195,6 +203,12 @@ func _build() -> void:
 	flag.size = Vector2(TILE, 90)
 	flag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(flag)
+	flag2 = flag.duplicate()
+	flag2.visible = false
+	add_child(flag2)
+	gold_lbl = _label("", 40, Vector2(1590, 15), 310.0)
+	gold_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	boss_lbl = _label("", 30, Vector2(460, 135), 1000.0)
 	fire = Label.new()
 	fire.text = "🔥"
 	fire.add_theme_font_size_override("font_size", 80)
@@ -309,6 +323,10 @@ func _sync() -> void:
 	v_enemy_max = sim.enemy_max
 	v_strike = sim.strike_dmg
 	v_flag = sim.flags[0]
+	v_flag2 = sim.flags[1] if sim.flags.size() > 1 else -1
+	v_gold = sim.gold
+	v_boss = sim.boss
+	flag_seen = false
 	v_board = sim.board.duplicate(true)
 
 
@@ -335,12 +353,20 @@ func _style(b: Button, c: String, picked: bool = false) -> void:
 		b.add_theme_stylebox_override(s, sb)
 
 
+func _smoke() -> bool:
+	return v_boss != null and v_boss.rule == &"smoke"
+
+
 func _refresh() -> void:
-	stage_lbl.text = "ด่าน %d" % stage
+	stage_lbl.text = ("ด่าน %d · %s %s" % [stage, v_boss.icon, v_boss.name_th]) if v_boss != null else "ด่าน %d" % stage
+	boss_lbl.text = v_boss.text_th if v_boss != null else ""
+	gold_lbl.text = "🪙 %d" % v_gold
 	enemy_lbl.text = "👹 HP %d / %d" % [maxi(v_enemy_hp, 0), v_enemy_max]
 	enemy_bar.max_value = v_enemy_max
 	enemy_bar.value = maxi(v_enemy_hp, 0)
-	intent_lbl.text = "ตีแรง %d ที่ช่อง %d" % [roundi(v_strike), v_flag + 1]
+	var hidden := _smoke() and not flag_seen
+	var where := "?" if hidden else ("%d, %d" % [v_flag + 1, v_flag2 + 1] if v_flag2 >= 0 else "%d" % (v_flag + 1))
+	intent_lbl.text = "ตีแรง %d ที่ช่อง %s" % [roundi(v_strike), where]
 	hp_lbl.text = "HP %d / %d" % [roundi(maxf(v_hp, 0.0)), roundi(v_max_hp)]
 	hp_bar.max_value = v_max_hp
 	hp_bar.value = maxf(v_hp, 0.0)
@@ -355,6 +381,10 @@ func _refresh() -> void:
 		hand_btns[i].disabled = c == "" or busy
 		_style(hand_btns[i], c, i == selected)
 	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - 100.0)
+	flag.visible = not hidden
+	flag2.visible = v_flag2 >= 0 and not hidden
+	if v_flag2 >= 0:
+		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - 100.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
 	_refresh_slots()
 
@@ -419,6 +449,10 @@ func _windup() -> void:
 	var ft := create_tween()
 	ft.tween_property(flag, "scale", Vector2(1.3, 1.3), 0.06)
 	ft.tween_property(flag, "scale", Vector2.ONE, 0.10)
+	if flag2.visible:
+		var ft2 := create_tween()
+		ft2.tween_property(flag2, "scale", Vector2(1.3, 1.3), 0.06)
+		ft2.tween_property(flag2, "scale", Vector2.ONE, 0.10)
 
 
 func _badge(block: int) -> void:
@@ -559,6 +593,9 @@ func _play_walk(evs: Array) -> void:
 				_react(hero, HERO_HOME, 0.0, Color.WHITE, 1.15)
 			"pass":
 				seen += 1
+				if _smoke() and (absi(ev.tile - v_flag) <= 2 or (v_flag2 >= 0 and absi(ev.tile - v_flag2) <= 2)):
+					flag_seen = true
+					_refresh()
 				var np := _next_pass(evs, j)
 				if np >= 0 and _strike_after(evs, np):
 					_windup()
@@ -573,6 +610,8 @@ func _play_walk(evs: Array) -> void:
 			"pop":
 				sfx.step(ev.nth - 1)
 				_pop(tile_btns[ev.tile], 1.3)
+				if ev.get("nullified", false):
+					_float_text("0", ENEMY_HOME + Vector2(60, 0), Color("#9a9aa6"))
 			"hit":
 				if ev.target == "enemy":
 					v_enemy_hp = roundi(ev.hp_after)
@@ -613,13 +652,20 @@ func _play_walk(evs: Array) -> void:
 				_refresh()
 				await get_tree().create_timer(0.3).timeout
 			"flag_move":
-				v_flag = ev.to
+				if v_flag == ev.from:
+					v_flag = ev.to
+				else:
+					v_flag2 = ev.to
 				_refresh()
 			"spawn":
 				v_board[ev.tile] = {"color": ev.color, "kept": false}
 				_refresh()
 			"capped":
 				_float_text("สุดทาง", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 120.0), Color("#c8c8d0"))
+			"gold":
+				v_gold = ev.total
+				_float_text("+%d 🪙" % ev.amount, ENEMY_HOME + Vector2(40, 60), Color("#ffd966"))
+				_refresh()
 			"kill":
 				result = ev.target
 	fire.visible = false
@@ -637,7 +683,10 @@ func _play_walk(evs: Array) -> void:
 
 func _win() -> void:
 	sfx.play("win")
-	msg.text = "ชนะด่าน %d!" % stage
+	var coins := sim.claim_win()
+	v_gold = sim.gold
+	msg.text = "ชนะด่าน %d! +%d 🪙" % [stage, coins]
+	_refresh()
 	await get_tree().create_timer(1.1).timeout
 	if stage >= MAX_STAGE:
 		over = true
@@ -645,10 +694,13 @@ func _win() -> void:
 		_restart_button()
 		_refresh()
 		return
-	var offers := Reward.offer(sim)
-	if not offers.is_empty():
-		msg.text = ""
-		await _reward(offers)
+	msg.text = ""
+	if sim.boss != null:
+		await _shop()   # a boss win opens the shop instead of the 1-of-3 pick
+	else:
+		var offers := Reward.offer(sim)
+		if not offers.is_empty():
+			await _reward(offers)
 	stage += 1
 	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
@@ -744,3 +796,64 @@ func _reward_pick(d: Resource, offers: Array) -> void:
 			reward_done.emit())
 	var back := _rw_button("กลับ", Vector2(810, 780), Vector2(300, 100), 40)
 	back.pressed.connect(func(): _reward_offers(offers))
+
+
+## Shop after a boss: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
+func _shop() -> void:
+	reward_ui = Control.new()
+	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reward_ui.z_index = 100
+	add_child(reward_ui)
+	var rerolls := 0
+	var stock: Array = Shop.stock(sim)
+	var done := false
+	while not done:
+		_apply_slots()
+		_rw_clear("ร้านค้า   🪙 %d" % sim.gold)
+		var x0 := (1920.0 - (stock.size() * 420.0 + (stock.size() - 1) * 30.0)) * 0.5
+		for i in stock.size():
+			var d: Resource = stock[i]
+			if d == null:
+				continue   # already bought
+			var free := slot_arr.find(null)
+			var cost := Shop.price(d)
+			var can := sim.gold >= cost and free >= 0
+			var label := "%s\n%s\n(%s · %s)\n\n%s\n\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th,
+				("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน"]
+			var b := _rw_button(label, Vector2(x0 + i * 450.0, 140), Vector2(420, 470), 30)
+			b.disabled = not can
+			b.pressed.connect(func():
+				sim.gold -= cost
+				slot_arr[free] = d
+				stock[i] = null
+				sfx.play("place", 1.3, -8.0)
+				_shop_step.emit(false))
+		var rc := Shop.reroll_cost(rerolls)
+		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 640), Vector2(380, 90), 34)
+		rb.disabled = sim.gold < rc
+		rb.pressed.connect(func():
+			sim.gold -= rc
+			rerolls += 1
+			stock = Shop.stock(sim)
+			_shop_step.emit(false))
+		for i in SLOTS:
+			var o = slot_arr[i]
+			var sb := _rw_button(("ขาย %s %s +%d 🪙" % [o.icon, o.name_th, Shop.sell_value(o)]) if o != null else "ช่อง %d ว่าง" % (i + 1),
+				Vector2(160 + i * 320.0, 760), Vector2(300, 110), 26)
+			sb.disabled = o == null
+			sb.pressed.connect(func():
+				sim.gold += Shop.sell_value(o)
+				slot_arr[i] = null
+				sfx.play("place", 1.0, -8.0)
+				_shop_step.emit(false))
+		var go := _rw_button("ไปต่อ ▶", Vector2(810, 920), Vector2(300, 100), 40)
+		go.pressed.connect(func(): _shop_step.emit(true))
+		done = await _shop_step
+	reward_ui.queue_free()
+	slot_sel = -1
+	_apply_slots()
+	_refresh_slots()
+	v_gold = sim.gold
+
+
+signal _shop_step(leave: bool)

@@ -25,6 +25,8 @@ const MAX_EVENTS := 400       # hitting this ends the walk at once
 ## Triggers an artifact may use. `hit` and `shield` are not among them (no damage feeding damage).
 ## Verbs that change the event they react to; they run before its built-in effect (the other verbs run after it).
 const MODIFIERS := ["convert"]
+const BOSS_EVERY := 3
+const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const TRIGGERS := ["ignite", "pass", "pop", "strike", "reach_end", "kill", "walk_end", "fight_start"]
 
 var hp: float = 30.0
@@ -41,6 +43,9 @@ var walk_no: int = 0
 var rng := RandomNumberGenerator.new()
 var events: Array = []           # events of the last run_walk()
 var fight_events: Array = []     # events of the last start_fight()
+var gold: int = 0
+var boss: Resource = null        # DominoBoss of the current fight, null on a normal fight
+var _used_bosses: Array = []
 var stats: Dictionary = {}       # add_stat values, one walk long
 
 var _depth: int = 0
@@ -61,17 +66,34 @@ var _struck: int = 0
 var _route: Array[int] = []      # tiles in walking order (set_route may rewrite it at ignite)
 var _ridx: int = 0               # index of the fireball in _route
 var _flag_moves: int = 0
+var _red_pops: int = 0
 
 
 # --- setup / hand --------------------------------------------------------------
 
-func start_fight(s: int) -> void:
+## `forced_boss` (tests) overrides the pick; otherwise every BOSS_EVERY-th stage draws an unused boss.
+func start_fight(s: int, forced_boss: Resource = null) -> void:
 	stage = s
+	boss = forced_boss
+	if boss == null and s % BOSS_EVERY == 0:
+		var pool: Array = []
+		for b in Catalog.bosses():
+			if not _used_bosses.has(b):
+				pool.append(b)
+		if pool.is_empty():
+			_used_bosses.clear()
+			pool = Catalog.bosses().duplicate()
+		if not pool.is_empty():
+			boss = pool[rng.randi_range(0, pool.size() - 1)]
+			_used_bosses.append(boss)
 	enemy_max = BASE_ENEMY_HP
 	strike_dmg = BASE_STRIKE
 	for i in range(1, s):
 		enemy_max = roundi(enemy_max * 1.25)
 		strike_dmg *= 1.15
+	if boss != null:
+		enemy_max = roundi(enemy_max * boss.hp_mult)
+		strike_dmg *= boss.dmg_mult
 	enemy_hp = enemy_max
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
@@ -90,7 +112,30 @@ func deal_hand() -> Array[String]:
 	for i in HAND_SIZE:
 		h.append("red" if rng.randf() < 0.6 else "blue")
 	flags = [rng.randi_range(1, N - 1)]
+	if _boss_is("twin_flag"):
+		var second := rng.randi_range(1, N - 2)
+		flags.append(second if second < flags[0] else second + 1)   # a different tile
 	return h
+
+
+func _boss_is(rule: String) -> bool:
+	return boss != null and String(boss.rule) == rule
+
+
+func _boss_arg(key: String, default):
+	return boss.args.get(key, default) if boss != null else default
+
+
+## What one flag hits for (a twin-flag boss splits the strike).
+func strike_each() -> float:
+	return strike_dmg * (float(_boss_arg("mult", 1.0)) if _boss_is("twin_flag") else 1.0)
+
+
+## Coins for winning the fight: 3 + stage / 2. Returns the amount.
+func claim_win() -> int:
+	var c := 3 + stage / 2
+	gold += c
+	return c
 
 
 func place(tile: int, color: String) -> bool:
@@ -130,6 +175,7 @@ func _reset_walk() -> void:
 	_route = default_route()
 	_ridx = 0
 	_flag_moves = 0
+	_red_pops = 0
 
 
 static func default_route() -> Array[int]:
@@ -223,9 +269,9 @@ func _push(ev: Dictionary) -> void:
 ## Appends an event (walker state fills step/tile/dir/lap/depth unless given).
 ## Returns {} when the walk is stopped or the event ceiling is reached.
 func _emit(k: String, payload: Dictionary = {}, src: String = "base") -> Dictionary:
-	if _stopped and k != "kill" and k != "capped" and k != "walk_end":
+	if _stopped and k != "kill" and k != "capped" and k != "walk_end" and k != "gold":
 		return {}
-	if events.size() >= MAX_EVENTS and k != "capped" and k != "walk_end" and k != "kill":
+	if events.size() >= MAX_EVENTS and k != "capped" and k != "walk_end" and k != "kill" and k != "gold":
 		if not _stopped:
 			_stopped = true
 			var c := {"k": "capped", "what": "events", "step": _step, "tile": _tile, "dir": _dir, "lap": _lap, "depth": _depth, "src": src}
@@ -283,13 +329,19 @@ func _do_pop(tile: int, cause: String) -> void:
 	var g: Dictionary = board[tile]
 	var red: bool = g.color == "red"
 	var base: int = (RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK
+	if red:
+		_red_pops += 1
+		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
+			base = 0   # the boss's armour eats the first red pops of the walk
 	var src := "base" if cause == "pass" else cause
 	var ev := _emit("pop", {"tile": tile, "color": g.color, "nth": _pops, "tile_pops": tp + 1,
 		"cause": cause, "kept": g.kept, "temp": g.temp, "base": base}, src)
 	if ev.is_empty():
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
-	if red or ev.get("convert", "") == "damage":
+	if base == 0 and red:
+		ev["nullified"] = true
+	elif red or ev.get("convert", "") == "damage":
 		_hit("enemy", float(base), "base", "pop")
 	else:
 		_shield(base, "base")
@@ -298,8 +350,9 @@ func _do_pop(tile: int, cause: String) -> void:
 
 func _do_strike(tile: int) -> void:
 	var color: String = board[tile].color if board.has(tile) else ""
-	var ev := _emit("strike", {"tile": tile, "dmg": strike_dmg, "block": _block, "redirect": "",
-		"tile_color": color, "excess": maxf(0.0, _block - strike_dmg), "dealt": 0.0})
+	var sd := strike_each()
+	var ev := _emit("strike", {"tile": tile, "dmg": sd, "block": _block, "redirect": "",
+		"tile_color": color, "excess": maxf(0.0, _block - sd), "dealt": 0.0})
 	if ev.is_empty():
 		return
 	_fire(ev)   # modifying reactions (reflect, ...) run before the strike resolves
@@ -308,7 +361,7 @@ func _do_strike(tile: int) -> void:
 	ev["block"] = _block
 	ev["excess"] = maxf(0.0, _block - float(ev.dmg))
 	if ev.redirect == "enemy":
-		ev["dealt"] = float(ev.dmg) * float(ev.get("mult", 1.0))
+		ev["dealt"] = float(ev.dmg) * float(ev.get("mult", 1.0)) * (float(_boss_arg("mult", 0.5)) if _boss_is("obsidian") else 1.0)
 		_hit("enemy", ev.dealt, "base", "reflect")
 	else:
 		var d: float = maxf(0.0, float(ev.dmg) - _block)
@@ -328,8 +381,11 @@ func _do_strike(tile: int) -> void:
 func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 	if ev.is_empty() or not (ev.k in TRIGGERS):
 		return
-	for si in slots.size():
-		var def: Resource = slots[si]
+	var owners: Array = []
+	if boss != null and not boss.rules.is_empty():
+		owners.append(boss)   # enemy rules run before the player's artifacts
+	owners.append_array(slots)
+	for def in owners:
 		for ri in def.rules.size():
 			if _stopped and ev.k != "kill":
 				return
@@ -337,6 +393,7 @@ func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 			if String(r.trigger) != ev.k or (String(r.effect) in MODIFIERS) != modifiers or not _match(r, ev):
 				continue
 			var okey := "%s:%d" % [def.id, ri]
+			var osrc: String = "enemy" if def == boss else def.id
 			var once := String(r.once)
 			if once == "walk" and _once_walk.has(okey):
 				continue
@@ -345,17 +402,17 @@ func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 			if _depth >= MAX_DEPTH:
 				_cap("depth")
 				return
-			var n: int = _fires.get(def.id, 0)
+			var n: int = _fires.get(osrc, 0)
 			if n >= MAX_ART_FIRES:
 				_cap("artifact")
 				continue
-			_fires[def.id] = n + 1
+			_fires[osrc] = n + 1
 			if once == "walk":
 				_once_walk[okey] = true
 			elif once == "fight":
 				_once_fight[okey] = true
 			_depth += 1
-			_apply(r, ev, def.id)
+			_apply(r, ev, osrc)
 			_depth -= 1
 
 
@@ -395,6 +452,8 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 			return int(want) > 0 and ev.get("nth", 0) % int(want) == 0
 		"cause":
 			return ev.get("cause", "") == want
+		"target":
+			return ev.get("target", "") == want
 		"kept", "temp":
 			return ev.k == "walk_end" or ev.get(key, false) == want   # walk_end: per-Gem filter in keep_gems
 		"neighbor":
@@ -458,10 +517,13 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 		"move_flag":
 			# delta counts along the walking direction; the flag stays on the route, never past its end
 			var fi := _route.find(flags[0])
-			if fi >= 0 and _flag_moves < int(a.get("max", 999)):
+			if src != "enemy" and _boss_is("drifter"):
+				fi = -1   # this boss's flag cannot be pushed
+			if fi >= 0 and (src == "enemy" or _flag_moves < int(a.get("max", 999))):
 				var ni := clampi(fi + int(a.get("delta", 0)) * ev.dir, 0, _route.size() - 1)
 				if ni != fi:
-					_flag_moves += 1
+					if src != "enemy":
+						_flag_moves += 1
 					var from: int = flags[0]
 					flags[0] = _route[ni]
 					_emit("flag_move", {"from": from, "to": flags[0]}, src)
@@ -475,6 +537,13 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 				for t in range(0, f + 1):
 					route.append(t)
 				_route = route
+		"gold":
+			var amt := roundi(_amt(a.get("amount", 1), ev))
+			if a.has("per"):
+				amt = mini(int(a.get("max", 999)), gold / maxi(int(a.get("per", 1)), 1)) * amt
+			if amt > 0:
+				gold += amt
+				_emit("gold", {"amount": amt, "total": gold}, src)
 		"convert":
 			ev["convert"] = String(a.get("to", "damage"))
 		"add_stat":

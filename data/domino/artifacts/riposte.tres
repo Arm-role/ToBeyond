@@ -19,6 +19,6 @@ icon = "↩"
 text_th = "Gem น้ำเงินบนช่องธง สะท้อนการตีกลับไปที่ศัตรู (รอบละครั้ง)"
 archetype = "guard"
 rarity = "uncommon"
-price = 9
+price = 6
 catalog_order = 4
 rules = Array[Resource]([SubResource("Resource_r0")])

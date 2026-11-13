@@ -19,6 +19,6 @@ icon = "⚗"
 text_th = "Gem น้ำเงินที่ป๊อปหลังธงตีแล้ว กลายเป็นโจมตีแทนโล่"
 archetype = "blaze"
 rarity = "rare"
-price = 12
+price = 8
 catalog_order = 12
 rules = Array[Resource]([SubResource("Resource_r0")])

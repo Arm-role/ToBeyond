@@ -1,0 +1,25 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_boss.gd" id="1_b"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"strike"
+cond = {}
+effect = &"move_flag"
+args = {"delta": 2}
+once = &"walk"
+
+[resource]
+script = ExtResource("1_b")
+id = "drifter"
+name_th = "ธงหนี"
+icon = "🌀"
+text_th = "ตีแล้วธงเลื่อนไปข้างหน้า 2 ช่อง (รอบละครั้ง) และผลักธงไม่ได้"
+hp_mult = 1.4
+dmg_mult = 0.9
+rule = &"drifter"
+args = {}
+rules = Array[Resource]([SubResource("Resource_r0")])
+catalog_order = 2

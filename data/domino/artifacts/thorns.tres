@@ -19,6 +19,6 @@ icon = "🌵"
 text_th = "กันการตีได้หมด โล่ที่เหลือกลายเป็นดาเมจใส่ศัตรู"
 archetype = "guard"
 rarity = "common"
-price = 6
+price = 4
 catalog_order = 5
 rules = Array[Resource]([SubResource("Resource_r0")])

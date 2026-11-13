@@ -6,7 +6,7 @@ const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const WEIGHT := {"common": 60, "uncommon": 30, "rare": 10}
 
 
-static func _pick(pool: Array, rng: RandomNumberGenerator) -> Resource:
+static func pick(pool: Array, rng: RandomNumberGenerator) -> Resource:
 	var total := 0
 	for d in pool:
 		total += int(WEIGHT.get(d.rarity, 10))
@@ -27,7 +27,7 @@ static func offer(sim, count: int = 3) -> Array:
 			pool.append(d)
 	var out: Array = []
 	while out.size() < count and not pool.is_empty():
-		var d := _pick(pool, sim.rng)
+		var d := pick(pool, sim.rng)
 		pool.erase(d)
 		out.append(d)
 	if not sim.slots.is_empty() and not out.is_empty():
@@ -44,5 +44,5 @@ static func offer(sim, count: int = 3) -> Array:
 				if d.archetype in held:
 					match_pool.append(d)
 			if not match_pool.is_empty():
-				out[out.size() - 1] = _pick(match_pool, sim.rng)
+				out[out.size() - 1] = pick(match_pool, sim.rng)
 	return out

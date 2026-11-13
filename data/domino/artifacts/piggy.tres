@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"kill"
+cond = {"target": "enemy"}
+effect = &"gold"
+args = {"amount": 1, "per": 5, "max": 3}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "piggy"
+name_th = "กระปุก"
+icon = "🐷"
+text_th = "ศัตรูตาย: +1 เหรียญต่อทุก 5 เหรียญที่ถือ (สูงสุด 3)"
+archetype = "ember"
+rarity = "uncommon"
+price = 6
+catalog_order = 13
+rules = Array[Resource]([SubResource("Resource_r0")])

@@ -19,6 +19,6 @@ icon = "✨"
 text_th = "Gem แดงที่ติดกับแดงอีกใบ ป๊อปซ้ำ"
 archetype = "blaze"
 rarity = "uncommon"
-price = 9
+price = 6
 catalog_order = 11
 rules = Array[Resource]([SubResource("Resource_r0")])

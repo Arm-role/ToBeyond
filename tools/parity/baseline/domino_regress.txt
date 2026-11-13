@@ -1293,10 +1293,10 @@ base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=b
 amount=4.0 depth=0 dir=1 hp_after=-6.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
 depth=0 dir=1 i=4 k=kill lap=0 src=base step=1 target=enemy tile=0
 depth=0 dir=1 i=5 k=walk_end kept_tiles=[] lap=0 src=base step=1 tile=0
-fight 1: enemy 18 strike 8.0 hp 10.0
-fight 2: enemy 23 strike 9.2 hp 22.0
-fight 3: enemy 29 strike 10.58 hp 22.0
-fight 5: enemy 45 strike 13.992 hp 22.0
+fight 1: boss - enemy 18 strike 8.0 hp 10.0
+fight 2: boss - enemy 23 strike 9.2 hp 22.0
+fight 3: boss bulwark enemy 44 strike 10.58 hp 22.0
+fight 5: boss - enemy 45 strike 13.992 hp 22.0
 == stress pop-cap walk 1: 81 events, hp 30.0, enemy 51, kept []
 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
@@ -3857,3 +3857,1511 @@ depth=0 dir=1 i=12 k=pass lap=0 src=base step=7 tile=6
 depth=0 dir=1 i=13 k=pass lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=14 k=reach_end lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=15 k=walk_end kept_tiles=[0] lap=0 src=base step=8 tile=7
+== p5 twin_flag [] walk 1: 33 events, hp 36.304, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=0.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=0.348 depth=0 dir=1 hp_after=39.652 i=14 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=25 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=1 hp_after=36.304 i=26 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=7 tile=6
+depth=0 dir=1 i=28 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=29 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=30 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=31 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=32 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 drifter [] walk 1: 34 events, hp 26.956, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=3.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+depth=1 dir=1 from=3 i=14 k=flag_move lap=0 src=enemy step=4 tile=3 to=5
+amount=3.522 depth=0 dir=1 hp_after=36.478 i=15 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=16 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=19 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=22 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=0 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=23 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=9.522 depth=0 dir=1 hp_after=26.956 i=24 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=25 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=26 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=27 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=28 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=29 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=30 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=31 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=32 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=33 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 obsidian [] walk 1: 30 events, hp 35.42, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=14 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=27 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 smoke [] walk 1: 30 events, hp 35.42, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=14 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=27 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 bulwark [] walk 1: 28 events, hp 35.42, enemy 87, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=0 tile_pops=1
+depth=0 dir=1 i=3 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=5 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=3 tile=2
+base=0 cause=pass color=red depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 nullified=true src=base step=3 temp=false tile=2 tile_pops=1
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=10 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=11 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=12 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=13 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=14 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=15 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=16 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=19 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=22 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=23 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=24 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=25 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=26 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=27 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 twin_flag [mirror,riposte,ring] walk 1: 65 events, hp 35.956, enemy 53, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+block=3 dealt=6.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=10 k=strike lap=0 mult=1.0 redirect=enemy src=base step=3 tile=6 tile_color=blue
+amount=6.0 depth=0 dir=1 hp_after=85.0 i=11 k=hit lap=0 src=base step=3 target=enemy tile=6 via=reflect
+depth=0 dir=1 i=12 k=shield_break lap=0 src=base step=3 tile=6
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=81.0 i=15 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=77.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=21 k=shield lap=0 src=base step=6 tile=1 total=3
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=73.0 i=24 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=27 k=shield lap=0 src=base step=8 tile=3 total=6
+block=6 dealt=0.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=28 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=0.348 depth=0 dir=1 hp_after=39.652 i=29 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=30 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=31 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=-1 i=32 k=bounce lap=1 src=base step=8 tile=3
+depth=0 dir=-1 i=33 k=pass lap=1 src=base step=9 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=34 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=35 k=shield lap=1 src=base step=9 tile=3 total=3
+block=3 dealt=3.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=36 k=strike lap=1 redirect= src=base step=9 tile=3 tile_color=blue
+amount=3.348 depth=0 dir=-1 hp_after=36.304 i=37 k=hit lap=1 src=base step=9 target=hero tile=3 via=strike
+depth=0 dir=-1 i=38 k=shield_break lap=1 src=base step=9 tile=3
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=10 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=69.0 i=41 k=hit lap=1 src=base step=10 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=11 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=44 k=shield lap=1 src=base step=11 tile=1 total=3
+depth=0 dir=-1 i=45 k=pass lap=1 src=base step=12 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=46 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=65.0 i=47 k=hit lap=1 src=base step=12 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=13 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=61.0 i=50 k=hit lap=1 src=base step=13 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=51 k=pass lap=1 src=base step=14 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=52 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=53 k=shield lap=1 src=base step=14 tile=6 total=6
+block=6 dealt=0.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=54 k=strike lap=1 redirect= src=base step=14 tile=6 tile_color=blue
+amount=0.348 depth=0 dir=-1 hp_after=35.956 i=55 k=hit lap=1 src=base step=14 target=hero tile=6 via=strike
+depth=0 dir=-1 i=56 k=shield_break lap=1 src=base step=14 tile=6
+depth=0 dir=-1 i=57 k=pass lap=1 src=base step=15 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=58 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=57.0 i=59 k=hit lap=1 src=base step=15 target=enemy tile=5 via=pop
+depth=0 dir=-1 i=60 k=pass lap=1 src=base step=16 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=61 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=53.0 i=62 k=hit lap=1 src=base step=16 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=63 k=reach_end lap=1 src=base step=16 tile=4
+depth=0 dir=-1 i=64 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=4
+== p5 drifter [mirror,riposte,ring] walk 1: 59 events, hp 33.478, enemy 49, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=25 k=strike lap=0 mult=1.0 redirect=enemy src=base step=8 tile=3 tile_color=blue
+amount=10.0 depth=0 dir=1 hp_after=69.0 i=26 k=hit lap=0 src=base step=8 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=-1 i=29 k=bounce lap=1 src=base step=8 tile=3
+depth=0 dir=-1 i=30 k=pass lap=1 src=base step=9 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=31 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=32 k=shield lap=1 src=base step=9 tile=3 total=3
+block=3 dealt=6.522 depth=0 dir=-1 dmg=9.522 excess=0.0 i=33 k=strike lap=1 redirect= src=base step=9 tile=3 tile_color=blue
+amount=6.522 depth=0 dir=-1 hp_after=33.478 i=34 k=hit lap=1 src=base step=9 target=hero tile=3 via=strike
+depth=0 dir=-1 i=35 k=shield_break lap=1 src=base step=9 tile=3
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=10 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=65.0 i=38 k=hit lap=1 src=base step=10 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=11 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=41 k=shield lap=1 src=base step=11 tile=1 total=3
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=12 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=61.0 i=44 k=hit lap=1 src=base step=12 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=45 k=pass lap=1 src=base step=13 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=46 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=57.0 i=47 k=hit lap=1 src=base step=13 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=14 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=50 k=shield lap=1 src=base step=14 tile=6 total=6
+depth=0 dir=-1 i=51 k=pass lap=1 src=base step=15 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=52 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=53.0 i=53 k=hit lap=1 src=base step=15 target=enemy tile=5 via=pop
+depth=0 dir=-1 i=54 k=pass lap=1 src=base step=16 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=55 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=49.0 i=56 k=hit lap=1 src=base step=16 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=57 k=reach_end lap=1 src=base step=16 tile=4
+depth=0 dir=-1 i=58 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=4
+== p5 obsidian [mirror,riposte,ring] walk 1: 59 events, hp 32.42, enemy 54, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=5.29 depth=0 dir=1 dmg=10.58 excess=0.0 i=25 k=strike lap=0 mult=1.0 redirect=enemy src=base step=8 tile=3 tile_color=blue
+amount=5.0 depth=0 dir=1 hp_after=74.0 i=26 k=hit lap=0 src=base step=8 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=-1 i=29 k=bounce lap=1 src=base step=8 tile=3
+depth=0 dir=-1 i=30 k=pass lap=1 src=base step=9 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=31 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=32 k=shield lap=1 src=base step=9 tile=3 total=3
+block=3 dealt=7.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=33 k=strike lap=1 redirect= src=base step=9 tile=3 tile_color=blue
+amount=7.58 depth=0 dir=-1 hp_after=32.42 i=34 k=hit lap=1 src=base step=9 target=hero tile=3 via=strike
+depth=0 dir=-1 i=35 k=shield_break lap=1 src=base step=9 tile=3
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=10 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=70.0 i=38 k=hit lap=1 src=base step=10 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=11 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=41 k=shield lap=1 src=base step=11 tile=1 total=3
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=12 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=66.0 i=44 k=hit lap=1 src=base step=12 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=45 k=pass lap=1 src=base step=13 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=46 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=62.0 i=47 k=hit lap=1 src=base step=13 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=14 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=50 k=shield lap=1 src=base step=14 tile=6 total=6
+depth=0 dir=-1 i=51 k=pass lap=1 src=base step=15 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=52 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=58.0 i=53 k=hit lap=1 src=base step=15 target=enemy tile=5 via=pop
+depth=0 dir=-1 i=54 k=pass lap=1 src=base step=16 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=55 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=54.0 i=56 k=hit lap=1 src=base step=16 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=57 k=reach_end lap=1 src=base step=16 tile=4
+depth=0 dir=-1 i=58 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=4
+== p5 smoke [mirror,riposte,ring] walk 1: 59 events, hp 32.42, enemy 48, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=10.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=25 k=strike lap=0 mult=1.0 redirect=enemy src=base step=8 tile=3 tile_color=blue
+amount=11.0 depth=0 dir=1 hp_after=68.0 i=26 k=hit lap=0 src=base step=8 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=-1 i=29 k=bounce lap=1 src=base step=8 tile=3
+depth=0 dir=-1 i=30 k=pass lap=1 src=base step=9 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=31 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=32 k=shield lap=1 src=base step=9 tile=3 total=3
+block=3 dealt=7.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=33 k=strike lap=1 redirect= src=base step=9 tile=3 tile_color=blue
+amount=7.58 depth=0 dir=-1 hp_after=32.42 i=34 k=hit lap=1 src=base step=9 target=hero tile=3 via=strike
+depth=0 dir=-1 i=35 k=shield_break lap=1 src=base step=9 tile=3
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=10 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=64.0 i=38 k=hit lap=1 src=base step=10 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=11 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=41 k=shield lap=1 src=base step=11 tile=1 total=3
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=12 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=60.0 i=44 k=hit lap=1 src=base step=12 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=45 k=pass lap=1 src=base step=13 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=46 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=56.0 i=47 k=hit lap=1 src=base step=13 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=14 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=50 k=shield lap=1 src=base step=14 tile=6 total=6
+depth=0 dir=-1 i=51 k=pass lap=1 src=base step=15 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=52 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=52.0 i=53 k=hit lap=1 src=base step=15 target=enemy tile=5 via=pop
+depth=0 dir=-1 i=54 k=pass lap=1 src=base step=16 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=55 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=48.0 i=56 k=hit lap=1 src=base step=16 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=57 k=reach_end lap=1 src=base step=16 tile=4
+depth=0 dir=-1 i=58 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=4
+== p5 bulwark [mirror,riposte,ring] walk 1: 57 events, hp 32.42, enemy 56, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=4 tile_pops=1
+depth=0 dir=1 i=3 k=pass lap=0 src=base step=2 tile=5
+base=0 cause=pass color=red depth=0 dir=1 i=4 k=pop kept=false lap=0 nth=2 nullified=true src=base step=2 temp=false tile=5 tile_pops=1
+depth=0 dir=1 i=5 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=6 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=7 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=10 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=12 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=13 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=14 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=15 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=16 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=19 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=22 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=10.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=23 k=strike lap=0 mult=1.0 redirect=enemy src=base step=8 tile=3 tile_color=blue
+amount=11.0 depth=0 dir=1 hp_after=76.0 i=24 k=hit lap=0 src=base step=8 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=25 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=26 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=-1 i=27 k=bounce lap=1 src=base step=8 tile=3
+depth=0 dir=-1 i=28 k=pass lap=1 src=base step=9 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=29 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=30 k=shield lap=1 src=base step=9 tile=3 total=3
+block=3 dealt=7.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=31 k=strike lap=1 redirect= src=base step=9 tile=3 tile_color=blue
+amount=7.58 depth=0 dir=-1 hp_after=32.42 i=32 k=hit lap=1 src=base step=9 target=hero tile=3 via=strike
+depth=0 dir=-1 i=33 k=shield_break lap=1 src=base step=9 tile=3
+depth=0 dir=-1 i=34 k=pass lap=1 src=base step=10 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=35 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=72.0 i=36 k=hit lap=1 src=base step=10 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=37 k=pass lap=1 src=base step=11 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=38 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=39 k=shield lap=1 src=base step=11 tile=1 total=3
+depth=0 dir=-1 i=40 k=pass lap=1 src=base step=12 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=41 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=68.0 i=42 k=hit lap=1 src=base step=12 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=43 k=pass lap=1 src=base step=13 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=44 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=64.0 i=45 k=hit lap=1 src=base step=13 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=46 k=pass lap=1 src=base step=14 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=47 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=48 k=shield lap=1 src=base step=14 tile=6 total=6
+depth=0 dir=-1 i=49 k=pass lap=1 src=base step=15 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=50 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=60.0 i=51 k=hit lap=1 src=base step=15 target=enemy tile=5 via=pop
+depth=0 dir=-1 i=52 k=pass lap=1 src=base step=16 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=53 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=56.0 i=54 k=hit lap=1 src=base step=16 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=55 k=reach_end lap=1 src=base step=16 tile=4
+depth=0 dir=-1 i=56 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=4
+== p5 twin_flag [push,ring] walk 1: 33 events, hp 36.304, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=10 k=strike lap=0 redirect= src=base step=3 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=1 hp_after=36.652 i=11 k=hit lap=0 src=base step=3 target=hero tile=6 via=strike
+depth=0 dir=1 i=12 k=shield_break lap=0 src=base step=3 tile=6
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=15 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=21 k=shield lap=0 src=base step=6 tile=1 total=3
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=24 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=27 k=shield lap=0 src=base step=8 tile=3 total=6
+block=6 dealt=0.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=28 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=0.348 depth=0 dir=1 hp_after=36.304 i=29 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=30 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=31 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=32 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=3
+== p5 drifter [push,ring] walk 1: 30 events, hp 39.478, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=0.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=25 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=0.522 depth=0 dir=1 hp_after=39.478 i=26 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=3
+== p5 obsidian [push,ring] walk 1: 30 events, hp 38.42, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=25 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=1 hp_after=38.42 i=26 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=3
+== p5 smoke [push,ring] walk 1: 30 events, hp 38.42, enemy 79, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=4 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=5 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=9 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=18 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=21 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=25 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=1 hp_after=38.42 i=26 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=3
+== p5 bulwark [push,ring] walk 1: 28 events, hp 38.42, enemy 87, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=4
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=4 tile_pops=1
+depth=0 dir=1 i=3 k=pass lap=0 src=base step=2 tile=5
+base=0 cause=pass color=red depth=0 dir=1 i=4 k=pop kept=false lap=0 nth=2 nullified=true src=base step=2 temp=false tile=5 tile_pops=1
+depth=0 dir=1 i=5 k=pass lap=0 src=base step=3 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=6 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=7 k=shield lap=0 src=base step=3 tile=6 total=3
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=4 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=10 k=hit lap=0 src=base step=4 target=enemy tile=7 via=pop
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=5 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=12 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=13 k=hit lap=0 src=base step=5 target=enemy tile=0 via=pop
+depth=0 dir=1 i=14 k=pass lap=0 src=base step=6 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=15 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=16 k=shield lap=0 src=base step=6 tile=1 total=6
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=7 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=19 k=hit lap=0 src=base step=7 target=enemy tile=2 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=8 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=22 k=shield lap=0 src=base step=8 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=23 k=strike lap=0 redirect= src=base step=8 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=1 hp_after=38.42 i=24 k=hit lap=0 src=base step=8 target=hero tile=3 via=strike
+depth=0 dir=1 i=25 k=shield_break lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=26 k=reach_end lap=0 src=base step=8 tile=3
+depth=0 dir=1 i=27 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=3
+== p5 twin_flag [push,mirror] walk 1: 67 events, hp 26.608, enemy 59, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=1 dir=1 from=3 i=7 k=flag_move lap=0 src=push step=2 tile=1 to=4
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=10 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=12 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=13 k=shield lap=0 src=base step=4 tile=3 total=6
+depth=1 dir=1 from=4 i=14 k=flag_move lap=0 src=push step=4 tile=3 to=5
+depth=0 dir=1 i=15 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=16 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=17 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=6 dealt=0.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=21 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=0.348 depth=0 dir=1 hp_after=39.652 i=22 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=23 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=24 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=25 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=26 k=shield lap=0 src=base step=7 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=27 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=1 hp_after=36.304 i=28 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=29 k=shield_break lap=0 src=base step=7 tile=6
+depth=0 dir=1 i=30 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=31 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=32 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=33 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=34 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=35 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=36 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=75.0 i=37 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=38 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=39 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=40 k=shield lap=1 src=base step=10 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=41 k=strike lap=1 redirect= src=base step=10 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=-1 hp_after=32.956 i=42 k=hit lap=1 src=base step=10 target=hero tile=6 via=strike
+depth=0 dir=-1 i=43 k=shield_break lap=1 src=base step=10 tile=6
+depth=0 dir=-1 i=44 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=45 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=46 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+block=0 dealt=6.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=47 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=6.348 depth=0 dir=-1 hp_after=26.608 i=48 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=49 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=50 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=51 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=52 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=53 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=54 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=55 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=58 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=59 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=60 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=61 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=62 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=63 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=64 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=65 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=66 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 drifter [push,mirror] walk 1: 63 events, hp 23.434, enemy 59, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=3.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+depth=1 dir=1 from=3 i=14 k=flag_move lap=0 src=enemy step=4 tile=3 to=5
+amount=3.522 depth=0 dir=1 hp_after=36.478 i=15 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=16 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=19 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=22 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=0 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=23 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=9.522 depth=0 dir=1 hp_after=26.956 i=24 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=25 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=26 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=27 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=28 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=29 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=30 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=31 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=32 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=33 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=34 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=35 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=75.0 i=36 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=37 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=38 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=39 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=40 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=41 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=42 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+block=6 dealt=3.522 depth=0 dir=-1 dmg=9.522 excess=0.0 i=43 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=3.522 depth=0 dir=-1 hp_after=23.434 i=44 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=45 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=46 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=47 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=48 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=49 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=50 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=51 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=52 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=53 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=54 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=55 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=56 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=57 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=58 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=59 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=60 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=61 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=62 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 obsidian [push,mirror] walk 1: 61 events, hp 30.84, enemy 59, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=1 dir=1 from=3 i=7 k=flag_move lap=0 src=push step=2 tile=1 to=4
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=10 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=12 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=13 k=shield lap=0 src=base step=4 tile=3 total=6
+depth=1 dir=1 from=4 i=14 k=flag_move lap=0 src=push step=4 tile=3 to=5
+depth=0 dir=1 i=15 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=16 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=17 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=21 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=22 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=23 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=24 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=25 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=26 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=27 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=28 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=29 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=30 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=31 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=32 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=33 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=75.0 i=34 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=35 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=36 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=37 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=38 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=39 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=40 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=41 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=4.58 depth=0 dir=-1 hp_after=30.84 i=42 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=43 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=44 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=45 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=46 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=47 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=48 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=49 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=50 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=51 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=52 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=53 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=54 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=55 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=58 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=59 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=60 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 smoke [push,mirror] walk 1: 61 events, hp 30.84, enemy 59, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=1 dir=1 from=3 i=7 k=flag_move lap=0 src=push step=2 tile=1 to=4
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=10 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=12 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=13 k=shield lap=0 src=base step=4 tile=3 total=6
+depth=1 dir=1 from=4 i=14 k=flag_move lap=0 src=push step=4 tile=3 to=5
+depth=0 dir=1 i=15 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=16 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=17 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=21 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=22 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=23 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=24 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=25 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=26 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=27 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=28 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=79.0 i=29 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=30 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=31 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=32 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=33 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=75.0 i=34 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=35 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=36 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=37 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=38 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=39 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=40 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=41 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=4.58 depth=0 dir=-1 hp_after=30.84 i=42 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=43 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=44 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=45 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=46 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=47 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=48 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=49 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=50 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=51 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=52 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=53 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=54 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=55 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=58 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=59 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=60 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 bulwark [push,mirror] walk 1: 59 events, hp 30.84, enemy 67, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=0 tile_pops=1
+depth=0 dir=1 i=3 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=5 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=1 dir=1 from=3 i=6 k=flag_move lap=0 src=push step=2 tile=1 to=4
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=0 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 nullified=true src=base step=3 temp=false tile=2 tile_pops=1
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=10 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=11 k=shield lap=0 src=base step=4 tile=3 total=6
+depth=1 dir=1 from=4 i=12 k=flag_move lap=0 src=push step=4 tile=3 to=5
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=14 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=15 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=18 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=19 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=20 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=21 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=27 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=29 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=30 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=31 k=pop kept=false lap=1 nth=9 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=83.0 i=32 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=33 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=34 k=pop kept=false lap=1 nth=10 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=35 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=11 src=base step=11 temp=false tile=5 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=79.0 i=38 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+block=6 dealt=4.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=39 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=4.58 depth=0 dir=-1 hp_after=30.84 i=40 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=41 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=12 src=base step=12 temp=false tile=4 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=75.0 i=44 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=0 dir=-1 i=45 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=46 k=pop kept=false lap=1 nth=13 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=47 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=14 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=50 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=51 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=52 k=pop kept=false lap=1 nth=15 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=53 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=54 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=55 k=pop kept=false lap=1 nth=16 src=base step=16 temp=false tile=0 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=56 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=57 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=58 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 twin_flag [thorns,riposte] walk 1: 33 events, hp 36.652, enemy 73, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=6.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=13 k=strike lap=0 mult=1.0 redirect=enemy src=base step=4 tile=3 tile_color=blue
+amount=6.0 depth=0 dir=1 hp_after=85.0 i=14 k=hit lap=0 src=base step=4 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=81.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=77.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=25 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=1 hp_after=36.652 i=26 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=27 k=shield_break lap=0 src=base step=7 tile=6
+depth=0 dir=1 i=28 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=29 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=73.0 i=30 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=31 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=32 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 drifter [thorns,riposte] walk 1: 34 events, hp 30.478, enemy 69, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=13 k=strike lap=0 mult=1.0 redirect=enemy src=base step=4 tile=3 tile_color=blue
+depth=1 dir=1 from=3 i=14 k=flag_move lap=0 src=enemy step=4 tile=3 to=5
+amount=10.0 depth=0 dir=1 hp_after=81.0 i=15 k=hit lap=0 src=base step=4 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=16 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=77.0 i=19 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=73.0 i=22 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=0 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=23 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=9.522 depth=0 dir=1 hp_after=30.478 i=24 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=25 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=26 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=27 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=28 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=29 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=30 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=69.0 i=31 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=32 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=33 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 obsidian [thorns,riposte] walk 1: 30 events, hp 40.0, enemy 74, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=5.29 depth=0 dir=1 dmg=10.58 excess=0.0 i=13 k=strike lap=0 mult=1.0 redirect=enemy src=base step=4 tile=3 tile_color=blue
+amount=5.0 depth=0 dir=1 hp_after=86.0 i=14 k=hit lap=0 src=base step=4 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=82.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=78.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=74.0 i=27 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 smoke [thorns,riposte] walk 1: 30 events, hp 40.0, enemy 68, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=10.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=13 k=strike lap=0 mult=1.0 redirect=enemy src=base step=4 tile=3 tile_color=blue
+amount=11.0 depth=0 dir=1 hp_after=80.0 i=14 k=hit lap=0 src=base step=4 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=76.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=72.0 i=21 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=22 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=23 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=24 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=25 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=26 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=68.0 i=27 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=28 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=29 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 bulwark [thorns,riposte] walk 1: 28 events, hp 40.0, enemy 76, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=0 tile_pops=1
+depth=0 dir=1 i=3 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=5 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=3 tile=2
+base=0 cause=pass color=red depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 nullified=true src=base step=3 temp=false tile=2 tile_pops=1
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=9 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=10 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=10.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=11 k=strike lap=0 mult=1.0 redirect=enemy src=base step=4 tile=3 tile_color=blue
+amount=11.0 depth=0 dir=1 hp_after=88.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=3 via=reflect
+depth=0 dir=1 i=13 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=14 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=15 k=pop kept=false lap=0 nth=5 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=84.0 i=16 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=18 k=pop kept=false lap=0 nth=6 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=80.0 i=19 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=20 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=21 k=pop kept=false lap=0 nth=7 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=22 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=23 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=24 k=pop kept=false lap=0 nth=8 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=76.0 i=25 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=26 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=27 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+== p5 twin_flag [echo,twin,mirror] walk 1: 73 events, hp 29.608, enemy 47, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+base=4 cause=echo color=red depth=1 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=echo step=1 temp=false tile=0 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=91.0 i=5 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=8 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=10 k=pop kept=false lap=0 nth=4 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=11 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=13 k=pop kept=false lap=0 nth=5 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=14 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=0.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=15 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=0.348 depth=0 dir=1 hp_after=39.652 i=16 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=17 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=21 k=pop kept=false lap=0 nth=7 src=twin step=5 temp=false tile=4 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=79.0 i=22 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=23 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=24 k=pop kept=false lap=0 nth=8 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=75.0 i=25 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=26 k=pop kept=false lap=0 nth=9 src=twin step=6 temp=false tile=5 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=71.0 i=27 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=28 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=29 k=pop kept=false lap=0 nth=10 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=30 k=shield lap=0 src=base step=7 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=1 dmg=6.348 excess=0.0 i=31 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=1 hp_after=36.304 i=32 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=33 k=shield_break lap=0 src=base step=7 tile=6
+depth=0 dir=1 i=34 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=35 k=pop kept=false lap=0 nth=11 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=67.0 i=36 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=37 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=38 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=12 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=41 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=13 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=44 k=shield lap=1 src=base step=10 tile=6 total=3
+block=3 dealt=3.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=45 k=strike lap=1 redirect= src=base step=10 tile=6 tile_color=blue
+amount=3.348 depth=0 dir=-1 hp_after=32.956 i=46 k=hit lap=1 src=base step=10 target=hero tile=6 via=strike
+depth=0 dir=-1 i=47 k=shield_break lap=1 src=base step=10 tile=6
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=14 src=base step=11 temp=false tile=5 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=50 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+depth=1 dir=-1 i=51 k=capped lap=1 src=base step=11 tile=5 what=pop
+depth=0 dir=-1 i=52 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=53 k=pop kept=false lap=1 nth=15 src=base step=12 temp=false tile=4 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=55.0 i=54 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=1 dir=-1 i=55 k=capped lap=1 src=base step=12 tile=4 what=pop
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=16 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=58 k=shield lap=1 src=base step=13 tile=3 total=3
+block=3 dealt=3.348 depth=0 dir=-1 dmg=6.348 excess=0.0 i=59 k=strike lap=1 redirect= src=base step=13 tile=3 tile_color=blue
+amount=3.348 depth=0 dir=-1 hp_after=29.608 i=60 k=hit lap=1 src=base step=13 target=hero tile=3 via=strike
+depth=0 dir=-1 i=61 k=shield_break lap=1 src=base step=13 tile=3
+depth=0 dir=-1 i=62 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=63 k=pop kept=false lap=1 nth=17 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=51.0 i=64 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=65 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=66 k=pop kept=false lap=1 nth=18 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=67 k=shield lap=1 src=base step=15 tile=1 total=3
+depth=0 dir=-1 i=68 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=69 k=pop kept=false lap=1 nth=19 src=base step=16 temp=false tile=0 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=47.0 i=70 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=71 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=72 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 drifter [echo,twin,mirror] walk 1: 71 events, hp 23.434, enemy 47, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+base=4 cause=echo color=red depth=1 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=echo step=1 temp=false tile=0 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=91.0 i=5 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=8 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=10 k=pop kept=false lap=0 nth=4 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=11 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=13 k=pop kept=false lap=0 nth=5 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=14 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=3.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=15 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+depth=1 dir=1 from=3 i=16 k=flag_move lap=0 src=enemy step=4 tile=3 to=5
+amount=3.522 depth=0 dir=1 hp_after=36.478 i=17 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=18 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=19 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=20 k=pop kept=false lap=0 nth=6 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=21 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=22 k=pop kept=false lap=0 nth=7 src=twin step=5 temp=false tile=4 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=79.0 i=23 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=24 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=25 k=pop kept=false lap=0 nth=8 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=75.0 i=26 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=27 k=pop kept=false lap=0 nth=9 src=twin step=6 temp=false tile=5 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=71.0 i=28 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+block=0 dealt=9.522 depth=0 dir=1 dmg=9.522 excess=0.0 i=29 k=strike lap=0 redirect= src=base step=6 tile=5 tile_color=red
+amount=9.522 depth=0 dir=1 hp_after=26.956 i=30 k=hit lap=0 src=base step=6 target=hero tile=5 via=strike
+depth=0 dir=1 i=31 k=shield_break lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=32 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=33 k=pop kept=false lap=0 nth=10 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=34 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=35 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=36 k=pop kept=false lap=0 nth=11 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=67.0 i=37 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=38 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=39 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=40 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=41 k=pop kept=false lap=1 nth=12 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=42 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=43 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=44 k=pop kept=false lap=1 nth=13 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=45 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=46 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=47 k=pop kept=false lap=1 nth=14 src=base step=11 temp=false tile=5 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=48 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+depth=1 dir=-1 i=49 k=capped lap=1 src=base step=11 tile=5 what=pop
+block=6 dealt=3.522 depth=0 dir=-1 dmg=9.522 excess=0.0 i=50 k=strike lap=1 redirect= src=base step=11 tile=5 tile_color=red
+amount=3.522 depth=0 dir=-1 hp_after=23.434 i=51 k=hit lap=1 src=base step=11 target=hero tile=5 via=strike
+depth=0 dir=-1 i=52 k=shield_break lap=1 src=base step=11 tile=5
+depth=0 dir=-1 i=53 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=54 k=pop kept=false lap=1 nth=15 src=base step=12 temp=false tile=4 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=55.0 i=55 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=1 dir=-1 i=56 k=capped lap=1 src=base step=12 tile=4 what=pop
+depth=0 dir=-1 i=57 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=58 k=pop kept=false lap=1 nth=16 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=59 k=shield lap=1 src=base step=13 tile=3 total=3
+depth=0 dir=-1 i=60 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=61 k=pop kept=false lap=1 nth=17 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=51.0 i=62 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=63 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=64 k=pop kept=false lap=1 nth=18 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=65 k=shield lap=1 src=base step=15 tile=1 total=6
+depth=0 dir=-1 i=66 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=67 k=pop kept=false lap=1 nth=19 src=base step=16 temp=false tile=0 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=47.0 i=68 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=69 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=70 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 obsidian [echo,twin,mirror] walk 1: 67 events, hp 33.84, enemy 47, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+base=4 cause=echo color=red depth=1 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=echo step=1 temp=false tile=0 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=91.0 i=5 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=8 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=10 k=pop kept=false lap=0 nth=4 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=11 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=13 k=pop kept=false lap=0 nth=5 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=14 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=15 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=16 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=17 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=21 k=pop kept=false lap=0 nth=7 src=twin step=5 temp=false tile=4 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=79.0 i=22 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=23 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=24 k=pop kept=false lap=0 nth=8 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=75.0 i=25 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=26 k=pop kept=false lap=0 nth=9 src=twin step=6 temp=false tile=5 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=71.0 i=27 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=28 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=29 k=pop kept=false lap=0 nth=10 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=30 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=31 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=32 k=pop kept=false lap=0 nth=11 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=67.0 i=33 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=34 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=35 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=12 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=38 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=13 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=41 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=14 src=base step=11 temp=false tile=5 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=44 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+depth=1 dir=-1 i=45 k=capped lap=1 src=base step=11 tile=5 what=pop
+depth=0 dir=-1 i=46 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=47 k=pop kept=false lap=1 nth=15 src=base step=12 temp=false tile=4 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=55.0 i=48 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=1 dir=-1 i=49 k=capped lap=1 src=base step=12 tile=4 what=pop
+depth=0 dir=-1 i=50 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=51 k=pop kept=false lap=1 nth=16 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=52 k=shield lap=1 src=base step=13 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=53 k=strike lap=1 redirect= src=base step=13 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=-1 hp_after=33.84 i=54 k=hit lap=1 src=base step=13 target=hero tile=3 via=strike
+depth=0 dir=-1 i=55 k=shield_break lap=1 src=base step=13 tile=3
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=17 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=51.0 i=58 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=59 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=60 k=pop kept=false lap=1 nth=18 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=61 k=shield lap=1 src=base step=15 tile=1 total=3
+depth=0 dir=-1 i=62 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=63 k=pop kept=false lap=1 nth=19 src=base step=16 temp=false tile=0 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=47.0 i=64 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=65 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=66 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 smoke [echo,twin,mirror] walk 1: 67 events, hp 33.84, enemy 47, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+base=4 cause=echo color=red depth=1 dir=1 i=4 k=pop kept=false lap=0 nth=2 src=echo step=1 temp=false tile=0 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=91.0 i=5 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=7 k=pop kept=false lap=0 nth=3 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=8 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=10 k=pop kept=false lap=0 nth=4 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=87.0 i=11 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=13 k=pop kept=false lap=0 nth=5 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=14 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=15 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=16 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=17 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=18 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=19 k=pop kept=false lap=0 nth=6 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=20 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=21 k=pop kept=false lap=0 nth=7 src=twin step=5 temp=false tile=4 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=79.0 i=22 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=23 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=24 k=pop kept=false lap=0 nth=8 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=75.0 i=25 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=26 k=pop kept=false lap=0 nth=9 src=twin step=6 temp=false tile=5 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=71.0 i=27 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=28 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=29 k=pop kept=false lap=0 nth=10 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=30 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=31 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=32 k=pop kept=false lap=0 nth=11 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=67.0 i=33 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=34 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=35 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=36 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=37 k=pop kept=false lap=1 nth=12 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=38 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=39 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=40 k=pop kept=false lap=1 nth=13 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=41 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=42 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=43 k=pop kept=false lap=1 nth=14 src=base step=11 temp=false tile=5 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=44 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+depth=1 dir=-1 i=45 k=capped lap=1 src=base step=11 tile=5 what=pop
+depth=0 dir=-1 i=46 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=47 k=pop kept=false lap=1 nth=15 src=base step=12 temp=false tile=4 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=55.0 i=48 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=1 dir=-1 i=49 k=capped lap=1 src=base step=12 tile=4 what=pop
+depth=0 dir=-1 i=50 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=51 k=pop kept=false lap=1 nth=16 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=52 k=shield lap=1 src=base step=13 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=53 k=strike lap=1 redirect= src=base step=13 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=-1 hp_after=33.84 i=54 k=hit lap=1 src=base step=13 target=hero tile=3 via=strike
+depth=0 dir=-1 i=55 k=shield_break lap=1 src=base step=13 tile=3
+depth=0 dir=-1 i=56 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=57 k=pop kept=false lap=1 nth=17 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=51.0 i=58 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=59 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=60 k=pop kept=false lap=1 nth=18 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=61 k=shield lap=1 src=base step=15 tile=1 total=3
+depth=0 dir=-1 i=62 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=63 k=pop kept=false lap=1 nth=19 src=base step=16 temp=false tile=0 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=47.0 i=64 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=65 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=66 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 bulwark [echo,twin,mirror] walk 1: 65 events, hp 33.84, enemy 55, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=0 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 nullified=true src=base step=1 temp=false tile=0 tile_pops=1
+base=0 cause=echo color=red depth=1 dir=1 i=3 k=pop kept=false lap=0 nth=2 nullified=true src=echo step=1 temp=false tile=0 tile_pops=2
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=3 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=4 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=95.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=3 cause=pass color=blue depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=5 src=base step=4 temp=false tile=3 tile_pops=1
+amount=3 depth=0 dir=1 i=12 k=shield lap=0 src=base step=4 tile=3 total=6
+block=6 dealt=4.58 depth=0 dir=1 dmg=10.58 excess=0.0 i=13 k=strike lap=0 redirect= src=base step=4 tile=3 tile_color=blue
+amount=4.58 depth=0 dir=1 hp_after=35.42 i=14 k=hit lap=0 src=base step=4 target=hero tile=3 via=strike
+depth=0 dir=1 i=15 k=shield_break lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=16 k=pass lap=0 src=base step=5 tile=4
+base=4 cause=pass color=red depth=0 dir=1 i=17 k=pop kept=false lap=0 nth=6 src=base step=5 temp=false tile=4 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=91.0 i=18 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=19 k=pop kept=false lap=0 nth=7 src=twin step=5 temp=false tile=4 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=87.0 i=20 k=hit lap=0 src=base step=5 target=enemy tile=4 via=pop
+depth=0 dir=1 i=21 k=pass lap=0 src=base step=6 tile=5
+base=4 cause=pass color=red depth=0 dir=1 i=22 k=pop kept=false lap=0 nth=8 src=base step=6 temp=false tile=5 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=83.0 i=23 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+base=4 cause=twin color=red depth=1 dir=1 i=24 k=pop kept=false lap=0 nth=9 src=twin step=6 temp=false tile=5 tile_pops=2
+amount=4.0 depth=1 dir=1 hp_after=79.0 i=25 k=hit lap=0 src=base step=6 target=enemy tile=5 via=pop
+depth=0 dir=1 i=26 k=pass lap=0 src=base step=7 tile=6
+base=3 cause=pass color=blue depth=0 dir=1 i=27 k=pop kept=false lap=0 nth=10 src=base step=7 temp=false tile=6 tile_pops=1
+amount=3 depth=0 dir=1 i=28 k=shield lap=0 src=base step=7 tile=6 total=3
+depth=0 dir=1 i=29 k=pass lap=0 src=base step=8 tile=7
+base=4 cause=pass color=red depth=0 dir=1 i=30 k=pop kept=false lap=0 nth=11 src=base step=8 temp=false tile=7 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=75.0 i=31 k=hit lap=0 src=base step=8 target=enemy tile=7 via=pop
+depth=0 dir=1 i=32 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=-1 i=33 k=bounce lap=1 src=base step=8 tile=7
+depth=0 dir=-1 i=34 k=pass lap=1 src=base step=9 tile=7
+base=4 cause=pass color=red depth=0 dir=-1 i=35 k=pop kept=false lap=1 nth=12 src=base step=9 temp=false tile=7 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=71.0 i=36 k=hit lap=1 src=base step=9 target=enemy tile=7 via=pop
+depth=0 dir=-1 i=37 k=pass lap=1 src=base step=10 tile=6
+base=3 cause=pass color=blue depth=0 dir=-1 i=38 k=pop kept=false lap=1 nth=13 src=base step=10 temp=false tile=6 tile_pops=2
+amount=3 depth=0 dir=-1 i=39 k=shield lap=1 src=base step=10 tile=6 total=6
+depth=0 dir=-1 i=40 k=pass lap=1 src=base step=11 tile=5
+base=4 cause=pass color=red depth=0 dir=-1 i=41 k=pop kept=false lap=1 nth=14 src=base step=11 temp=false tile=5 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=67.0 i=42 k=hit lap=1 src=base step=11 target=enemy tile=5 via=pop
+depth=1 dir=-1 i=43 k=capped lap=1 src=base step=11 tile=5 what=pop
+depth=0 dir=-1 i=44 k=pass lap=1 src=base step=12 tile=4
+base=4 cause=pass color=red depth=0 dir=-1 i=45 k=pop kept=false lap=1 nth=15 src=base step=12 temp=false tile=4 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=63.0 i=46 k=hit lap=1 src=base step=12 target=enemy tile=4 via=pop
+depth=1 dir=-1 i=47 k=capped lap=1 src=base step=12 tile=4 what=pop
+depth=0 dir=-1 i=48 k=pass lap=1 src=base step=13 tile=3
+base=3 cause=pass color=blue depth=0 dir=-1 i=49 k=pop kept=false lap=1 nth=16 src=base step=13 temp=false tile=3 tile_pops=2
+amount=3 depth=0 dir=-1 i=50 k=shield lap=1 src=base step=13 tile=3 total=9
+block=9 dealt=1.58 depth=0 dir=-1 dmg=10.58 excess=0.0 i=51 k=strike lap=1 redirect= src=base step=13 tile=3 tile_color=blue
+amount=1.58 depth=0 dir=-1 hp_after=33.84 i=52 k=hit lap=1 src=base step=13 target=hero tile=3 via=strike
+depth=0 dir=-1 i=53 k=shield_break lap=1 src=base step=13 tile=3
+depth=0 dir=-1 i=54 k=pass lap=1 src=base step=14 tile=2
+base=4 cause=pass color=red depth=0 dir=-1 i=55 k=pop kept=false lap=1 nth=17 src=base step=14 temp=false tile=2 tile_pops=2
+amount=4.0 depth=0 dir=-1 hp_after=59.0 i=56 k=hit lap=1 src=base step=14 target=enemy tile=2 via=pop
+depth=0 dir=-1 i=57 k=pass lap=1 src=base step=15 tile=1
+base=3 cause=pass color=blue depth=0 dir=-1 i=58 k=pop kept=false lap=1 nth=18 src=base step=15 temp=false tile=1 tile_pops=2
+amount=3 depth=0 dir=-1 i=59 k=shield lap=1 src=base step=15 tile=1 total=3
+depth=0 dir=-1 i=60 k=pass lap=1 src=base step=16 tile=0
+base=4 cause=pass color=red depth=0 dir=-1 i=61 k=pop kept=false lap=1 nth=19 src=base step=16 temp=false tile=0 tile_pops=3
+amount=4.0 depth=0 dir=-1 hp_after=55.0 i=62 k=hit lap=1 src=base step=16 target=enemy tile=0 via=pop
+depth=0 dir=-1 i=63 k=reach_end lap=1 src=base step=16 tile=0
+depth=0 dir=-1 i=64 k=walk_end kept_tiles=[] lap=1 src=base step=16 tile=0
+== p5 gold [bounty] walk 1: 16 events, hp 30.0, enemy -2, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=10.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=6.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=1 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=2.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=-2.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=3 via=pop
+depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
+amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=bounty step=4 tile=3 total=14
+depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
+gold now 14, claim_win 3, gold 17
+== p5 gold [piggy] walk 1: 16 events, hp 30.0, enemy -2, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=10.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=6.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=1 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=2.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=-2.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=3 via=pop
+depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
+amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=piggy step=4 tile=3 total=14
+depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
+gold now 14, claim_win 3, gold 17
+== p5 gold [bounty,piggy] walk 1: 17 events, hp 30.0, enemy -2, kept []
+depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=4 cause=pass color=red depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=10.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=4 cause=pass color=red depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=6.0 i=6 k=hit lap=0 src=base step=2 target=enemy tile=1 via=pop
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=4 cause=pass color=red depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=2.0 i=9 k=hit lap=0 src=base step=3 target=enemy tile=2 via=pop
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+base=4 cause=pass color=red depth=0 dir=1 i=11 k=pop kept=false lap=0 nth=4 src=base step=4 temp=false tile=3 tile_pops=1
+amount=4.0 depth=0 dir=1 hp_after=-2.0 i=12 k=hit lap=0 src=base step=4 target=enemy tile=3 via=pop
+depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
+amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=bounty step=4 tile=3 total=14
+amount=2 depth=1 dir=1 i=15 k=gold lap=0 src=piggy step=4 tile=3 total=16
+depth=0 dir=1 i=16 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
+gold now 16, claim_win 3, gold 19
+stage 1 boss - enemy 18 strike 8.0
+stage 2 boss - enemy 23 strike 9.2
+stage 3 boss twin_flag enemy 41 strike 10.58
+stage 4 boss - enemy 36 strike 12.167
+stage 5 boss - enemy 45 strike 13.992
+stage 6 boss drifter enemy 78 strike 14.482
+stage 7 boss - enemy 70 strike 18.504
+stage 8 boss - enemy 88 strike 21.28
+stage 9 boss obsidian enemy 176 strike 24.472

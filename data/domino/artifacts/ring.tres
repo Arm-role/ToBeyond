@@ -19,6 +19,6 @@ icon = "⭕"
 text_th = "ลูกไฟเริ่มช่องถัดจากธงแล้ววนรอบ ธงถูกตีเป็นช่องสุดท้าย"
 archetype = "route"
 rarity = "rare"
-price = 12
+price = 8
 catalog_order = 3
 rules = Array[Resource]([SubResource("Resource_r0")])

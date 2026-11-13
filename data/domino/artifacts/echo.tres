@@ -19,6 +19,6 @@ icon = "🔔"
 text_th = "Gem ใบแรกที่ป๊อปในแต่ละรอบ ป๊อปซ้ำอีกครั้ง"
 archetype = "route"
 rarity = "common"
-price = 6
+price = 4
 catalog_order = 2
 rules = Array[Resource]([SubResource("Resource_r0")])

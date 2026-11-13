@@ -1,0 +1,17 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_boss.gd" id="1_b"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[resource]
+script = ExtResource("1_b")
+id = "obsidian"
+name_th = "กระจกดำ"
+icon = "🪨"
+text_th = "การตีที่ถูกสะท้อนได้ดาเมจครึ่งเดียว"
+hp_mult = 1.6
+dmg_mult = 1.0
+rule = &"obsidian"
+args = {"mult": 0.5}
+rules = Array[Resource]([])
+catalog_order = 3

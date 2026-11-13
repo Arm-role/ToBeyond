@@ -19,6 +19,6 @@ icon = "🚩"
 text_th = "Gem น้ำเงินที่ป๊อปก่อนธง ดันธงถอยไป 1 ช่อง (สูงสุด 2 ต่อรอบ)"
 archetype = "guard"
 rarity = "uncommon"
-price = 9
+price = 6
 catalog_order = 6
 rules = Array[Resource]([SubResource("Resource_r0")])

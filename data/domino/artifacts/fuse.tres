@@ -19,6 +19,6 @@ icon = "🧨"
 text_th = "เริ่มเดิน: ช่องว่างแรกได้ Gem แดงชั่วคราว"
 archetype = "ember"
 rarity = "common"
-price = 6
+price = 4
 catalog_order = 9
 rules = Array[Resource]([SubResource("Resource_r0")])

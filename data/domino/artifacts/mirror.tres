@@ -19,6 +19,6 @@ icon = "🪞"
 text_th = "ถึงปลายทาง ลูกไฟเด้งกลับ ทุกอย่างป๊อปสองรอบ (ธงด้วย)"
 archetype = "route"
 rarity = "uncommon"
-price = 9
+price = 6
 catalog_order = 1
 rules = Array[Resource]([SubResource("Resource_r0")])

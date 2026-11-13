@@ -3,8 +3,10 @@ extends RefCounted
 ## const Catalog = preload("res://scripts/domino/domino_catalog.gd").
 
 const DIR := "res://data/domino/artifacts/"
+const BOSS_DIR := "res://data/domino/bosses/"
 static var _list: Array = []
 static var _defs: Dictionary = {}
+static var _bosses: Array = []
 
 
 static func _files(dir: String) -> PackedStringArray:
@@ -35,3 +37,20 @@ static func all() -> Array:
 static func get_def(id: String) -> Resource:
 	_ensure()
 	return _defs.get(id)
+
+
+static func bosses() -> Array:
+	if _bosses.is_empty():
+		for path in _files(BOSS_DIR):
+			var d: Resource = load(path)
+			if d != null and d.get("id") != null and d.id != "":
+				_bosses.append(d)
+		_bosses.sort_custom(func(a, b): return a.catalog_order < b.catalog_order)
+	return _bosses
+
+
+static func get_boss(id: String) -> Resource:
+	for b in bosses():
+		if b.id == id:
+			return b
+	return null

@@ -62,13 +62,16 @@ func _run(label: String, sim: RefCounted, walks: int = 1) -> void:
 			sim.place(0, "red")
 
 
-func _setup(b: Dictionary, ids: Array) -> RefCounted:
+func _setup(b: Dictionary, ids: Array, boss_id: String = "") -> RefCounted:
 	var sim = Sim.new()
 	sim.rng.seed = 7
-	sim.start_fight(1)
+	if boss_id != "":
+		sim.start_fight(3, Catalog.get_boss(boss_id))
+	else:
+		sim.start_fight(1)
 	sim.hp = b.hp
 	sim.enemy_hp = b.get("enemy", 99)   # big by default so the walk is not cut short
-	sim.flags.assign([b.flag])
+	sim.flags.assign([b.flag, b.flag2] if b.has("flag2") else [b.flag])
 	for t in b.gems:
 		sim.place(t, b.gems[t])
 	for id in ids:
@@ -86,10 +89,11 @@ func _initialize() -> void:
 			_run("%s [%s]" % [name, ",".join(ids)], _setup(BOARDS[name], ids), walks)
 	# fights: stage scaling and heal
 	var f = Sim.new()
+	f.rng.seed = 3
 	for s in [1, 2, 3, 5]:
 		f.hp = 10.0
 		f.start_fight(s)
-		print("fight %d: enemy %d strike %s hp %s" % [s, f.enemy_hp, str(snappedf(f.strike_dmg, 0.001)), str(snappedf(f.hp, 0.001))])
+		print("fight %d: boss %s enemy %d strike %s hp %s" % [s, f.boss.id if f.boss != null else "-", f.enemy_hp, str(snappedf(f.strike_dmg, 0.001)), str(snappedf(f.hp, 0.001))])
 	# stress: ceilings (pop, steps, depth, artifact fires, events)
 	var loop_b: Dictionary = BOARDS.full
 	var bounce_any := _art("bounce_any", [_rule("reach_end", {}, "bounce")])
@@ -124,6 +128,7 @@ func _initialize() -> void:
 	sim.slots = [verbs]
 	_run("verbs", sim, 2)
 	_phase4()
+	_phase5()
 	quit()
 
 
@@ -156,3 +161,38 @@ func _phase4() -> void:
 	# coal + furnace: kept Gems pop doubled on the next walk
 	var cf = _setup(more.red_run, ["coal", "furnace"])
 	_run("p4 coal+furnace", cf, 3)
+
+
+const BOSSES := ["twin_flag", "drifter", "obsidian", "smoke", "bulwark"]
+const BOSS_SETS := [
+	[],
+	["mirror", "riposte", "ring"],
+	["push", "ring"],
+	["push", "mirror"],
+	["thorns", "riposte"],
+	["echo", "twin", "mirror"],
+]
+
+
+## Phase 5: coins, economy artifacts and every boss against the phase-4 combos.
+func _phase5() -> void:
+	var arena := {"gems": {0: "red", 1: "blue", 2: "red", 3: "blue", 4: "red", 5: "red", 6: "blue", 7: "red"}, "flag": 3, "flag2": 6, "hp": 40.0}
+	for ids in BOSS_SETS:
+		for bid in BOSSES:
+			var b := arena.duplicate()
+			if bid != "twin_flag":
+				b.erase("flag2")
+			_run("p5 %s [%s]" % [bid, ",".join(ids)], _setup(b, ids, bid))
+	# economy: kill reactions pay out; piggy scales with the coins held
+	var kill_b: Dictionary = BOARDS.killer
+	for ids in [["bounty"], ["piggy"], ["bounty", "piggy"]]:
+		var sim = _setup(kill_b, ids)
+		sim.gold = 12
+		_run("p5 gold [%s]" % ",".join(ids), sim)
+		print("gold now %d, claim_win %d, gold %d" % [sim.gold, sim.claim_win(), sim.gold])
+	# boss pick: stages 3, 6, 9 draw different bosses
+	var bs = Sim.new()
+	bs.rng.seed = 11
+	for s in range(1, 10):
+		bs.start_fight(s)
+		print("stage %d boss %s enemy %d strike %s" % [s, bs.boss.id if bs.boss != null else "-", bs.enemy_max, str(snappedf(bs.strike_dmg, 0.001))])

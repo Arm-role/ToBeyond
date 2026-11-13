@@ -19,6 +19,6 @@ icon = "🌬"
 text_th = "Gem แดงแต่ละใบที่ป๊อป ทำให้แดงใบถัดไปแรง +1 ในรอบนี้"
 archetype = "blaze"
 rarity = "common"
-price = 6
+price = 4
 catalog_order = 10
 rules = Array[Resource]([SubResource("Resource_r0")])
