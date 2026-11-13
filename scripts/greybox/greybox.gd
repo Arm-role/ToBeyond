@@ -8,8 +8,8 @@ const N := 8
 const HAND_SIZE := 3
 const RED_DMG := 4
 const BLUE_BLOCK := 3
-const TILE := 190.0
-const GAP := 14.0
+const TILE := 160.0
+const GAP := 12.0
 const ROW_Y := 400.0
 const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6")}
 
@@ -39,6 +39,17 @@ var locked: Dictionary = {}          # tiles holding a kept (coal) Gem
 var art_btns: Dictionary = {}
 var art_tip: Label
 
+# Characters: staged beside the row. Reactions always tween to/from these fixed
+# home positions (never relative), so rapid pops cannot make them drift.
+const HERO_HOME := Vector2(60.0, 395.0)
+const ENEMY_HOME := Vector2(1660.0, 395.0)
+var hero: Label
+var enemy: Label
+var hero_hp_small: Label
+var enemy_hp_small: Label
+var badge: Label
+var _react_tw: Dictionary = {}
+
 var tile_btns: Array[Button] = []
 var hand_btns: Array[Button] = []
 var fire: Label
@@ -67,6 +78,19 @@ func _label(text: String, size: int, pos: Vector2, w: float = 600.0) -> Label:
 	l.add_theme_font_size_override("font_size", size)
 	l.position = pos
 	l.size = Vector2(w, size * 1.6)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(l)
+	return l
+
+
+func _char(emoji: String, home: Vector2) -> Label:
+	var l := Label.new()
+	l.text = emoji
+	l.add_theme_font_size_override("font_size", 150)
+	l.position = home
+	l.size = Vector2(200, 190)
+	l.pivot_offset = Vector2(100, 95)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(l)
@@ -111,6 +135,13 @@ func _build() -> void:
 		n.position = Vector2(8, 4)
 		n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(n)
+	hero = _char("🧙", HERO_HOME)
+	enemy = _char("👹", ENEMY_HOME)
+	hero_hp_small = _label("", 34, HERO_HOME + Vector2(0, 190), 200.0)
+	enemy_hp_small = _label("", 34, ENEMY_HOME + Vector2(0, 190), 200.0)
+	badge = _label("", 52, HERO_HOME + Vector2(0, -75), 200.0)
+	badge.visible = false
+	badge.pivot_offset = Vector2(100, 40)
 	flag = Label.new()
 	flag.text = "⚔"
 	flag.add_theme_font_size_override("font_size", 72)
@@ -216,6 +247,8 @@ func _refresh() -> void:
 		hand_btns[i].disabled = c == "" or busy
 		_style(hand_btns[i], c, i == selected)
 	flag.position = Vector2(tile_btns[strike_tile].position.x, ROW_Y - 100.0)
+	hero_hp_small.text = "%d" % roundi(maxf(hp, 0.0))
+	enemy_hp_small.text = "%d" % maxi(enemy_hp, 0)
 	go_btn.disabled = busy or over or board.is_empty()
 	for k in art_btns:
 		art_btns[k].disabled = busy
@@ -248,6 +281,80 @@ func _on_tile(t: int) -> void:
 		sfx.play("place")
 		_pop(tile_btns[t], 1.15)
 	_refresh()
+
+
+## A character reacts: knocked sideways by `dx`, flashed `tint`, scaled `s`, then
+## back to its fixed home. Kills the previous reaction on that node; never awaited.
+func _react(node: Control, home: Vector2, dx: float, tint: Color, s: float = 1.0) -> void:
+	if _react_tw.has(node) and _react_tw[node].is_valid():
+		_react_tw[node].kill()
+	node.position = home
+	node.scale = Vector2.ONE
+	node.rotation = 0.0
+	node.modulate = tint
+	var tw := create_tween()
+	_react_tw[node] = tw
+	tw.tween_property(node, "position:x", home.x + dx, 0.05)
+	tw.parallel().tween_property(node, "scale", Vector2(s, s), 0.05)
+	tw.parallel().tween_property(node, "modulate", Color.WHITE, 0.15)
+	tw.tween_property(node, "position:x", home.x, 0.10)
+	tw.parallel().tween_property(node, "scale", Vector2.ONE, 0.10)
+
+
+## The enemy leans back while the fireball is on its way to the flag tile.
+func _windup() -> void:
+	if _react_tw.has(enemy) and _react_tw[enemy].is_valid():
+		_react_tw[enemy].kill()
+	enemy.position = ENEMY_HOME
+	var tw := create_tween()
+	_react_tw[enemy] = tw
+	tw.tween_property(enemy, "scale", Vector2(1.12, 1.12), 0.06)
+	tw.parallel().tween_property(enemy, "rotation", deg_to_rad(8.0), 0.06)
+	var ft := create_tween()
+	ft.tween_property(flag, "scale", Vector2(1.3, 1.3), 0.06)
+	ft.tween_property(flag, "scale", Vector2.ONE, 0.10)
+
+
+func _badge(block: int) -> void:
+	if _react_tw.has(badge) and _react_tw[badge].is_valid():
+		_react_tw[badge].kill()
+	badge.modulate = Color.WHITE
+	badge.scale = Vector2.ONE
+	badge.visible = block > 0
+	badge.text = "🛡%d" % block
+	if block > 0:
+		var tw := create_tween()
+		_react_tw[badge] = tw
+		tw.tween_property(badge, "scale", Vector2(1.3, 1.3), 0.05)
+		tw.tween_property(badge, "scale", Vector2.ONE, 0.08)
+
+
+func _badge_break() -> void:
+	if not badge.visible:
+		return
+	if _react_tw.has(badge) and _react_tw[badge].is_valid():
+		_react_tw[badge].kill()
+	var tw := create_tween()
+	_react_tw[badge] = tw
+	tw.tween_property(badge, "scale", Vector2(1.5, 1.5), 0.12)
+	tw.parallel().tween_property(badge, "modulate:a", 0.0, 0.12)
+	tw.tween_callback(func(): badge.visible = false)
+
+
+## A ⚔ flies from the flag tile to the hero (hit / blocked) or the enemy (riposte).
+func _strike_fx(t: int, kind: String) -> void:
+	var l := Label.new()
+	l.text = "⚔"
+	l.add_theme_font_size_override("font_size", 80)
+	l.position = tile_btns[t].position + Vector2(TILE * 0.5 - 40.0, -60.0)
+	l.z_index = 15
+	if kind == "riposte":
+		l.modulate = Color("#ffd966")
+	add_child(l)
+	var target: Vector2 = enemy.position + Vector2(60, 30) if kind == "riposte" else HERO_HOME + Vector2(60, 30)
+	var tw := create_tween()
+	tw.tween_property(l, "position", target, 0.1)
+	tw.tween_callback(l.queue_free)
 
 
 func _pop(b: Control, s: float) -> void:
@@ -298,10 +405,15 @@ func _run() -> void:
 			seq.append(t)
 	var block := 0
 	var pops := 0
+	fire.position = Vector2(HERO_HOME.x + 20.0, ROW_Y - 20.0)
 	fire.visible = true
+	_badge(0)
+	_react(hero, HERO_HOME, 0.0, Color.WHITE, 1.15)
 	for k in seq.size():
 		var t: int = seq[k]
 		var dur: float = lerpf(0.20, 0.07, float(k) / float(maxi(seq.size() - 1, 1)))
+		if k + 1 < seq.size() and seq[k + 1] == strike_tile:
+			_windup()
 		if k > 0 and seq[k - 1] == t:
 			await get_tree().create_timer(0.08).timeout
 		else:
@@ -316,37 +428,45 @@ func _run() -> void:
 			_pop(tile_btns[t], 1.3)
 			if c == "red":
 				enemy_hp -= RED_DMG
-				_float_text("-%d" % RED_DMG, centre, COL["red"])
+				_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
+				_float_text("-%d" % RED_DMG, ENEMY_HOME + Vector2(60, 0), COL["red"])
 				_refresh()
 				if enemy_hp <= 0:
 					await _win()
 					return
 			else:
 				block += BLUE_BLOCK
+				_badge(block)
 				_float_text("🛡+%d" % BLUE_BLOCK, centre, Color("#7fb8ff"))
 		if t == strike_tile:
-			var centre2 := tile_btns[t].position + Vector2(40, 0)
 			if art_on["riposte"] and board.get(t, "") == "blue":
 				# Riposte: the whole strike goes back at the enemy.
 				enemy_hp -= roundi(strike_dmg)
 				sfx.play("hit")
 				_shake(10.0)
-				_float_text("↩ -%d" % roundi(strike_dmg), centre2, Color("#ffd966"))
+				_strike_fx(t, "riposte")
+				_react(enemy, ENEMY_HOME, 24.0, Color("#ffe08a"), 1.1)
+				_float_text("↩ -%d" % roundi(strike_dmg), ENEMY_HOME + Vector2(40, 0), Color("#ffd966"))
 				_refresh()
 				if enemy_hp <= 0:
 					await _win()
 					return
 			else:
 				var dmg := maxf(0.0, strike_dmg - block)
+				_react(enemy, ENEMY_HOME, 0.0, Color.WHITE)   # end of the windup lean
 				if dmg > 0.0:
 					hp -= dmg
 					sfx.play("hurt")
 					_shake(14.0)
-					_float_text("-%d" % roundi(dmg), centre2, Color("#ff4d5e"))
+					_strike_fx(t, "hit")
+					_react(hero, HERO_HOME, -14.0, Color("#ff6b6b"))
+					_float_text("-%d" % roundi(dmg), HERO_HOME + Vector2(60, 0), Color("#ff4d5e"))
 				else:
 					sfx.play("chime", 1.5)
-					_float_text("กันได้!", centre2, Color("#7fb8ff"))
+					_strike_fx(t, "blocked")
+					_float_text("กันได้!", HERO_HOME + Vector2(20, 0), Color("#7fb8ff"))
 			block = 0
+			_badge_break()
 			_refresh()
 			await get_tree().create_timer(0.3).timeout
 			if hp <= 0.0:
