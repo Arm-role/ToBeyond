@@ -602,7 +602,8 @@ func _enemy_counter_attack() -> void:
 	await _timer(0.3)
 
 	var before: float = _main.player_hp
-	_main.player_hp = _main.enemy_atk * _main.walks_left
+	# Real HP: each enemy hit removes enemy_atk (was atk * walks_left, a round counter).
+	_main.player_hp = maxf(0.0, _main.player_hp - _main.enemy_atk)
 	_main.spawn_damage_number("-%s" % _main.fmt_num(roundi(before - _main.player_hp)), hero_center, Color("#ff4d5e"), true)
 	_hero_ouch(hero_pic)
 	_main.hero_hp_label.text = "HP %s / %s" % [_main.fmt_num(roundi(_main.player_hp)), _main.fmt_num(roundi(_main.player_max_hp))]
