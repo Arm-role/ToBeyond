@@ -55,13 +55,15 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.auto_place_selected()
 			await get_tree().create_timer(1.2).timeout
 		"gembuff":
-			# 8 cards auto-placed; hand cards 0, 1 and 3 carry Gem MULT buffs (card 1 stacked +2).
+			# Cards 4-7 placed on tiles, 0-3 stay in the hand. Buffs: hand cards 0 (+1), 1 (+2), 3 (+1)
+			# trigger after the walk; placed card 5 (+1) must not.
 			main.hand[0]["buffs"] = {"mult": 1}
 			main.hand[1]["buffs"] = {"mult": 2}
 			main.hand[3]["buffs"] = {"mult": 1}
+			main.hand[5]["buffs"] = {"mult": 1}
 			main.selected_card_ids.clear()
-			for c in main.hand:
-				main.selected_card_ids.append(int(c["id"]))
+			for i in range(4, main.hand.size()):
+				main.selected_card_ids.append(int(main.hand[i]["id"]))
 			main.auto_place_selected()
 			await get_tree().create_timer(1.2).timeout
 		"win":

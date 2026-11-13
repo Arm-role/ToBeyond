@@ -180,6 +180,31 @@ func render_tiles() -> void:
 
 ## Group strip under the board, like the draft's `.gstrip`: a coloured bar
 ## spanning the group's tiles plus a black value chip under each placed Gem.
+## Gem with a MULT buff in the hand: violet rim + "MULT +N" tag (triggers from the hand after the walk).
+func _add_buff_mark(btn: Control, amount: int) -> void:
+	var rim := Panel.new()
+	rim.name = "BuffMark"
+	rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var rsb := StyleBoxFlat.new()
+	rsb.bg_color = Color(0.78, 0.61, 1.0, 0.0)
+	rsb.set_border_width_all(5)
+	rsb.border_color = Color("#c79bff")
+	rsb.set_corner_radius_all(20)
+	rsb.shadow_color = Color(0.78, 0.61, 1.0, 0.65)
+	rsb.shadow_size = 14
+	rim.add_theme_stylebox_override("panel", rsb)
+	btn.add_child(rim)
+	var tag := _gstrip_chip("MULT +%d" % amount, Color("#c79bff"), 18)
+	tag.name = "BuffTag"
+	tag.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	tag.offset_left = -50.0
+	tag.offset_right = 50.0
+	tag.offset_top = -26.0
+	tag.offset_bottom = 0.0
+	btn.add_child(tag)
+
+
 func _gstrip_chip(text: String, col: Color, size: int) -> Label:
 	var chip := Label.new()
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -261,9 +286,6 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 
 	if _main.totem_tiles.has(i):
 		row.add_child(_gstrip_chip("🗿+%d" % _main.totem_attack(i), Color("#7fd0ff"), 22))
-	var gem_buffs: Dictionary = _main.placed_cards[i].get("buffs", {}) if _main.placed_cards.has(i) else {}
-	if int(gem_buffs.get("mult", 0)) > 0:
-		row.add_child(_gstrip_chip("Gem +%d" % int(gem_buffs["mult"]), Color("#c79bff"), 22))
 	if _main.chaos_mult_tiles.has(i):
 		row.add_child(_gstrip_chip("⚡+5", Color("#c79bff"), 22))
 	if _main.chaos_xmult_tiles.has(i):
@@ -299,8 +321,6 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · ทิศตรงช่อง"
 	elif has_group:
 		hint += " · Stone +%d" % int(calc["grp_val"].get(tile_idx, 1))
-	if is_empty == false and int(card.get("buffs", {}).get("mult", 0)) > 0:
-		hint += " · Gem buff MULT +%d" % int(card["buffs"]["mult"])
 	# Draft shows tile Chaos only as chips in the strip below the board.
 	if _main.chaos_mult_tiles.has(tile_idx):
 		hint += " · Chaos MULT +5"
@@ -597,6 +617,9 @@ func render_hand() -> void:
 		set_card_template(btn, true, Color("#ffd966") if is_sel else Color.WHITE)
 		if is_sel:
 			_add_card_shine(btn)
+		var hand_buff := int(card.get("buffs", {}).get("mult", 0)) if not is_blank else 0
+		if hand_buff > 0:
+			_add_buff_mark(btn, hand_buff)
 
 		var card_id = card["id"]
 		btn.set_meta("card_id", card_id)
