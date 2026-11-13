@@ -64,6 +64,7 @@ func _run() -> void:
 		# already gold / already same
 		_fresh(card.duplicate())
 		main.hand[0]["gold"] = true
+		main.hand[0]["buffs"] = {"mult": 1}  # buffmult: already buffed -> refused (no stacking)
 		main.hand[0]["color"] = card.get("col", main.hand[0]["color"])
 		main.hand[0]["dir"] = card.get("dir", main.hand[0]["dir"])
 		_pick([0])

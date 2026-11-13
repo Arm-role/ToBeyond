@@ -187,12 +187,10 @@ func _add_buff_mark(btn: Control, amount: int) -> void:
 	rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var rsb := StyleBoxFlat.new()
-	rsb.bg_color = Color(0.78, 0.61, 1.0, 0.0)
+	rsb.draw_center = false
 	rsb.set_border_width_all(5)
 	rsb.border_color = Color("#c79bff")
 	rsb.set_corner_radius_all(20)
-	rsb.shadow_color = Color(0.78, 0.61, 1.0, 0.65)
-	rsb.shadow_size = 14
 	rim.add_theme_stylebox_override("panel", rsb)
 	btn.add_child(rim)
 	var tag := _gstrip_chip("MULT +%d" % amount, Color("#c79bff"), 18)
@@ -776,7 +774,7 @@ func render_chaos_row() -> void:
 
 
 ## Small card like the draft's `.mc` (colour + direction emblem).
-func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
+func make_mini_card(col: String, dir: String, size: Vector2, gold: bool = false, buff_mult: int = 0) -> Control:
 	size.x = size.y * CARD_WIDTH_TO_HEIGHT
 	var card := Panel.new()
 	card.custom_minimum_size = size
@@ -786,10 +784,16 @@ func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
 	sb.border_color = GameAssets.COLORS["brass"]
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(int(round(size.x * 0.18)))
+	if gold:
+		# Gold Gem: thick gold rim + glow + ★ and the gold emblem, clearly apart from plain cards.
+		sb.border_color = GameAssets.COLORS["gold"]
+		sb.set_border_width_all(4)
+		sb.shadow_color = Color(GameAssets.COLORS["gold"], 0.7)
+		sb.shadow_size = 8
 	card.add_theme_stylebox_override("panel", sb)
 	if dir != "" and GameAssets.EMBLEMS.has(dir):
 		var em := TextureRect.new()
-		em.texture = GameAssets.EMBLEMS[dir]
+		em.texture = GameAssets.EMBLEMS_GOLD.get(dir, GameAssets.EMBLEMS[dir]) if gold else GameAssets.EMBLEMS[dir]
 		em.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		em.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		em.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -800,6 +804,32 @@ func make_mini_card(col: String, dir: String, size: Vector2) -> Control:
 		em.offset_bottom = -size.y * 0.19
 		card.add_child(em)
 	set_card_template(card)
+	if gold:
+		var star := Label.new()
+		star.text = "⭐"
+		star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		star.add_theme_font_size_override("font_size", int(size.y * 0.24))
+		star.add_theme_color_override("font_color", GameAssets.COLORS["gold"])
+		star.position = Vector2(size.x * 0.06, 0)
+		card.add_child(star)
+	if buff_mult > 0:
+		var rim := Panel.new()
+		rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var rsb := StyleBoxFlat.new()
+		rsb.draw_center = false
+		rsb.set_border_width_all(3)
+		rsb.border_color = Color("#c79bff")
+		rsb.set_corner_radius_all(int(round(size.x * 0.18)))
+		rim.add_theme_stylebox_override("panel", rsb)
+		card.add_child(rim)
+		var tag := _gstrip_chip("M+%d" % buff_mult, Color("#c79bff"), 13)
+		tag.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+		tag.offset_left = -size.x * 0.5
+		tag.offset_right = size.x * 0.5
+		tag.offset_top = -17.0
+		tag.offset_bottom = 0.0
+		card.add_child(tag)
 	return card
 
 
@@ -916,7 +946,7 @@ func open_deck_modal() -> void:
 		row.add_theme_constant_override("h_separation", 7)
 		row.add_theme_constant_override("v_separation", 7)
 		for c in cards:
-			row.add_child(make_mini_card(col, "" if col == "blank" else c.get("dir", ""), Vector2(57, 75)))
+			row.add_child(make_mini_card(col, "" if col == "blank" else c.get("dir", ""), Vector2(57, 75), c.get("gold", false), int(c.get("buffs", {}).get("mult", 0))))
 		grp.add_child(row)
 		_main.deck_modal_list.add_child(grp)
 	_main.deck_modal.visible = true

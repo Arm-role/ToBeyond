@@ -1,7 +1,8 @@
 class_name BuffGemChaos
 extends ChaosEffect
 ## Gives one hand Gem a permanent buff that triggers after the walk (before the
-## Artifacts): card["buffs"][buff_type] += amount. Stacks when used again.
+## Artifacts): card["buffs"][buff_type] = amount. Does not stack: a Gem that already
+## has this buff is refused.
 ## Buff types are resolved in BattleManager._trigger_gem_buffs ("mult" so far).
 
 @export var buff_type: String = "mult"
@@ -12,9 +13,11 @@ func use_hand(main: Node, _card: Dictionary, picked: Array[Dictionary]) -> Dicti
 	if picked.size() != 1 or picked[0].get("is_blank", false):
 		return fail("เลือก Gem ในมือ 1 ใบก่อน")
 	var gem: Dictionary = picked[0]
+	if int(gem.get("buffs", {}).get(buff_type, 0)) > 0:
+		return fail("Gem ใบนี้มี buff แล้ว (ซ้อนไม่ได้)")
 	# Fresh dict: crystal cards are copied with duplicate() (shallow).
 	var buffs: Dictionary = gem.get("buffs", {}).duplicate()
-	buffs[buff_type] = int(buffs.get(buff_type, 0)) + amount
+	buffs[buff_type] = amount
 	gem["buffs"] = buffs
 	# Remembered for rebuilds by id; only the 48 base-deck cards have stable ids.
 	if int(gem["id"]) < main.COLOR_ORDER.size() * main.DIR_ORDER.size() * 3:

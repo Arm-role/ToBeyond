@@ -454,7 +454,7 @@ func apply_deck_mods() -> void:
 		for card in deck:
 			if card["id"] == mod["id"]:
 				var buffs: Dictionary = card.get("buffs", {}).duplicate()
-				buffs[mod["type"]] = int(buffs.get(mod["type"], 0)) + int(mod["amount"])
+				buffs[mod["type"]] = int(mod["amount"])  # no stacking
 				card["buffs"] = buffs
 				break
 	for mod in deck_removals:

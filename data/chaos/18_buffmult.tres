@@ -18,5 +18,5 @@ catalog_order = 18
 effect = SubResource("Resource_buff")
 label = "Gem +1"
 title = "Chaos Gem MULT +1"
-desc = "เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: Gem ใบนี้ได้ MULT +1 ถาวร ทำงานหลังเดินจบ (ก่อน Artifact) ซ้อนได้"
+desc = "เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: Gem ใบนี้ได้ MULT +1 ถาวร ทำงานหลังเดินจบ (ก่อน Artifact) ซ้อนไม่ได้"
 cover_text = "+1"
