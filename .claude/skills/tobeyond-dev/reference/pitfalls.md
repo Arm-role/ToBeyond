@@ -42,3 +42,4 @@
 One line per lesson, added by the worker after a task (rule: step 9 of the loop in `SKILL.md`). Format: `YYYY-MM-DD | symptom → cause → fix (commit)`. Only things confirmed by a fix that worked; no guesses. If a lesson fits a section above, put it there instead.
 - 2026-11-08 | converting a global position to a Control's local space with `to_local()` → `to_local()` is a Node2D method, not a Control one → use `node.get_global_transform().affine_inverse() * global_pos` (4729858)
 - Drag code in `_input` that consumes the release makes the button lose `pressed`: taps with finger jitter do nothing on mobile. Only consume when dropped away from the source control (slot_drag.gd `finish`).
+- 2026-11-13 | card mods matched by (color,dir) pile onto one of the 3 copies (`apply_deck_mods` takes the first match) → buff_mods match by base-deck card id (0..47 stable; crystal cards id 48+ are not saved)

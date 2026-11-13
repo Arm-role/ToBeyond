@@ -3,7 +3,7 @@ extends Resource
 ## One Chaos card sold in the shop (res://data/chaos/*.tres). What the card
 ## does is the `effect` resource (ChaosEffect subclasses in scripts/artifacts/chaos/).
 
-@export_enum("color", "dirc", "tdir", "mtile", "xmult", "xatk", "goldify", "destroy", "crystal") var kind: String = "color"
+@export_enum("color", "dirc", "tdir", "mtile", "xmult", "xatk", "goldify", "destroy", "crystal", "buffmult") var kind: String = "color"
 @export var col: String = ""  # "" = any/none
 @export var dir: String = ""  # "" = any/none
 ## Stable key of the card (file name without the number prefix), e.g. "color_red", "xmult".

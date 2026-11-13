@@ -261,6 +261,9 @@ func _render_gstrip_cell(i: int, calc: Dictionary) -> void:
 
 	if _main.totem_tiles.has(i):
 		row.add_child(_gstrip_chip("🗿+%d" % _main.totem_attack(i), Color("#7fd0ff"), 22))
+	var gem_buffs: Dictionary = _main.placed_cards[i].get("buffs", {}) if _main.placed_cards.has(i) else {}
+	if int(gem_buffs.get("mult", 0)) > 0:
+		row.add_child(_gstrip_chip("Gem +%d" % int(gem_buffs["mult"]), Color("#c79bff"), 22))
 	if _main.chaos_mult_tiles.has(i):
 		row.add_child(_gstrip_chip("⚡+5", Color("#c79bff"), 22))
 	if _main.chaos_xmult_tiles.has(i):
@@ -296,6 +299,8 @@ func _apply_tile_state(tile_btn: Button, tile_idx: int, calc: Dictionary) -> voi
 		hint += " · ทิศตรงช่อง"
 	elif has_group:
 		hint += " · Stone +%d" % int(calc["grp_val"].get(tile_idx, 1))
+	if is_empty == false and int(card.get("buffs", {}).get("mult", 0)) > 0:
+		hint += " · Gem buff MULT +%d" % int(card["buffs"]["mult"])
 	# Draft shows tile Chaos only as chips in the strip below the board.
 	if _main.chaos_mult_tiles.has(tile_idx):
 		hint += " · Chaos MULT +5"

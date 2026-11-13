@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="ChaosData" format=3]
+
+[ext_resource type="Script" path="res://scripts/artifacts/chaos_data.gd" id="1_cd"]
+[ext_resource type="Script" path="res://scripts/artifacts/chaos/buff_gem_chaos.gd" id="1_bg"]
+
+[sub_resource type="Resource" id="Resource_buff"]
+script = ExtResource("1_bg")
+
+[resource]
+script = ExtResource("1_cd")
+kind = "buffmult"
+id = "buffmult"
+name = "Chaos Gem MULT +1"
+icon = "⚡"
+price = 6
+color = Color(0.6509804, 0.42352942, 0.9490196, 1)
+catalog_order = 18
+effect = SubResource("Resource_buff")
+label = "Gem +1"
+title = "Chaos Gem MULT +1"
+desc = "เลือก Gem 1 ใบ แล้วแตะการ์ดนี้: Gem ใบนี้ได้ MULT +1 ถาวร ทำงานหลังเดินจบ (ก่อน Artifact) ซ้อนได้"
+cover_text = "+1"

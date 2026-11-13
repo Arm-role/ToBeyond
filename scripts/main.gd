@@ -69,6 +69,7 @@ var chaos: Array = [null, null, null] # Array of null or { kind, col?, dir? }
 var selected_chaos_slot: int = -1
 var deck_mods: Array[Dictionary] = []
 var gold_mods: Array[Dictionary] = []
+var buff_mods: Array[Dictionary] = []  # {id, type, amount}: Gem buffs re-applied by base-deck card id
 var deck_removals: Array[Dictionary] = []
 var chaos_mult_tiles: Dictionary = {} # tile index -> true, MULT +5
 var chaos_xmult_tiles: Dictionary = {} # tile index -> true, MULT ×1.2
@@ -428,6 +429,7 @@ func reset_chaos() -> void:
 	selected_chaos_slot = -1
 	deck_mods.clear()
 	gold_mods.clear()
+	buff_mods.clear()
 	deck_removals.clear()
 	chaos_mult_tiles.clear()
 	chaos_xmult_tiles.clear()
@@ -447,6 +449,13 @@ func apply_deck_mods() -> void:
 		for card in deck:
 			if card["color"] == mod["color"] and card["dir"] == mod["dir"]:
 				card["gold"] = true
+				break
+	for mod in buff_mods:
+		for card in deck:
+			if card["id"] == mod["id"]:
+				var buffs: Dictionary = card.get("buffs", {}).duplicate()
+				buffs[mod["type"]] = int(buffs.get(mod["type"], 0)) + int(mod["amount"])
+				card["buffs"] = buffs
 				break
 	for mod in deck_removals:
 		for i in range(deck.size()):

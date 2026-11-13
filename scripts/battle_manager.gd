@@ -179,6 +179,35 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false) -> void:
 		VfxManager.trigger_juice(_main.calc_label, _spd(), 1.1, 3.0, 0.0)
 
 
+## After the walk, before the Artifacts: every placed Gem with a buff triggers
+## in tile order (card["buffs"] = {type: amount}). No buffed Gem = no delay.
+func _trigger_gem_buffs() -> void:
+	var tiles: Array = _main.placed_cards.keys()
+	tiles.sort()
+	var k := 0
+	for tile_idx in tiles:
+		var card: Dictionary = _main.placed_cards[tile_idx]
+		if card.get("is_blank", false):
+			continue
+		var buffs: Dictionary = card.get("buffs", {})
+		for type in buffs:
+			var amount: int = int(buffs[type])
+			if amount <= 0:
+				continue
+			var tile_btn := _main.tiles_container.get_child(tile_idx) as Button
+			match type:
+				"mult":
+					_main.walk_mult_bonus += amount
+					_tile_pop(tile_idx, "MULT +%d" % amount, Color("#c79bff"))
+			_trigger_fx(tile_btn.global_position + tile_btn.size * 0.5, Color("#c79bff"), k)
+			VfxManager.trigger_juice(tile_btn, _spd(), 1.15, 6.0)
+			_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(k, 0, 6)]) / 12.0), -3.0)
+			_main.refresh_calc()
+			VfxManager.trigger_juice(_main.calc_label, _spd(), 1.1, 3.0, 0.0)
+			k += 1
+			await _timer(0.45)
+
+
 ## Draft `.spop`: big blue number with a white glow above the tile,
 ## pops to ×1.25 then drifts up and fades (0.9 s).
 func _tile_pop(tile_idx: int, text: String, col: Color = Color("#1f7ae0")) -> void:
@@ -302,6 +331,7 @@ func _on_walk_finished() -> void:
 
 	# 0. Artifacts resolve one by one (draft attackSeq()): the calc shows the raw
 	#    walk total, then each artifact flashes and updates it, 450 ms apart.
+	await _trigger_gem_buffs()
 	var steps: Array = []
 	_main.compute_attack(steps)
 	_main.show_calc(steps[0]["atk"], steps[0]["mult"])
