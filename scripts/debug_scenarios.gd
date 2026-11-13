@@ -60,6 +60,7 @@ func run(scenario: String, restart: bool = true) -> void:
 			main.hand[0]["buffs"] = {"mult": 1}
 			main.hand[1]["buffs"] = {"mult": 2}
 			main.hand[3]["buffs"] = {"mult": 1}
+			main.hand[3]["gold"] = true  # gold + buff: triggers twice
 			main.hand[5]["buffs"] = {"mult": 1}
 			main.selected_card_ids.clear()
 			for i in range(4, main.hand.size()):

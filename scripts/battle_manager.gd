@@ -190,8 +190,8 @@ func _spawn_tile_popup(tile_idx: int, helper_pass: bool = false, repeat: bool = 
 
 
 ## After the walk, before the Artifacts: every Gem still in the hand that carries
-## a buff triggers in hand order (card["buffs"] = {type: amount}); Gems already
-## placed on tiles do not. No buffed Gem = no delay.
+## a buff triggers in hand order (card["buffs"] = {type: amount}), twice for a gold
+## Gem; Gems already placed on tiles do not. No buffed Gem = no delay.
 func _trigger_gem_buffs() -> void:
 	var k := 0
 	for idx in _main.hand.size():
@@ -199,22 +199,26 @@ func _trigger_gem_buffs() -> void:
 		if card.get("is_blank", false):
 			continue
 		var buffs: Dictionary = card.get("buffs", {})
+		# A gold Gem retriggers everything it does: its buff triggers twice.
+		var reps: int = 2 if card.get("gold", false) else 1
 		for type in buffs:
 			var amount: int = int(buffs[type])
 			if amount <= 0 or idx >= _main.hand_container.get_child_count():
 				continue
 			var card_ctl := _main.hand_container.get_child(idx) as Control
-			match type:
-				"mult":
-					_main.walk_mult_bonus += amount
-					_pop_at(card_ctl, "MULT +%d" % amount, Color("#c79bff"))
-			_trigger_fx(card_ctl.global_position + card_ctl.size * 0.5, Color("#c79bff"), k)
-			VfxManager.trigger_juice(card_ctl, _spd(), 1.15, 6.0)
-			_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(k, 0, 6)]) / 12.0), -3.0)
-			_main.refresh_calc()
-			VfxManager.trigger_juice(_main.calc_label, _spd(), 1.1, 3.0, 0.0)
-			k += 1
-			await _timer(0.45)
+			for rep in reps:
+				var fx_col := Color("#ffd24a") if rep > 0 else Color("#c79bff")
+				match type:
+					"mult":
+						_main.walk_mult_bonus += amount
+						_pop_at(card_ctl, ("⭐" if rep > 0 else "") + "MULT +%d" % amount, Color("#f2b63c") if rep > 0 else Color("#c79bff"))
+				_trigger_fx(card_ctl.global_position + card_ctl.size * 0.5, fx_col, k)
+				VfxManager.trigger_juice(card_ctl, _spd(), 1.15, 6.0)
+				_main.sfx.play("chime", pow(2.0, float([0, 2, 4, 7, 9, 12, 14][clampi(k, 0, 6)]) / 12.0), -3.0)
+				_main.refresh_calc()
+				VfxManager.trigger_juice(_main.calc_label, _spd(), 1.1, 3.0, 0.0)
+				k += 1
+				await _timer(0.45)
 
 
 ## Draft `.spop`: big blue number with a white glow above the tile,
