@@ -699,12 +699,7 @@ func _win() -> void:
 		_refresh()
 		return
 	msg.text = ""
-	if sim.boss != null:
-		await _shop()   # a boss win opens the shop instead of the 1-of-3 pick
-	else:
-		var offers := Reward.offer(sim)
-		if not offers.is_empty():
-			await _reward(offers)
+	await _shop()   # every win opens the shop; no 1-of-3 pick
 	stage += 1
 	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
@@ -802,7 +797,7 @@ func _reward_pick(d: Resource, offers: Array) -> void:
 	back.pressed.connect(func(): _reward_offers(offers))
 
 
-## Shop after a boss: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
+## Shop after every win: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
 func _shop() -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
