@@ -8,8 +8,7 @@ description: ToBeyond Godot 4 development guide. The maintained version is .clau
 The maintained guide now lives in `.claude/skills/tobeyond-dev/`:
 
 - `SKILL.md`: workflow and rules
-- `reference/map.md`: draft ↔ Godot map
+- `reference/map.md`: feature → Godot code (Domino Run)
 - `reference/pitfalls.md`: known traps
 
-Node paths: `SYSTEM_PATHS.md`, or `python3 tools/parity/node_tree.py` for the live tree.
-Tools (build, compare with the HTML draft, token report): `tools/parity/`.
+Tools (build, regression, recording, token report): `tools/parity/`. Most nodes are built in code (`domino_view.gd: _build`).

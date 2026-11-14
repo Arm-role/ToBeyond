@@ -62,9 +62,9 @@ def env_for(task):
 
 
 def overlay_regress(task, d):
-    """Old trees lack regress.sh / baseline support: lay the current tools/parity over them."""
+    """Old trees lack regress.sh / baseline support: lay tools/parity from 75299a3 (the last commit with the classic game's regress script) over them."""
     if task.get("regress"):
-        sh(f"git -C '{ROOT}' archive HEAD tools/parity | tar -x -C '{d}'", ROOT)
+        sh(f"git -C '{ROOT}' archive 75299a3 tools/parity | tar -x -C '{d}'", ROOT)
 
 
 def make_baseline(task, d):

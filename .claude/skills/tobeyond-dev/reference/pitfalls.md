@@ -20,19 +20,12 @@
 - JS `Math.round` ≠ GDScript `int()` (truncates): use `roundi()` to match the draft (e.g. boss HP 112.5 → 113).
 - Headless Godot keeps running after a script error; always use a timeout (the tools do).
 
-## Draft behaviour worth knowing
-- Timings: walk step 450 ms ÷ speed; `attackSeq` = 350 ms pause, 450 ms per artifact step, 250 ms, then `strike` (750 ms Bézier, ease q^1.6).
-- The formula shows `1 × 1 = 1` until the walk; it grows during the walk; artifacts then apply one by one.
-- `spawnEnemy()` adds the CSS class `spawn` (an entrance animation): measure after it ends.
-- Boss = every 3rd enemy (`bossN % 3 === 2` in the draft, `stage % 3 == 0` in Godot).
-
 ## Tooling
 - Swiftshader WebGL is slow at screenshots (~0.4 s each); `--seq` therefore logs the formula by polling text and takes frames in a second pass.
 - Godot web console noise "GL Driver Message … GPU stall" is filtered; real errors start with `SCRIPT ERROR` / `ERROR`.
 
 ## Animation / game feel
 - A tween that sets a start pose (`alpha 0`, `scale 1.6`) with `set_delay` leaves the node in its final state until the delay ends (a finished card sits idle) or, if the pose is applied at once, a hole in the board. Apply the start pose when the motion starts; show the empty-slot art until a flying card lands.
-- `Control.duplicate()` of a hand card copies its `CardSway` child, which fights tweens on rotation/scale: remove it from the copy. Hand cards are rebuilt on every `render_hand()`, so copy the visuals before `update_all_ui()`.
 - A flying copy needs `mouse_filter = IGNORE`, a high `z_index`, and a flag (`_placing`) that blocks the Walk button until the last card lands.
 - Non-uniform scale on a flying card stretches its emblem into an ellipse: use one uniform scale factor.
 - Sound synthesis (`SfxManager._stream`) is cheap (2-40 ms); it was not the cause of a placement stall. Measure (`Time.get_ticks_usec`) before blaming it.
