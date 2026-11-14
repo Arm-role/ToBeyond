@@ -3,7 +3,7 @@ extends Control
 ## node only draws: a walk is replayed from the sim's event list (_play_walk).
 ## HP, shield and the Gems on the row come from event fields during playback
 ## (v_* values), never from the sim's live state.
-## This is the main scene; the old game is at ?mode=classic.
+## This is the main scene.
 
 const Sim := preload("res://scripts/domino/domino_sim.gd")
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
@@ -74,22 +74,7 @@ var msg: Label
 var go_btn: Button
 
 
-## Launch argument: ?key=value (web) or -- --key=value.
-func _launch_arg(key: String) -> String:
-	if OS.has_feature("web"):
-		var m := RegEx.create_from_string("[?&]" + key + "=([A-Za-z0-9_]+)").search(str(JavaScriptBridge.eval("location.search", true)))
-		return m.get_string(1) if m != null else ""
-	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--" + key + "="):
-			return a.substr(key.length() + 3)
-	return ""
-
-
 func _ready() -> void:
-	# ?mode=classic keeps the old game playable for one release.
-	if _launch_arg("mode") == "classic":
-		get_tree().change_scene_to_file.call_deferred("res://scenes/main.tscn")
-		return
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
 	sim.rng.randomize()

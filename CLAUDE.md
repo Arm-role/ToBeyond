@@ -5,10 +5,10 @@ For any game work load the `tobeyond-dev` skill (rules, draft↔Godot map, pitfa
 
 ## Commands
 - `tools/parity/setup_godot.sh`: install Godot + Web export templates (fresh container, ~1 min)
-- `tools/parity/build.sh --check`: parse every script + headless smoke run (seconds)
+- `tools/parity/build.sh --check`: parse every script, check skill docs, smoke-run the Domino scene (seconds)
+- `tools/parity/build.sh --regress [--update]`: the check, then the Domino regression against `tools/parity/baseline/`
 - `tools/parity/build.sh`: Web export to `build/web`
-- `node tools/parity/parity.js <scenario[,…]> [--fast] [--region=…] [--seq]`: compare with the draft (text report + `build/parity/*.png`)
-- `python3 tools/parity/node_tree.py [filter]`: live node tree of `scenes/main.tscn`
+- `node tools/parity/record.js <name> --steps=…`: record the web build while clicking (contact sheet in `build/record/`)
 - `python3 tools/parity/token_report.py`: token use of this session per request
 
 ## Enforced rules (`tools/hooks/guard.js`, a PreToolUse hook in `.claude/settings.json`)
@@ -19,12 +19,14 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 - Block: force push, skipping git hooks or signing, `Read` of a file over 40 KB without `offset`/`limit`.
 - `node tools/hooks/test.js` checks all rules (run it after any change to the hook).
 
-## Code layout (after the main.gd split, done)
-- `scripts/main.gd`: node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
-- Split classes (each holds `_main`): `BoardCalc`, `ToolbarControls`, `ActionDialog`, `SlotDrag`, `BoardInput`, `RewardFlow`, plus the managers (`BattleManager`, `ShopManager`, `UiRenderer`, `ArtifactSystem`).
-- Domino Run is the main scene (`scenes/domino.tscn`, `scripts/domino/`); the old game stays at `?mode=classic` until it is deleted (phase 6 step 3, needs the user's OK). Plan, status and per-phase docs: `docs/plan-domino-run.md` + `docs/domino/phase-N.md` (read these first for any Domino work); the main game is untouched.
-- Artifacts are data: `data/artifacts/*.tres`. Stone and Chaos were removed (`docs/plan-gem-types.md`).
-- Logic regression: `tools/parity/build.sh --regress` diffs `artifact_regress.gd` against `tools/parity/baseline/`. Run it after any change to artifacts, walk or damage code. After an *intended* number change run `--regress --update` and commit the baseline diff.
+## Code layout
+Domino Run (the old classic game and its draft-parity tools were removed in phase 6; git history has them).
+- `scenes/domino.tscn` (main scene) → `scripts/domino/domino_view.gd`: draws and replays events; reads HP, shield and the row from event fields.
+- `scripts/domino/domino_sim.gd`: all rules, no UI, no await. `run_walk()` returns a deterministic event list. Helpers: `domino_rule.gd`, `domino_artifact.gd`, `domino_boss.gd`, `domino_catalog.gd`, `domino_reward.gd`, `domino_shop.gd` (no `class_name`, loaded with `preload`).
+- Artifacts and bosses are data: `data/domino/artifacts/*.tres`, `data/domino/bosses/*.tres`.
+- Plan, status and per-phase docs: `docs/plan-domino-run.md`, `docs/domino/phase-N.md`; design rule `docs/design-principles.md`. Old plans: `docs/archive/`.
+- Logic regression: `tools/parity/build.sh --regress` diffs `domino_regress.gd` against `tools/parity/baseline/domino_regress.txt` (thousands of lines: grep it, never read it whole). Run it after any change to the sim, artifacts or bosses. After an *intended* change run `--regress --update` and commit the baseline diff.
+- Every playable screen shows the version stamp bottom-right (`_add_version_stamp`).
 
 ## Branches and previews
 - Work on the session branch; don't push to `main` unless asked.
@@ -34,8 +36,8 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 ## Keep sessions cheap
 - One task per session; `/clear` or a new session after pushing.
 - Model roles (Sonnet main, `advisor`, `runner`) and the big-file reading rule: `tobeyond-dev` skill. Don't `/model` mid-session: it re-caches the whole context; delegate to an agent instead.
-- Screenshots go to the `parity-checker` agent (`parity-check` skill); the main session reads text reports.
+- Look at screenshots only when pixels matter; prefer text reports (regress lines, `record.js` text timeline).
 
 ## Compact instructions
-Keep: the current task, files changed and why, open differences from the last parity report, what is committed and pushed.
+Keep: the current task, files changed and why, open problems from the last check, what is committed and pushed.
 Drop: old tool output, screenshots, superseded plans.

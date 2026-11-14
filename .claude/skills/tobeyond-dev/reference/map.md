@@ -2,50 +2,23 @@
 
 Godot code is the source of truth. `tools/parity/check_refs.py` (run by `build.sh --check`) fails when a
 `` `file.gd: name name` `` entry or a `scripts/…`/`data/…` path below no longer exists, so keep entries in that exact form.
-Line numbers drift, so grep the name. The draft columns live in the appendix at the end; open them only when the user orders a draft comparison.
+Line numbers drift, so grep the name. Plan and per-phase docs: `docs/plan-domino-run.md`, `docs/domino/phase-N.md`.
 
 | Feature | Godot |
 |---|---|
-| Board tiles, tile art, directions | `ui_renderer.gd: render_tiles _apply_tile_state _render_tile_number _make_tile_frame` · `main.gd: render_tiles TILE_DIR` |
-| Group strip under the board | `ui_renderer.gd: _render_gstrip_cell _gstrip_chip` |
-| Totem | `board_calc.gd: sync_totems totem_attack` · `ui_renderer.gd: _render_totem` · `battle_manager.gd: _hit_totem` |
-| Deck, hand, sort, discard | `main.gd: build_deck draw_up_to_hand set_sort_mode render_hand` · `ui_renderer.gd: render_hand` · `board_input.gd: on_discard_pressed` |
-| Place / take back / new round | `main.gd: _on_hand_card_clicked _on_tile_clicked start_new_round` · `board_input.gd: on_tile_clicked` |
-| Flat Gem ATK (Stone groups removed in P2) | `board_calc.gd: calculate_groups matching_card_count` |
-| Auto place | `board_calc.gd: greedy_placement` · `main.gd: auto_place_selected` |
-| Damage formula text | `main.gd: show_calc refresh_calc fmt_num` · `board_calc.gd: compute_attack` |
-| Walk (token path, per-tile effects) | `battle_manager.gd: run_walk build_walk_steps _visit_tile _tile_pop _spawn_tile_popup` · `board_calc.gd: tile_direction_count apply_tile_walk_effects` · `main.gd: _on_walk_pressed _land_card begin_walk_damage prepare_walk_artifacts` |
-| Attack sequence (artifacts one by one, fireball, beam) | `board_calc.gd: compute_attack` · `main.gd: artifact_slot flash_artifact` · `artifact_system.gd: attack` (per copy, slot order) · `battle_manager.gd: _on_walk_finished _burst _charge_ring _hero_cast` |
-| Enemy counter attack, player HP | `battle_manager.gd: _enemy_counter_attack _hero_ouch` · `main.gd: player_hp player_max_hp` |
-| Enemy spawn, boss, boss skill, scaling | `main.gd: is_boss spawn_current_enemy boss_skill` · `shop_manager.gd: on_shop_leave` (stage++, HP ×1.5, ATK × PHP_GROW) |
-| Victory summary | `reward_flow.gd: on_victory render_summary add_row` · `main.gd: on_victory _on_reward_shop_pressed` |
-| Shop: offers, tabs, reroll, buy | `shop_manager.gd: open_shop set_tab generate_game_offers reroll_shop render_shop_offers _render_game_offers _render_artifact_catalog _render_upgrade_catalog _add_shop_card _add_offer_row buy_game_offer buy_stat buy_artifact on_shop_leave` |
-| Artifact slots, names, descriptions, sell | `shop_manager.gd: display_name display_desc art_cover get_sell_price confirm_sell_artifact sell_artifact` · `ui_renderer.gd: render_artifact_row _style_item_slot` · `main.gd: artifacts flash_artifact` |
-| Popup (title, text, buttons) | `action_dialog.gd: setup show_dialog` · `main.gd: show_action_dialog` |
-| Deck view | `ui_renderer.gd: open_deck_modal make_mini_card _fit_view_scroll` |
-| Speed ×1–×5 | `main.gd: _on_speed_toggle` · `battle_manager.gd: _spd _timer` |
-| Game over, new game | `main.gd: on_game_over start_new_game` |
-| Drag cards (slots swap/sell, hand→board, board↔board/hand, shop card→buy) | `slot_drag.gd: on_input begin finish` · `board_input.gd: place_from_hand move_board_card return_board_card` |
-| Toolbar (fullscreen, audio, sort buttons) | `toolbar_controls.gd: _setup_fullscreen_button _setup_audio_button _style_sort_button` |
-| Effects, sound, hit stop (game feel, not in the draft) | `vfx_manager.gd: fire_laser_beam shake_node spawn_damage_number show_center_toast pop_tile_anim` · `battle_manager.gd: _hit_stop` · `sfx_manager.gd` (synthesised sounds, `main.sfx.play(name)`) |
-
-## Data
-
-| Draft | Godot |
-|---|---|
-| `ITEMS` (owned artifacts) | `main.artifacts` |
-| artifact catalog in `genOffers` / `itemName` / `itemDesc`, `RARITY`, attack/landing code per type | `data/artifacts/<id>.tres` (`ArtifactData`: shop fields, rarity, draft name/desc, cover, effects). `ShopManager.ARTIFACT_CATALOG` / `ARTIFACT_RARITY` are views built from it |
-| artifact effects and trigger points | `scripts/artifacts/`: `ArtifactSystem` (hooks: round_start, pre_walk, land, attack_early, attack, victory, reward, rules), `ArtifactEffect` (hook table), data-only `StatEffect CounterEffect RewardEffect RuleEffect`, custom ones in `effects/*_effect.gd`. Game code asks `artifact_sys.has_rule(&"…")`, never an artifact id. Check numbers: `godot --headless --path . --script res://tools/parity/artifact_regress.gd` and diff with a run before the change |
-| `UPG_INFO` | shop_manager `_get_stat_offer_info` |
-| `BOSS_PICS BOSS_BLANKS ENEMY_HP_START EATK_START PHP_GROW` | same names in main.gd (grep) |
-
-## Draft CSS selectors (for parity `els`)
-
-Top bar `#stat #coins #spd #rst` · preview `.preview #hero #calc .php .hpbar .hptxt .enemy #ename #eskill #epic #eatk #msg` · rows `#artrow .islot`, `#chaosrow` · board `#board .tile`, `#gstrip` · bottom `.toolcol .vbtn`, `#tray .tcard`, `#go #sortCol #sortDir #dis` · modals `#reward .rbox .rrow .shopgo`, `#shop .shophead #shopCoins #shopOwned #shopChaos .shoptabs #shopItems .sitem`, `#gameover .panel .ptitle #goinfo`, `#vwDeck #vwStone .panel .vscroll`, popup `#pop #popTitle #popDesc #popAct`, toast `#ctoast`.
-
-## Appendix: draft functions (only when the user orders a draft comparison)
-
-Draft sections start with a comment like `/* ===== Token / walk ===== */`; jump with `grep -n "===== Token" To_Beyond_Draft.html`. Reading the draft asks the user first (hook).
-
-| Feature | Draft (section: functions) |
-|---|---|
+| Fight state, stage scaling, boss pick | `domino_sim.gd: start_fight claim_win strike_each deal_hand place take` |
+| One walk as an event list | `domino_sim.gd: run_walk _finalize _emit _push` |
+| Pops, strikes, damage, shield | `domino_sim.gd: _do_pop _do_strike _hit _shield` |
+| Rule engine (artifact + boss rules, caps, once) | `domino_sim.gd: _fire _match _check _apply` · ceilings `MAX_*` consts |
+| Route (bounce, ring, flag moves) | `domino_sim.gd: default_route _route_next` |
+| Artifacts / bosses as data | `data/domino/artifacts/*.tres` · `data/domino/bosses/*.tres` · `domino_rule.gd: trigger cond effect args once` · `domino_artifact.gd: archetype rarity rules` · `domino_boss.gd: rule args rules` |
+| Catalog loading (web-export safe) | `domino_catalog.gd: all get_def bosses get_boss` |
+| Reward pick 1 of 3 | `domino_reward.gd: offer pick` · `domino_view.gd: _reward _reward_offers _reward_pick` |
+| Shop after a boss | `domino_shop.gd: stock price sell_value reroll_cost` · `domino_view.gd: _shop` |
+| Artifact slot bar (tap to read, tap two to swap) | `domino_view.gd: _on_slot _slot_tip _apply_slots _refresh_slots` |
+| Replaying a walk (fireball, pops, hits, shield, flags, gold) | `domino_view.gd: _on_go _play_walk _win _lose` |
+| Characters, lasers, floating text, shake | `domino_view.gd: _react _windup _laser _strike_fx _float_text _shake _badge` |
+| Shown values vs sim state | `domino_view.gd: _sync _refresh _new_turn` |
+| Sound | `sfx_manager.gd: play step` |
+| Version stamp (every screen needs one) | `domino_view.gd: _add_version_stamp` |
+| Headless regression | `tools/parity/domino_regress.gd` · baseline `tools/parity/baseline/domino_regress.txt` |

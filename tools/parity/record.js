@@ -6,7 +6,7 @@
 //   node tools/parity/record.js <scenario> --steps="386,600;458,600;530,600;w150;477,678"
 //        [--region=x,y,w,h] [--fps=25] [--after=1500] [--cols=4] [--name=out]
 //
-// <scenario>  a `?dbg=` scenario of scripts/debug_scenarios.gd (main, placed, …)
+// <scenario>  only names the output (the Domino scene has no ?dbg= states; add `?arts=a,b` to the URL in this file to test artifacts)
 // --steps     ";"-separated: "x,y" = click (CSS px of the 1280×720 page),
 //             "wN" = wait N ms. A 200 ms wait follows every click.
 // --region    crop of the sheet (default: whole page). Handy: board+hand
@@ -48,7 +48,7 @@ server.listen(0, '127.0.0.1', async () => {
   const page = await ctx.newPage();
   page.on('console', m => { if (/SCRIPT ERROR|^ERROR/.test(m.text())) errs.push(m.text().slice(0, 300)); });
   page.on('pageerror', e => errs.push(e.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}/index.html?mode=classic&dbg=${scenario}`);
+  await page.goto(`http://127.0.0.1:${server.address().port}/index.html`);
   await page.waitForFunction(n => window.tbReady === n, scenario, { timeout: 120000 });
   await sleep(800);
   const log = [];
