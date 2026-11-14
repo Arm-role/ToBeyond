@@ -8,6 +8,7 @@ The user's eye is the reference: change one thing, show the preview or a `record
 | Fireball step | `min(0.20, 2.2 / steps)`, speeding up to 0.35× by the last step (whole walk ≤ 2.2 s, pauses not counted) | `_play_walk`, `MAX_WALK_TIME` |
 | Bounce re-entry (same tile again) | 0.08 s wait | `_play_walk` (`pass`) |
 | Hold after a strike (`shield_break`) | 0.3 s | `_play_walk` |
+| Hold after each hit (fireball waits for the attack) | 0.25 s | `_play_walk`, `HIT_HOLD` |
 | After the last event | 0.35 s, win message 1.1 s | `_play_walk`, `_win` |
 | Character reaction | 0.05 s out, 0.10 s back, always to/from the fixed home | `_react` |
 | Laser | grows 0.08 s, holds 0.03 s, fades 0.10 s | `_laser` |

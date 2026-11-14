@@ -574,6 +574,9 @@ func _strike_after(evs: Array, p: int) -> bool:
 	return false
 
 
+const HIT_HOLD := 0.25   # pause after each hit so the attack lands before the fireball moves on
+
+
 func _play_walk(evs: Array) -> void:
 	var steps := 0
 	for ev in evs:
@@ -634,6 +637,7 @@ func _play_walk(evs: Array) -> void:
 					_react(hero, HERO_HOME, -14.0, Color("#ff6b6b"))
 					_float_text("-%d" % roundi(ev.amount), HERO_HOME + Vector2(60, 0), Color("#ff4d5e"))
 				_refresh()
+				await get_tree().create_timer(HIT_HOLD).timeout   # fireball waits for the attack beat
 			"heal":
 				v_hp = ev.hp_after
 				_float_text("+%d" % roundi(ev.amount), HERO_HOME + Vector2(60, 0), Color("#7be0a0"))
