@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Check and build the game, printing only what matters.
 #   tools/parity/build.sh --check   parse every script (~0.3 s each), verify skill-doc references
-#                                   (check_refs.py), and run the game headless
-#                                   into the "main" test state (a few seconds, no export)
+#                                   (check_refs.py), and smoke-run the Domino scene headless (TB_DOMINO_OK)
 #   (TB_SKIP_REFS=1 skips the reference check; evals use it on old code bases)
 #   tools/parity/build.sh --regress [--update]   the check, then the artifact + domino regression
 #                                   against tools/parity/baseline (--update rewrites it)
@@ -20,17 +19,16 @@ for f in $(find scripts -name '*.gd' | sort); do
 done
 [ "$fail" = 1 ] && { echo "check FAILED (parse errors above)"; exit 1; }
 [ -n "${TB_SKIP_REFS:-}" ] || python3 tools/parity/check_refs.py || { echo "check FAILED (stale skill-doc references)"; exit 1; }
-run=$(timeout 60 "$GODOT" --headless --path . -- --dbg=main --rects=/dev/null 2>&1)
-errs=$(echo "$run" | grep -E "SCRIPT ERROR|^ERROR|^ +at: " | head -12)
-if ! echo "$run" | grep -q "^TB_RECTS"; then
-  echo "$errs"; echo "check FAILED (the game did not reach the test state)"; exit 1
-fi
-[ -n "$errs" ] && echo "$errs" && echo "check: runtime errors above"
-# Domino greybox smoke: the view prints TB_DOMINO_OK once the first hand is dealt
-drun=$(timeout 60 "$GODOT" --headless --path . -- --mode=greybox --domino-smoke 2>&1)
+# Domino smoke (main scene): the view prints TB_DOMINO_OK once the first hand is dealt
+drun=$(timeout 60 "$GODOT" --headless --path . -- --domino-smoke 2>&1)
 if ! echo "$drun" | grep -q "^TB_DOMINO_OK"; then
   echo "$drun" | grep -E "SCRIPT ERROR|^ERROR|^ +at: " | head -8
-  echo "check FAILED (greybox did not reach the first hand)"; exit 1
+  echo "check FAILED (the Domino scene did not reach the first hand)"; exit 1
+fi
+# The old game (?mode=classic) is smoke-run only on request: TB_CLASSIC_SMOKE=1
+if [ -n "${TB_CLASSIC_SMOKE:-}" ]; then
+  crun=$(timeout 60 "$GODOT" --headless --path . -- --mode=classic --dbg=main --rects=/dev/null 2>&1)
+  echo "$crun" | grep -q "^TB_RECTS" || { echo "check FAILED (classic game did not reach the test state)"; exit 1; }
 fi
 echo "check OK"
 [ "${1:-}" = "--check" ] && exit 0
