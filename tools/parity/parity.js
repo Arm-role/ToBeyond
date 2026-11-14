@@ -87,7 +87,7 @@ async function godotWebInfo(page, els) {
 function godotHeadlessInfo(name, els) {
   const tmp = path.join(os.tmpdir(), `tb_rects_${process.pid}.json`);
   fs.writeFileSync(tmp, JSON.stringify(godotPaths(els)));
-  const r = spawnSync(process.env.GODOT || 'godot', ['--headless', '--path', ROOT, '--', `--dbg=${name}`, `--rects=${tmp}`], { encoding: 'utf8', timeout: 60000 });
+  const r = spawnSync(process.env.GODOT || 'godot', ['--headless', '--path', ROOT, '--', '--mode=classic', `--dbg=${name}`, `--rects=${tmp}`], { encoding: 'utf8', timeout: 60000 });
   const out = (r.stdout || '') + (r.stderr || '');
   const errs = out.split('\n').filter(l => /SCRIPT ERROR|Parse Error|^ERROR/.test(l));
   const line = out.split('\n').find(l => l.startsWith('TB_RECTS '));
@@ -201,7 +201,7 @@ async function frames(page) {
         godot = await browser.newPage({ viewport: { width: 1280, height: 720 } });
         godot.on('console', m => { if ((/error|warning/i.test(m.type()) || /SCRIPT ERROR|^ERROR/.test(m.text())) && !/GL Driver Message|GPU stall/.test(m.text())) gErrs.push('godot: ' + m.text().slice(0, 300)); });
         godot.on('pageerror', e => gErrs.push('godot: ' + e.message));
-        await godot.goto(`http://127.0.0.1:${server.address().port}/index.html?dbg=${name}`);
+        await godot.goto(`http://127.0.0.1:${server.address().port}/index.html?mode=classic&dbg=${name}`);
       } else {
         await godot.evaluate(n => { window.tbReady = ''; window.tbRun(n); }, name);
       }

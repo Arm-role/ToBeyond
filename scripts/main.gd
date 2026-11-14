@@ -186,10 +186,6 @@ func _add_version_stamp() -> void:
 
 
 func _ready() -> void:
-	# Domino Run greybox (docs/plan-domino-run.md): ?mode=greybox or -- --mode=greybox.
-	if _launch_arg("mode") == "greybox":
-		get_tree().change_scene_to_file.call_deferred("res://scenes/greybox.tscn")
-		return
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
 	var bg_mat := ShaderMaterial.new()

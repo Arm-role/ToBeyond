@@ -22,7 +22,7 @@ Only the user can approve the "ask" rules: Claude Code stops and prompts them. N
 ## Code layout (after the main.gd split, done)
 - `scripts/main.gd`: node refs, state, `_ready`, new game / round / hand flow; one-line wrappers to the classes below. Plan and history: `docs/refactor-main-split.md`.
 - Split classes (each holds `_main`): `BoardCalc`, `ToolbarControls`, `ActionDialog`, `SlotDrag`, `BoardInput`, `RewardFlow`, plus the managers (`BattleManager`, `ShopManager`, `UiRenderer`, `ArtifactSystem`).
-- Greybox: `?mode=greybox` opens the Domino Run prototype (`scenes/greybox.tscn`). Plan, status and per-phase docs: `docs/plan-domino-run.md` + `docs/domino/phase-N.md` (read these first for any Domino work); the main game is untouched.
+- Domino Run is the main scene (`scenes/domino.tscn`, `scripts/domino/`); the old game stays at `?mode=classic` until it is deleted (phase 6 step 3, needs the user's OK). Plan, status and per-phase docs: `docs/plan-domino-run.md` + `docs/domino/phase-N.md` (read these first for any Domino work); the main game is untouched.
 - Artifacts are data: `data/artifacts/*.tres`. Stone and Chaos were removed (`docs/plan-gem-types.md`).
 - Logic regression: `tools/parity/build.sh --regress` diffs `artifact_regress.gd` against `tools/parity/baseline/`. Run it after any change to artifacts, walk or damage code. After an *intended* number change run `--regress --update` and commit the baseline diff.
 

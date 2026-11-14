@@ -48,7 +48,7 @@ server.listen(0, '127.0.0.1', async () => {
   const page = await ctx.newPage();
   page.on('console', m => { if (/SCRIPT ERROR|^ERROR/.test(m.text())) errs.push(m.text().slice(0, 300)); });
   page.on('pageerror', e => errs.push(e.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}/index.html?dbg=${scenario}`);
+  await page.goto(`http://127.0.0.1:${server.address().port}/index.html?mode=classic&dbg=${scenario}`);
   await page.waitForFunction(n => window.tbReady === n, scenario, { timeout: 120000 });
   await sleep(800);
   const log = [];
