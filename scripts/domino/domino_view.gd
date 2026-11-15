@@ -20,7 +20,7 @@ const GAP := 12.0
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
 const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
-const MAX_WALK_TIME := 2.2   # fireball travel budget per walk (strike pauses do not count)
+const MAX_WALK_TIME := 6.0   # fireball travel budget per walk (strike pauses do not count); slow on purpose, the eye follows step by step
 
 var sim := Sim.new()
 var sfx: Node
@@ -47,6 +47,8 @@ var slot_btns: Array[Button] = []
 var slot_cards: Array = []          # per slot: {icon, name, sub, badge} labels drawn on the card
 var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this walk
 var fire_hold_used := 0.0
+var tally: Dictionary = {}   # this walk's damage to the enemy per source ("base" or artifact id), in order of first hit
+var tally_lbl: Label
 var fired_arts: Dictionary = {}   # artifacts that already fired in this walk
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
 const CARD_W := 150.0           # artifact cards: portrait, centred in the preview
@@ -54,8 +56,8 @@ const CARD_H := 215.0
 const CARD_GAP := 14.0
 const CARD_Y := 295.0
 const CARD_X0 := (1920.0 - (5 * CARD_W + 4 * CARD_GAP)) * 0.5
-const FIRE_HOLD := 0.14        # pause per artifact trigger so the order can be followed
-const FIRE_HOLD_MAX := 1.6     # total pause per walk
+const FIRE_HOLD := 0.35        # pause per artifact trigger so the order can be followed
+const FIRE_HOLD_MAX := 6.0     # total pause per walk
 var slot_sel: int = -1              # slot picked for a swap (tap two slots to swap them)
 var art_tip: Label
 var reward_ui: Control
@@ -363,6 +365,9 @@ func _cards_reset() -> void:
 	card_orders.clear()
 	fire_hold_used = 0.0
 	fired_arts.clear()
+	tally.clear()
+	if tally_lbl != null:
+		tally_lbl.visible = false
 	for c in slot_cards:
 		c.badge.visible = false
 
@@ -725,7 +730,7 @@ func _strike_after(evs: Array, p: int) -> bool:
 	return false
 
 
-const HIT_HOLD := 0.25   # pause after each hit so the attack lands before the fireball moves on
+const HIT_HOLD := 0.4   # pause after each hit so the attack lands before the fireball moves on
 
 
 func _play_walk(evs: Array) -> void:
@@ -733,7 +738,7 @@ func _play_walk(evs: Array) -> void:
 	for ev in evs:
 		if ev.k == "pass":
 			steps += 1
-	var step_dur: float = minf(0.20, MAX_WALK_TIME / float(maxi(steps, 1)))
+	var step_dur: float = minf(0.42, MAX_WALK_TIME / float(maxi(steps, 1)))
 	var seen := 0
 	var prev_tile := -1
 	var result := ""
@@ -757,7 +762,7 @@ func _play_walk(evs: Array) -> void:
 				if ev.tile == prev_tile:
 					await get_tree().create_timer(0.08).timeout   # bounce: enter the same tile again
 				else:
-					var dur: float = lerpf(step_dur, step_dur * 0.35, float(seen) / float(maxi(steps, 1)))
+					var dur: float = lerpf(step_dur, step_dur * 0.6, float(seen) / float(maxi(steps, 1)))
 					var tw := create_tween()
 					tw.tween_property(fire, "position", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 20.0), dur)
 					await tw.finished
@@ -773,7 +778,7 @@ func _play_walk(evs: Array) -> void:
 				var first: bool = shown and not fired_arts.has(ev.art)
 				fired_arts[ev.art] = true
 				if first:
-					await get_tree().create_timer(FIRE_HOLD * 2.0).timeout   # a new artifact in the chain always gets a clear beat
+					await get_tree().create_timer(FIRE_HOLD * 1.8).timeout   # a new artifact in the chain always gets a clear beat
 				elif shown and fire_hold_used < FIRE_HOLD_MAX:
 					fire_hold_used += FIRE_HOLD
 					await get_tree().create_timer(FIRE_HOLD).timeout
@@ -795,11 +800,13 @@ func _play_walk(evs: Array) -> void:
 						_strike_fx(ev.tile, "riposte")
 						_react(enemy, ENEMY_HOME, 24.0, Color("#ffe08a"), 1.1)
 						_float_text("↩ -%d" % roundi(ev.amount), ENEMY_HOME + Vector2(40, 0), Color("#ffd966"))
+						_tally_add(ev.src, roundi(ev.amount))
 					else:
 						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
 						_react(hero, HERO_HOME, 18.0, Color.WHITE)
 						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
 						_float_text("-%d" % roundi(ev.amount), ENEMY_HOME + Vector2(60, 0), COL["red"])
+						_tally_add(ev.src, roundi(ev.amount))
 				else:
 					v_hp = ev.hp_after
 					sfx.play("hurt")
@@ -844,6 +851,7 @@ func _play_walk(evs: Array) -> void:
 			"kill":
 				result = ev.target
 	fire.visible = false
+	await _sum()
 	if result == "enemy":
 		await _win()
 	elif result == "hero":
@@ -854,6 +862,84 @@ func _play_walk(evs: Array) -> void:
 	else:
 		await get_tree().create_timer(0.35).timeout
 		_new_turn()
+
+
+## Running damage counter near the enemy; a card's own damage floats over that card.
+func _tally_add(src: String, amount: int) -> void:
+	tally[src] = int(tally.get(src, 0)) + amount
+	var total := 0
+	for k in tally:
+		total += int(tally[k])
+	if tally_lbl == null:
+		tally_lbl = _label("", 56, ENEMY_HOME + Vector2(-100, -110), 400.0)
+		tally_lbl.add_theme_color_override("font_color", Color("#ffd966"))
+		tally_lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+		tally_lbl.add_theme_constant_override("outline_size", 10)
+		tally_lbl.z_index = 20
+		tally_lbl.pivot_offset = Vector2(200, 45)
+	tally_lbl.text = "💥 %d" % total
+	tally_lbl.visible = true
+	tally_lbl.scale = Vector2(1.3, 1.3)
+	create_tween().tween_property(tally_lbl, "scale", Vector2.ONE, 0.2)
+	if src != "base":
+		var c := _card_center(src)
+		if c != Vector2.ZERO:
+			_float_text("+%d" % amount, c + Vector2(-30, -60), Color("#ffd966"))
+
+
+func _card_center(art: String) -> Vector2:
+	for i in SLOTS:
+		var d = slot_arr[i]
+		if d != null and d.id == art:
+			return slot_btns[i].get_global_rect().get_center()
+	return Vector2.ZERO
+
+
+func _src_name(src: String) -> String:
+	if src == "base":
+		return "🔥 ลูกไฟ"
+	if src == "enemy":
+		return "👹 บอส"
+	for d in slot_arr:
+		if d != null and d.id == src:
+			return "%s %s" % [d.icon, d.name_th]
+	return src
+
+
+## End of a walk: the damage adds up line by line (fireball, then each artifact), then the total.
+func _sum() -> void:
+	if tally.is_empty():
+		return
+	var box := Control.new()
+	box.z_index = 60
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(box)
+	var bg := ColorRect.new()
+	bg.color = Color(0.05, 0.04, 0.1, 0.92)
+	bg.position = Vector2(660, 140)
+	bg.size = Vector2(600, 150 + 56 * tally.size())
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(bg)
+	var title := _label("สรุปดาเมจ", 44, Vector2(660, 150), 600.0)
+	title.reparent(box)
+	var y := 215.0
+	var total := 0
+	for k in tally:
+		var v: int = int(tally[k])
+		total += v
+		var l := _label("%s   +%d" % [_src_name(k), v], 38, Vector2(660, y), 600.0)
+		l.reparent(box)
+		sfx.play("chime", 1.0 + 0.05 * (y - 215.0) / 56.0, -10.0)
+		await get_tree().create_timer(0.45).timeout
+		y += 56.0
+	var t := _label("รวม  %d" % total, 56, Vector2(660, y + 8.0), 600.0)
+	t.reparent(box)
+	t.add_theme_color_override("font_color", Color("#ffd966"))
+	sfx.play("chime", 1.6, -6.0)
+	await get_tree().create_timer(1.0).timeout
+	box.queue_free()
+	if tally_lbl != null:
+		tally_lbl.visible = false
 
 
 func _win() -> void:
