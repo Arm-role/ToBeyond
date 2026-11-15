@@ -48,6 +48,11 @@ var slot_cards: Array = []          # per slot: {icon, name, sub, badge} labels 
 var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this walk
 var fire_hold_used := 0.0
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
+const CARD_W := 150.0           # artifact cards: portrait, centred in the preview
+const CARD_H := 215.0
+const CARD_GAP := 14.0
+const CARD_Y := 295.0
+const CARD_X0 := (1920.0 - (5 * CARD_W + 4 * CARD_GAP)) * 0.5
 const FIRE_HOLD := 0.14        # pause per artifact trigger so the order can be followed
 const FIRE_HOLD_MAX := 1.6     # total pause per walk
 var slot_sel: int = -1              # slot picked for a swap (tap two slots to swap them)
@@ -241,17 +246,19 @@ func _build() -> void:
 	for i in SLOTS:
 		slot_arr.append(null)
 		var ab := Button.new()
-		ab.position = Vector2(30, 545.0 + i * 100.0)
-		ab.size = Vector2(230, 88)
+		ab.position = Vector2(CARD_X0 + i * (CARD_W + CARD_GAP), CARD_Y)   # centred in the preview, between hero and enemy
+		ab.size = Vector2(CARD_W, CARD_H)
 		ab.pivot_offset = ab.size * 0.5
 		ab.pressed.connect(_on_slot.bind(i))
 		add_child(ab)
 		slot_btns.append(ab)
 		var card := {}
-		card["icon"] = _card_label(ab, 46, Vector2(10, 14), Vector2(60, 60), HORIZONTAL_ALIGNMENT_CENTER)
-		card["name"] = _card_label(ab, 26, Vector2(72, 6), Vector2(152, 40), HORIZONTAL_ALIGNMENT_LEFT)
-		card["sub"] = _card_label(ab, 18, Vector2(72, 50), Vector2(152, 30), HORIZONTAL_ALIGNMENT_LEFT)
-		var badge := _card_label(ab, 22, Vector2(150, -18), Vector2(84, 30), HORIZONTAL_ALIGNMENT_CENTER)
+		card["icon"] = _card_label(ab, 66, Vector2(0, 10), Vector2(CARD_W, 80), HORIZONTAL_ALIGNMENT_CENTER)
+		card["name"] = _card_label(ab, 24, Vector2(6, 94), Vector2(CARD_W - 12, 64), HORIZONTAL_ALIGNMENT_CENTER)
+		card["name"].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		card["name"].clip_text = false
+		card["sub"] = _card_label(ab, 18, Vector2(0, CARD_H - 52), Vector2(CARD_W, 40), HORIZONTAL_ALIGNMENT_CENTER)
+		var badge := _card_label(ab, 22, Vector2(CARD_W - 62, -18), Vector2(70, 30), HORIZONTAL_ALIGNMENT_CENTER)
 		badge.z_index = 5
 		badge.visible = false
 		card["badge"] = badge
@@ -318,9 +325,10 @@ func _refresh_slots() -> void:
 		b.tooltip_text = d.text_th if d != null else ""
 		b.disabled = busy
 		c.icon.text = d.icon if d != null else ""
-		c.name.text = d.name_th if d != null else "%d  —" % (i + 1)
+		c.name.text = d.name_th if d != null else "%d\n—" % (i + 1)
 		c.name.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.35)
 		c.sub.text = ("%d · %s" % [i + 1, ARCH_TH.get(d.archetype, "")]) if d != null else ""
+		c.icon.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.3)
 		var sb := StyleBoxFlat.new()
 		var rc := Color(RARITY_COL.get(d.rarity, "#8aa0b8")) if d != null else Color(1, 1, 1, 0.2)
 		sb.bg_color = Color("#3a2f55") if d != null else Color("#221c30")

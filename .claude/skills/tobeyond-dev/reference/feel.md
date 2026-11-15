@@ -38,4 +38,4 @@ The user's eye is the reference: change one thing, show the preview or a `record
 - Swiftshader runs ~15 fps, so a real device is smoother than the sheet. Judge order and gaps, not exact smoothness.
 
 ## Artifact cards (v0.1.35)
-Slots are cards (rarity-coloured border, icon, name, `n · archetype`). The sim emits `fire` (`art`, `order`) before each artifact rule runs; `_play_walk` pulses the card, shows its order badge (`1›4`) and holds `FIRE_HOLD` 0.14 s per trigger (≤ `FIRE_HOLD_MAX` 1.6 s per walk). Events after `walk_end` can exist: don't assume `evs[-1]` is `walk_end`.
+Slots are portrait cards (150×215) centred in the preview between hero and enemy, `CARD_*` consts (rarity-coloured border, icon, name, `n · archetype`). The sim emits `fire` (`art`, `order`) before each artifact rule runs; `_play_walk` pulses the card, shows its order badge (`1›4`) and holds `FIRE_HOLD` 0.14 s per trigger (≤ `FIRE_HOLD_MAX` 1.6 s per walk). Events after `walk_end` can exist: don't assume `evs[-1]` is `walk_end`.
