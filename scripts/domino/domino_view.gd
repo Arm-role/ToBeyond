@@ -824,9 +824,10 @@ func _laser(a: Vector2, b: Vector2, col: Color, w: float = 15.0) -> void:
 	tw.tween_callback(l.queue_free)
 
 
-## Four small red fireballs leave the fireball and float to the hero; the beam follows.
-func _strike_volley() -> void:
-	var from := fire.position + Vector2(40, 40)
+## Charge: four small red fireballs float from the placed attack tile to the hero; the hero's beam follows.
+func _charge_volley(tile: int) -> void:
+	var tb: Control = tile_btns[tile]
+	var from := tb.position + tb.size * 0.5
 	var to := _hero_c()
 	var last: Tween = null
 	for i in 4:
@@ -843,8 +844,8 @@ func _strike_volley() -> void:
 		ball.z_index = 25
 		add_child(ball)
 		var tw := create_tween()
-		tw.tween_interval(0.06 * i)
-		tw.tween_property(ball, "position", to - Vector2(13, 13) + Vector2(0, (i - 1.5) * 6.0), 0.30).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_interval(0.04 * i)
+		tw.tween_property(ball, "position", to - Vector2(13, 13) + Vector2(0, (i - 1.5) * 6.0), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 		tw.tween_callback(ball.queue_free)
 		last = tw
 	if sfx != null:
@@ -1020,6 +1021,8 @@ func _play_walk(evs: Array) -> void:
 						_float_text("↩ -%d" % roundi(ev.amount), ENEMY_HOME + Vector2(40, 0), Color("#ffd966"))
 						_tally_add(ev.src, roundi(ev.amount))
 					else:
+						if ev.src == "base":
+							await _charge_volley(ev.tile)   # the attack tile charges the hero, then the beam
 						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
 						_react(hero, HERO_HOME, 18.0, Color.WHITE)
 						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
@@ -1043,7 +1046,6 @@ func _play_walk(evs: Array) -> void:
 				_float_text("🛡+%d" % ev.amount, tile_btns[ev.tile].position + Vector2(40, 0), Color("#7fb8ff"))
 			"strike":
 				_react(enemy, ENEMY_HOME, 0.0, Color.WHITE)   # end of the windup lean
-				await _strike_volley()   # four red fireballs lead the eye to the hero, then the beam
 				if ev.redirect == "" and ev.dealt <= 0.0:
 					sfx.play("chime", 1.5)
 					_strike_fx(ev.tile, "blocked")
