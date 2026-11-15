@@ -12,7 +12,7 @@ const RED_DMG := 4
 const BLUE_BLOCK := 3
 const BASE_ENEMY_HP := 18
 const BASE_STRIKE := 8.0
-const WIN_HEAL := 0.4
+const WIN_HEAL := 1.0   # full heal when the next fight starts
 
 # Loop ceilings. The first one hit emits `capped` and stops that branch.
 const MAX_TILE_POPS := 3      # pops per tile per walk

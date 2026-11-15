@@ -1334,9 +1334,9 @@ amount=4.0 depth=0 dir=1 hp_after=-6.0 i=3 k=hit lap=0 src=base step=1 target=en
 depth=0 dir=1 i=4 k=kill lap=0 src=base step=1 target=enemy tile=0
 depth=0 dir=1 i=5 k=walk_end kept_tiles=[] lap=0 src=base step=1 tile=0
 fight 1: boss - enemy 18 strike 8.0 hp 10.0
-fight 2: boss - enemy 23 strike 9.2 hp 22.0
-fight 3: boss bulwark enemy 44 strike 10.58 hp 22.0
-fight 5: boss - enemy 45 strike 13.992 hp 22.0
+fight 2: boss - enemy 23 strike 9.2 hp 30.0
+fight 3: boss bulwark enemy 44 strike 10.58 hp 30.0
+fight 5: boss - enemy 45 strike 13.992 hp 30.0
 == stress pop-cap walk 1: 98 events, hp 30.0, enemy 51, kept []
 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
