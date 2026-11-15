@@ -49,6 +49,7 @@ var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this wa
 var fire_hold_used := 0.0
 var tally: Dictionary = {}   # this walk's damage to the enemy per source ("base" or artifact id), in order of first hit
 var tally_lbl: Label
+var last_cause := -1   # `cause_i` of the previous fire: same value = the same pop
 var fired_arts: Dictionary = {}   # artifacts that already fired in this walk
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
 const CARD_W := 150.0           # artifact cards: portrait, centred in the preview
@@ -365,6 +366,7 @@ func _cards_reset() -> void:
 	card_orders.clear()
 	fire_hold_used = 0.0
 	fired_arts.clear()
+	last_cause = -1
 	tally.clear()
 	if tally_lbl != null:
 		tally_lbl.visible = false
@@ -678,7 +680,18 @@ func _pop(b: Control, s: float) -> void:
 	tw.tween_property(b, "scale", Vector2.ONE, 0.12)
 
 
+var _recent_floats: Array = []   # [position, time ms] of floating texts still on screen
+
+
 func _float_text(text: String, at: Vector2, col: Color) -> void:
+	var now := Time.get_ticks_msec()
+	_recent_floats = _recent_floats.filter(func(r): return now - r[1] < 700)
+	var stacked := 0
+	for r in _recent_floats:
+		if absf(r[0].x - at.x) < 110.0 and absf(r[0].y - at.y) < 70.0 * (stacked + 1):
+			stacked += 1
+	_recent_floats.append([at, now])
+	at.y -= 60.0 * stacked   # texts that land together stack upward instead of overlapping
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", 64)
@@ -777,7 +790,11 @@ func _play_walk(evs: Array) -> void:
 				var shown: bool = is_boss or slot_arr.any(func(d): return d != null and d.id == ev.art)
 				var first: bool = shown and not fired_arts.has(ev.art)
 				fired_arts[ev.art] = true
-				if first:
+				var same_pop: bool = ev.get("cause_i", -1) == last_cause and last_cause >= 0
+				last_cause = ev.get("cause_i", -1)
+				if same_pop and shown:
+					await get_tree().create_timer(FIRE_HOLD * 0.6).timeout   # fires of one pop go in quick succession, results land together
+				elif first:
 					await get_tree().create_timer(FIRE_HOLD * 1.8).timeout   # a new artifact in the chain always gets a clear beat
 				elif shown and fire_hold_used < FIRE_HOLD_MAX:
 					fire_hold_used += FIRE_HOLD
@@ -851,7 +868,8 @@ func _play_walk(evs: Array) -> void:
 			"kill":
 				result = ev.target
 	fire.visible = false
-	await _sum()
+	if tally_lbl != null:
+		tally_lbl.visible = false
 	if result == "enemy":
 		await _win()
 	elif result == "hero":
@@ -904,42 +922,6 @@ func _src_name(src: String) -> String:
 		if d != null and d.id == src:
 			return "%s %s" % [d.icon, d.name_th]
 	return src
-
-
-## End of a walk: the damage adds up line by line (fireball, then each artifact), then the total.
-func _sum() -> void:
-	if tally.is_empty():
-		return
-	var box := Control.new()
-	box.z_index = 60
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(box)
-	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.04, 0.1, 0.92)
-	bg.position = Vector2(660, 140)
-	bg.size = Vector2(600, 150 + 56 * tally.size())
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(bg)
-	var title := _label("สรุปดาเมจ", 44, Vector2(660, 150), 600.0)
-	title.reparent(box)
-	var y := 215.0
-	var total := 0
-	for k in tally:
-		var v: int = int(tally[k])
-		total += v
-		var l := _label("%s   +%d" % [_src_name(k), v], 38, Vector2(660, y), 600.0)
-		l.reparent(box)
-		sfx.play("chime", 1.0 + 0.05 * (y - 215.0) / 56.0, -10.0)
-		await get_tree().create_timer(0.45).timeout
-		y += 56.0
-	var t := _label("รวม  %d" % total, 56, Vector2(660, y + 8.0), 600.0)
-	t.reparent(box)
-	t.add_theme_color_override("font_color", Color("#ffd966"))
-	sfx.play("chime", 1.6, -6.0)
-	await get_tree().create_timer(1.0).timeout
-	box.queue_free()
-	if tally_lbl != null:
-		tally_lbl.visible = false
 
 
 func _win() -> void:
