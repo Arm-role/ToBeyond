@@ -99,11 +99,9 @@ var go_btn: Button
 ## Tab frame over a tile. `lit` = the enemy's flag stands here.
 func _tab_style(lit: bool) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.55, 0.1, 0.1, 0.30) if lit else Color(1, 1, 1, 0.05)
-	sb.border_color = Color("#E0584F") if lit else Color(1, 1, 1, 0.22)
-	sb.set_border_width_all(4 if lit else 2)
-	sb.corner_radius_top_left = 14
-	sb.corner_radius_top_right = 14
+	sb.bg_color = Color("#E0584F") if lit else Color(1, 1, 1, 0.14)
+	sb.corner_radius_top_left = 5
+	sb.corner_radius_top_right = 5
 	return sb
 
 
@@ -227,8 +225,8 @@ func _build() -> void:
 		add_child(b)
 		tile_btns.append(b)
 		var tab := Panel.new()
-		tab.position = Vector2(b.position.x, ROW_Y - 100.0)
-		tab.size = Vector2(TILE, 90)
+		tab.position = Vector2(b.position.x + 12.0, ROW_Y - 14.0)
+		tab.size = Vector2(TILE - 24.0, 10)
 		tab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tab.add_theme_stylebox_override("panel", _tab_style(false))
 		add_child(tab)
