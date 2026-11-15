@@ -69,6 +69,8 @@ var badge: Label
 var _react_tw: Dictionary = {}
 
 var tile_btns: Array[Button] = []
+var tile_kept: Array[TextureRect] = []
+var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
 var fire: Label
 var flag: Label
@@ -193,7 +195,9 @@ func _build() -> void:
 		b.position = Vector2(x0 + i * (TILE + GAP), ROW_Y)
 		b.size = Vector2(TILE, TILE)
 		b.pivot_offset = b.size * 0.5
-		b.add_theme_font_size_override("font_size", 46)
+		b.add_theme_font_size_override("font_size", 22)
+		b.add_theme_constant_override("outline_size", 8)
+		b.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 		b.pressed.connect(_on_tile.bind(i))
 		add_child(b)
 		tile_btns.append(b)
@@ -203,6 +207,16 @@ func _build() -> void:
 		n.position = Vector2(8, 4)
 		n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(n)
+		var k := TextureRect.new()   # kept marker (gold emblem)
+		k.texture = _tex("res://assets/emblems/emblem_n_gold.svg")
+		k.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		k.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		k.position = Vector2(TILE - 52.0, 6)
+		k.size = Vector2(46, 46)
+		k.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		k.visible = false
+		b.add_child(k)
+		tile_kept.append(k)
 	hero = _char("🧙", HERO_HOME)
 	enemy = _char("👹", ENEMY_HOME)
 	badge = _label("", 52, HERO_HOME + Vector2(0, -75), 200.0)
@@ -423,8 +437,35 @@ func _new_turn() -> void:
 
 func _gem_text(c: String) -> String:
 	if c == "orange":
-		return "⚔ %d\n✦%d%%" % [Sim.ORANGE_DMG, roundi(Sim.ORANGE_CRIT * 100.0)]
+		return "⚔ %d\nคริ %d%%" % [Sim.ORANGE_DMG, roundi(Sim.ORANGE_CRIT * 100.0)]
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
+
+
+func _tex(path: String) -> Texture2D:
+	if not _tex_cache.has(path):
+		_tex_cache[path] = load(path) if ResourceLoader.exists(path) else null
+	return _tex_cache[path]
+
+
+## Tile art from the old SVG set: empty slot art, or the placed-gem art of that slot.
+func _style_tile(i: int, c: String, kept: bool) -> void:
+	var key := "sb_%d_%s" % [i, c]
+	if not _tex_cache.has(key):
+		var t := _tex("res://assets/tiles/tile_empty_%d.svg" % i) if c == "" else _tex("res://assets/tiles/placed/tile_%d_%s_N.svg" % [i, c])
+		var sbt: StyleBoxTexture = null
+		if t != null:
+			sbt = StyleBoxTexture.new()
+			sbt.texture = t
+			sbt.content_margin_top = 112.0   # text sits under the emblem
+			sbt.content_margin_bottom = 6.0
+		_tex_cache[key] = sbt
+	var sb = _tex_cache[key]
+	if sb == null:
+		_style(tile_btns[i], c)
+	else:
+		for s in ["normal", "hover", "pressed", "disabled"]:
+			tile_btns[i].add_theme_stylebox_override(s, sb)
+	tile_kept[i].visible = kept
 
 
 func _style(b: Button, c: String, picked: bool = false) -> void:
@@ -457,8 +498,9 @@ func _refresh() -> void:
 	for i in N:
 		var g: Dictionary = v_board.get(i, {})
 		var c: String = g.get("color", "")
-		tile_btns[i].text = (_gem_text(c) + ("\n♨" if g.get("kept", false) else "")) if c != "" else ""
-		_style(tile_btns[i], c)
+		tile_btns[i].text = _gem_text(c).replace("
+", " ") if c != "" else ""
+		_style_tile(i, c, c != "" and g.get("kept", false))
 	var hx := 800.0 - (hand.size() * 210.0 - 20.0) * 0.5   # hand centred between the slot bar and the go button
 	for i in hand_btns.size():
 		hand_btns[i].visible = i < hand.size()
@@ -786,6 +828,8 @@ func _play_walk(evs: Array) -> void:
 func _win() -> void:
 	sfx.play("win")
 	var bonus := sim.hp_bonus()
+	var hp_left := sim.hp
+	var gold_before := sim.gold
 	var coins := sim.claim_win()
 	v_gold = sim.gold
 	msg.text = "ชนะด่าน %d! +%d 🪙 (เลือดเหลือ +%d)" % [stage, coins, bonus]
@@ -798,10 +842,40 @@ func _win() -> void:
 		_refresh()
 		return
 	msg.text = ""
+	await _summary(hp_left, bonus, coins, gold_before)
 	await _shop()   # every win opens the shop; no 1-of-3 pick
 	stage += 1
 	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
+
+
+## Summary screen between the win and the shop.
+signal _summary_done
+
+func _summary(hp_left: float, bonus: int, coins: int, gold_before: int) -> void:
+	reward_ui = Control.new()
+	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reward_ui.z_index = 100
+	add_child(reward_ui)
+	_rw_clear("สรุปด่าน %d" % stage)
+	var l := Label.new()
+	l.text = "❤ เลือดเหลือ  %d / %d
+
+🪙 รางวัลชนะ  +%d
+   (โบนัสเลือด +%d)
+
+🪙 เหรียญก่อนหน้า  %d
+🪙 รวมทั้งหมด  %d" % [
+		roundi(hp_left), roundi(sim.max_hp), coins, bonus, gold_before, sim.gold]
+	l.add_theme_font_size_override("font_size", 46)
+	l.position = Vector2(0, 220)
+	l.size = Vector2(1920, 560)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reward_ui.add_child(l)
+	var go := _rw_button("ไปร้านค้า ▶", Vector2(810, 860), Vector2(300, 100), 40)
+	go.pressed.connect(func(): _summary_done.emit())
+	await _summary_done
+	reward_ui.queue_free()
 
 
 ## Shop HP upgrade: show the new max HP on the hero bar.
