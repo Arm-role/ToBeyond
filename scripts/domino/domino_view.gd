@@ -49,6 +49,7 @@ var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this wa
 var fire_hold_used := 0.0
 var tally: Dictionary = {}   # this walk's damage to the enemy per source ("base" or artifact id), in order of first hit
 var tally_lbl: Label
+var speed_btn: Button
 var last_cause := -1   # `cause_i` of the previous fire: same value = the same pop
 var fired_arts: Dictionary = {}   # artifacts that already fired in this walk
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
@@ -114,6 +115,10 @@ func _ready() -> void:
 
 
 ## Bottom-right version stamp (same as the main game): project version + build commit.
+func _speed_label() -> void:
+	speed_btn.text = "⏩ ×%d" % roundi(Engine.time_scale)
+
+
 func _add_version_stamp() -> void:
 	var text: String = "v%s" % ProjectSettings.get_setting("application/config/version", "0.0.0")
 	if FileAccess.file_exists("res://build_info.txt"):
@@ -240,6 +245,16 @@ func _build() -> void:
 	flag2.visible = false
 	add_child(flag2)
 	gold_lbl = _label("", 40, Vector2(1590, 15), 310.0)
+	speed_btn = Button.new()   # walk speed: x1 -> x2 -> x3 (Engine.time_scale scales the timers and tweens of the replay)
+	speed_btn.position = Vector2(30, 20)
+	speed_btn.size = Vector2(150, 70)
+	speed_btn.add_theme_font_size_override("font_size", 34)
+	speed_btn.z_index = 5
+	speed_btn.pressed.connect(func():
+		Engine.time_scale = {1.0: 2.0, 2.0: 3.0}.get(Engine.time_scale, 1.0)
+		_speed_label())
+	add_child(speed_btn)
+	_speed_label()
 	gold_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	boss_lbl = _label("", 30, Vector2(460, 135), 1000.0)
 	fire = Label.new()
