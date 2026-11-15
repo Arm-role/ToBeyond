@@ -824,6 +824,34 @@ func _laser(a: Vector2, b: Vector2, col: Color, w: float = 15.0) -> void:
 	tw.tween_callback(l.queue_free)
 
 
+## Four small red fireballs leave the fireball and float to the hero; the beam follows.
+func _strike_volley() -> void:
+	var from := fire.position + Vector2(40, 40)
+	var to := _hero_c()
+	var last: Tween = null
+	for i in 4:
+		var ball := Panel.new()
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("#ff3b3b")
+		sb.set_corner_radius_all(13)
+		sb.border_color = Color("#ffc2a8")
+		sb.set_border_width_all(4)
+		ball.add_theme_stylebox_override("panel", sb)
+		ball.size = Vector2(26, 26)
+		ball.pivot_offset = Vector2(13, 13)
+		ball.position = from + Vector2(0, (i - 1.5) * 26.0) - Vector2(13, 13)
+		ball.z_index = 25
+		add_child(ball)
+		var tw := create_tween()
+		tw.tween_interval(0.06 * i)
+		tw.tween_property(ball, "position", to - Vector2(13, 13) + Vector2(0, (i - 1.5) * 6.0), 0.30).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(ball.queue_free)
+		last = tw
+	if sfx != null:
+		sfx.play("whoosh", 1.0, -8.0)
+	await last.finished
+
+
 ## The strike lands: the enemy fires a laser at the hero (hit / blocked, the beam
 ## stops at the shield badge) or the hero returns it, gold, at the enemy (riposte).
 func _strike_fx(_t: int, kind: String) -> void:
@@ -894,6 +922,16 @@ func _next_pass(evs: Array, j: int) -> int:
 	return -1
 
 
+## True when pass event j lands on a tile where nothing happens (no pop, fire, strike...) and the
+## walk keeps going the same way, so the fireball does not need to stop there.
+func _pass_is_empty(evs: Array, j: int, prev_tile: int) -> bool:
+	if prev_tile < 0 or j + 1 >= evs.size() or evs[j + 1].k != "pass":
+		return false
+	var t: int = evs[j].tile
+	var n: int = evs[j + 1].tile
+	return (prev_tile < t and t < n) or (prev_tile > t and t > n)
+
+
 ## True when the walk strikes right after entering the tile of pass event p.
 func _strike_after(evs: Array, p: int) -> bool:
 	for q in range(p + 1, evs.size()):
@@ -935,6 +973,8 @@ func _play_walk(evs: Array) -> void:
 					_windup()
 				if ev.tile == prev_tile:
 					await get_tree().create_timer(0.08).timeout   # bounce: enter the same tile again
+				elif _pass_is_empty(evs, j, prev_tile):
+					pass   # nothing happens here: the fireball glides over it to the next tile that matters
 				else:
 					var dur: float = lerpf(step_dur, step_dur * 0.6, float(seen) / float(maxi(steps, 1)))
 					var tw := create_tween()
@@ -1003,6 +1043,7 @@ func _play_walk(evs: Array) -> void:
 				_float_text("🛡+%d" % ev.amount, tile_btns[ev.tile].position + Vector2(40, 0), Color("#7fb8ff"))
 			"strike":
 				_react(enemy, ENEMY_HOME, 0.0, Color.WHITE)   # end of the windup lean
+				await _strike_volley()   # four red fireballs lead the eye to the hero, then the beam
 				if ev.redirect == "" and ev.dealt <= 0.0:
 					sfx.play("chime", 1.5)
 					_strike_fx(ev.tile, "blocked")
