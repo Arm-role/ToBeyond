@@ -14,6 +14,8 @@ const ORANGE_DMG := 3        # orange Gem: an attack Gem (counts as red for arti
 const ORANGE_CRIT := 0.3
 const CRIT_MULT := 2.0
 const ATTACK := ["red", "orange"]
+const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, crit 10, shield 15
+const DISCARDS_PER_TURN := 1
 const BASE_ENEMY_HP := 18
 const BASE_STRIKE := 8.0
 const WIN_HEAL := 1.0   # full heal when the next fight starts
@@ -56,6 +58,10 @@ var gold: int = 0
 var boss: Resource = null        # DominoBoss of the current fight, null on a normal fight
 var _used_bosses: Array = []
 var stats: Dictionary = {}       # add_stat values, one walk long
+var deck: Array = []             # limited draw pile of Gem colours (DECK_COUNTS per fight)
+var discard_pile: Array = []     # reshuffled into the deck when it runs out
+var discards_left: int = DISCARDS_PER_TURN
+var _deck_ready: bool = false
 
 var _depth: int = 0
 var _step: int = 0
@@ -107,6 +113,7 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
 	board.clear()
+	build_deck()
 	_once_fight.clear()
 	_reset_walk()
 	events = []
@@ -115,12 +122,59 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 	events = []
 
 
-## Three random Gems (60% red); also rolls this turn's flag tile.
-func deal_hand() -> Array[String]:
+## Fresh limited deck for a fight: 20 attack, 10 crit (orange), 15 shield, shuffled.
+func build_deck() -> void:
+	deck.clear()
+	discard_pile.clear()
+	for c in DECK_COUNTS:
+		for i in int(DECK_COUNTS[c]):
+			deck.append(c)
+	_shuffle(deck)
+	_deck_ready = true
+
+
+func _shuffle(a: Array) -> void:
+	for i in range(a.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var t = a[i]
+		a[i] = a[j]
+		a[j] = t
+
+
+## Top card of the deck; when it is empty the discard pile is shuffled back in. "" when nothing is left.
+func _draw() -> String:
+	if deck.is_empty() and not discard_pile.is_empty():
+		deck = discard_pile.duplicate()
+		discard_pile.clear()
+		_shuffle(deck)
+	return deck.pop_back() if not deck.is_empty() else ""
+
+
+## Discards one hand Gem (limited per turn) and draws a replacement; returns it ("" = nothing left to draw).
+## Returns "-" (nothing happened) when no discard is left.
+func discard_card(color: String) -> String:
+	if discards_left <= 0:
+		return "-"
+	discards_left -= 1
+	var n := _draw()   # draw first so the discarded Gem cannot come straight back
+	discard_pile.append(color)
+	return n
+
+
+## Draws the next hand from the deck. `leftover` = Gems of the last hand that were never placed (they go to the discard pile).
+## Also rolls this turn's flag tile.
+func deal_hand(leftover: Array = []) -> Array[String]:
+	if not _deck_ready:
+		build_deck()
+	for c in leftover:
+		if c != "":
+			discard_pile.append(c)
+	discards_left = DISCARDS_PER_TURN
 	var h: Array[String] = []
 	for i in hand_size:
-		var r := rng.randf()   # red 45%, orange 15%, blue 40%
-		h.append("red" if r < 0.45 else ("orange" if r < 0.6 else "blue"))
+		var c := _draw()
+		if c != "":
+			h.append(c)
 	flags = [rng.randi_range(1, N - 1)]
 	if _boss_is("twin_flag"):
 		var second := rng.randi_range(1, N - 2)
@@ -273,6 +327,8 @@ func _finalize() -> Array:
 			g.kept = true
 			g.life = 0
 			keep[t] = g
+		elif not g.temp:
+			discard_pile.append(g.color)   # played Gem goes to the discard pile (spawned temp Gems are not deck cards)
 	board = keep
 	var tiles: Array = keep.keys()
 	tiles.sort()

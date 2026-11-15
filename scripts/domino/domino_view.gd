@@ -77,6 +77,8 @@ var tile_btns: Array[Button] = []
 var tile_kept: Array[TextureRect] = []
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
+var discard_btn: Button
+var deck_lbl: Label
 var fire: Label
 var flag: Label
 var flag2: Label
@@ -280,6 +282,14 @@ func _build() -> void:
 	go_btn.add_theme_font_size_override("font_size", 44)
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
+	discard_btn = Button.new()
+	discard_btn.position = Vector2(1320, 780)
+	discard_btn.size = Vector2(300, 80)
+	discard_btn.add_theme_font_size_override("font_size", 30)
+	discard_btn.pressed.connect(_on_discard)
+	add_child(discard_btn)
+	deck_lbl = _label("", 26, Vector2(1320, 990), 300.0)
+	deck_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	for i in SLOTS:
 		slot_arr.append(null)
 		var ab := Button.new()
@@ -469,7 +479,7 @@ func _sync() -> void:
 
 
 func _new_turn() -> void:
-	hand = sim.deal_hand()
+	hand = sim.deal_hand(hand)   # unplaced Gems of the last hand go to the discard pile
 	selected = -1
 	busy = false
 	msg.text = ""
@@ -559,6 +569,9 @@ func _refresh() -> void:
 	if v_flag2 >= 0:
 		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - 100.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
+	discard_btn.text = "🗑 ทิ้งใบที่เลือก (%d)" % sim.discards_left
+	discard_btn.disabled = busy or over or selected < 0 or sim.discards_left <= 0
+	deck_lbl.text = "สำรับ %d · ทิ้งแล้ว %d" % [sim.deck.size(), sim.discard_pile.size()]
 	_refresh_slots()
 
 
@@ -567,6 +580,19 @@ func _on_hand(i: int) -> void:
 		return
 	selected = -1 if selected == i else i
 	sfx.play("place", 1.2, -8.0)
+	_refresh()
+
+
+## Throws the selected hand Gem away and draws a replacement from the limited deck.
+func _on_discard() -> void:
+	if busy or over or selected < 0 or hand[selected] == "":
+		return
+	var n := sim.discard_card(hand[selected])
+	if n == "-":
+		return
+	hand[selected] = n   # "" = deck and discard pile are both empty: the slot stays empty
+	selected = -1
+	sfx.play("place", 0.8, -8.0)
 	_refresh()
 
 
@@ -959,6 +985,7 @@ func _win() -> void:
 	await _summary(hp_left, bonus, coins, gold_before)
 	await _shop()   # every win opens the shop; no 1-of-3 pick
 	stage += 1
+	hand = []   # the new fight has a fresh deck: nothing left over to discard
 	sim.start_fight(stage)   # heals 40% and clears the board
 	_new_turn()
 

@@ -83,6 +83,15 @@ func _initialize() -> void:
 	var h = Sim.new()
 	h.rng.seed = 12345
 	print("hands: ", h.deal_hand(), h.deal_hand(), h.flags)
+	var dk = Sim.new()
+	dk.rng.seed = 5
+	dk.build_deck()
+	var cnt := {}
+	for c in dk.deck:
+		cnt[c] = int(cnt.get(c, 0)) + 1
+	var hd: Array = dk.deal_hand()
+	var rep: String = dk.discard_card(hd[0])
+	print("deck: ", cnt, " after hand ", dk.deck.size(), " discard ", dk.discard_pile.size(), " left ", dk.discards_left, " again ", dk.discard_card(hd[1]))
 	for name in BOARDS:
 		for ids in SETS:
 			var walks := 2 if "coal" in ids else 1
