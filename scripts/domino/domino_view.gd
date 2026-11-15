@@ -203,8 +203,12 @@ func _build() -> void:
 		tile_btns.append(b)
 		var n := Label.new()
 		n.text = str(i + 1)
-		n.modulate = Color(1, 1, 1, 0.35)
-		n.position = Vector2(8, 4)
+		n.add_theme_font_size_override("font_size", 22)   # sits in the art's top-left circle (centre 29,29)
+		n.add_theme_color_override("font_color", Color("#F0CF86"))
+		n.position = Vector2(29.0 - 15.0, 29.0 - 17.0)
+		n.size = Vector2(30, 34)
+		n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		n.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(n)
 		var k := TextureRect.new()   # kept marker (gold emblem)
