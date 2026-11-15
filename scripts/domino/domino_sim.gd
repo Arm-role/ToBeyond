@@ -437,7 +437,7 @@ func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 			elif once == "fight":
 				_once_fight[okey] = true
 			_fire_order += 1
-			_emit("fire", {"art": osrc, "order": _fire_order}, osrc)
+			_emit("fire", {"art": osrc, "order": _fire_order, "cause_i": ev.get("i", -1), "trigger": String(ev.k), "tile": ev.get("tile", -1)}, osrc)
 			_depth += 1
 			_apply(r, ev, osrc)
 			_depth -= 1

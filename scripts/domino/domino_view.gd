@@ -366,6 +366,20 @@ func _cards_reset() -> void:
 
 
 ## An artifact rule fired: pulse its card and show the order it fired in (1, 2, 3 ...).
+## Cause link: a thin gold beam from the tile that set the artifact off to its card.
+func _fire_link(ev: Dictionary) -> void:
+	var t: int = ev.get("tile", -1)
+	if t < 0 or t >= N:
+		return
+	for i in SLOTS:
+		var d = slot_arr[i]
+		if d != null and d.id == ev.art:
+			var from := tile_btns[t].get_global_rect().get_center()
+			var to := slot_btns[i].get_global_rect().get_center()
+			_laser(from, to, Color("#ffd966"), 6.0)
+			return
+
+
 func _card_fire(art: String, order: int) -> void:
 	for i in SLOTS:
 		var d = slot_arr[i]
@@ -748,6 +762,7 @@ func _play_walk(evs: Array) -> void:
 				prev_tile = ev.tile
 			"fire":
 				_card_fire(ev.art, ev.order)
+				_fire_link(ev)
 				if fire_hold_used < FIRE_HOLD_MAX and slot_arr.any(func(d): return d != null and d.id == ev.art):
 					fire_hold_used += FIRE_HOLD
 					await get_tree().create_timer(FIRE_HOLD).timeout
