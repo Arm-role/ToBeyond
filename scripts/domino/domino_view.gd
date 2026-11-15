@@ -99,9 +99,11 @@ var go_btn: Button
 ## Tab frame over a tile. `lit` = the enemy's flag stands here.
 func _tab_style(lit: bool) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("#E0584F") if lit else Color(1, 1, 1, 0.14)
-	sb.corner_radius_top_left = 5
-	sb.corner_radius_top_right = 5
+	sb.bg_color = Color(0.55, 0.1, 0.1, 0.30) if lit else Color(1, 1, 1, 0.05)
+	sb.border_color = Color("#E0584F") if lit else Color(1, 1, 1, 0.22)
+	sb.set_border_width_all(4 if lit else 2)
+	sb.corner_radius_top_left = 14
+	sb.corner_radius_top_right = 14
 	return sb
 
 
@@ -225,8 +227,8 @@ func _build() -> void:
 		add_child(b)
 		tile_btns.append(b)
 		var tab := Panel.new()
-		tab.position = Vector2(b.position.x + 12.0, ROW_Y - 14.0)
-		tab.size = Vector2(TILE - 24.0, 10)
+		tab.position = Vector2(b.position.x, ROW_Y - 100.0)
+		tab.size = Vector2(TILE, 90)
 		tab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tab.add_theme_stylebox_override("panel", _tab_style(false))
 		add_child(tab)
@@ -258,9 +260,11 @@ func _build() -> void:
 	badge.pivot_offset = Vector2(100, 40)
 	flag = Label.new()
 	flag.text = "⚔"
-	flag.add_theme_font_size_override("font_size", 72)
+	flag.add_theme_font_size_override("font_size", 44)
 	flag.size = Vector2(TILE, 90)
+	flag.pivot_offset = flag.size * 0.5
 	flag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	flag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	add_child(flag)
 	flag2 = flag.duplicate()
 	flag2.visible = false
