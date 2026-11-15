@@ -34,6 +34,7 @@ var hp: float = 30.0
 var max_hp: float = 30.0
 var hand_size: int = HAND_SIZE   # shop upgrades raise it (max MAX_HAND)
 var hp_ups: int = 0
+var _fire_order: int = 0   # nth artifact rule fired in this walk (the view shows it on the card)
 var hand_ups: int = 0
 var stage: int = 1
 var enemy_hp: int = 0
@@ -179,6 +180,7 @@ func _reset_walk() -> void:
 	_pops = 0
 	_tile_pops = {}
 	_fires = {}
+	_fire_order = 0
 	_once_walk = {}
 	_stopped = false
 	_bounce_req = false
@@ -424,6 +426,8 @@ func _fire(ev: Dictionary, modifiers: bool = false) -> void:
 				_once_walk[okey] = true
 			elif once == "fight":
 				_once_fight[okey] = true
+			_fire_order += 1
+			_emit("fire", {"art": osrc, "order": _fire_order}, osrc)
 			_depth += 1
 			_apply(r, ev, osrc)
 			_depth -= 1

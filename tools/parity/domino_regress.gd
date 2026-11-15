@@ -54,7 +54,7 @@ func _line(ev: Dictionary) -> String:
 func _run(label: String, sim: RefCounted, walks: int = 1) -> void:
 	for w in walks:
 		var evs: Array = sim.run_walk()
-		print("== %s walk %d: %d events, hp %s, enemy %d, kept %s" % [label, w + 1, evs.size(), str(snappedf(sim.hp, 0.001)), sim.enemy_hp, str(evs[-1].kept_tiles)])
+		print("== %s walk %d: %d events, hp %s, enemy %d, kept %s" % [label, w + 1, evs.size(), str(snappedf(sim.hp, 0.001)), sim.enemy_hp, str(_walk_end(evs).kept_tiles)])
 		for ev in evs:
 			print(_line(ev))
 		# the kept Gems stay; refill the rest like a player would
@@ -196,3 +196,11 @@ func _phase5() -> void:
 	for s in range(1, 10):
 		bs.start_fight(s)
 		print("stage %d boss %s enemy %d strike %s" % [s, bs.boss.id if bs.boss != null else "-", bs.enemy_max, str(snappedf(bs.strike_dmg, 0.001))])
+
+
+## The walk_end event (rules that fire on it add events after it).
+func _walk_end(evs: Array) -> Dictionary:
+	for i in range(evs.size() - 1, -1, -1):
+		if evs[i].k == "walk_end":
+			return evs[i]
+	return {"kept_tiles": []}

@@ -44,6 +44,12 @@ var over: bool = false
 
 var slot_arr: Array = []            # SLOTS entries, null = empty; sim.slots = the non-null ones in order
 var slot_btns: Array[Button] = []
+var slot_cards: Array = []          # per slot: {icon, name, sub, badge} labels drawn on the card
+var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this walk
+var fire_hold_used := 0.0
+const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
+const FIRE_HOLD := 0.14        # pause per artifact trigger so the order can be followed
+const FIRE_HOLD_MAX := 1.6     # total pause per walk
 var slot_sel: int = -1              # slot picked for a swap (tap two slots to swap them)
 var art_tip: Label
 var reward_ui: Control
@@ -237,15 +243,38 @@ func _build() -> void:
 		var ab := Button.new()
 		ab.position = Vector2(30, 545.0 + i * 100.0)
 		ab.size = Vector2(230, 88)
-		ab.add_theme_font_size_override("font_size", 26)
+		ab.pivot_offset = ab.size * 0.5
 		ab.pressed.connect(_on_slot.bind(i))
 		add_child(ab)
 		slot_btns.append(ab)
+		var card := {}
+		card["icon"] = _card_label(ab, 46, Vector2(10, 14), Vector2(60, 60), HORIZONTAL_ALIGNMENT_CENTER)
+		card["name"] = _card_label(ab, 26, Vector2(72, 6), Vector2(152, 40), HORIZONTAL_ALIGNMENT_LEFT)
+		card["sub"] = _card_label(ab, 18, Vector2(72, 50), Vector2(152, 30), HORIZONTAL_ALIGNMENT_LEFT)
+		var badge := _card_label(ab, 22, Vector2(150, -18), Vector2(84, 30), HORIZONTAL_ALIGNMENT_CENTER)
+		badge.z_index = 5
+		badge.visible = false
+		card["badge"] = badge
+		slot_cards.append(card)
 	art_tip = _label("", 26, Vector2(1660, 545), 250.0)
 	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	art_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	art_tip.size = Vector2(250, 420)
 	msg = _label("", 40, Vector2(460, 230), 1000.0)
+
+
+## A label drawn on a card button (clicks pass through to the button).
+func _card_label(parent: Control, size_px: int, pos: Vector2, sz: Vector2, align: int) -> Label:
+	var l := Label.new()
+	l.position = pos
+	l.size = sz
+	l.horizontal_alignment = align
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", size_px)
+	l.clip_text = true
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(l)
+	return l
 
 
 ## Slot order = reaction order. Tap a slot for its text, tap a second slot to swap them.
@@ -284,16 +313,61 @@ func _refresh_slots() -> void:
 	for i in SLOTS:
 		var d = slot_arr[i]
 		var b := slot_btns[i]
-		b.text = ("%d  %s %s" % [i + 1, d.icon, d.name_th]) if d != null else "%d  —" % (i + 1)
+		var c: Dictionary = slot_cards[i]
+		b.text = ""
 		b.tooltip_text = d.text_th if d != null else ""
 		b.disabled = busy
+		c.icon.text = d.icon if d != null else ""
+		c.name.text = d.name_th if d != null else "%d  —" % (i + 1)
+		c.name.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.35)
+		c.sub.text = ("%d · %s" % [i + 1, ARCH_TH.get(d.archetype, "")]) if d != null else ""
 		var sb := StyleBoxFlat.new()
+		var rc := Color(RARITY_COL.get(d.rarity, "#8aa0b8")) if d != null else Color(1, 1, 1, 0.2)
 		sb.bg_color = Color("#3a2f55") if d != null else Color("#221c30")
 		sb.set_corner_radius_all(14)
-		sb.set_border_width_all(6 if i == slot_sel else 2)
-		sb.border_color = Color("#ffd966") if i == slot_sel else Color(1, 1, 1, 0.2)
+		sb.set_border_width_all(6 if i == slot_sel else 3)
+		sb.border_color = Color("#ffd966") if i == slot_sel else rc
 		for st in ["normal", "hover", "pressed", "disabled"]:
 			b.add_theme_stylebox_override(st, sb)
+
+
+## Walk start: forget last walk's trigger order on the cards.
+func _cards_reset() -> void:
+	card_orders.clear()
+	fire_hold_used = 0.0
+	for c in slot_cards:
+		c.badge.visible = false
+
+
+## An artifact rule fired: pulse its card and show the order it fired in (1, 2, 3 ...).
+func _card_fire(art: String, order: int) -> void:
+	for i in SLOTS:
+		var d = slot_arr[i]
+		if d == null or d.id != art:
+			continue
+		var list: Array = card_orders.get(art, [])
+		list.append(order)
+		card_orders[art] = list
+		var badge: Label = slot_cards[i].badge
+		var shown: Array = list.slice(maxi(list.size() - 3, 0))
+		badge.text = ("…" if list.size() > 3 else "") + "›".join(shown.map(func(n): return str(n)))
+		var bs := StyleBoxFlat.new()
+		bs.bg_color = Color("#ffd966")
+		bs.set_corner_radius_all(15)
+		badge.add_theme_color_override("font_color", Color("#1a1428"))
+		badge.add_theme_stylebox_override("normal", bs)
+		badge.visible = true
+		var b := slot_btns[i]
+		if _react_tw.has(b) and _react_tw[b].is_valid():
+			_react_tw[b].kill()
+		b.scale = Vector2.ONE
+		b.modulate = Color(1.6, 1.5, 1.0)
+		var tw := create_tween().set_parallel(true)
+		tw.tween_property(b, "scale", Vector2(1.08, 1.08), 0.07)
+		tw.chain().tween_property(b, "scale", Vector2.ONE, 0.10)
+		tw.tween_property(b, "modulate", Color.WHITE, 0.25)
+		_react_tw[b] = tw
+		return
 
 
 ## Debug: ?arts=mirror,coal (web) or -- --arts=mirror,coal starts with those artifacts.
@@ -595,6 +669,7 @@ func _play_walk(evs: Array) -> void:
 		var ev: Dictionary = evs[j]
 		match ev.k:
 			"ignite":
+				_cards_reset()
 				fire.position = Vector2(HERO_HOME.x + 20.0, ROW_Y - 20.0)
 				fire.visible = true
 				_badge(0)
@@ -615,6 +690,11 @@ func _play_walk(evs: Array) -> void:
 					tw.tween_property(fire, "position", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 20.0), dur)
 					await tw.finished
 				prev_tile = ev.tile
+			"fire":
+				_card_fire(ev.art, ev.order)
+				if fire_hold_used < FIRE_HOLD_MAX and slot_arr.any(func(d): return d != null and d.id == ev.art):
+					fire_hold_used += FIRE_HOLD
+					await get_tree().create_timer(FIRE_HOLD).timeout
 			"pop":
 				sfx.step(ev.nth - 1)
 				_pop(tile_btns[ev.tile], 1.3)
