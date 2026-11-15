@@ -99,6 +99,7 @@ func _ready() -> void:
 	sfx = preload("res://scripts/sfx_manager.gd").new()
 	add_child(sfx)
 	sim.rng.randomize()
+	sim.map_rng.randomize()
 	_build()
 	_add_version_stamp()
 	_start_arts()
@@ -1080,11 +1081,54 @@ func _win() -> void:
 		return
 	msg.text = ""
 	await _summary(hp_left, bonus, coins, gold_before)
-	await _shop()   # every win opens the shop; no 1-of-3 pick
+	if sim.kind == "elite":
+		await _reward(Reward.offer(sim))
+	elif sim.kind == "boss":
+		await _shop()
 	stage += 1
+	var next_kind := "fight"
+	var doors := sim.doors(stage)
+	if not doors.is_empty():
+		var pick: String = await _doors(doors)
+		if pick == "shop":
+			await _shop()
+		else:
+			next_kind = pick
 	hand = []   # the new fight has a fresh deck: nothing left over to discard
-	sim.start_fight(stage)   # heals 40% and clears the board
+	sim.start_fight(stage, null, next_kind)   # heals fully and clears the board
 	_new_turn()
+
+
+## Door pick between fights: returns the chosen kind ("fight", "elite" or "shop").
+signal _door_done(kind: String)
+const DOOR_TH := {
+	"fight": "⚔ สู้ปกติ
+
+ศัตรูตามด่าน",
+	"elite": "💀 ศัตรูแกร่ง
+
+เลือดและดาเมจมากขึ้น
+ชนะแล้วเลือก Artifact 1 ใน 3",
+	"shop": "🛒 ร้านค้า
+
+แวะซื้อของก่อน
+แล้วสู้ปกติ",
+}
+
+func _doors(doors: Array) -> String:
+	reward_ui = Control.new()
+	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reward_ui.z_index = 100
+	add_child(reward_ui)
+	_rw_clear("เลือกทางไปด่าน %d" % stage)
+	var x0 := (1920.0 - (doors.size() * 520.0 + (doors.size() - 1) * 60.0)) * 0.5
+	for i in doors.size():
+		var k: String = doors[i]
+		var b := _rw_button(DOOR_TH[k], Vector2(x0 + i * 580.0, 220), Vector2(520, 520), 40)
+		b.pressed.connect(func(): _door_done.emit(k))
+	var picked: String = await _door_done
+	reward_ui.queue_free()
+	return picked
 
 
 ## Summary screen between the win and the shop.
@@ -1215,7 +1259,7 @@ func _reward_pick(d: Resource, offers: Array) -> void:
 	back.pressed.connect(func(): _reward_offers(offers))
 
 
-## Shop after every win: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
+## Shop after a boss or on the shop door: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
 func _shop() -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)

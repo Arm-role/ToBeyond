@@ -33,6 +33,9 @@ const MAX_EVENTS := 400       # hitting this ends the walk at once
 ## Verbs that change the event they react to; they run before its built-in effect (the other verbs run after it).
 const MODIFIERS := ["convert"]
 const BOSS_EVERY := 3
+const ELITE_HP := 1.4        # elite fight: enemy HP and strike multipliers
+const ELITE_DMG := 1.2
+const DOORS := ["fight", "elite", "shop"]   # what the player may pick between fights
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const TRIGGERS := ["ignite", "pass", "pop", "strike", "reach_end", "kill", "walk_end", "fight_start"]
 
@@ -57,6 +60,8 @@ var fight_events: Array = []     # events of the last start_fight()
 var gold: int = 0
 var boss: Resource = null        # DominoBoss of the current fight, null on a normal fight
 var _used_bosses: Array = []
+var kind: String = "fight"       # "fight" | "elite" | "boss": the current fight
+var map_rng := RandomNumberGenerator.new()   # doors only; never sim.rng, so fights and decks stay unchanged
 var stats: Dictionary = {}       # add_stat values, one walk long
 var deck: Array = []             # limited draw pile of Gem colours (DECK_COUNTS per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
@@ -87,8 +92,10 @@ var _red_pops: int = 0
 # --- setup / hand --------------------------------------------------------------
 
 ## `forced_boss` (tests) overrides the pick; otherwise every BOSS_EVERY-th stage draws an unused boss.
-func start_fight(s: int, forced_boss: Resource = null) -> void:
+## `fight_kind` "elite" makes the enemy tougher (a boss stage is always "boss").
+func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fight") -> void:
 	stage = s
+	kind = fight_kind
 	boss = forced_boss
 	if boss == null and s % BOSS_EVERY == 0:
 		var pool: Array = []
@@ -107,8 +114,12 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 		enemy_max = roundi(enemy_max * 1.25)
 		strike_dmg *= 1.15
 	if boss != null:
+		kind = "boss"
 		enemy_max = roundi(enemy_max * boss.hp_mult)
 		strike_dmg *= boss.dmg_mult
+	elif kind == "elite":
+		enemy_max = roundi(enemy_max * ELITE_HP)
+		strike_dmg *= ELITE_DMG
 	enemy_hp = enemy_max
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
@@ -208,6 +219,17 @@ const HP_BONUS_TIERS := 3   # remaining HP is counted in thirds of max HP
 ## Coins for the HP left: floor(hp / (max_hp / 3)), so 0..3 (full HP = 3, at least 2/3 = 2, at least 1/3 = 1).
 func hp_bonus() -> int:
 	return clampi(int(floorf(maxf(hp, 0.0) / (max_hp / HP_BONUS_TIERS) + 0.0001)), 0, HP_BONUS_TIERS)
+
+
+## Doors for the fight at stage `s`: a boss stage has none (forced), otherwise two different kinds.
+func doors(s: int) -> Array:
+	if s % BOSS_EVERY == 0:
+		return []
+	var pool: Array = DOORS.duplicate()
+	var out: Array = []
+	for i in 2:
+		out.append(pool.pop_at(map_rng.randi_range(0, pool.size() - 1)))
+	return out
 
 
 ## Coins for winning the fight: 4 + the HP bonus. Returns the amount.

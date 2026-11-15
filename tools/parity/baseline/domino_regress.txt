@@ -5979,3 +5979,11 @@ stage 6 boss twin_flag enemy 78 strike 16.091
 stage 7 boss - enemy 70 strike 18.504
 stage 8 boss - enemy 88 strike 21.28
 stage 9 boss drifter enemy 154 strike 22.025
+doors 1: shop,elite
+doors 2: shop,fight
+doors 3: 
+doors 4: elite,shop
+doors 5: elite,shop
+doors 6: 
+doors 7: shop,elite
+elite 2: kind elite enemy 32 strike 11.04

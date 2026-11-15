@@ -209,6 +209,15 @@ func _phase5() -> void:
 	for s in range(1, 10):
 		bs.start_fight(s)
 		print("stage %d boss %s enemy %d strike %s" % [s, bs.boss.id if bs.boss != null else "-", bs.enemy_max, str(snappedf(bs.strike_dmg, 0.001))])
+	# doors (own rng) and elite scaling
+	var ds = Sim.new()
+	ds.map_rng.seed = 5
+	for s in range(1, 8):
+		print("doors %d: %s" % [s, ",".join(ds.doors(s))])
+	var es = Sim.new()
+	es.rng.seed = 3
+	es.start_fight(2, null, "elite")
+	print("elite 2: kind %s enemy %d strike %s" % [es.kind, es.enemy_max, str(snappedf(es.strike_dmg, 0.001))])
 
 
 ## The walk_end event (rules that fire on it add events after it).
