@@ -456,8 +456,8 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 		if t != null:
 			sbt = StyleBoxTexture.new()
 			sbt.texture = t
-			sbt.content_margin_top = 112.0   # text sits under the emblem
-			sbt.content_margin_bottom = 6.0
+			sbt.content_margin_top = 0.0   # emblem is gone: text centred
+			sbt.content_margin_bottom = 0.0
 		_tex_cache[key] = sbt
 	var sb = _tex_cache[key]
 	if sb == null:
