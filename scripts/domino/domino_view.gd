@@ -19,7 +19,7 @@ const TILE := 160.0
 const GAP := 12.0
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
-const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6")}
+const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
 const MAX_WALK_TIME := 2.2   # fireball travel budget per walk (strike pauses do not count)
 
 var sim := Sim.new()
@@ -422,6 +422,8 @@ func _new_turn() -> void:
 
 
 func _gem_text(c: String) -> String:
+	if c == "orange":
+		return "⚔ %d\n✦%d%%" % [Sim.ORANGE_DMG, roundi(Sim.ORANGE_CRIT * 100.0)]
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
 
 
@@ -708,6 +710,9 @@ func _play_walk(evs: Array) -> void:
 				_pop(tile_btns[ev.tile], 1.3)
 				if ev.get("nullified", false):
 					_float_text("0", ENEMY_HOME + Vector2(60, 0), Color("#9a9aa6"))
+				if ev.get("crit", false):
+					_float_text("คริ! ×2", ENEMY_HOME + Vector2(60, -50), Color("#ffb347"))
+					_shake(8.0)
 			"hit":
 				if ev.target == "enemy":
 					v_enemy_hp = roundi(ev.hp_after)

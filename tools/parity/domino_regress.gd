@@ -158,6 +158,10 @@ func _phase4() -> void:
 	for ids in COMBOS:
 		for name in ["red_run", "blue_run"]:
 			_run("p4 combo %s [%s]" % [name, ",".join(ids)], _setup(more[name], ids), 2 if "coal" in ids else 1)
+	# orange Gem: an attack Gem for artifacts (twin / stoke / furnace see it as red), 30% crit
+	var orange := {"gems": {0: "orange", 1: "red", 2: "orange", 3: "blue", 4: "orange", 5: "orange", 6: "blue", 7: "orange"}, "flag": 5, "hp": 40.0}
+	for ids in [[], ["twin"], ["stoke"], ["furnace", "coal"], ["mirror", "twin"]]:
+		_run("p4 orange [%s]" % ",".join(ids), _setup(orange, ids), 2 if "coal" in ids else 1)
 	# coal + furnace: kept Gems pop doubled on the next walk
 	var cf = _setup(more.red_run, ["coal", "furnace"])
 	_run("p4 coal+furnace", cf, 3)

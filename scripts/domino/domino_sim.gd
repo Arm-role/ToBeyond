@@ -10,6 +10,10 @@ const HAND_SIZE := 3
 const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
+const ORANGE_DMG := 3        # orange Gem: an attack Gem (counts as red for artifacts) with a crit chance
+const ORANGE_CRIT := 0.3
+const CRIT_MULT := 2.0
+const ATTACK := ["red", "orange"]
 const BASE_ENEMY_HP := 18
 const BASE_STRIKE := 8.0
 const WIN_HEAL := 1.0   # full heal when the next fight starts
@@ -115,7 +119,8 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 func deal_hand() -> Array[String]:
 	var h: Array[String] = []
 	for i in hand_size:
-		h.append("red" if rng.randf() < 0.6 else "blue")
+		var r := rng.randf()   # red 45%, orange 15%, blue 40%
+		h.append("red" if r < 0.45 else ("orange" if r < 0.6 else "blue"))
 	flags = [rng.randi_range(1, N - 1)]
 	if _boss_is("twin_flag"):
 		var second := rng.randi_range(1, N - 2)
@@ -342,8 +347,9 @@ func _do_pop(tile: int, cause: String) -> void:
 	_tile_pops[tile] = tp + 1
 	_pops += 1
 	var g: Dictionary = board[tile]
-	var red: bool = g.color == "red"
-	var base: int = (RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK
+	var red: bool = g.color in ATTACK
+	var gem_dmg: int = ORANGE_DMG if g.color == "orange" else RED_DMG
+	var base: int = (gem_dmg + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK
 	if red:
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
@@ -357,7 +363,11 @@ func _do_pop(tile: int, cause: String) -> void:
 	if base == 0 and red:
 		ev["nullified"] = true
 	elif red or ev.get("convert", "") == "damage":
-		_hit("enemy", float(base), "base", "pop")
+		var dmg := float(base)
+		if g.color == "orange" and rng.randf() < ORANGE_CRIT:
+			dmg *= CRIT_MULT
+			ev["crit"] = true
+		_hit("enemy", dmg, "base", "pop")
 	else:
 		_shield(base, "base")
 	_fire(ev)
@@ -448,11 +458,16 @@ func _color_at(tile: int) -> String:
 	return board[tile].color if board.has(tile) else ""
 
 
+## Artifact conditions on "red" also match orange (an attack Gem).
+func _is_color(c: String, want) -> bool:
+	return c in ATTACK if want == "red" else c == want
+
+
 func _check(key: String, want, ev: Dictionary) -> bool:
 	var tile: int = ev.tile
 	match key:
 		"color":
-			return ev.get("color", _color_at(tile)) == want
+			return _is_color(ev.get("color", _color_at(tile)), want)
 		"tile":
 			if want is String:
 				match want:
@@ -474,7 +489,7 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 		"kept", "temp":
 			return ev.k == "walk_end" or ev.get(key, false) == want   # walk_end: per-Gem filter in keep_gems
 		"neighbor":
-			return _color_at(tile - 1) == want or _color_at(tile + 1) == want
+			return _is_color(_color_at(tile - 1), want) or _is_color(_color_at(tile + 1), want)
 		"before_flag":
 			var ahead := false
 			var ci := _route.find(tile)
@@ -486,7 +501,7 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 		"flag_struck":
 			return (_struck > 0) == want
 		"tile_color":
-			return ev.get("tile_color", "") == want
+			return _is_color(ev.get("tile_color", ""), want)
 		"blocked_full":
 			return (float(ev.get("block", 0)) >= float(ev.get("dmg", 0)) and ev.get("redirect", "") == "") == want
 	return false
