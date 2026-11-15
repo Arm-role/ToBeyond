@@ -33,3 +33,40 @@ static func stock(sim, count: int = STOCK) -> Array:
 		pool.erase(d)
 		out.append(d)
 	return out
+
+
+## Permanent upgrades (once per kind per purchase count, price rises each time).
+const HP_UP := 5          # +5 max HP, heals the same amount
+const HP_UP_BASE := 4
+const HP_UP_STEP := 2
+const HAND_UP_BASE := 8   # +1 hand tile, up to Sim.MAX_HAND
+const HAND_UP_STEP := 4
+
+
+static func hp_up_cost(sim) -> int:
+	return HP_UP_BASE + HP_UP_STEP * sim.hp_ups
+
+
+static func hand_up_cost(sim) -> int:
+	return HAND_UP_BASE + HAND_UP_STEP * sim.hand_ups
+
+
+static func buy_hp(sim) -> bool:
+	var c := hp_up_cost(sim)
+	if sim.gold < c:
+		return false
+	sim.gold -= c
+	sim.hp_ups += 1
+	sim.max_hp += HP_UP
+	sim.hp += HP_UP
+	return true
+
+
+static func buy_hand(sim) -> bool:
+	var c := hand_up_cost(sim)
+	if sim.gold < c or sim.hand_size >= sim.MAX_HAND:
+		return false
+	sim.gold -= c
+	sim.hand_ups += 1
+	sim.hand_size += 1
+	return true

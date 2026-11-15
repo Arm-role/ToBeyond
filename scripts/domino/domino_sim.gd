@@ -7,6 +7,7 @@ extends RefCounted
 
 const N := 8
 const HAND_SIZE := 3
+const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
 const BASE_ENEMY_HP := 18
@@ -31,6 +32,9 @@ const TRIGGERS := ["ignite", "pass", "pop", "strike", "reach_end", "kill", "walk
 
 var hp: float = 30.0
 var max_hp: float = 30.0
+var hand_size: int = HAND_SIZE   # shop upgrades raise it (max MAX_HAND)
+var hp_ups: int = 0
+var hand_ups: int = 0
 var stage: int = 1
 var enemy_hp: int = 0
 var enemy_max: int = BASE_ENEMY_HP
@@ -109,7 +113,7 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 ## Three random Gems (60% red); also rolls this turn's flag tile.
 func deal_hand() -> Array[String]:
 	var h: Array[String] = []
-	for i in HAND_SIZE:
+	for i in hand_size:
 		h.append("red" if rng.randf() < 0.6 else "blue")
 	flags = [rng.randi_range(1, N - 1)]
 	if _boss_is("twin_flag"):

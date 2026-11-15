@@ -14,7 +14,7 @@ const MAX_STAGE := 10
 const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกัน", "ember": "ถ่าน", "blaze": "เปลวไฟ"}
 const RARITY_TH := {"common": "สามัญ", "uncommon": "พบน้อย", "rare": "หายาก"}
 const N := Sim.N
-const HAND_SIZE := Sim.HAND_SIZE
+const MAX_HAND := Sim.MAX_HAND
 const TILE := 160.0
 const GAP := 12.0
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
@@ -217,9 +217,9 @@ func _build() -> void:
 	fire.visible = false
 	fire.z_index = 10
 	add_child(fire)
-	for i in HAND_SIZE:
+	for i in MAX_HAND:
 		var h := Button.new()
-		h.position = Vector2(660 + i * 210, 850)
+		h.position = Vector2(300 + i * 210, 850)
 		h.size = Vector2(190, 170)
 		h.add_theme_font_size_override("font_size", 46)
 		h.pressed.connect(_on_hand.bind(i))
@@ -375,7 +375,12 @@ func _refresh() -> void:
 		var c: String = g.get("color", "")
 		tile_btns[i].text = (_gem_text(c) + ("\n♨" if g.get("kept", false) else "")) if c != "" else ""
 		_style(tile_btns[i], c)
-	for i in HAND_SIZE:
+	var hx := 800.0 - (hand.size() * 210.0 - 20.0) * 0.5   # hand centred between the slot bar and the go button
+	for i in hand_btns.size():
+		hand_btns[i].visible = i < hand.size()
+		if i >= hand.size():
+			continue
+		hand_btns[i].position.x = hx + i * 210.0
 		var c: String = hand[i]
 		hand_btns[i].text = _gem_text(c) if c != "" else ""
 		hand_btns[i].disabled = c == "" or busy
@@ -404,7 +409,7 @@ func _on_tile(t: int) -> void:
 		# Take the Gem back to its hand slot (kept Gems stay).
 		var c := sim.take(t)
 		if c != "":
-			for i in HAND_SIZE:
+			for i in hand.size():
 				if hand[i] == "":
 					hand[i] = c
 					break
@@ -705,6 +710,13 @@ func _win() -> void:
 	_new_turn()
 
 
+## Shop HP upgrade: show the new max HP on the hero bar.
+func _sync_hero() -> void:
+	v_hp = sim.hp
+	v_max_hp = sim.max_hp
+	_refresh()
+
+
 func _lose() -> void:
 	over = true
 	sfx.play("lose")
@@ -834,6 +846,22 @@ func _shop() -> void:
 			sim.gold -= rc
 			rerolls += 1
 			stock = Shop.stock(sim)
+			_shop_step.emit(false))
+		var hc := Shop.hp_up_cost(sim)
+		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(580, 640), Vector2(400, 90), 28)
+		hpb.disabled = sim.gold < hc
+		hpb.pressed.connect(func():
+			Shop.buy_hp(sim)
+			_sync_hero()
+			sfx.play("place", 1.3, -8.0)
+			_shop_step.emit(false))
+		var hdc := Shop.hand_up_cost(sim)
+		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
+		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(1010, 640), Vector2(400, 90), 28)
+		hdb.disabled = maxed or sim.gold < hdc
+		hdb.pressed.connect(func():
+			Shop.buy_hand(sim)
+			sfx.play("place", 1.3, -8.0)
 			_shop_step.emit(false))
 		for i in SLOTS:
 			var o = slot_arr[i]
