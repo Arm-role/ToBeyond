@@ -17,6 +17,7 @@ const N := Sim.N
 const MAX_HAND := Sim.MAX_HAND
 const TILE := 160.0
 const GAP := 12.0
+const TAB_H := 56.0        # height of the flag tab above each tile
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
 const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
@@ -227,8 +228,8 @@ func _build() -> void:
 		add_child(b)
 		tile_btns.append(b)
 		var tab := Panel.new()
-		tab.position = Vector2(b.position.x, ROW_Y - 100.0)
-		tab.size = Vector2(TILE, 90)
+		tab.position = Vector2(b.position.x, ROW_Y - TAB_H - 10.0)
+		tab.size = Vector2(TILE, TAB_H)
 		tab.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tab.add_theme_stylebox_override("panel", _tab_style(false))
 		add_child(tab)
@@ -260,8 +261,8 @@ func _build() -> void:
 	badge.pivot_offset = Vector2(100, 40)
 	flag = Label.new()
 	flag.text = "⚔"
-	flag.add_theme_font_size_override("font_size", 44)
-	flag.size = Vector2(TILE, 90)
+	flag.add_theme_font_size_override("font_size", 40)
+	flag.size = Vector2(TILE, TAB_H)
 	flag.pivot_offset = flag.size * 0.5
 	flag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	flag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -617,11 +618,11 @@ func _refresh() -> void:
 	for i in tile_tabs.size():
 		var lit := not hidden and (i == v_flag or i == v_flag2)
 		tile_tabs[i].add_theme_stylebox_override("panel", _tab_style(lit))
-	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - 100.0)
+	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - TAB_H - 10.0)
 	flag.visible = not hidden
 	flag2.visible = v_flag2 >= 0 and not hidden
 	if v_flag2 >= 0:
-		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - 100.0)
+		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - TAB_H - 10.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
 	discard_btn.text = "🗑 ทิ้ง (%d)" % sim.discards_left
 	discard_btn.disabled = busy or over or selected < 0 or sim.discards_left <= 0
