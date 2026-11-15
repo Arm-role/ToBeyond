@@ -116,6 +116,7 @@ func start_fight(s: int, forced_boss: Resource = null) -> void:
 	build_deck()
 	_once_fight.clear()
 	_reset_walk()
+	_block = 0   # shield does not carry into a new fight
 	events = []
 	_fire(_emit("fight_start", {"stage": s}))
 	fight_events = events
@@ -182,6 +183,11 @@ func deal_hand(leftover: Array = []) -> Array[String]:
 	return h
 
 
+## Shield carried right now (a status that lasts across turns).
+func block() -> int:
+	return _block
+
+
 func _boss_is(rule: String) -> bool:
 	return boss != null and String(boss.rule) == rule
 
@@ -235,7 +241,6 @@ func _reset_walk() -> void:
 	_tile = 0
 	_dir = 1
 	_lap = 0
-	_block = 0
 	_pops = 0
 	_tile_pops = {}
 	_fires = {}
@@ -269,7 +274,7 @@ func run_walk() -> Array:
 	_reset_walk()
 	events = []
 	walk_no += 1
-	_fire(_emit("ignite", {"walk": walk_no}))
+	_fire(_emit("ignite", {"walk": walk_no, "block": _block}))
 	var idx := 0
 	var dir := 1
 	while not _stopped:
@@ -451,8 +456,9 @@ func _do_strike(tile: int) -> void:
 			_hit("hero", d, "base", "strike")
 	if _stopped:
 		return
-	_emit("shield_break")
-	_block = 0
+	# Shield is a status: what the strike did not absorb carries over (also into the next turn).
+	_block = maxi(0, _block - ceili(float(ev.dmg)))
+	_emit("shield_break", {"left": _block})
 	_struck += 1
 
 

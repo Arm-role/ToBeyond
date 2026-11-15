@@ -499,6 +499,7 @@ func _sync() -> void:
 
 
 func _new_turn() -> void:
+	_badge(sim.block())
 	hand = sim.deal_hand(hand)   # unplaced Gems of the last hand go to the discard pile
 	selected = -1
 	busy = false
@@ -973,7 +974,10 @@ func _play_walk(evs: Array) -> void:
 					_strike_fx(ev.tile, "blocked")
 					_float_text("กันได้!", HERO_HOME + Vector2(20, 0), Color("#7fb8ff"))
 			"shield_break":
-				_badge_break()
+				if int(ev.get("left", 0)) > 0:
+					_badge(int(ev.left))   # part of the shield is left
+				else:
+					_badge_break()
 				_refresh()
 				await get_tree().create_timer(0.3).timeout
 			"flag_move":
