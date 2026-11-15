@@ -47,6 +47,7 @@ var slot_btns: Array[Button] = []
 var slot_cards: Array = []          # per slot: {icon, name, sub, badge} labels drawn on the card
 var card_orders: Dictionary = {}    # artifact id -> fire orders seen in this walk
 var fire_hold_used := 0.0
+var fired_arts: Dictionary = {}   # artifacts that already fired in this walk
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
 const CARD_W := 150.0           # artifact cards: portrait, centred in the preview
 const CARD_H := 215.0
@@ -361,6 +362,7 @@ func _refresh_slots() -> void:
 func _cards_reset() -> void:
 	card_orders.clear()
 	fire_hold_used = 0.0
+	fired_arts.clear()
 	for c in slot_cards:
 		c.badge.visible = false
 
@@ -763,7 +765,16 @@ func _play_walk(evs: Array) -> void:
 			"fire":
 				_card_fire(ev.art, ev.order)
 				_fire_link(ev)
-				if fire_hold_used < FIRE_HOLD_MAX and slot_arr.any(func(d): return d != null and d.id == ev.art):
+				sfx.play("chime", 1.0 + 0.06 * mini(ev.order, 10), -10.0)   # the chain climbs in pitch
+				var is_boss: bool = ev.art == "enemy"
+				if is_boss:
+					_react(enemy, ENEMY_HOME, 10.0, Color("#c9a0ff"), 1.08)
+				var shown: bool = is_boss or slot_arr.any(func(d): return d != null and d.id == ev.art)
+				var first: bool = shown and not fired_arts.has(ev.art)
+				fired_arts[ev.art] = true
+				if first:
+					await get_tree().create_timer(FIRE_HOLD * 2.0).timeout   # a new artifact in the chain always gets a clear beat
+				elif shown and fire_hold_used < FIRE_HOLD_MAX:
 					fire_hold_used += FIRE_HOLD
 					await get_tree().create_timer(FIRE_HOLD).timeout
 			"pop":
@@ -774,6 +785,7 @@ func _play_walk(evs: Array) -> void:
 				if ev.get("crit", false):
 					_float_text("คริ! ×2", ENEMY_HOME + Vector2(60, -50), Color("#ffb347"))
 					_shake(8.0)
+					await get_tree().create_timer(0.12).timeout   # hit-stop on a crit
 			"hit":
 				if ev.target == "enemy":
 					v_enemy_hp = roundi(ev.hp_after)
