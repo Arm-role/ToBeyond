@@ -16,8 +16,8 @@ for s in $(echo "${TB_REGRESS_SCRIPTS:-domino_regress}" | tr , " "); do
   fi
   if [ "${1:-}" = "--update" ]; then cp "$out" "tools/parity/baseline/$s.txt"; echo "baseline updated: $s ($(wc -l < "$out") lines)"; continue; fi
   if [ ! -f "tools/parity/baseline/$s.txt" ]; then echo "regress $s: no baseline (run --update)"; fail=1; continue; fi
-  if ! diff -q "tools/parity/baseline/$s.txt" "$out" >/dev/null; then
-    echo "regress $s: DIFFERS from baseline"; diff -u "tools/parity/baseline/$s.txt" "$out" | head -40 | cut -c1-220; fail=1; continue
+  if ! diff -q --strip-trailing-cr "tools/parity/baseline/$s.txt" "$out" >/dev/null; then
+    echo "regress $s: DIFFERS from baseline"; diff -u --strip-trailing-cr "tools/parity/baseline/$s.txt" "$out" | head -40 | cut -c1-220; fail=1; continue
   fi
   echo "regress $s: OK"
 done
