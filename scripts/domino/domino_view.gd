@@ -692,9 +692,10 @@ func _play_walk(evs: Array) -> void:
 
 func _win() -> void:
 	sfx.play("win")
+	var bonus := sim.hp_bonus()
 	var coins := sim.claim_win()
 	v_gold = sim.gold
-	msg.text = "ชนะด่าน %d! +%d 🪙" % [stage, coins]
+	msg.text = "ชนะด่าน %d! +%d 🪙 (เลือดเหลือ +%d)" % [stage, coins, bonus]
 	_refresh()
 	await get_tree().create_timer(1.1).timeout
 	if stage >= MAX_STAGE:

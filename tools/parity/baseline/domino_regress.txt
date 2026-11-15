@@ -5318,7 +5318,7 @@ amount=4.0 depth=0 dir=1 hp_after=-2.0 i=12 k=hit lap=0 src=base step=4 target=e
 depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
 amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=bounty step=4 tile=3 total=14
 depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
-gold now 14, claim_win 3, gold 17
+gold now 14, claim_win 7, gold 21
 == p5 gold [piggy] walk 1: 16 events, hp 30.0, enemy -2, kept []
 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
@@ -5336,7 +5336,7 @@ amount=4.0 depth=0 dir=1 hp_after=-2.0 i=12 k=hit lap=0 src=base step=4 target=e
 depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
 amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=piggy step=4 tile=3 total=14
 depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
-gold now 14, claim_win 3, gold 17
+gold now 14, claim_win 7, gold 21
 == p5 gold [bounty,piggy] walk 1: 17 events, hp 30.0, enemy -2, kept []
 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
@@ -5355,7 +5355,7 @@ depth=0 dir=1 i=13 k=kill lap=0 src=base step=4 target=enemy tile=3
 amount=2 depth=1 dir=1 i=14 k=gold lap=0 src=bounty step=4 tile=3 total=14
 amount=2 depth=1 dir=1 i=15 k=gold lap=0 src=piggy step=4 tile=3 total=16
 depth=0 dir=1 i=16 k=walk_end kept_tiles=[] lap=0 src=base step=4 tile=3
-gold now 16, claim_win 3, gold 19
+gold now 16, claim_win 7, gold 23
 stage 1 boss - enemy 18 strike 8.0
 stage 2 boss - enemy 23 strike 9.2
 stage 3 boss twin_flag enemy 41 strike 10.58

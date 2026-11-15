@@ -135,9 +135,18 @@ func strike_each() -> float:
 	return strike_dmg * (float(_boss_arg("mult", 1.0)) if _boss_is("twin_flag") else 1.0)
 
 
-## Coins for winning the fight: 3 + stage / 2. Returns the amount.
+const WIN_COINS := 4
+const HP_BONUS_TIERS := 3   # remaining HP is counted in thirds of max HP
+
+
+## Coins for the HP left: floor(hp / (max_hp / 3)), so 0..3 (full HP = 3, at least 2/3 = 2, at least 1/3 = 1).
+func hp_bonus() -> int:
+	return clampi(int(floorf(maxf(hp, 0.0) / (max_hp / HP_BONUS_TIERS) + 0.0001)), 0, HP_BONUS_TIERS)
+
+
+## Coins for winning the fight: 4 + the HP bonus. Returns the amount.
 func claim_win() -> int:
-	var c := 3 + stage / 2
+	var c := WIN_COINS + hp_bonus()
 	gold += c
 	return c
 
