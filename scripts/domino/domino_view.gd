@@ -78,7 +78,8 @@ var tile_kept: Array[TextureRect] = []
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
 var discard_btn: Button
-var deck_lbl: Label
+var deck_btn: Button
+var deck_ui: Control
 var fire: Label
 var flag: Label
 var flag2: Label
@@ -277,19 +278,38 @@ func _build() -> void:
 		hand_btns.append(h)
 	go_btn = Button.new()
 	go_btn.text = "เดิน ▶"
-	go_btn.position = Vector2(1320, 870)
-	go_btn.size = Vector2(300, 110)
-	go_btn.add_theme_font_size_override("font_size", 44)
+	# Bottom row: pile tools on the left (info + hand action), the primary action big on the right.
+	go_btn.position = Vector2(1400, 860)
+	go_btn.size = Vector2(420, 150)
+	go_btn.add_theme_font_size_override("font_size", 56)
+	var gsb := StyleBoxFlat.new()
+	gsb.bg_color = Color("#2e9e5b")
+	gsb.set_corner_radius_all(24)
+	var gsd := gsb.duplicate()
+	gsd.bg_color = Color("#2a3a30")
+	go_btn.add_theme_stylebox_override("normal", gsb)
+	go_btn.add_theme_stylebox_override("hover", gsb)
+	go_btn.add_theme_stylebox_override("pressed", gsb)
+	go_btn.add_theme_stylebox_override("disabled", gsd)
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
+	deck_btn = Button.new()
+	deck_btn.position = Vector2(40, 860)
+	deck_btn.size = Vector2(230, 70)
+	deck_btn.add_theme_font_size_override("font_size", 28)
+	deck_btn.pressed.connect(_open_deck)
+	add_child(deck_btn)
 	discard_btn = Button.new()
-	discard_btn.position = Vector2(1320, 780)
-	discard_btn.size = Vector2(300, 80)
-	discard_btn.add_theme_font_size_override("font_size", 30)
+	discard_btn.position = Vector2(40, 945)
+	discard_btn.size = Vector2(230, 70)
+	discard_btn.add_theme_font_size_override("font_size", 28)
 	discard_btn.pressed.connect(_on_discard)
 	add_child(discard_btn)
-	deck_lbl = _label("", 26, Vector2(1320, 990), 300.0)
-	deck_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	deck_ui = Control.new()
+	deck_ui.visible = false
+	deck_ui.z_index = 3000
+	deck_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(deck_ui)
 	for i in SLOTS:
 		slot_arr.append(null)
 		var ab := Button.new()
@@ -569,9 +589,10 @@ func _refresh() -> void:
 	if v_flag2 >= 0:
 		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - 100.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
-	discard_btn.text = "🗑 ทิ้งใบที่เลือก (%d)" % sim.discards_left
+	discard_btn.text = "🗑 ทิ้ง (%d)" % sim.discards_left
 	discard_btn.disabled = busy or over or selected < 0 or sim.discards_left <= 0
-	deck_lbl.text = "สำรับ %d · ทิ้งแล้ว %d" % [sim.deck.size(), sim.discard_pile.size()]
+	deck_btn.text = "🂠 สำรับ %d/%d" % [sim.deck.size(), _deck_total()]
+	deck_btn.disabled = busy or over
 	_refresh_slots()
 
 
@@ -581,6 +602,70 @@ func _on_hand(i: int) -> void:
 	selected = -1 if selected == i else i
 	sfx.play("place", 1.2, -8.0)
 	_refresh()
+
+
+func _deck_total() -> int:
+	var n := 0
+	for c in Sim.DECK_COUNTS:
+		n += int(Sim.DECK_COUNTS[c])
+	return n
+
+
+## Deck viewer: every card of the fight's deck by type; cards still in the draw pile are bright, drawn ones faded.
+func _open_deck() -> void:
+	if busy or over:
+		return
+	for ch in deck_ui.get_children():
+		ch.queue_free()
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.82)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.gui_input.connect(func(e): if e is InputEventMouseButton and e.pressed: deck_ui.visible = false)
+	deck_ui.add_child(dim)
+	var title := Label.new()
+	title.text = "สำรับ · เหลือ %d จาก %d ใบ" % [sim.deck.size(), _deck_total()]
+	title.add_theme_font_size_override("font_size", 52)
+	title.position = Vector2(0, 150)
+	title.size = Vector2(1920, 80)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	deck_ui.add_child(title)
+	var left := {}
+	for c in sim.deck:
+		left[c] = int(left.get(c, 0)) + 1
+	var names := {"red": "⚔ โจมตี", "orange": "⚡ คริ", "blue": "🛡 โล่"}
+	var y := 290.0
+	for c in ["red", "orange", "blue"]:
+		var total := int(Sim.DECK_COUNTS[c])
+		var rem := int(left.get(c, 0))
+		var lbl := Label.new()
+		lbl.text = "%s   เหลือ %d / %d" % [names[c], rem, total]
+		lbl.add_theme_font_size_override("font_size", 34)
+		lbl.position = Vector2(200, y)
+		lbl.size = Vector2(1520, 50)
+		deck_ui.add_child(lbl)
+		for i in total:
+			var t := Panel.new()
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = COL[c]
+			sb.set_corner_radius_all(10)
+			sb.set_border_width_all(2)
+			sb.border_color = Color(1, 1, 1, 0.5)
+			t.add_theme_stylebox_override("panel", sb)
+			t.position = Vector2(200 + i * 76, y + 60)
+			t.size = Vector2(66, 90)
+			t.modulate.a = 1.0 if i < rem else 0.2
+			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			deck_ui.add_child(t)
+		y += 210.0
+	var hint := Label.new()
+	hint.text = "สว่าง = ยังอยู่ในสำรับ   ·   จาง = จั่วไปแล้ว (อยู่ในมือ/บนกระดาน/กองทิ้ง)   ·   แตะที่ไหนก็ได้เพื่อปิด"
+	hint.add_theme_font_size_override("font_size", 26)
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.65))
+	hint.position = Vector2(0, 940)
+	hint.size = Vector2(1920, 40)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	deck_ui.add_child(hint)
+	deck_ui.visible = true
 
 
 ## Throws the selected hand Gem away and draws a replacement from the limited deck.
