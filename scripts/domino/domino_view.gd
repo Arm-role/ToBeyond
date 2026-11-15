@@ -74,6 +74,7 @@ var badge: Label
 var _react_tw: Dictionary = {}
 
 var tile_btns: Array[Button] = []
+var tile_tabs: Array[Panel] = []   # frame above each tile: where the enemy's attack flag can stand
 var tile_kept: Array[TextureRect] = []
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
@@ -93,6 +94,17 @@ var hp_lbl: Label
 var hp_bar: ProgressBar
 var msg: Label
 var go_btn: Button
+
+
+## Tab frame over a tile. `lit` = the enemy's flag stands here.
+func _tab_style(lit: bool) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.55, 0.1, 0.1, 0.30) if lit else Color(1, 1, 1, 0.05)
+	sb.border_color = Color("#E0584F") if lit else Color(1, 1, 1, 0.22)
+	sb.set_border_width_all(4 if lit else 2)
+	sb.corner_radius_top_left = 14
+	sb.corner_radius_top_right = 14
+	return sb
 
 
 func _ready() -> void:
@@ -214,6 +226,13 @@ func _build() -> void:
 		b.pressed.connect(_on_tile.bind(i))
 		add_child(b)
 		tile_btns.append(b)
+		var tab := Panel.new()
+		tab.position = Vector2(b.position.x, ROW_Y - 100.0)
+		tab.size = Vector2(TILE, 90)
+		tab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tab.add_theme_stylebox_override("panel", _tab_style(false))
+		add_child(tab)
+		tile_tabs.append(tab)
 		var n := Label.new()
 		n.text = str(i + 1)
 		n.add_theme_font_size_override("font_size", 22)   # sits in the art's top-left circle (centre 29,29)
@@ -593,6 +612,9 @@ func _refresh() -> void:
 		hand_btns[i].text = _gem_text(c) if c != "" else ""
 		hand_btns[i].disabled = c == "" or busy
 		_style(hand_btns[i], c, i == selected)
+	for i in tile_tabs.size():
+		var lit := not hidden and (i == v_flag or i == v_flag2)
+		tile_tabs[i].add_theme_stylebox_override("panel", _tab_style(lit))
 	flag.position = Vector2(tile_btns[v_flag].position.x, ROW_Y - 100.0)
 	flag.visible = not hidden
 	flag2.visible = v_flag2 >= 0 and not hidden
