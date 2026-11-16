@@ -10,8 +10,7 @@ const HAND_SIZE := 3
 const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
-const ORANGE_DMG := 3        # orange Gem: an attack Gem (counts as red for artifacts) with a crit chance
-const ORANGE_CRIT := 0.3
+const LAST_TILE := 7         # orange Gem: no damage of its own; the next tile (tile + 1) crits. On the last tile it does nothing.
 const CRIT_MULT := 2.0
 const ATTACK := ["red", "orange"]
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, crit 10, shield 15
@@ -87,6 +86,7 @@ var _route: Array[int] = []      # tiles in walking order (set_route may rewrite
 var _ridx: int = 0               # index of the fireball in _route
 var _flag_moves: int = 0
 var _red_pops: int = 0
+var _crit_next: Dictionary = {}   # tile -> true: the next pop of that tile is a crit (set by an orange Gem before it)
 
 
 # --- setup / hand --------------------------------------------------------------
@@ -277,6 +277,7 @@ func _reset_walk() -> void:
 	_ridx = 0
 	_flag_moves = 0
 	_red_pops = 0
+	_crit_next = {}
 
 
 static func default_route() -> Array[int]:
@@ -431,9 +432,9 @@ func _do_pop(tile: int, cause: String) -> void:
 	_pops += 1
 	var g: Dictionary = board[tile]
 	var red: bool = g.color in ATTACK
-	var gem_dmg: int = ORANGE_DMG if g.color == "orange" else RED_DMG
-	var base: int = (gem_dmg + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK
-	if red:
+	var support: bool = g.color == "orange"   # crit Gem: buffs the next tile, no effect of its own
+	var base: int = 0 if support else ((RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK)
+	if red and not support:
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
 			base = 0   # the boss's armour eats the first red pops of the walk
@@ -443,16 +444,26 @@ func _do_pop(tile: int, cause: String) -> void:
 	if ev.is_empty():
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
-	if base == 0 and red:
+	var crit: bool = _crit_next.has(tile)
+	_crit_next.erase(tile)
+	if support:
+		if tile < LAST_TILE:
+			_crit_next[tile + 1] = true
+			ev["buff"] = tile + 1
+	elif base == 0 and red:
 		ev["nullified"] = true
 	elif red or ev.get("convert", "") == "damage":
 		var dmg := float(base)
-		if g.color == "orange" and rng.randf() < ORANGE_CRIT:
+		if crit:
 			dmg *= CRIT_MULT
 			ev["crit"] = true
 		_hit("enemy", dmg, "base", "pop")
 	else:
-		_shield(base, "base")
+		var blk := base
+		if crit:
+			blk = roundi(base * CRIT_MULT)
+			ev["crit"] = true
+		_shield(blk, "base")
 	_fire(ev)
 
 
