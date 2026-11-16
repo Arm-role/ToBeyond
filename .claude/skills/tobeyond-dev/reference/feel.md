@@ -8,7 +8,7 @@ The user's eye is the reference: change one thing, show the preview or a `record
 | Fireball step | `min(0.20, 2.2 / steps)`, speeding up to 0.35× by the last step (whole walk ≤ 2.2 s, pauses not counted) | `_play_walk`, `MAX_WALK_TIME` |
 | Bounce re-entry (same tile again) | 0.08 s wait | `_play_walk` (`pass`) |
 | Hold after a strike (`shield_break`) | 0.3 s | `_play_walk` |
-| Hold after each hit (fireball waits for the attack) | 0.25 s | `_play_walk`, `HIT_HOLD` |
+| Hold after each hit (fireball waits for the attack) | 0.4 s | `_play_walk`, `HIT_HOLD` |
 | After the last event | 0.35 s, win message 1.1 s | `_play_walk`, `_win` |
 | Character reaction | 0.05 s out, 0.10 s back, always to/from the fixed home | `_react` |
 | Laser | grows 0.08 s, holds 0.03 s, fades 0.10 s | `_laser` |
@@ -43,5 +43,5 @@ Slots are portrait cards (150×215) centred in the preview between hero and enem
 ## Gems
 red ⚔4, blue 🛡3, orange ⚡ = no effect of its own: the NEXT tile (tile + 1) pops with ×2 (attack or shield, `ev.crit`, `ev.buff` = buffed tile, view floats "คริ! ×2"); on tile 7 it does nothing. `Sim.ATTACK` = [red, orange]: artifact conditions on "red" also match orange. Hand deal: red 45%, orange 15%, blue 40%.
 
-## Charge volley (v0.1.59)
-`_charge_volley(from, to, count, fill, rim)`: `count` balls (= hit amount, max 12) pop in a ring one by one (`min(0.14, 0.9/n)` s each, `sfx.step(i)`), pulse 0.28 s, then all fly 0.26 s to the target. Used for the hero's base attack (red) and for every enemy hit on the hero (violet).
+## Charge volley (v0.1.62)
+`_charge_volley(from, to, count, fill, rim)`: `count` balls (= hit amount, max 12) pop in a ring, gaps `min(0.12, 0.8/n)` shrinking to half (the charge builds), 0.10 s after the last; 0.16 s hold (one pulse, ring coils to 0.8×); all fly 0.22 s (cubic ease-in, spread ≤ 0.08 s) to the hero; then laser + hit sfx + shake 6. Player attack = red balls from the tile to the hero; enemy hit = violet balls from the enemy to the hero. Per hit ≈ 0.5–1.1 s plus `HIT_HOLD`. Pitfall: a pulse longer than the hold keeps pulsing in flight; kill the pop tween before the pulse.

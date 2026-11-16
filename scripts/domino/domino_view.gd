@@ -828,9 +828,10 @@ func _laser(a: Vector2, b: Vector2, col: Color, w: float = 15.0) -> void:
 ## source, pulsing and gathering, hold a beat, then all fly at the target together.
 func _charge_volley(from: Vector2, to: Vector2, count: int, fill: Color, rim: Color) -> void:
 	var n := clampi(count, 1, 12)
-	var gap := minf(0.14, 0.9 / n)   # beat between balls appearing
+	var g0 := minf(0.12, 0.8 / n)   # first beat between balls; the gaps shrink to half, so the charge builds up
 	var radius := 34.0 + 3.0 * n
 	var balls: Array = []
+	var pops: Array = []
 	for i in n:
 		var ball := Panel.new()
 		var sb := StyleBoxFlat.new()
@@ -848,18 +849,23 @@ func _charge_volley(from: Vector2, to: Vector2, count: int, fill: Color, rim: Co
 		add_child(ball)
 		balls.append(ball)
 		var tw := create_tween()
-		tw.tween_property(ball, "scale", Vector2(1.5, 1.5), 0.08)
-		tw.tween_property(ball, "scale", Vector2.ONE, 0.08)
+		tw.tween_property(ball, "scale", Vector2(1.5, 1.5), 0.06)
+		tw.tween_property(ball, "scale", Vector2.ONE, 0.06)
+		pops.append(tw)
 		if sfx != null:
 			sfx.step(i)
-		await get_tree().create_timer(gap).timeout
-	# hold: the ring pulses so the player sees the attack is loaded
-	for ball in balls:
-		var pt := create_tween().set_loops(2)
-		pt.tween_property(ball, "scale", Vector2(1.25, 1.25), 0.07)
-		pt.tween_property(ball, "scale", Vector2.ONE, 0.07)
-	await get_tree().create_timer(0.28).timeout
-	# release: everything goes at once
+		var gap := g0 * lerpf(1.0, 0.5, float(i) / maxf(1.0, n - 1.0))
+		await get_tree().create_timer(gap if i < n - 1 else 0.10).timeout
+	# hold: one pulse and the ring coils in, then release
+	for i in n:
+		pops[i].kill()
+		var ball: Panel = balls[i]
+		var ang := TAU * i / n - PI * 0.5
+		var pt := create_tween().set_parallel(true)
+		pt.tween_property(ball, "scale", Vector2(1.3, 1.3), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		pt.tween_property(ball, "position", from + Vector2(cos(ang), sin(ang)) * radius * 0.8 - Vector2(13, 13), 0.16)
+		pt.chain().tween_property(ball, "scale", Vector2.ONE, 0.06)
+	await get_tree().create_timer(0.16).timeout
 	if sfx != null:
 		sfx.play("whoosh", 1.0, -8.0)
 	var last: Tween = null
@@ -867,8 +873,8 @@ func _charge_volley(from: Vector2, to: Vector2, count: int, fill: Color, rim: Co
 		var ball: Panel = balls[i]
 		var spread := Vector2(0, (i - (n - 1) * 0.5) * 5.0)
 		var tw := create_tween()
-		tw.tween_interval(0.02 * i)
-		tw.tween_property(ball, "position", to - Vector2(13, 13) + spread, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_interval(minf(0.015, 0.08 / n) * i)
+		tw.tween_property(ball, "position", to - Vector2(13, 13) + spread, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		tw.tween_callback(ball.queue_free)
 		last = tw
 	await last.finished
@@ -1049,6 +1055,8 @@ func _play_walk(evs: Array) -> void:
 							var tb: Control = tile_btns[ev.tile]
 							await _charge_volley(tb.position + tb.size * 0.5, _hero_c(), roundi(ev.amount), Color("#ff3b3b"), Color("#ffc2a8"))   # gather one ball per attack point, fly to the hero, then the beam fires at the enemy
 						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
+						sfx.play("hit")
+						_shake(6.0)
 						_react(hero, HERO_HOME, 18.0, Color.WHITE)
 						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
 						_float_text("-%d" % roundi(ev.amount), ENEMY_HOME + Vector2(60, 0), COL["red"])
