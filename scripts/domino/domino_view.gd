@@ -824,32 +824,53 @@ func _laser(a: Vector2, b: Vector2, col: Color, w: float = 15.0) -> void:
 	tw.tween_callback(l.queue_free)
 
 
-## Charge: four small red fireballs float from the placed attack tile to the hero; the hero's beam follows.
-func _charge_volley(tile: int) -> void:
-	var tb: Control = tile_btns[tile]
-	var from := tb.position + tb.size * 0.5
-	var to := _hero_c()
-	var last: Tween = null
-	for i in 4:
+## Charge: `count` small fireballs (= attack power) appear one by one in a ring around the
+## source, pulsing and gathering, hold a beat, then all fly at the target together.
+func _charge_volley(from: Vector2, to: Vector2, count: int, fill: Color, rim: Color) -> void:
+	var n := clampi(count, 1, 12)
+	var gap := minf(0.14, 0.9 / n)   # beat between balls appearing
+	var radius := 34.0 + 3.0 * n
+	var balls: Array = []
+	for i in n:
 		var ball := Panel.new()
 		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color("#ff3b3b")
+		sb.bg_color = fill
 		sb.set_corner_radius_all(13)
-		sb.border_color = Color("#ffc2a8")
+		sb.border_color = rim
 		sb.set_border_width_all(4)
 		ball.add_theme_stylebox_override("panel", sb)
 		ball.size = Vector2(26, 26)
 		ball.pivot_offset = Vector2(13, 13)
-		ball.position = from + Vector2(0, (i - 1.5) * 26.0) - Vector2(13, 13)
+		var ang := TAU * i / n - PI * 0.5
+		ball.position = from + Vector2(cos(ang), sin(ang)) * radius - Vector2(13, 13)
+		ball.scale = Vector2.ZERO
 		ball.z_index = 25
 		add_child(ball)
+		balls.append(ball)
 		var tw := create_tween()
-		tw.tween_interval(0.04 * i)
-		tw.tween_property(ball, "position", to - Vector2(13, 13) + Vector2(0, (i - 1.5) * 6.0), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		tw.tween_callback(ball.queue_free)
-		last = tw
+		tw.tween_property(ball, "scale", Vector2(1.5, 1.5), 0.08)
+		tw.tween_property(ball, "scale", Vector2.ONE, 0.08)
+		if sfx != null:
+			sfx.step(i)
+		await get_tree().create_timer(gap).timeout
+	# hold: the ring pulses so the player sees the attack is loaded
+	for ball in balls:
+		var pt := create_tween().set_loops(2)
+		pt.tween_property(ball, "scale", Vector2(1.25, 1.25), 0.07)
+		pt.tween_property(ball, "scale", Vector2.ONE, 0.07)
+	await get_tree().create_timer(0.28).timeout
+	# release: everything goes at once
 	if sfx != null:
 		sfx.play("whoosh", 1.0, -8.0)
+	var last: Tween = null
+	for i in n:
+		var ball: Panel = balls[i]
+		var spread := Vector2(0, (i - (n - 1) * 0.5) * 5.0)
+		var tw := create_tween()
+		tw.tween_interval(0.02 * i)
+		tw.tween_property(ball, "position", to - Vector2(13, 13) + spread, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(ball.queue_free)
+		last = tw
 	await last.finished
 
 
@@ -1022,13 +1043,16 @@ func _play_walk(evs: Array) -> void:
 						_tally_add(ev.src, roundi(ev.amount))
 					else:
 						if ev.src == "base":
-							await _charge_volley(ev.tile)   # the attack tile charges the hero, then the beam
+							var tb: Control = tile_btns[ev.tile]
+							await _charge_volley(tb.position + tb.size * 0.5, _enemy_c(), roundi(ev.amount), Color("#ff3b3b"), Color("#ffc2a8"))   # gather one ball per attack point, then fly at the enemy
 						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
 						_react(hero, HERO_HOME, 18.0, Color.WHITE)
 						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
 						_float_text("-%d" % roundi(ev.amount), ENEMY_HOME + Vector2(60, 0), COL["red"])
 						_tally_add(ev.src, roundi(ev.amount))
 				else:
+					if roundi(ev.amount) > 0:
+						await _charge_volley(_enemy_c(), _hero_c(), roundi(ev.amount), Color("#a24dff"), Color("#e0c2ff"))   # enemy gathers one ball per attack point, then fires
 					v_hp = ev.hp_after
 					sfx.play("hurt")
 					_shake(14.0)

@@ -42,3 +42,6 @@ Slots are portrait cards (150×215) centred in the preview between hero and enem
 
 ## Gems
 red ⚔4, blue 🛡3, orange ⚔3 + 30% crit (×2, `ev.crit`, view floats "คริ! ×2"). `Sim.ATTACK` = [red, orange]: artifact conditions on "red" also match orange. Hand deal: red 45%, orange 15%, blue 40%.
+
+## Charge volley (v0.1.59)
+`_charge_volley(from, to, count, fill, rim)`: `count` balls (= hit amount, max 12) pop in a ring one by one (`min(0.14, 0.9/n)` s each, `sfx.step(i)`), pulse 0.28 s, then all fly 0.26 s to the target. Used for the hero's base attack (red) and for every enemy hit on the hero (violet).
