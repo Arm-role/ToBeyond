@@ -1047,7 +1047,7 @@ func _play_walk(evs: Array) -> void:
 					else:
 						if ev.src == "base":
 							var tb: Control = tile_btns[ev.tile]
-							await _charge_volley(tb.position + tb.size * 0.5, _enemy_c(), roundi(ev.amount), Color("#ff3b3b"), Color("#ffc2a8"))   # gather one ball per attack point, then fly at the enemy
+							await _charge_volley(tb.position + tb.size * 0.5, _hero_c(), roundi(ev.amount), Color("#ff3b3b"), Color("#ffc2a8"))   # gather one ball per attack point, fly to the hero, then the beam fires at the enemy
 						_laser(_hero_c(), _enemy_c(), Color.WHITE, 12.0)
 						_react(hero, HERO_HOME, 18.0, Color.WHITE)
 						_react(enemy, ENEMY_HOME, 14.0, Color("#ff9a9a"))
