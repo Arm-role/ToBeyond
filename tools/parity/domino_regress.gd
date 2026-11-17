@@ -8,6 +8,7 @@ const Sim := preload("res://scripts/domino/domino_sim.gd")
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const RuleRes := preload("res://scripts/domino/domino_rule.gd")
 const ArtRes := preload("res://scripts/domino/domino_artifact.gd")
+const Chaos := preload("res://scripts/domino/domino_chaos.gd")
 
 # tile -> colour; flag tile; strike damage; hero hp
 const BOARDS := {
@@ -209,6 +210,25 @@ func _phase5() -> void:
 	for s in range(1, 10):
 		bs.start_fight(s)
 		print("stage %d boss %s enemy %d strike %s" % [s, bs.boss.id if bs.boss != null else "-", bs.enemy_max, str(snappedf(bs.strike_dmg, 0.001))])
+	# Chaos cards on the run deck: convert / destroy (floor of MIN_DECK) / clone, price paid, bad picks refused
+	var cs = Sim.new()
+	cs.rng.seed = 9
+	cs.gold = 20
+	var by := {}
+	for c in Chaos.CARDS:
+		by[c.id] = c
+	print("chaos deck %s total %d" % [str(cs.run_deck), Chaos.deck_total(cs)])
+	print("chaos to_red 2 orange: %s gold %d deck %s" % [Chaos.buy(cs, by.to_red, ["orange", "orange"]), cs.gold, str(cs.run_deck)])
+	print("chaos to_red on red refused: %s gold %d" % [Chaos.buy(cs, by.to_red, ["red"]), cs.gold])
+	print("chaos too many picks refused: %s" % Chaos.buy(cs, by.clone, ["red", "red"]))
+	print("chaos clone blue: %s gold %d deck %s" % [Chaos.buy(cs, by.clone, ["blue"]), cs.gold, str(cs.run_deck)])
+	print("chaos destroy 2 red: %s gold %d deck %s" % [Chaos.buy(cs, by.destroy, ["red", "red"]), cs.gold, str(cs.run_deck)])
+	cs.run_deck = {"red": 8, "orange": 4, "blue": 3}
+	print("chaos destroy below min refused: %s total %d" % [Chaos.buy(cs, by.destroy, ["red"]), Chaos.deck_total(cs)])
+	cs.gold = 1
+	print("chaos too poor refused: %s" % Chaos.buy(cs, by.clone, ["red"]))
+	cs.build_deck()
+	print("chaos built deck size %d" % cs.deck.size())
 	# stage plan (own rng) and elite scaling
 	var ds = Sim.new()
 	ds.map_rng.seed = 5

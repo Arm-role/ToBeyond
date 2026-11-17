@@ -9,6 +9,7 @@ const Sim := preload("res://scripts/domino/domino_sim.gd")
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const Reward := preload("res://scripts/domino/domino_reward.gd")
 const Shop := preload("res://scripts/domino/domino_shop.gd")
+const Chaos := preload("res://scripts/domino/domino_chaos.gd")
 const SLOTS := 5
 const MAX_STAGE := 10
 const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกัน", "ember": "ถ่าน", "blaze": "เปลวไฟ"}
@@ -120,6 +121,11 @@ func _ready() -> void:
 	sim.start_fight(1)
 	_sync()
 	_new_turn()
+	if OS.has_feature("web") and "shop=1" in str(JavaScriptBridge.eval("location.search", true)):
+		sim.gold = 30   # debug: ?shop=1 opens the shop at once with 30 coins
+		v_gold = 30
+		_refresh()
+		await _shop()
 	if "--domino-smoke" in OS.get_cmdline_user_args():
 		# Headless check (build.sh --check): catalog loads, a walk with every artifact runs.
 		var t := Sim.new()
@@ -672,10 +678,7 @@ func _on_hand(i: int) -> void:
 
 
 func _deck_total() -> int:
-	var n := 0
-	for c in Sim.DECK_COUNTS:
-		n += int(Sim.DECK_COUNTS[c])
-	return n
+	return Chaos.deck_total(sim)
 
 
 ## Deck viewer: every card of the fight's deck by type; cards still in the draw pile are bright, drawn ones faded.
@@ -702,7 +705,8 @@ func _open_deck() -> void:
 	var names := {"red": "⚔ โจมตี", "orange": "🪙 เหรียญ", "blue": "🛡 โล่"}
 	var y := 290.0
 	for c in ["red", "orange", "blue"]:
-		var total := int(Sim.DECK_COUNTS[c])
+		var total := int(sim.run_deck.get(c, 0))
+		var step := minf(76.0, 1500.0 / maxf(float(total), 1.0))
 		var rem := int(left.get(c, 0))
 		var lbl := Label.new()
 		lbl.text = "%s   เหลือ %d / %d" % [names[c], rem, total]
@@ -718,8 +722,8 @@ func _open_deck() -> void:
 			sb.set_border_width_all(2)
 			sb.border_color = Color(1, 1, 1, 0.5)
 			t.add_theme_stylebox_override("panel", sb)
-			t.position = Vector2(200 + i * 76, y + 60)
-			t.size = Vector2(66, 90)
+			t.position = Vector2(200 + i * step, y + 60)
+			t.size = Vector2(step * 0.87, 90)
 			t.modulate.a = 1.0 if i < rem else 0.2
 			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			deck_ui.add_child(t)
@@ -1403,6 +1407,7 @@ func _shop() -> void:
 	add_child(reward_ui)
 	var rerolls := 0
 	var stock: Array = Shop.stock(sim)
+	var chaos_stock: Array = Chaos.stock(sim)
 	var done := false
 	while not done:
 		_apply_slots()
@@ -1417,7 +1422,7 @@ func _shop() -> void:
 			var can := sim.gold >= cost and free >= 0
 			var label := "%s\n%s\n(%s · %s)\n\n%s\n\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th,
 				("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน"]
-			var b := _rw_button(label, Vector2(x0 + i * 450.0, 140), Vector2(420, 470), 30)
+			var b := _rw_button(label, Vector2(x0 + i * 450.0, 130), Vector2(420, 350), 26)
 			b.disabled = not can
 			b.pressed.connect(func():
 				sim.gold -= cost
@@ -1425,8 +1430,23 @@ func _shop() -> void:
 				stock[i] = null
 				sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false))
+		# Chaos row: tarot-like cards, bought and used at once on the deck
+		var cx0 := (1920.0 - (chaos_stock.size() * 560.0 + (chaos_stock.size() - 1) * 30.0)) * 0.5
+		for i in chaos_stock.size():
+			var cc = chaos_stock[i]
+			if cc == null:
+				continue   # already used
+			var ccost := int(cc.price)
+			var cb := _rw_button("%s %s   %d 🪙\n%s" % [cc.icon, cc.name, ccost, cc.text], Vector2(cx0 + i * 590.0, 495), Vector2(560, 105), 24)
+			cb.disabled = sim.gold < ccost
+			cb.pressed.connect(func():
+				var picks: Array = await _chaos_pick(cc)
+				if not picks.is_empty() and Chaos.buy(sim, cc, picks):
+					chaos_stock[i] = null
+					sfx.play("place", 1.3, -8.0)
+				_shop_step.emit(false))
 		var rc := Shop.reroll_cost(rerolls)
-		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 640), Vector2(300, 90), 34)
+		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 620), Vector2(300, 90), 34)
 		rb.disabled = sim.gold < rc
 		rb.pressed.connect(func():
 			sim.gold -= rc
@@ -1434,7 +1454,7 @@ func _shop() -> void:
 			stock = Shop.stock(sim)
 			_shop_step.emit(false))
 		var hc := Shop.hp_up_cost(sim)
-		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(480, 640), Vector2(380, 90), 28)
+		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(480, 620), Vector2(380, 90), 28)
 		hpb.disabled = sim.gold < hc
 		hpb.pressed.connect(func():
 			Shop.buy_hp(sim)
@@ -1443,7 +1463,7 @@ func _shop() -> void:
 			_shop_step.emit(false))
 		var hdc := Shop.hand_up_cost(sim)
 		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
-		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(880, 640), Vector2(380, 90), 28)
+		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(880, 620), Vector2(380, 90), 28)
 		hdb.disabled = maxed or sim.gold < hdc
 		hdb.pressed.connect(func():
 			Shop.buy_hand(sim)
@@ -1451,7 +1471,7 @@ func _shop() -> void:
 			_shop_step.emit(false))
 		var dsc := Shop.discard_up_cost(sim)
 		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
-		var dsb := _rw_button(("🗑 ทิ้ง +1 ต่อรอบ   %d 🪙\n(ตอนนี้ %d)" % [dsc, sim.discard_per_turn]) if not dmaxed else "🗑 ทิ้งเต็มแล้ว (%d)" % sim.discard_per_turn, Vector2(1280, 640), Vector2(380, 90), 28)
+		var dsb := _rw_button(("🗑 ทิ้ง +1 ต่อรอบ   %d 🪙\n(ตอนนี้ %d)" % [dsc, sim.discard_per_turn]) if not dmaxed else "🗑 ทิ้งเต็มแล้ว (%d)" % sim.discard_per_turn, Vector2(1280, 620), Vector2(380, 90), 28)
 		dsb.disabled = dmaxed or sim.gold < dsc
 		dsb.pressed.connect(func():
 			Shop.buy_discard(sim)
@@ -1460,14 +1480,14 @@ func _shop() -> void:
 		for i in SLOTS:
 			var o = slot_arr[i]
 			var sb := _rw_button(("ขาย %s %s +%d 🪙" % [o.icon, o.name_th, Shop.sell_value(o)]) if o != null else "ช่อง %d ว่าง" % (i + 1),
-				Vector2(160 + i * 320.0, 760), Vector2(300, 110), 26)
+				Vector2(160 + i * 320.0, 730), Vector2(300, 100), 26)
 			sb.disabled = o == null
 			sb.pressed.connect(func():
 				sim.gold += Shop.sell_value(o)
 				slot_arr[i] = null
 				sfx.play("place", 1.0, -8.0)
 				_shop_step.emit(false))
-		var go := _rw_button("ไปต่อ ▶", Vector2(810, 920), Vector2(300, 100), 40)
+		var go := _rw_button("ไปต่อ ▶", Vector2(810, 900), Vector2(300, 100), 40)
 		go.pressed.connect(func(): _shop_step.emit(true))
 		done = await _shop_step
 	reward_ui.queue_free()
@@ -1475,6 +1495,52 @@ func _shop() -> void:
 	_apply_slots()
 	_refresh_slots()
 	v_gold = sim.gold
+
+
+## Chaos picker: choose which Gems of the run deck the card works on (one tap = one Gem).
+## Returns the chosen colours, or [] when cancelled.
+signal _chaos_step(act: String)
+
+func _chaos_pick(card: Dictionary) -> Array:
+	var picks: Array = []
+	var names := {"red": "⚔ แดง", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน"}
+	var result: Array = []
+	while true:
+		_rw_clear("%s %s" % [card.icon, card.name])
+		var info := Label.new()
+		var chosen := "  ".join(picks.map(func(c): return names[c]))
+		info.text = "%s\n\nเลือกแล้ว %d / %d :  %s\nสำรับตอนนี้ %d ใบ" % [card.text, picks.size(), int(card.picks), chosen, Chaos.deck_total(sim)]
+		info.add_theme_font_size_override("font_size", 36)
+		info.position = Vector2(0, 170)
+		info.size = Vector2(1920, 300)
+		info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		reward_ui.add_child(info)
+		for ci in Chaos.COLORS.size():
+			var c: String = Chaos.COLORS[ci]
+			var used := picks.count(c)
+			var left := int(sim.run_deck.get(c, 0)) - used
+			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(430 + ci * 350.0, 500), Vector2(320, 200), 38)
+			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to)
+			b.pressed.connect(func(): _chaos_step.emit("pick:" + c))
+		var ok_b := _rw_button("ใช้การ์ด %d 🪙" % int(card.price), Vector2(560, 800), Vector2(380, 100), 40)
+		ok_b.disabled = not Chaos.valid(sim, card, picks)
+		ok_b.pressed.connect(func(): _chaos_step.emit("ok"))
+		var clr := _rw_button("ล้างที่เลือก", Vector2(960, 800), Vector2(220, 100), 32)
+		clr.disabled = picks.is_empty()
+		clr.pressed.connect(func(): _chaos_step.emit("clear"))
+		var cancel := _rw_button("ยกเลิก", Vector2(1200, 800), Vector2(200, 100), 32)
+		cancel.pressed.connect(func(): _chaos_step.emit("cancel"))
+		var act: String = await _chaos_step
+		if act.begins_with("pick:"):
+			picks.append(act.substr(5))
+		elif act == "clear":
+			picks.clear()
+		elif act == "ok":
+			result = picks
+			break
+		else:
+			break
+	return result
 
 
 signal _shop_step(leave: bool)

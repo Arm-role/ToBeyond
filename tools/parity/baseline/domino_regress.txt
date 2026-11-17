@@ -5891,6 +5891,15 @@ stage 6 boss twin_flag enemy 78 strike 16.091
 stage 7 boss - enemy 70 strike 18.504
 stage 8 boss - enemy 88 strike 21.28
 stage 9 boss drifter enemy 154 strike 22.025
+chaos deck { "red": 20, "orange": 10, "blue": 15 } total 45
+chaos to_red 2 orange: true gold 17 deck { "red": 22, "orange": 8, "blue": 15 }
+chaos to_red on red refused: false gold 17
+chaos too many picks refused: false
+chaos clone blue: true gold 13 deck { "red": 22, "orange": 8, "blue": 16 }
+chaos destroy 2 red: true gold 10 deck { "red": 20, "orange": 8, "blue": 16 }
+chaos destroy below min refused: false total 15
+chaos too poor refused: false
+chaos built deck size 15
 plan 1: fight - hp 18 dmg 8.0
 plan 2: fight - hp 23 dmg 9.2
 plan 3: boss drifter hp 41 dmg 9.522

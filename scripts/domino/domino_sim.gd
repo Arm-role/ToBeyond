@@ -65,7 +65,8 @@ var _plan: Dictionary = {}       # stage -> {"kind", "boss"}: the enemy line-up,
 var kind: String = "fight"       # "fight" | "elite" | "boss": the current fight
 var map_rng := RandomNumberGenerator.new()   # the stage plan only; never sim.rng, so fights and decks stay unchanged
 var stats: Dictionary = {}       # add_stat values, one walk long
-var deck: Array = []             # limited draw pile of Gem colours (DECK_COUNTS per fight)
+var run_deck: Dictionary = DECK_COUNTS.duplicate()   # Gems per colour in this run's deck; Chaos cards change it for good
+var deck: Array = []             # limited draw pile of Gem colours (run_deck per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
 var discards_left: int = DISCARDS_PER_TURN   # reset to discard_per_turn each hand
 var _deck_ready: bool = false
@@ -133,8 +134,8 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 func build_deck() -> void:
 	deck.clear()
 	discard_pile.clear()
-	for c in DECK_COUNTS:
-		for i in int(DECK_COUNTS[c]):
+	for c in run_deck:
+		for i in int(run_deck[c]):
 			deck.append(c)
 	_shuffle(deck)
 	_deck_ready = true
