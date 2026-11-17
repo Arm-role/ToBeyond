@@ -15,6 +15,7 @@ const CRIT_MULT := 2.0
 const ATTACK := ["red", "orange"]
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, crit 10, shield 15
 const DISCARDS_PER_TURN := 1
+const MAX_DISCARDS := 4   # shop upgrades raise the discards per turn up to this
 const BASE_ENEMY_HP := 18
 const BASE_STRIKE := 8.0
 const WIN_HEAL := 1.0   # full heal when the next fight starts
@@ -44,6 +45,8 @@ var hand_size: int = HAND_SIZE   # shop upgrades raise it (max MAX_HAND)
 var hp_ups: int = 0
 var _fire_order: int = 0   # nth artifact rule fired in this walk (the view shows it on the card)
 var hand_ups: int = 0
+var discard_per_turn: int = DISCARDS_PER_TURN
+var discard_ups: int = 0
 var stage: int = 1
 var enemy_hp: int = 0
 var enemy_max: int = BASE_ENEMY_HP
@@ -65,7 +68,7 @@ var map_rng := RandomNumberGenerator.new()   # the stage plan only; never sim.rn
 var stats: Dictionary = {}       # add_stat values, one walk long
 var deck: Array = []             # limited draw pile of Gem colours (DECK_COUNTS per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
-var discards_left: int = DISCARDS_PER_TURN
+var discards_left: int = DISCARDS_PER_TURN   # reset to discard_per_turn each hand
 var _deck_ready: bool = false
 
 var _depth: int = 0
@@ -175,7 +178,7 @@ func deal_hand(leftover: Array = []) -> Array[String]:
 	for c in leftover:
 		if c != "":
 			discard_pile.append(c)
-	discards_left = DISCARDS_PER_TURN
+	discards_left = discard_per_turn
 	var h: Array[String] = []
 	for i in hand_size:
 		var c := _draw()

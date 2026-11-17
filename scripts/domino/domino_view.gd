@@ -15,6 +15,7 @@ const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกั
 const RARITY_TH := {"common": "สามัญ", "uncommon": "พบน้อย", "rare": "หายาก"}
 const N := Sim.N
 const MAX_HAND := Sim.MAX_HAND
+const HAND_D := 190.0   # diamond hand card: side of the square it fits in
 const TILE := 160.0
 const GAP := 12.0
 const TAB_H := 56.0        # height of the flag tab above each tile
@@ -293,21 +294,33 @@ func _build() -> void:
 	add_child(fire)
 	for i in MAX_HAND:
 		var h := Button.new()
-		h.position = Vector2(300 + i * 210, 850)
-		h.size = Vector2(190, 170)
-		h.add_theme_font_size_override("font_size", 46)
+		h.position = Vector2(300 + i * 210, 840)
+		h.size = Vector2(HAND_D, HAND_D)
+		h.add_theme_font_size_override("font_size", 40)
+		var dia := Polygon2D.new()   # the card is a diamond (a square turned 45°) drawn behind the button's text
+		dia.polygon = PackedVector2Array([Vector2(HAND_D * 0.5, 0), Vector2(HAND_D, HAND_D * 0.5), Vector2(HAND_D * 0.5, HAND_D), Vector2(0, HAND_D * 0.5)])
+		dia.show_behind_parent = true
+		h.add_child(dia)
+		var rim := Line2D.new()
+		rim.points = dia.polygon
+		rim.closed = true
+		rim.show_behind_parent = true
+		rim.width = 4.0
+		h.add_child(rim)
+		h.set_meta("dia", dia)
+		h.set_meta("rim", rim)
 		h.pressed.connect(_on_hand.bind(i))
 		add_child(h)
 		hand_btns.append(h)
 	go_btn = Button.new()
 	go_btn.text = "เดิน ▶"
 	# Bottom row: pile tools on the left (info + hand action), the primary action big on the right.
-	go_btn.position = Vector2(1400, 915)
-	go_btn.size = Vector2(420, 110)
-	go_btn.add_theme_font_size_override("font_size", 48)
+	go_btn.position = Vector2(1520, 940)
+	go_btn.size = Vector2(300, 80)
+	go_btn.add_theme_font_size_override("font_size", 38)
 	var gsb := StyleBoxFlat.new()
 	gsb.bg_color = Color("#2e9e5b")
-	gsb.set_corner_radius_all(24)
+	gsb.set_corner_radius_all(20)
 	var gsd := gsb.duplicate()
 	gsd.bg_color = Color("#2a3a30")
 	go_btn.add_theme_stylebox_override("normal", gsb)
@@ -323,9 +336,9 @@ func _build() -> void:
 	deck_btn.pressed.connect(_open_deck)
 	add_child(deck_btn)
 	discard_btn = Button.new()
-	discard_btn.position = Vector2(1400, 790)   # same size and weight as the go button: the two turn actions
-	discard_btn.size = Vector2(420, 110)
-	discard_btn.add_theme_font_size_override("font_size", 48)
+	discard_btn.position = Vector2(1520, 840)   # same size and weight as the go button: the two turn actions
+	discard_btn.size = Vector2(300, 80)
+	discard_btn.add_theme_font_size_override("font_size", 38)
 	var dsb := gsb.duplicate()
 	dsb.bg_color = Color("#c9822b")
 	var dsd := gsb.duplicate()
@@ -572,6 +585,25 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 	tile_kept[i].visible = kept
 
 
+func _hand_text(c: String) -> String:
+	if c == "orange":
+		return "⚡ คริ"
+	return "⚔ %d" % Sim.RED_DMG if c == "red" else ("🛡 %d" % Sim.BLUE_BLOCK if c == "blue" else "")
+
+
+## Hand card look: flat transparent button, the colour lives in the diamond polygon behind it.
+func _style_diamond(b: Button, c: String, picked: bool) -> void:
+	var e := StyleBoxEmpty.new()
+	for s in ["normal", "hover", "pressed", "disabled", "focus"]:
+		b.add_theme_stylebox_override(s, e)
+	var dia: Polygon2D = b.get_meta("dia")
+	var rim: Line2D = b.get_meta("rim")
+	dia.color = COL[c] if c != "" else Color("#2a2438")
+	rim.default_color = Color("#ffd966") if picked else Color(1, 1, 1, 0.3)
+	rim.width = 8.0 if picked else 3.0
+	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.5))
+
+
 func _style(b: Button, c: String, picked: bool = false) -> void:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = COL[c] if c != "" else Color("#2a2438")
@@ -612,9 +644,9 @@ func _refresh() -> void:
 			continue
 		hand_btns[i].position.x = hx + i * 210.0
 		var c: String = hand[i]
-		hand_btns[i].text = _gem_text(c) if c != "" else ""
+		hand_btns[i].text = _hand_text(c)
 		hand_btns[i].disabled = c == "" or busy
-		_style(hand_btns[i], c, i == selected)
+		_style_diamond(hand_btns[i], c, i == selected)
 	for i in tile_tabs.size():
 		var lit := not hidden and (i == v_flag or i == v_flag2)
 		tile_tabs[i].add_theme_stylebox_override("panel", _tab_style(lit))
@@ -1397,7 +1429,7 @@ func _shop() -> void:
 				sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false))
 		var rc := Shop.reroll_cost(rerolls)
-		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 640), Vector2(380, 90), 34)
+		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 640), Vector2(300, 90), 34)
 		rb.disabled = sim.gold < rc
 		rb.pressed.connect(func():
 			sim.gold -= rc
@@ -1405,7 +1437,7 @@ func _shop() -> void:
 			stock = Shop.stock(sim)
 			_shop_step.emit(false))
 		var hc := Shop.hp_up_cost(sim)
-		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(580, 640), Vector2(400, 90), 28)
+		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(480, 640), Vector2(380, 90), 28)
 		hpb.disabled = sim.gold < hc
 		hpb.pressed.connect(func():
 			Shop.buy_hp(sim)
@@ -1414,10 +1446,18 @@ func _shop() -> void:
 			_shop_step.emit(false))
 		var hdc := Shop.hand_up_cost(sim)
 		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
-		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(1010, 640), Vector2(400, 90), 28)
+		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(880, 640), Vector2(380, 90), 28)
 		hdb.disabled = maxed or sim.gold < hdc
 		hdb.pressed.connect(func():
 			Shop.buy_hand(sim)
+			sfx.play("place", 1.3, -8.0)
+			_shop_step.emit(false))
+		var dsc := Shop.discard_up_cost(sim)
+		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
+		var dsb := _rw_button(("🗑 ทิ้ง +1 ต่อรอบ   %d 🪙\n(ตอนนี้ %d)" % [dsc, sim.discard_per_turn]) if not dmaxed else "🗑 ทิ้งเต็มแล้ว (%d)" % sim.discard_per_turn, Vector2(1280, 640), Vector2(380, 90), 28)
+		dsb.disabled = dmaxed or sim.gold < dsc
+		dsb.pressed.connect(func():
+			Shop.buy_discard(sim)
 			sfx.play("place", 1.3, -8.0)
 			_shop_step.emit(false))
 		for i in SLOTS:

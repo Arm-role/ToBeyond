@@ -41,6 +41,8 @@ const HP_UP_BASE := 4
 const HP_UP_STEP := 2
 const HAND_UP_BASE := 8   # +1 hand tile, up to Sim.MAX_HAND
 const HAND_UP_STEP := 4
+const DISCARD_UP_BASE := 6   # +1 discard per turn, up to Sim.MAX_DISCARDS
+const DISCARD_UP_STEP := 3
 
 
 static func hp_up_cost(sim) -> int:
@@ -69,4 +71,19 @@ static func buy_hand(sim) -> bool:
 	sim.gold -= c
 	sim.hand_ups += 1
 	sim.hand_size += 1
+	return true
+
+
+static func discard_up_cost(sim) -> int:
+	return DISCARD_UP_BASE + DISCARD_UP_STEP * sim.discard_ups
+
+
+static func buy_discard(sim) -> bool:
+	var c := discard_up_cost(sim)
+	if sim.gold < c or sim.discard_per_turn >= sim.MAX_DISCARDS:
+		return false
+	sim.gold -= c
+	sim.discard_ups += 1
+	sim.discard_per_turn += 1
+	sim.discards_left += 1   # usable at once this hand
 	return true
