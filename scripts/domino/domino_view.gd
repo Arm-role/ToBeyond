@@ -1186,52 +1186,56 @@ func _win() -> void:
 	await _summary(hp_left, bonus, coins, gold_before)
 	if sim.kind == "elite":
 		await _reward(Reward.offer(sim))
-	elif sim.kind == "boss":
-		await _shop()
+	await _shop()   # a shop visit after every fight
 	stage += 1
-	var next_kind := "fight"
-	var doors := sim.doors(stage)
-	if not doors.is_empty():
-		var pick: String = await _doors(doors)
-		if pick == "shop":
-			await _shop()
-		else:
-			next_kind = pick
+	var next_plan := sim.plan(stage)
+	await _blinds(stage)   # the enemy to fight and the next two, like a blind select
 	hand = []   # the new fight has a fresh deck: nothing left over to discard
-	sim.start_fight(stage, null, next_kind)   # heals fully and clears the board
+	sim.start_fight(stage, next_plan.boss, next_plan.kind)   # heals fully and clears the board
 	_new_turn()
 
 
-## Door pick between fights: returns the chosen kind ("fight", "elite" or "shop").
-signal _door_done(kind: String)
-const DOOR_TH := {
-	"fight": "⚔ สู้ปกติ
+## Blind select (after the shop): the enemy of `first` and the next two, shown as cards.
+## Only the first can be fought; the others are a preview.
+signal _blind_done
 
-ศัตรูตามด่าน",
-	"elite": "💀 ศัตรูแกร่ง
+func _blind_text(s: int) -> String:
+	var p := sim.plan(s)
+	var st := sim.enemy_stats(s, p.kind, p.boss)
+	var head := "ด่าน %d\n\n" % s
+	var who: String
+	var extra := ""
+	if p.boss != null:
+		who = "%s %s\nบอส" % [p.boss.icon, p.boss.name_th]
+		extra = "\n\n" + p.boss.text_th
+	elif p.kind == "elite":
+		who = "💀 ศัตรูแกร่ง"
+		extra = "\n\nชนะแล้วเลือก Artifact 1 ใน 3"
+	else:
+		who = "⚔ ศัตรูปกติ"
+	return "%s%s\n\n❤ %d   ⚔ %s%s" % [head, who, st.hp, str(roundi(st.dmg * 10.0) / 10.0), extra]
 
-เลือดและดาเมจมากขึ้น
-ชนะแล้วเลือก Artifact 1 ใน 3",
-	"shop": "🛒 ร้านค้า
 
-แวะซื้อของก่อน
-แล้วสู้ปกติ",
-}
-
-func _doors(doors: Array) -> String:
+func _blinds(first: int) -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	reward_ui.z_index = 100
 	add_child(reward_ui)
-	_rw_clear("เลือกทางไปด่าน %d" % stage)
-	var x0 := (1920.0 - (doors.size() * 520.0 + (doors.size() - 1) * 60.0)) * 0.5
-	for i in doors.size():
-		var k: String = doors[i]
-		var b := _rw_button(DOOR_TH[k], Vector2(x0 + i * 580.0, 220), Vector2(520, 520), 40)
-		b.pressed.connect(func(): _door_done.emit(k))
-	var picked: String = await _door_done
+	_rw_clear("ศัตรูที่ต้องสู้")
+	var n := mini(3, MAX_STAGE - first + 1)
+	var x0 := (1920.0 - (n * 520.0 + (n - 1) * 60.0)) * 0.5
+	for i in n:
+		var cur := i == 0
+		var b := _rw_button(_blind_text(first + i), Vector2(x0 + i * 580.0, 190 if cur else 250), Vector2(520, 640 if cur else 560), 36)
+		if cur:
+			b.pressed.connect(func(): _blind_done.emit())
+		else:
+			b.disabled = true
+			b.modulate = Color(1, 1, 1, 0.7)
+	var go := _rw_button("สู้ ▶", Vector2(x0 + 110, 870), Vector2(300, 100), 44)
+	go.pressed.connect(func(): _blind_done.emit())
+	await _blind_done
 	reward_ui.queue_free()
-	return picked
 
 
 ## Summary screen between the win and the shop.

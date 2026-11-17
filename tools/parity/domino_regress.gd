@@ -209,11 +209,13 @@ func _phase5() -> void:
 	for s in range(1, 10):
 		bs.start_fight(s)
 		print("stage %d boss %s enemy %d strike %s" % [s, bs.boss.id if bs.boss != null else "-", bs.enemy_max, str(snappedf(bs.strike_dmg, 0.001))])
-	# doors (own rng) and elite scaling
+	# stage plan (own rng) and elite scaling
 	var ds = Sim.new()
 	ds.map_rng.seed = 5
 	for s in range(1, 8):
-		print("doors %d: %s" % [s, ",".join(ds.doors(s))])
+		var pl: Dictionary = ds.plan(s)
+		var st: Dictionary = ds.enemy_stats(s, pl.kind, pl.boss)
+		print("plan %d: %s %s hp %d dmg %s" % [s, pl.kind, pl.boss.id if pl.boss != null else "-", st.hp, str(snappedf(st.dmg, 0.001))])
 	var es = Sim.new()
 	es.rng.seed = 3
 	es.start_fight(2, null, "elite")

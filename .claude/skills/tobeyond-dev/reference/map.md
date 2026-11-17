@@ -14,7 +14,7 @@ Line numbers drift, so grep the name. Plan and per-phase docs: `docs/plan-domino
 | Artifacts / bosses as data | `data/domino/artifacts/*.tres` · `data/domino/bosses/*.tres` · `domino_rule.gd: trigger cond effect args once` · `domino_artifact.gd: archetype rarity rules` · `domino_boss.gd: rule args rules` |
 | Catalog loading (web-export safe) | `domino_catalog.gd: all get_def bosses get_boss` |
 | Reward pick 1 of 3 | `domino_reward.gd: offer pick` · `domino_view.gd: _reward _reward_offers _reward_pick` |
-| Door pick between fights (fight / elite / shop; boss stages forced) | `domino_sim.gd: doors` · `domino_view.gd: _doors` |
+| Enemy line-up (boss every 3rd stage, elite by chance, previewed) and blind select after the shop | `domino_sim.gd: plan enemy_stats` · `domino_view.gd: _blinds _blind_text` |
 | Shop after a boss or on the shop door | `domino_shop.gd: stock price sell_value reroll_cost` · `domino_view.gd: _shop` |
 | Artifact slot bar (tap to read, tap two to swap) | `domino_view.gd: _on_slot _slot_tip _apply_slots _refresh_slots` |
 | Replaying a walk (fireball, pops, hits, shield, flags, gold) | `domino_view.gd: _on_go _play_walk _win _lose` |

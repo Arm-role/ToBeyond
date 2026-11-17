@@ -34,7 +34,7 @@ const MODIFIERS := ["convert"]
 const BOSS_EVERY := 3
 const ELITE_HP := 1.4        # elite fight: enemy HP and strike multipliers
 const ELITE_DMG := 1.2
-const DOORS := ["fight", "elite", "shop"]   # what the player may pick between fights
+const ELITE_CHANCE := 0.35   # chance that a non-boss stage (after stage 1) is an elite fight
 const Catalog := preload("res://scripts/domino/domino_catalog.gd")
 const TRIGGERS := ["ignite", "pass", "pop", "strike", "reach_end", "kill", "walk_end", "fight_start"]
 
@@ -59,8 +59,9 @@ var fight_events: Array = []     # events of the last start_fight()
 var gold: int = 0
 var boss: Resource = null        # DominoBoss of the current fight, null on a normal fight
 var _used_bosses: Array = []
+var _plan: Dictionary = {}       # stage -> {"kind", "boss"}: the enemy line-up, fixed once seen so it can be previewed
 var kind: String = "fight"       # "fight" | "elite" | "boss": the current fight
-var map_rng := RandomNumberGenerator.new()   # doors only; never sim.rng, so fights and decks stay unchanged
+var map_rng := RandomNumberGenerator.new()   # the stage plan only; never sim.rng, so fights and decks stay unchanged
 var stats: Dictionary = {}       # add_stat values, one walk long
 var deck: Array = []             # limited draw pile of Gem colours (DECK_COUNTS per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
@@ -108,18 +109,11 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 		if not pool.is_empty():
 			boss = pool[rng.randi_range(0, pool.size() - 1)]
 			_used_bosses.append(boss)
-	enemy_max = BASE_ENEMY_HP
-	strike_dmg = BASE_STRIKE
-	for i in range(1, s):
-		enemy_max = roundi(enemy_max * 1.25)
-		strike_dmg *= 1.15
 	if boss != null:
 		kind = "boss"
-		enemy_max = roundi(enemy_max * boss.hp_mult)
-		strike_dmg *= boss.dmg_mult
-	elif kind == "elite":
-		enemy_max = roundi(enemy_max * ELITE_HP)
-		strike_dmg *= ELITE_DMG
+	var st := enemy_stats(s, kind, boss)
+	enemy_max = st.hp
+	strike_dmg = st.dmg
 	enemy_hp = enemy_max
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
@@ -221,15 +215,46 @@ func hp_bonus() -> int:
 	return clampi(int(floorf(maxf(hp, 0.0) / (max_hp / HP_BONUS_TIERS) + 0.0001)), 0, HP_BONUS_TIERS)
 
 
-## Doors for the fight at stage `s`: a boss stage has none (forced), otherwise two different kinds.
-func doors(s: int) -> Array:
-	if s % BOSS_EVERY == 0:
-		return []
-	var pool: Array = DOORS.duplicate()
-	var out: Array = []
-	for i in 2:
-		out.append(pool.pop_at(map_rng.randi_range(0, pool.size() - 1)))
-	return out
+## Enemy stats for stage `s`: {"hp", "dmg"} (stage scaling, then the boss or elite multipliers).
+func enemy_stats(s: int, k: String, b: Resource) -> Dictionary:
+	var hp_max := BASE_ENEMY_HP
+	var dmg := BASE_STRIKE
+	for i in range(1, s):
+		hp_max = roundi(hp_max * 1.25)
+		dmg *= 1.15
+	if b != null:
+		hp_max = roundi(hp_max * b.hp_mult)
+		dmg *= b.dmg_mult
+	elif k == "elite":
+		hp_max = roundi(hp_max * ELITE_HP)
+		dmg *= ELITE_DMG
+	return {"hp": hp_max, "dmg": dmg}
+
+
+## The enemy of stage `s`: {"kind": "fight" | "elite" | "boss", "boss": Resource or null}. Boss every
+## BOSS_EVERY-th stage (no repeat until all were seen), elite by chance; stored so the view can preview it.
+func plan(s: int) -> Dictionary:
+	if not _plan.has(s):
+		var k := "fight"
+		var b: Resource = null
+		if s % BOSS_EVERY == 0:
+			k = "boss"
+			var taken: Array = []
+			for p in _plan.values():
+				if p.boss != null:
+					taken.append(p.boss)
+			var pool: Array = []
+			for c in Catalog.bosses():
+				if not taken.has(c):
+					pool.append(c)
+			if pool.is_empty():
+				pool = Catalog.bosses().duplicate()
+			if not pool.is_empty():
+				b = pool[map_rng.randi_range(0, pool.size() - 1)]
+		elif s > 1 and map_rng.randf() < ELITE_CHANCE:
+			k = "elite"
+		_plan[s] = {"kind": k, "boss": b}
+	return _plan[s]
 
 
 ## Coins for winning the fight: 4 + the HP bonus. Returns the amount.

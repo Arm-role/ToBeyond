@@ -5935,11 +5935,11 @@ stage 6 boss twin_flag enemy 78 strike 16.091
 stage 7 boss - enemy 70 strike 18.504
 stage 8 boss - enemy 88 strike 21.28
 stage 9 boss drifter enemy 154 strike 22.025
-doors 1: shop,elite
-doors 2: shop,fight
-doors 3: 
-doors 4: elite,shop
-doors 5: elite,shop
-doors 6: 
-doors 7: shop,elite
+plan 1: fight - hp 18 dmg 8.0
+plan 2: fight - hp 23 dmg 9.2
+plan 3: boss drifter hp 41 dmg 9.522
+plan 4: fight - hp 36 dmg 12.167
+plan 5: elite - hp 63 dmg 16.79
+plan 6: boss bulwark hp 84 dmg 16.091
+plan 7: fight - hp 70 dmg 18.504
 elite 2: kind elite enemy 32 strike 11.04
