@@ -168,6 +168,10 @@ func _phase4() -> void:
 	for ids in COMBOS:
 		for name in ["red_run", "blue_run"]:
 			_run("p4 combo %s [%s]" % [name, ",".join(ids)], _setup(more[name], ids), 2 if "coal" in ids else 1)
+	# redcrit Gem: an attack Gem (red for artifacts) with a 1-in-3 crit, x2
+	var rc := {"gems": {0: "redcrit", 1: "redcrit", 2: "redcrit", 3: "redcrit", 4: "redcrit", 5: "redcrit", 6: "redcrit", 7: "redcrit"}, "flag": 5, "hp": 40.0}
+	for ids in [[], ["twin"]]:
+		_run("p4 redcrit [%s]" % ",".join(ids), _setup(rc, ids))
 	# orange Gem: coin Gem, +1 coin per pop, no attack or shield, not red for artifacts
 	var orange := {"gems": {0: "orange", 1: "red", 2: "orange", 3: "blue", 4: "orange", 5: "orange", 6: "blue", 7: "orange"}, "flag": 5, "hp": 40.0}
 	for ids in [[], ["twin"], ["stoke"], ["furnace", "coal"], ["mirror", "twin"]]:
@@ -223,6 +227,9 @@ func _phase5() -> void:
 	print("chaos too many picks refused: %s" % Chaos.buy(cs, by.clone, ["red", "red"]))
 	print("chaos clone blue: %s gold %d deck %s" % [Chaos.buy(cs, by.clone, ["blue"]), cs.gold, str(cs.run_deck)])
 	print("chaos destroy 2 red: %s gold %d deck %s" % [Chaos.buy(cs, by.destroy, ["red", "red"]), cs.gold, str(cs.run_deck)])
+	cs.gold = 10
+	print("chaos mark_crit on blue refused: %s" % Chaos.buy(cs, by.mark_crit, ["blue"]))
+	print("chaos mark_crit red: %s gold %d deck %s" % [Chaos.buy(cs, by.mark_crit, ["red"]), cs.gold, str(cs.run_deck)])
 	cs.run_deck = {"red": 8, "orange": 4, "blue": 3}
 	print("chaos destroy below min refused: %s total %d" % [Chaos.buy(cs, by.destroy, ["red"]), Chaos.deck_total(cs)])
 	cs.gold = 1

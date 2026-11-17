@@ -11,7 +11,9 @@ const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
 const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
-const ATTACK := ["red"]
+const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
+const CRIT_MULT := 2.0
+const ATTACK := ["red", "redcrit"]
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
 const DISCARDS_PER_TURN := 1
 const MAX_DISCARDS := 4   # shop upgrades raise the discards per turn up to this
@@ -479,7 +481,11 @@ func _do_pop(tile: int, cause: String) -> void:
 		ev["nullified"] = true
 	elif red or ev.get("convert", "") == "damage":
 		base += boost
-		_hit("enemy", float(base), "base", "pop")
+		var dmg := float(base)
+		if g.color == "redcrit" and rng.randf() < CRIT_CHANCE:
+			dmg *= CRIT_MULT
+			ev["crit"] = true
+		_hit("enemy", dmg, "base", "pop")
 	else:
 		_shield(base + boost, "base")
 	_fire(ev)

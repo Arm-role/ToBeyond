@@ -5,7 +5,7 @@ extends RefCounted
 
 const MIN_DECK := 15   # destroying cannot leave fewer Gems than this
 const STOCK := 3
-const COLORS := ["red", "orange", "blue"]
+const COLORS := ["red", "redcrit", "orange", "blue"]
 const CARDS := [
 	{"id": "to_red", "kind": "convert", "to": "red", "picks": 2, "price": 3, "icon": "🌀", "name": "Chaos เปลี่ยนเป็นแดง",
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น ⚔ แดง"},
@@ -13,6 +13,8 @@ const CARDS := [
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น 🛡 น้ำเงิน"},
 	{"id": "to_orange", "kind": "convert", "to": "orange", "picks": 2, "price": 3, "icon": "🌀", "name": "Chaos เปลี่ยนเป็นส้ม",
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น 🪙 ส้ม"},
+	{"id": "mark_crit", "kind": "convert", "to": "redcrit", "only": "red", "picks": 1, "price": 4, "icon": "⚡", "name": "Chaos ลับคม",
+		"text": "เลือก Gem แดง 1 ใบในสำรับ ให้มีโอกาสคริ 1 ใน 3 (ดาเมจ ×2) ถาวร"},
 	{"id": "destroy", "kind": "destroy", "picks": 2, "price": 3, "icon": "💥", "name": "Chaos ทำลาย Gem",
 		"text": "เลือก Gem ในสำรับ 2 ใบ ทิ้งออกจากสำรับถาวร (เหลือขั้นต่ำ %d ใบ)" % MIN_DECK},
 	{"id": "clone", "kind": "clone", "picks": 1, "price": 4, "icon": "🧬", "name": "Chaos ทำสำเนา Gem",
@@ -48,6 +50,8 @@ static func valid(sim, card: Dictionary, picks: Array) -> bool:
 		if used[c] > int(sim.run_deck.get(c, 0)):
 			return false
 		if card.kind == "convert" and c == card.to:
+			return false
+		if card.has("only") and c != card.only:
 			return false
 	if card.kind == "destroy" and deck_total(sim) - picks.size() < MIN_DECK:
 		return false

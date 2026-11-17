@@ -22,7 +22,7 @@ const GAP := 12.0
 const TAB_H := 56.0        # height of the flag tab above each tile
 const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
-const COL := {"red": Color("#e5484d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
+const COL := {"red": Color("#e5484d"), "redcrit": Color("#ff6a3d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
 const MAX_WALK_TIME := 6.0   # fireball travel budget per walk (strike pauses do not count); slow on purpose, the eye follows step by step
 
 var sim := Sim.new()
@@ -561,6 +561,8 @@ func _new_turn() -> void:
 func _gem_text(c: String) -> String:
 	if c == "orange":
 		return "🪙 +%d" % Sim.COIN_GEM
+	if c == "redcrit":
+		return "⚔ %d\n⚡ คริ 1/3" % Sim.RED_DMG
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
 
 
@@ -594,6 +596,8 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 func _hand_text(c: String) -> String:
 	if c == "orange":
 		return "🪙 +%d" % Sim.COIN_GEM
+	if c == "redcrit":
+		return "⚔ %d ⚡" % Sim.RED_DMG
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else ("🛡 %d" % Sim.BLUE_BLOCK if c == "blue" else "")
 
 
@@ -702,9 +706,13 @@ func _open_deck() -> void:
 	var left := {}
 	for c in sim.deck:
 		left[c] = int(left.get(c, 0)) + 1
-	var names := {"red": "⚔ โจมตี", "orange": "🪙 เหรียญ", "blue": "🛡 โล่"}
+	var names := {"red": "⚔ โจมตี", "redcrit": "⚔⚡ โจมตีคริ", "orange": "🪙 เหรียญ", "blue": "🛡 โล่"}
 	var y := 290.0
-	for c in ["red", "orange", "blue"]:
+	var rows: Array = ["red", "orange", "blue"]
+	if int(sim.run_deck.get("redcrit", 0)) > 0:
+		rows.insert(1, "redcrit")
+	var row_step := 210.0 if rows.size() == 3 else 170.0
+	for c in rows:
 		var total := int(sim.run_deck.get(c, 0))
 		var step := minf(76.0, 1500.0 / maxf(float(total), 1.0))
 		var rem := int(left.get(c, 0))
@@ -727,7 +735,7 @@ func _open_deck() -> void:
 			t.modulate.a = 1.0 if i < rem else 0.2
 			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			deck_ui.add_child(t)
-		y += 210.0
+		y += row_step
 	var hint := Label.new()
 	hint.text = "สว่าง = ยังอยู่ในสำรับ   ·   จาง = จั่วไปแล้ว (อยู่ในมือ/บนกระดาน/กองทิ้ง)   ·   แตะที่ไหนก็ได้เพื่อปิด"
 	hint.add_theme_font_size_override("font_size", 26)
@@ -1067,6 +1075,10 @@ func _play_walk(evs: Array) -> void:
 			"pop":
 				sfx.step(ev.nth - 1)
 				_pop(tile_btns[ev.tile], 1.3)
+				if ev.get("crit", false):
+					_float_text("คริ! ×2", ENEMY_HOME + Vector2(60, -50), Color("#ffb347"))
+					_shake(8.0)
+					await get_tree().create_timer(0.12).timeout   # hit-stop on a crit
 				if ev.get("nullified", false):
 					_float_text("0", ENEMY_HOME + Vector2(60, 0), Color("#9a9aa6"))
 			"hit":
@@ -1503,7 +1515,7 @@ signal _chaos_step(act: String)
 
 func _chaos_pick(card: Dictionary) -> Array:
 	var picks: Array = []
-	var names := {"red": "⚔ แดง", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน"}
+	var names := {"red": "⚔ แดง", "redcrit": "⚔⚡ แดงคริ", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน"}
 	var result: Array = []
 	while true:
 		_rw_clear("%s %s" % [card.icon, card.name])
@@ -1519,8 +1531,8 @@ func _chaos_pick(card: Dictionary) -> Array:
 			var c: String = Chaos.COLORS[ci]
 			var used := picks.count(c)
 			var left := int(sim.run_deck.get(c, 0)) - used
-			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(430 + ci * 350.0, 500), Vector2(320, 200), 38)
-			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to)
+			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(275 + ci * 350.0, 500), Vector2(320, 200), 36)
+			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to) or (card.has("only") and c != card.only)
 			b.pressed.connect(func(): _chaos_step.emit("pick:" + c))
 		var ok_b := _rw_button("ใช้การ์ด %d 🪙" % int(card.price), Vector2(560, 800), Vector2(380, 100), 40)
 		ok_b.disabled = not Chaos.valid(sim, card, picks)
