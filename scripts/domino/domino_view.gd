@@ -1066,6 +1066,9 @@ func _play_walk(evs: Array) -> void:
 				if ev.get("nullified", false):
 					_float_text("0", ENEMY_HOME + Vector2(60, 0), Color("#9a9aa6"))
 				if ev.has("buff"):
+					var ob: Control = tile_btns[ev.tile]
+					var nb: Control = tile_btns[ev.buff]
+					await _charge_volley(ob.position + ob.size * 0.5, nb.position + nb.size * 0.5, 1, Color("#ff9a1f"), Color("#ffe0a8"))   # the crit travels to the next tile as an orange fireball
 					_pop(tile_btns[ev.buff], 1.2)   # the next tile is loaded with a crit
 					_float_text("⚡", tile_btns[ev.buff].position + Vector2(40, -40), Color("#ffb347"))
 				if ev.get("crit", false):
