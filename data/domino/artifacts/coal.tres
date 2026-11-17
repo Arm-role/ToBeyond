@@ -8,7 +8,7 @@ script = ExtResource("2_r")
 trigger = &"walk_end"
 cond = {"kept": false, "temp": false}
 effect = &"keep_gems"
-args = {"walks": 1}
+args = {"walks": 1, "leftmost": true}
 once = &""
 
 [resource]
@@ -16,7 +16,7 @@ script = ExtResource("1_a")
 id = "coal"
 name_th = "ถ่านไฟ"
 icon = "♨"
-text_th = "Gem ที่ป๊อปแล้วอยู่ต่ออีกหนึ่งรอบ"
+text_th = "Gem ซ้ายสุดบนกระดานอยู่ต่ออีกหนึ่งรอบ (ใบเดียว)"
 archetype = "ember"
 rarity = "common"
 price = 4

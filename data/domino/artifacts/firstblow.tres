@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"nth": 1}
+effect = &"boost"
+args = {"amount": 2}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "firstblow"
+name_th = "หมัดแรก"
+icon = "👊"
+text_th = "Gem ใบแรกที่ป๊อปในแต่ละรอบ ค่าแรง +2 (ทุกชนิด)"
+archetype = "blaze"
+rarity = "uncommon"
+price = 6
+catalog_order = 15
+rules = Array[Resource]([SubResource("Resource_r0")])

@@ -30,7 +30,7 @@ const MAX_EVENTS := 400       # hitting this ends the walk at once
 
 ## Triggers an artifact may use. `hit` and `shield` are not among them (no damage feeding damage).
 ## Verbs that change the event they react to; they run before its built-in effect (the other verbs run after it).
-const MODIFIERS := ["convert"]
+const MODIFIERS := ["convert", "boost"]
 const BOSS_EVERY := 3
 const ELITE_HP := 1.4        # elite fight: enemy HP and strike multipliers
 const ELITE_DMG := 1.2
@@ -469,15 +469,18 @@ func _do_pop(tile: int, cause: String) -> void:
 	if ev.is_empty():
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
+	var boost := roundi(float(ev.get("boost", 0.0)))   # "boost" rules add to this Gem's power, whatever its colour
 	if coin:
-		gold += COIN_GEM
-		_emit("gold", {"amount": COIN_GEM, "total": gold}, "base")
+		gold += COIN_GEM + boost
+		_emit("gold", {"amount": COIN_GEM + boost, "total": gold}, "base")
+		base = 0
 	elif base == 0 and red:
 		ev["nullified"] = true
 	elif red or ev.get("convert", "") == "damage":
+		base += boost
 		_hit("enemy", float(base), "base", "pop")
 	else:
-		_shield(base, "base")
+		_shield(base + boost, "base")
 	_fire(ev)
 
 
@@ -642,13 +645,20 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 			ev["redirect"] = "enemy"
 			ev["mult"] = float(a.get("mult", 1.0))
 		"keep_gems":
+			var keep_t := -1   # "leftmost": only the Gem on the lowest tile stays
 			for t in board:
 				var g: Dictionary = board[t]
 				if r.cond.has("kept") and g.kept != r.cond.kept:
 					continue
 				if r.cond.has("temp") and g.temp != r.cond.temp:
 					continue
+				if a.get("leftmost", false):
+					if keep_t < 0 or t < keep_t:
+						keep_t = t
+					continue
 				g.life = int(a.get("walks", 1))
+			if keep_t >= 0:
+				board[keep_t].life = int(a.get("walks", 1))
 		"spawn_gem":
 			for t in N:
 				if not board.has(t):
@@ -687,6 +697,8 @@ func _apply(r: Resource, ev: Dictionary, src: String) -> void:
 				_emit("gold", {"amount": amt, "total": gold}, src)
 		"convert":
 			ev["convert"] = String(a.get("to", "damage"))
+		"boost":
+			ev["boost"] = float(ev.get("boost", 0.0)) + _amt(a.get("amount", 0), ev)
 		"add_stat":
 			var s: String = a.get("stat", "")
 			stats[s] = minf(float(a.get("max", 999999)), float(stats.get(s, 0.0)) + float(a.get("amount", 0)))

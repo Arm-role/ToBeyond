@@ -141,7 +141,7 @@ func _initialize() -> void:
 	quit()
 
 
-const SINGLES := ["echo", "ring", "thorns", "push", "furnace", "fuse", "stoke", "twin", "alchemy"]
+const SINGLES := ["echo", "ring", "thorns", "push", "furnace", "fuse", "stoke", "twin", "alchemy", "firstblow"]
 const COMBOS := [
 	["mirror", "riposte", "ring"],
 	["echo", "twin", "mirror"],
