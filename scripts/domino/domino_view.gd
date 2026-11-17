@@ -1109,6 +1109,10 @@ func _play_walk(evs: Array) -> void:
 				_float_text("+%d" % roundi(ev.amount), HERO_HOME + Vector2(60, 0), Color("#7be0a0"))
 				_refresh()
 			"shield":
+				var st: int = int(ev.get("tile", -1))
+				if st >= 0 and st < tile_btns.size() and ev.amount > 0:
+					var sb: Control = tile_btns[st]
+					await _charge_volley(sb.position + sb.size * 0.5, _hero_c(), roundi(ev.amount), Color("#3b8cff"), Color("#bfe0ff"))   # blue balls gather, then fly to the hero
 				_badge(ev.total)
 				_float_text("🛡+%d" % ev.amount, tile_btns[ev.tile].position + Vector2(40, 0), Color("#7fb8ff"))
 			"strike":
