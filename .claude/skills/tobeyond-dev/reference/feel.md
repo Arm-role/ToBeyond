@@ -41,7 +41,7 @@ The user's eye is the reference: change one thing, show the preview or a `record
 Slots are portrait cards (150×215) centred in the preview between hero and enemy, `CARD_*` consts (rarity-coloured border, icon, name, `n · archetype`). The sim emits `fire` (`art`, `order`) before each artifact rule runs; `_play_walk` pulses the card, shows its order badge (`1›4`) and holds `FIRE_HOLD` 0.14 s per trigger (≤ `FIRE_HOLD_MAX` 1.6 s per walk). Events after `walk_end` can exist: don't assume `evs[-1]` is `walk_end`.
 
 ## Gems
-red ⚔4, blue 🛡3, orange ⚡ = no effect of its own: the NEXT tile (tile + 1) pops with ×2 (attack or shield, `ev.crit`, `ev.buff` = buffed tile, view floats "คริ! ×2"); on tile 7 it does nothing. `Sim.ATTACK` = [red, orange]: artifact conditions on "red" also match orange. Hand deal: red 45%, orange 15%, blue 40%.
+red ⚔4, blue 🛡3, orange 🪙 = coin Gem: no attack or shield, +`Sim.COIN_GEM` (1) coin per pop (event `gold`, `src` base). `Sim.ATTACK` = [red] only. Id stays `orange` (tile asset names). Hand deal: red 45%, orange 15%, blue 40%.
 
 ## Charge volley (v0.1.62)
 `_charge_volley(from, to, count, fill, rim)`: `count` balls (= hit amount, max 12) pop in a ring, gaps `min(0.12, 0.8/n)` shrinking to half (the charge builds), 0.10 s after the last; 0.16 s hold (one pulse, ring coils to 0.8×); all fly 0.22 s (cubic ease-in, spread ≤ 0.08 s) to the hero; then laser + hit sfx + shake 6. Player attack = red balls from the tile to the hero; enemy hit = violet balls from the enemy to the hero. Per hit ≈ 0.5–1.1 s plus `HIT_HOLD`. Pitfall: a pulse longer than the hold keeps pulsing in flight; kill the pop tween before the pulse.

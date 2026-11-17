@@ -554,7 +554,7 @@ func _new_turn() -> void:
 
 func _gem_text(c: String) -> String:
 	if c == "orange":
-		return "⚡ คริ\nใบถัดไป ×2"
+		return "🪙 +%d" % Sim.COIN_GEM
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
 
 
@@ -587,7 +587,7 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 
 func _hand_text(c: String) -> String:
 	if c == "orange":
-		return "⚡ คริ"
+		return "🪙 +%d" % Sim.COIN_GEM
 	return "⚔ %d" % Sim.RED_DMG if c == "red" else ("🛡 %d" % Sim.BLUE_BLOCK if c == "blue" else "")
 
 
@@ -699,7 +699,7 @@ func _open_deck() -> void:
 	var left := {}
 	for c in sim.deck:
 		left[c] = int(left.get(c, 0)) + 1
-	var names := {"red": "⚔ โจมตี", "orange": "⚡ คริ", "blue": "🛡 โล่"}
+	var names := {"red": "⚔ โจมตี", "orange": "🪙 เหรียญ", "blue": "🛡 โล่"}
 	var y := 290.0
 	for c in ["red", "orange", "blue"]:
 		var total := int(Sim.DECK_COUNTS[c])
@@ -1065,16 +1065,6 @@ func _play_walk(evs: Array) -> void:
 				_pop(tile_btns[ev.tile], 1.3)
 				if ev.get("nullified", false):
 					_float_text("0", ENEMY_HOME + Vector2(60, 0), Color("#9a9aa6"))
-				if ev.has("buff"):
-					var ob: Control = tile_btns[ev.tile]
-					var nb: Control = tile_btns[ev.buff]
-					await _charge_volley(ob.position + ob.size * 0.5, nb.position + nb.size * 0.5, 1, Color("#ff9a1f"), Color("#ffe0a8"))   # the crit travels to the next tile as an orange fireball
-					_pop(tile_btns[ev.buff], 1.2)   # the next tile is loaded with a crit
-					_float_text("⚡", tile_btns[ev.buff].position + Vector2(40, -40), Color("#ffb347"))
-				if ev.get("crit", false):
-					_float_text("คริ! ×2", ENEMY_HOME + Vector2(60, -50), Color("#ffb347"))
-					_shake(8.0)
-					await get_tree().create_timer(0.12).timeout   # hit-stop on a crit
 			"hit":
 				if ev.target == "enemy":
 					v_enemy_hp = roundi(ev.hp_after)

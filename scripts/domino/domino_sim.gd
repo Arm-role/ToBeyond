@@ -10,10 +10,9 @@ const HAND_SIZE := 3
 const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
-const LAST_TILE := 7         # orange Gem: no damage of its own; the next tile (tile + 1) crits. On the last tile it does nothing.
-const CRIT_MULT := 2.0
-const ATTACK := ["red", "orange"]
-const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, crit 10, shield 15
+const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
+const ATTACK := ["red"]
+const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
 const DISCARDS_PER_TURN := 1
 const MAX_DISCARDS := 4   # shop upgrades raise the discards per turn up to this
 const BASE_ENEMY_HP := 18
@@ -90,7 +89,6 @@ var _route: Array[int] = []      # tiles in walking order (set_route may rewrite
 var _ridx: int = 0               # index of the fireball in _route
 var _flag_moves: int = 0
 var _red_pops: int = 0
-var _crit_next: Dictionary = {}   # tile -> true: the next pop of that tile is a crit (set by an orange Gem before it)
 
 
 # --- setup / hand --------------------------------------------------------------
@@ -131,7 +129,7 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 	events = []
 
 
-## Fresh limited deck for a fight: 20 attack, 10 crit (orange), 15 shield, shuffled.
+## Fresh limited deck for a fight: 20 attack, 10 coin (orange), 15 shield, shuffled.
 func build_deck() -> void:
 	deck.clear()
 	discard_pile.clear()
@@ -305,7 +303,6 @@ func _reset_walk() -> void:
 	_ridx = 0
 	_flag_moves = 0
 	_red_pops = 0
-	_crit_next = {}
 
 
 static func default_route() -> Array[int]:
@@ -460,9 +457,9 @@ func _do_pop(tile: int, cause: String) -> void:
 	_pops += 1
 	var g: Dictionary = board[tile]
 	var red: bool = g.color in ATTACK
-	var support: bool = g.color == "orange"   # crit Gem: buffs the next tile, no effect of its own
-	var base: int = 0 if support else ((RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK)
-	if red and not support:
+	var coin: bool = g.color == "orange"   # coin Gem: pays coins, no attack or shield
+	var base: int = 0 if coin else ((RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK)
+	if red:
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
 			base = 0   # the boss's armour eats the first red pops of the walk
@@ -472,26 +469,15 @@ func _do_pop(tile: int, cause: String) -> void:
 	if ev.is_empty():
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
-	var crit: bool = _crit_next.has(tile)
-	_crit_next.erase(tile)
-	if support:
-		if tile < LAST_TILE:
-			_crit_next[tile + 1] = true
-			ev["buff"] = tile + 1
+	if coin:
+		gold += COIN_GEM
+		_emit("gold", {"amount": COIN_GEM, "total": gold}, "base")
 	elif base == 0 and red:
 		ev["nullified"] = true
 	elif red or ev.get("convert", "") == "damage":
-		var dmg := float(base)
-		if crit:
-			dmg *= CRIT_MULT
-			ev["crit"] = true
-		_hit("enemy", dmg, "base", "pop")
+		_hit("enemy", float(base), "base", "pop")
 	else:
-		var blk := base
-		if crit:
-			blk = roundi(base * CRIT_MULT)
-			ev["crit"] = true
-		_shield(blk, "base")
+		_shield(base, "base")
 	_fire(ev)
 
 
@@ -581,7 +567,7 @@ func _color_at(tile: int) -> String:
 	return board[tile].color if board.has(tile) else ""
 
 
-## Artifact conditions on "red" also match orange (an attack Gem).
+## Artifact conditions on "red" match attack Gems only.
 func _is_color(c: String, want) -> bool:
 	return c in ATTACK if want == "red" else c == want
 
