@@ -181,7 +181,7 @@ func _label(text: String, size: int, pos: Vector2, w: float = 600.0) -> Label:
 
 
 ## Rounded outline frame (wireframe boxes); clicks pass through.
-func _frame(r: Rect2, radius: int = 12, bw: int = 3, bg: Color = Color(0, 0, 0, 0.25)) -> Panel:
+func _frame(r: Rect2, radius: int = 12, bw: int = 3, bg: Color = Color(0, 0, 0, 0.25), border: Color = Color("#8a7fb0")) -> Panel:
 	var pn := Panel.new()
 	pn.position = r.position
 	pn.size = r.size
@@ -189,7 +189,7 @@ func _frame(r: Rect2, radius: int = 12, bw: int = 3, bg: Color = Color(0, 0, 0, 
 	sb.bg_color = bg
 	sb.set_corner_radius_all(radius)
 	sb.set_border_width_all(bw)
-	sb.border_color = Color("#8a7fb0")
+	sb.border_color = border
 	pn.add_theme_stylebox_override("panel", sb)
 	pn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(pn)
@@ -398,9 +398,10 @@ func _build() -> void:
 	deck_ui.z_index = 3000
 	deck_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(deck_ui)
-	_frame(Rect2(651, 11, 619, 164), 24, 4)   # artifact tray
-	_frame(Rect2(496, 77, 109, 39))
-	cards_lbl = _label("", 20, Vector2(496, 84), 109.0)
+	_frame(Rect2(651, 11, 619, 164), 26, 5, Color(0.02, 0.02, 0.05, 0.55), Color(0.05, 0.04, 0.1, 0.9))   # artifact tray, a dark inset like the Joker area in Balatro
+	cards_lbl = _label("", 22, Vector2(960, 178), 310.0)   # "n/5" under the tray, right-aligned
+	cards_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cards_lbl.modulate.a = 0.75
 	for i in SLOTS:
 		slot_arr.append(null)
 		var ab := Button.new()
@@ -422,7 +423,7 @@ func _build() -> void:
 		card["badge"] = badge
 		slot_cards.append(card)
 	art_pop = Panel.new()   # floating detail frame for a tapped artifact card (like the shop's panel)
-	art_pop.position = Vector2(651, 185)
+	art_pop.position = Vector2(651, 220)
 	art_pop.size = Vector2(619, 250)
 	art_pop.z_index = 60
 	art_pop.visible = false
@@ -630,15 +631,15 @@ func _refresh_slots() -> void:
 		b.text = ""
 		b.tooltip_text = d.text_th if d != null else ""
 		b.disabled = busy
-		c.icon.text = d.icon if d != null else "+"
-		c.icon.add_theme_font_size_override("font_size", 44 if d != null else 56)
+		b.position.y = CARD_Y - (14.0 if i == slot_sel and d != null else 0.0)   # the picked card lifts out of the tray
+		c.icon.text = d.icon if d != null else ""
 		c.name.text = d.name_th if d != null else ""
 		c.name.modulate = Color.WHITE
 		c.sub.text = ("%d · %s" % [i + 1, ARCH_TH.get(d.archetype, "")]) if d != null else ""
 		c.icon.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.45)
 		var sb := StyleBoxFlat.new()
-		var rc := Color(RARITY_COL.get(d.rarity, "#8aa0b8")) if d != null else Color(1, 1, 1, 0.2)
-		sb.bg_color = Color("#3a2f55") if d != null else Color("#221c30")
+		var rc := Color(RARITY_COL.get(d.rarity, "#8aa0b8")) if d != null else Color(0, 0, 0, 0)
+		sb.bg_color = Color("#3a2f55") if d != null else Color(0, 0, 0, 0)   # empty slot: nothing drawn, the tray shows through
 		sb.set_corner_radius_all(14)
 		sb.set_border_width_all(6 if i == slot_sel else 3)
 		sb.border_color = Color("#ffd966") if i == slot_sel else rc
