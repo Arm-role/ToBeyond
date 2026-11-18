@@ -262,6 +262,23 @@ func _build() -> void:
 		b.pressed.connect(_on_tile.bind(i))
 		add_child(b)
 		tile_btns.append(b)
+		var gs := TextureRect.new()
+		gs.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		gs.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		gs.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		gs.size = Vector2(TILE - 16.0, TILE - 16.0)
+		gs.position = Vector2(8, 4)
+		b.add_child(gs)
+		b.set_meta("gem", gs)
+		var gl := Label.new()   # value text over the sprite (the button's own text would sit under it)
+		gl.size = gs.size
+		gl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		gl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		gl.add_theme_font_size_override("font_size", 26)
+		gl.add_theme_constant_override("outline_size", 8)
+		gl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+		gs.add_child(gl)
+		b.set_meta("gem_lbl", gl)
 		var tab := Panel.new()
 		tab.position = Vector2(b.position.x, ROW_Y - TAB_H - 10.0)
 		tab.size = Vector2(TILE, TAB_H)
@@ -349,6 +366,14 @@ func _build() -> void:
 		rim.width = 4.0
 		h.add_child(rim)
 		h.set_meta("dia", dia)
+		var hs := TextureRect.new()
+		hs.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		hs.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		hs.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hs.size = Vector2(HAND_D, HAND_D)
+		hs.show_behind_parent = true
+		h.add_child(hs)
+		h.set_meta("spr", hs)
 		h.set_meta("rim", rim)
 		h.pressed.connect(_on_hand.bind(i))
 		add_child(h)
@@ -764,6 +789,12 @@ func _gem_text(c: String) -> String:
 	return ("⚔ %d%s" % [Sim.RED_DMG * lv, star]) if c.begins_with("red") else ("🛡 %d%s" % [Sim.BLUE_BLOCK * lv, star])
 
 
+## Gem sprite (assets/gems): red / blue / coin, Lv2 red / blue. Crit Gems use the red sprite.
+func _gem_tex(c: String) -> Texture2D:
+	var n := "coin" if c == "orange" else c.replace("crit", "")
+	return _tex("res://assets/gems/gem_%s.png" % n) if c != "" else null
+
+
 func _tex(path: String) -> Texture2D:
 	if not _tex_cache.has(path):
 		_tex_cache[path] = load(path) if ResourceLoader.exists(path) else null
@@ -788,6 +819,17 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 	else:
 		for s in ["normal", "hover", "pressed", "disabled"]:
 			tile_btns[i].add_theme_stylebox_override(s, sb)
+	var gtex := _gem_tex(c)
+	var gs: TextureRect = tile_btns[i].get_meta("gem")
+	gs.texture = gtex
+	gs.visible = gtex != null
+	var gl: Label = tile_btns[i].get_meta("gem_lbl")
+	gl.text = tile_btns[i].text
+	if gtex != null:   # the label above the sprite draws the value; the button's own text would be hidden under it
+		tile_btns[i].add_theme_color_override("font_color", Color(0, 0, 0, 0))
+		tile_btns[i].add_theme_color_override("font_outline_color", Color(0, 0, 0, 0))
+	else:
+		tile_btns[i].add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	tile_kept[i].visible = kept
 	tile_prev[i].visible = v_prev.has(i)
 	if v_prev.has(i):
@@ -820,6 +862,11 @@ func _style_diamond(b: Button, c: String, picked: bool) -> void:
 	var dia: Polygon2D = b.get_meta("dia")
 	var rim: Line2D = b.get_meta("rim")
 	dia.color = COL[c] if c != "" else Color("#2a2438")
+	var spr: TextureRect = b.get_meta("spr")
+	var tex := _gem_tex(c)
+	spr.texture = tex
+	spr.visible = tex != null
+	dia.visible = tex == null
 	rim.default_color = Color("#ffd966") if picked else Color(1, 1, 1, 0.3)
 	rim.width = 8.0 if picked else 3.0
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.5))
