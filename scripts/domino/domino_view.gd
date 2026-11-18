@@ -22,7 +22,8 @@ const GAP := 20.0
 const TAB_H := 43.0        # height of the flag tab above each tile
 const ROW_Y := 587.0       # gameplay half starts at PREVIEW_H
 const PREVIEW_H := 500.0   # top half: the fight preview (same split as the main game)
-const COL := {"red": Color("#e5484d"), "redcrit": Color("#ff6a3d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
+const COL := {"red": Color("#e5484d"), "redcrit": Color("#ff6a3d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24"),
+	"red2": Color("#b81d26"), "redcrit2": Color("#d9481a"), "blue2": Color("#1c55b3")}   # Lv2 Gems: deeper tone of the Lv1 colour
 const MAX_WALK_TIME := 6.0   # fireball travel budget per walk (strike pauses do not count); slow on purpose, the eye follows step by step
 
 var sim := Sim.new()
@@ -756,9 +757,11 @@ func _new_turn() -> void:
 func _gem_text(c: String) -> String:
 	if c == "orange":
 		return "🪙 +%d" % Sim.COIN_GEM
-	if c == "redcrit":
-		return "⚔ %d\n⚡ คริ 1/3" % Sim.RED_DMG
-	return "⚔ %d" % Sim.RED_DMG if c == "red" else "🛡 %d" % Sim.BLUE_BLOCK
+	var lv := 2 if c.ends_with("2") else 1
+	var star := " ⭐" if lv == 2 else ""
+	if c.begins_with("redcrit"):
+		return "⚔ %d%s\n⚡ คริ 1/3" % [Sim.RED_DMG * lv, star]
+	return ("⚔ %d%s" % [Sim.RED_DMG * lv, star]) if c.begins_with("red") else ("🛡 %d%s" % [Sim.BLUE_BLOCK * lv, star])
 
 
 func _tex(path: String) -> Texture2D:
@@ -800,9 +803,13 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 func _hand_text(c: String) -> String:
 	if c == "orange":
 		return "🪙 +%d" % Sim.COIN_GEM
-	if c == "redcrit":
-		return "⚔ %d ⚡" % Sim.RED_DMG
-	return "⚔ %d" % Sim.RED_DMG if c == "red" else ("🛡 %d" % Sim.BLUE_BLOCK if c == "blue" else "")
+	var lv := 2 if c.ends_with("2") else 1
+	var star := "⭐" if lv == 2 else ""
+	if c.begins_with("redcrit"):
+		return "⚔ %d%s ⚡" % [Sim.RED_DMG * lv, star]
+	if c.begins_with("red"):
+		return "⚔ %d%s" % [Sim.RED_DMG * lv, star]
+	return ("🛡 %d%s" % [Sim.BLUE_BLOCK * lv, star]) if c.begins_with("blue") else ""
 
 
 ## Hand card look: flat transparent button, the colour lives in the diamond polygon behind it.
@@ -914,12 +921,13 @@ func _open_deck() -> void:
 	var left := {}
 	for c in sim.deck:
 		left[c] = int(left.get(c, 0)) + 1
-	var names := {"red": "⚔ โจมตี", "redcrit": "⚔⚡ โจมตีคริ", "orange": "🪙 เหรียญ", "blue": "🛡 โล่"}
+	var names := {"red": "⚔ โจมตี", "red2": "⚔ โจมตี Lv2 ⭐", "redcrit": "⚔⚡ โจมตีคริ", "redcrit2": "⚔⚡ โจมตีคริ Lv2 ⭐", "orange": "🪙 เหรียญ", "blue": "🛡 โล่", "blue2": "🛡 โล่ Lv2 ⭐"}
 	var y := 290.0
-	var rows: Array = ["red", "orange", "blue"]
-	if int(sim.run_deck.get("redcrit", 0)) > 0:
-		rows.insert(1, "redcrit")
-	var row_step := 210.0 if rows.size() == 3 else 170.0
+	var rows: Array = []
+	for rc in ["red", "red2", "redcrit", "redcrit2", "orange", "blue", "blue2"]:
+		if rc in ["red", "orange", "blue"] or int(sim.run_deck.get(rc, 0)) > 0:
+			rows.append(rc)
+	var row_step := 210.0 if rows.size() <= 3 else (170.0 if rows.size() == 4 else minf(170.0, 640.0 / rows.size()))
 	for c in rows:
 		var total := int(sim.run_deck.get(c, 0))
 		var step := minf(76.0, 1500.0 / maxf(float(total), 1.0))
@@ -939,7 +947,7 @@ func _open_deck() -> void:
 			sb.border_color = Color(1, 1, 1, 0.5)
 			t.add_theme_stylebox_override("panel", sb)
 			t.position = Vector2(200 + i * step, y + 60)
-			t.size = Vector2(step * 0.87, 90)
+			t.size = Vector2(step * 0.87, minf(90.0, row_step - 70.0))
 			t.modulate.a = 1.0 if i < rem else 0.2
 			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			deck_ui.add_child(t)
@@ -1796,7 +1804,7 @@ signal _chaos_step(act: String)
 
 func _chaos_pick(card: Dictionary) -> Array:
 	var picks: Array = []
-	var names := {"red": "⚔ แดง", "redcrit": "⚔⚡ แดงคริ", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน"}
+	var names := {"red": "⚔ แดง", "red2": "⚔ แดง ⭐", "redcrit": "⚔⚡ แดงคริ", "redcrit2": "⚔⚡ แดงคริ ⭐", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน", "blue2": "🛡 น้ำเงิน ⭐"}
 	var result: Array = []
 	while true:
 		_rw_clear("%s %s" % [card.icon, card.name])
@@ -1808,12 +1816,18 @@ func _chaos_pick(card: Dictionary) -> Array:
 		info.size = Vector2(1920, 300)
 		info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		reward_ui.add_child(info)
-		for ci in Chaos.COLORS.size():
-			var c: String = Chaos.COLORS[ci]
+		var cols: Array = []
+		for cn in Chaos.COLORS:
+			if cn in ["red", "orange", "blue"] or int(sim.run_deck.get(cn, 0)) > 0:
+				cols.append(cn)
+		var bw := 320.0 if cols.size() <= 4 else 230.0
+		var bx0 := (1920.0 - (cols.size() * (bw + 30.0) - 30.0)) * 0.5
+		for ci in cols.size():
+			var c: String = cols[ci]
 			var used := picks.count(c)
 			var left := int(sim.run_deck.get(c, 0)) - used
-			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(275 + ci * 350.0, 500), Vector2(320, 200), 36)
-			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to) or (card.has("only") and c != card.only)
+			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(bx0 + ci * (bw + 30.0), 500), Vector2(bw, 200), 36 if cols.size() <= 4 else 28)
+			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to) or (card.has("only") and c.trim_suffix("2") != card.only) or (card.kind == "upgrade" and not Chaos.UP.has(c))
 			b.pressed.connect(func(): _chaos_step.emit("pick:" + c))
 		var ok_b := _rw_button("ใช้การ์ด %d 🪙" % int(card.price), Vector2(560, 800), Vector2(380, 100), 40)
 		ok_b.disabled = not Chaos.valid(sim, card, picks)

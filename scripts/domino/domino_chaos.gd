@@ -5,7 +5,8 @@ extends RefCounted
 
 const MIN_DECK := 15   # destroying cannot leave fewer Gems than this
 const STOCK := 3
-const COLORS := ["red", "redcrit", "orange", "blue"]
+const COLORS := ["red", "red2", "redcrit", "redcrit2", "orange", "blue", "blue2"]
+const UP := {"red": "red2", "redcrit": "redcrit2", "blue": "blue2"}   # Lv2 upgrade: Gem kind -> its Lv2 kind (status like crit comes along)
 const CARDS := [
 	{"id": "to_red", "kind": "convert", "to": "red", "picks": 2, "price": 3, "icon": "🌀", "name": "Chaos เปลี่ยนเป็นแดง",
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น ⚔ แดง"},
@@ -15,6 +16,8 @@ const CARDS := [
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น 🪙 ส้ม"},
 	{"id": "mark_crit", "kind": "convert", "to": "redcrit", "only": "red", "picks": 1, "price": 4, "icon": "⚡", "name": "Chaos ลับคม",
 		"text": "เลือก Gem แดง 1 ใบในสำรับ ให้มีโอกาสคริ 1 ใน 3 (ดาเมจ ×2) ถาวร"},
+	{"id": "lv2", "kind": "upgrade", "picks": 1, "price": 5, "icon": "⬆️", "name": "Chaos อัปเกรด Lv2",
+		"text": "เลือก Gem โจมตีหรือโล่ 1 ใบในสำรับ อัปเกรดเป็น Lv2 (⚔ 4→8 · 🛡 3→6) สถานะจาก Chaos อื่น เช่น คริ ติดไปด้วย"},
 	{"id": "ashes", "kind": "global", "picks": 0, "price": 5, "icon": "🌫", "name": "Chaos ขี้เถ้า",
 		"text": "ทุก Gem ที่ป๊อปทิ้งขี้เถ้า +1 ไว้ที่ช่อง Gem ชนิดเดียวกันที่วางทีหลังแรง +1 (ซื้อได้ครั้งเดียว)"},
 	{"id": "destroy", "kind": "destroy", "picks": 2, "price": 3, "icon": "💥", "name": "Chaos ทำลาย Gem",
@@ -55,7 +58,9 @@ static func valid(sim, card: Dictionary, picks: Array) -> bool:
 			return false
 		if card.kind == "convert" and c == card.to:
 			return false
-		if card.has("only") and c != card.only:
+		if card.has("only") and String(c).trim_suffix("2") != card.only:
+			return false
+		if card.kind == "upgrade" and not UP.has(c):
 			return false
 	if card.kind == "destroy" and deck_total(sim) - picks.size() < MIN_DECK:
 		return false
@@ -74,7 +79,11 @@ static func buy(sim, card: Dictionary, picks: Array) -> bool:
 		match String(card.kind):
 			"convert":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1
-				sim.run_deck[card.to] = int(sim.run_deck.get(card.to, 0)) + 1
+				var dest: String = String(card.to) + ("2" if card.has("only") and String(c).ends_with("2") else "")   # mark_crit keeps the level
+				sim.run_deck[dest] = int(sim.run_deck.get(dest, 0)) + 1
+			"upgrade":
+				sim.run_deck[c] = int(sim.run_deck[c]) - 1
+				sim.run_deck[UP[c]] = int(sim.run_deck.get(UP[c], 0)) + 1
 			"destroy":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1
 			"clone":

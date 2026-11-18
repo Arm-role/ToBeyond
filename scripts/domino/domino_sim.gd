@@ -14,7 +14,7 @@ const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many c
 const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
 const CRIT_MULT := 2.0
 const ASH_BONUS := 1   # Chaos "ashes": a Gem of the same kind as the last pop on that tile gets this much power
-const ATTACK := ["red", "redcrit"]
+const ATTACK := ["red", "redcrit", "red2", "redcrit2"]   # "...2" = level 2 (Chaos upgrade): attack and shield x2, same status as the Lv1 kind
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
 const DISCARDS_PER_TURN := 3
 const MAX_DISCARDS := 4   # shop upgrades raise the discards per turn up to this
@@ -478,7 +478,8 @@ func _do_pop(tile: int, cause: String) -> void:
 	var g: Dictionary = board[tile]
 	var red: bool = g.color in ATTACK
 	var coin: bool = g.color == "orange"   # coin Gem: pays coins, no attack or shield
-	var base: int = 0 if coin else ((RED_DMG + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK)
+	var lv := 2 if String(g.color).ends_with("2") else 1
+	var base: int = 0 if coin else ((RED_DMG * lv + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK * lv)
 	if red:
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
@@ -490,7 +491,7 @@ func _do_pop(tile: int, cause: String) -> void:
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
 	var boost := roundi(float(ev.get("boost", 0.0)))   # "boost" rules add to this Gem's power, whatever its colour
-	var kind_now := "red" if g.color in ATTACK else String(g.color)
+	var kind_now := "red" if g.color in ATTACK else String(g.color).trim_suffix("2")   # ashes follow the Gem kind, not its level
 	if ashes and not (base == 0 and red) and ash.get(tile, "") == kind_now:
 		boost += ASH_BONUS   # same kind of Gem on the ashes of the last pop here
 		ev["ash_used"] = true
@@ -503,7 +504,7 @@ func _do_pop(tile: int, cause: String) -> void:
 	elif red or ev.get("convert", "") == "damage":
 		base += boost
 		var dmg := float(base)
-		if g.color == "redcrit" and rng.randf() < CRIT_CHANCE:
+		if String(g.color).begins_with("redcrit") and rng.randf() < CRIT_CHANCE:
 			dmg *= CRIT_MULT
 			ev["crit"] = true
 		_hit("enemy", dmg, "base", "pop")
@@ -603,7 +604,7 @@ func _color_at(tile: int) -> String:
 
 ## Artifact conditions on "red" match attack Gems only.
 func _is_color(c: String, want) -> bool:
-	return c in ATTACK if want == "red" else c == want
+	return c in ATTACK if want == "red" else c.trim_suffix("2") == want
 
 
 func _check(key: String, want, ev: Dictionary) -> bool:

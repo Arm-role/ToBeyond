@@ -240,6 +240,22 @@ func _phase5() -> void:
 	cs.gold = 10
 	print("chaos mark_crit on blue refused: %s" % Chaos.buy(cs, by.mark_crit, ["blue"]))
 	print("chaos mark_crit red: %s gold %d deck %s" % [Chaos.buy(cs, by.mark_crit, ["red"]), cs.gold, str(cs.run_deck)])
+	# Chaos Lv2 upgrade: red -> red2 (attack 8), blue -> blue2 (shield 6), crit and ashes come along, orange refused
+	var lv := Sim.new()
+	lv.gold = 30
+	print("chaos lv2 orange refused: %s" % Chaos.buy(lv, by.lv2, ["orange"]))
+	print("chaos lv2 red: %s deck %s" % [Chaos.buy(lv, by.lv2, ["red"]), str(lv.run_deck)])
+	print("chaos lv2 red2 again refused: %s" % Chaos.buy(lv, by.lv2, ["red2"]))
+	Chaos.buy(lv, by.mark_crit, ["red"])
+	print("chaos lv2 redcrit: %s deck %s" % [Chaos.buy(lv, by.lv2, ["redcrit"]), str(lv.run_deck)])
+	print("chaos mark_crit on red2 keeps level: %s deck %s" % [Chaos.buy(lv, by.mark_crit, ["red2"]), str(lv.run_deck)])
+	print("chaos lv2 blue: %s deck %s" % [Chaos.buy(lv, by.lv2, ["blue"]), str(lv.run_deck)])
+	var l2 := {"gems": {0: "red2", 1: "blue2", 2: "redcrit2", 3: "red", 4: "blue", 5: "red2"}, "flag": 6, "hp": 40.0}
+	for ids in [[], ["twin"], ["mirror", "twin"]]:
+		_run("p4 lv2 [%s]" % ",".join(ids), _setup(l2, ids))
+	var l2a = _setup(l2, [])
+	l2a.ashes = true
+	_run("p4 lv2 ashes", l2a, 3)
 	cs.run_deck = {"red": 8, "orange": 4, "blue": 3}
 	print("chaos destroy below min refused: %s total %d" % [Chaos.buy(cs, by.destroy, ["red"]), Chaos.deck_total(cs)])
 	cs.gold = 1
