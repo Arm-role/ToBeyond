@@ -252,12 +252,6 @@ func _build() -> void:
 	for l in [enemy_lbl, hp_lbl]:
 		l.add_theme_color_override("font_outline_color", Color.BLACK)
 		l.add_theme_constant_override("outline_size", 6)
-	_frame(Rect2(23, 461, 157, 37))
-	_label("▲ โซนสนามรบ", 20, Vector2(23, 468), 157.0)
-	_frame(Rect2(23, 513, 170, 39))
-	_label("▼ โซนแผงคำสั่ง", 20, Vector2(23, 520), 170.0)
-	_label("ช่องคิว 1–8", 26, Vector2(40, 615), 170.0)
-	_label("(แท็บ + ช่อง)", 20, Vector2(40, 655), 170.0).modulate.a = 0.7
 	_frame(Rect2(46, 1030, 520, 44))
 	status_lbl = _label("", 20, Vector2(58, 1038), 500.0)
 	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
