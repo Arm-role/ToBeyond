@@ -33,6 +33,10 @@ Domino Run (the old classic game and its draft-parity tools were removed in phas
 - Version: every push that changes more than `.md` files bumps `application/config/version` in `project.godot` (shown bottom-right with the commit): patch +1 per push (0.1.0 → 0.1.1), once per push, not per commit; minor/major only when the user says. Edit only that line. User rule (2026-11).
 - Each pushed branch deploys to `https://arm-role.github.io/ToBeyond/preview/<branch>/` (`main` → site root).
 
+## Play-test every task (user rule 2026-11-18)
+Why: v0.1.75 passed `--check` yet the Test tab was never wired in (a scripted edit silently matched nothing) and the first layout overflowed; only playing the build showed both. `--check` proves it parses, not that it works.
+So after every change, before saying "done": `tools/parity/build.sh`, then drive the web build with Playwright (open the screen, click the new thing, screenshot, look) and report what you saw. Debug start: `?shop=1`. `tools/parity/record.js` waits for `window.tbReady`, which the game no longer sets, so write a small Playwright script in the scratchpad instead. After a scripted file edit, grep that the change landed.
+
 ## Keep sessions cheap
 - One task per session; `/clear` or a new session after pushing.
 - Model roles (Sonnet main, `advisor`, `runner`) and the big-file reading rule: `tobeyond-dev` skill. Don't `/model` mid-session: it re-caches the whole context; delegate to an agent instead.

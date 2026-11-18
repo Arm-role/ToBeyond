@@ -31,7 +31,7 @@ The game is Domino Run: `scenes/domino.tscn` → `scripts/domino/domino_view.gd`
 1. **Locate**: `reference/map.md` → file: function → `grep -n`. The map is checked by `build.sh --check`; if you move or rename something it lists, update the map.
 2. **Edit** the GDScript / `.tres`.
 3. **Check**: `tools/parity/build.sh --check`; for sim, artifact or boss changes also `--regress` (diff vs `tools/parity/baseline/domino_regress.txt`; `--regress --update` only for an intended change, and commit it). New artifact/boss/verb → add regress lines in `domino_regress.gd`.
-4. **See it** when the change is visual: `tools/parity/build.sh`, then `record.js` (see `reference/feel.md`) or a Playwright screenshot script against `build/web`.
+4. **Play-test always** (CLAUDE.md rule, not only for visual changes): `tools/parity/build.sh`, then `record.js` (see `reference/feel.md`) or a Playwright screenshot script against `build/web`.
 5. **Review** (large or risky tasks only): `advisor` with the diff summary.
 6. **Learn**: if the task needed more than 2 fix rounds, or `advisor` listed a new pitfall, add one line to `reference/pitfalls.md` (format there).
 7. **Commit**: bump the patch of `config/version` in `project.godot` (once per push; skip for `.md`-only pushes), commit, push (`git push -u origin <branch>`). Tell the user the new version, what changed, what you checked and the preview URL.

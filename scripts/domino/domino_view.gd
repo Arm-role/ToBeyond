@@ -1448,9 +1448,22 @@ func _shop() -> void:
 	var stock: Array = Shop.stock(sim)
 	var chaos_stock: Array = Chaos.stock(sim)
 	var done := false
+	var st := {"tab": 0}
 	while not done:
 		_apply_slots()
 		_rw_clear("ร้านค้า   🪙 %d" % sim.gold)
+		for ti in 2:
+			var tb := _rw_button(["ร้านค้า", "Test"][ti], Vector2(40 + ti * 190.0, 20), Vector2(180, 60), 30)
+			tb.disabled = int(st.tab) == ti
+			tb.pressed.connect(func():
+				st.tab = ti
+				_shop_step.emit(false))
+		if int(st.tab) == 1:
+			_shop_test_tab()
+			var go_t := _rw_button("ไปต่อ ▶", Vector2(810, 960), Vector2(300, 90), 36)
+			go_t.pressed.connect(func(): _shop_step.emit(true))
+			done = await _shop_step
+			continue
 		var x0 := (1920.0 - (stock.size() * 420.0 + (stock.size() - 1) * 30.0)) * 0.5
 		for i in stock.size():
 			var d: Resource = stock[i]
@@ -1543,9 +1556,10 @@ func _shop_test_tab() -> void:
 		var d: Resource = arts[i]
 		var idx := slot_arr.find(d)
 		var free := slot_arr.find(null)
-		var b := _rw_button("%s%s\n%s\n(%s · %s)\n%s" % ["✔ " if idx >= 0 else "", d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th],
-			Vector2(27 + (i % 8) * 235.0, 100 + (i / 8) * 320.0), Vector2(220, 305), 20)
+		var b := _rw_button("%s%s\n%s\n(%s · %s)" % ["✔ " if idx >= 0 else "", d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")],
+			Vector2(24 + (i % 6) * 312.0, 95 + (i / 6) * 200.0), Vector2(300, 190), 24)
 		b.disabled = idx < 0 and free < 0
+		b.tooltip_text = d.text_th
 		b.pressed.connect(func():
 			if idx >= 0:
 				slot_arr[idx] = null
@@ -1555,7 +1569,8 @@ func _shop_test_tab() -> void:
 			_shop_step.emit(false))
 	for i in Chaos.CARDS.size():
 		var cc: Dictionary = Chaos.CARDS[i]
-		var cb := _rw_button("%s %s\n%s" % [cc.icon, cc.name, cc.text], Vector2(27 + i * 260.0, 750), Vector2(250, 190), 18)
+		var cb := _rw_button("%s %s" % [cc.icon, cc.name], Vector2(27 + i * 262.0, 710), Vector2(252, 120), 20)
+		cb.tooltip_text = cc.text
 		cb.disabled = cc.id == "ashes" and sim.ashes
 		cb.pressed.connect(func():
 			var free_cc: Dictionary = cc.duplicate()
