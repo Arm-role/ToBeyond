@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"color": "red", "flag_struck": true}
+effect = &"boost"
+args = {"amount": 1}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "vengeance"
+name_th = "แค้นสะสม"
+icon = "😤"
+text_th = "Gem แดงที่ป๊อปหลังธงตีแล้ว แรง +1"
+archetype = "blaze"
+rarity = "common"
+price = 4
+catalog_order = 16
+rules = Array[Resource]([SubResource("Resource_r0")])
