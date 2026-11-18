@@ -397,6 +397,87 @@ func _build() -> void:
 	msg = _label("", 40, Vector2(460, 230), 1000.0)
 
 
+## Card frame used by the shop, rewards and blinds: kind "art" (rarity border), "chaos" (indigo + gold), "enemy" (red), "util" (teal).
+func _card_style(kind: String, rarity: String, state: String, st: String) -> StyleBoxFlat:
+	var bg: String = {"art": "#3a2f55", "chaos": "#1d1630", "enemy": "#3a1f24", "util": "#1f3a40"}.get(kind, "#3a2f55")
+	var border := Color("#c9a227") if kind == "chaos" else (Color("#d9534f") if kind == "enemy" else (Color("#5ac8c8") if kind == "util" else Color(RARITY_COL.get(rarity, "#8aa0b8"))))
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(bg)
+	sb.set_corner_radius_all(18)
+	sb.set_border_width_all(4)
+	sb.border_color = border
+	if state == "owned":
+		sb.border_color = Color("#ffd966")
+		sb.set_border_width_all(6)
+	if state == "empty":
+		sb.bg_color = Color("#221c30")
+		sb.border_color = Color(1, 1, 1, 0.2)
+	if st == "hover":
+		sb.bg_color = sb.bg_color.lightened(0.12)
+		sb.set_border_width_all(6)
+	elif st == "pressed":
+		sb.bg_color = sb.bg_color.lightened(0.22)
+	return sb
+
+
+## Portrait card (Button root, all text in clipped child labels). data: icon, title, sub, body, foot, kind, rarity,
+## state ("", "owned", "disabled", "empty"), bf (body font). Returns {btn, icon, name, sub, body, foot}.
+func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) -> Dictionary:
+	var b := Button.new()
+	b.text = ""
+	b.position = pos
+	b.size = sz
+	b.pivot_offset = sz * 0.5
+	var state: String = data.get("state", "")
+	for st in ["normal", "hover", "pressed", "disabled"]:
+		b.add_theme_stylebox_override(st, _card_style(data.get("kind", "art"), data.get("rarity", ""), state, st))
+	b.disabled = state == "disabled" or state == "empty"
+	if b.disabled:
+		b.modulate.a = 0.45
+	parent.add_child(b)
+	var h := sz.y
+	var w := sz.x
+	var C := HORIZONTAL_ALIGNMENT_CENTER
+	var c := {"btn": b}
+	c["icon"] = _card_label(b, roundi(h * 0.17), Vector2(0, h * 0.03), Vector2(w, h * 0.23), C)
+	c["name"] = _card_label(b, roundi(maxf(20.0, h * 0.058)), Vector2(8, h * 0.25), Vector2(w - 16, h * 0.20), C)
+	c["name"].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	c["sub"] = _card_label(b, roundi(maxf(16.0, h * 0.045)), Vector2(0, h * 0.45), Vector2(w, h * 0.06), C)
+	var bf := int(data.get("bf", maxf(20.0, h * 0.05)))
+	var body := _card_label(b, bf, Vector2(12, h * 0.52), Vector2(w - 24, h * 0.31), C)
+	body.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	body.max_lines_visible = maxi(1, int(h * 0.32 / (bf * 1.4)))
+	c["body"] = body
+	var foot := _card_label(b, roundi(maxf(22.0, h * 0.055)), Vector2(0, h * 0.84), Vector2(w, h * 0.15), C)
+	foot.add_theme_color_override("font_color", Color("#ffd966"))
+	c["foot"] = foot
+	c.icon.text = data.get("icon", "")
+	c.name.text = data.get("title", "")
+	c.sub.text = data.get("sub", "")
+	body.text = data.get("body", "")
+	foot.text = data.get("foot", "")
+	b.tooltip_text = data.get("body", "")
+	return c
+
+
+func _art_card(parent: Control, pos: Vector2, sz: Vector2, d: Resource, foot: String, state: String = "", bf: int = 0, with_body: bool = true) -> Dictionary:
+	var data := {"icon": d.icon, "title": d.name_th, "sub": "%s · %s" % [ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")],
+		"body": d.text_th if with_body else "", "foot": foot, "kind": "art", "rarity": d.rarity, "state": state}
+	if bf > 0:
+		data["bf"] = bf
+	var c := _make_card(parent, pos, sz, data)
+	c.btn.tooltip_text = d.text_th
+	return c
+
+
+func _chaos_card(parent: Control, pos: Vector2, sz: Vector2, cc: Dictionary, foot: String, state: String = "", with_body: bool = true) -> Dictionary:
+	var c := _make_card(parent, pos, sz, {"icon": cc.icon, "title": cc.name, "sub": "การ์ด Chaos", "body": cc.text if with_body else "", "foot": foot, "kind": "chaos", "state": state})
+	c.btn.tooltip_text = cc.text
+	return c
+
+
 ## A label drawn on a card button (clicks pass through to the button).
 func _card_label(parent: Control, size_px: int, pos: Vector2, sz: Vector2, align: int) -> Label:
 	var l := Label.new()
@@ -1288,6 +1369,26 @@ func _blind_text(s: int) -> String:
 	return "%s%s\n\n❤ %d   ⚔ %s%s" % [head, who, st.hp, str(roundi(st.dmg * 10.0) / 10.0), extra]
 
 
+func _blind_data(s: int) -> Dictionary:
+	var p := sim.plan(s)
+	var st := sim.enemy_stats(s, p.kind, p.boss)
+	var icon := "⚔"
+	var title := "ศัตรูปกติ"
+	var kind := ""
+	var extra := ""
+	if p.boss != null:
+		icon = p.boss.icon
+		title = p.boss.name_th
+		kind = " · บอส"
+		extra = "\n\n" + p.boss.text_th
+	elif p.kind == "elite":
+		icon = "💀"
+		title = "ศัตรูแกร่ง"
+		extra = "\n\nชนะแล้วเลือก Artifact 1 ใน 3"
+	return {"icon": icon, "title": title, "sub": "ด่าน %d%s" % [s, kind], "kind": "enemy", "bf": 26,
+		"body": "❤ %d   ⚔ %s%s" % [st.hp, str(roundi(st.dmg * 10.0) / 10.0), extra]}
+
+
 func _blinds(first: int) -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1295,16 +1396,15 @@ func _blinds(first: int) -> void:
 	add_child(reward_ui)
 	_rw_clear("ศัตรูที่ต้องสู้")
 	var n := mini(3, MAX_STAGE - first + 1)
-	var x0 := (1920.0 - (n * 520.0 + (n - 1) * 60.0)) * 0.5
+	var x0 := (1920.0 - (n * 460.0 - 60.0)) * 0.5
 	for i in n:
 		var cur := i == 0
-		var b := _rw_button(_blind_text(first + i), Vector2(x0 + i * 580.0, 190 if cur else 250), Vector2(520, 640 if cur else 560), 36)
+		var data := _blind_data(first + i)
+		data["state"] = "" if cur else "disabled"
+		var c := _make_card(reward_ui, Vector2(x0 + i * 460.0, 190 if cur else 250), Vector2(400, 600 if cur else 540), data)
 		if cur:
-			b.pressed.connect(func(): _blind_done.emit())
-		else:
-			b.disabled = true
-			b.modulate = Color(1, 1, 1, 0.7)
-	var go := _rw_button("สู้ ▶", Vector2(x0 + 110, 870), Vector2(300, 100), 44)
+			c.btn.pressed.connect(func(): _blind_done.emit())
+	var go := _rw_button("สู้ ▶", Vector2(x0 + 50, 870), Vector2(300, 100), 44)
 	go.pressed.connect(func(): _blind_done.emit())
 	await _blind_done
 	reward_ui.queue_free()
@@ -1410,12 +1510,11 @@ func _rw_button(text: String, pos: Vector2, size: Vector2, font: int) -> Button:
 
 func _reward_offers(offers: Array) -> void:
 	_rw_clear("เลือก Artifact 1 ใบ")
-	var x0 := (1920.0 - (offers.size() * 440.0 + (offers.size() - 1) * 40.0)) * 0.5
+	var x0 := (1920.0 - (offers.size() * 380.0 + (offers.size() - 1) * 40.0)) * 0.5
 	for i in offers.size():
 		var d: Resource = offers[i]
-		var b := _rw_button("%s\n%s\n(%s · %s)\n\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th],
-			Vector2(x0 + i * 480.0, 180), Vector2(440, 520), 34)
-		b.pressed.connect(_reward_pick.bind(d, offers))
+		var c := _art_card(reward_ui, Vector2(x0 + i * 420.0, 170), Vector2(380, 540), d, "เลือก", "", 26)
+		c.btn.pressed.connect(_reward_pick.bind(d, offers))
 	var skip := _rw_button("ข้าม", Vector2(810, 780), Vector2(300, 100), 40)
 	skip.pressed.connect(func(): reward_done.emit())
 
@@ -1430,15 +1529,16 @@ func _reward_pick(d: Resource, offers: Array) -> void:
 	_rw_clear("ช่องเต็ม: เลือกช่องที่จะแทนด้วย %s %s" % [d.icon, d.name_th])
 	for i in SLOTS:
 		var o: Resource = slot_arr[i]
-		var b := _rw_button("%d  %s %s\n%s" % [i + 1, o.icon, o.name_th, o.text_th], Vector2(150 + i * 320.0, 250), Vector2(300, 420), 30)
-		b.pressed.connect(func():
+		var c := _art_card(reward_ui, Vector2(150 + i * 330.0, 200), Vector2(300, 430), o, "ช่อง %d · แทนที่" % (i + 1), "", 22)
+		c.btn.pressed.connect(func():
 			slot_arr[i] = d
 			reward_done.emit())
 	var back := _rw_button("กลับ", Vector2(810, 780), Vector2(300, 100), 40)
 	back.pressed.connect(func(): _reward_offers(offers))
 
 
-## Shop after a boss or on the shop door: 4 artifacts for coins, reroll (2, then +1 each), sell for half price.
+## Shop after a boss or on the shop door: 4 artifacts + 3 Chaos cards for coins, the owned cards (tap to sell for half price),
+## and 4 upgrade cards (reroll, HP, hand, discard). Tab "Test" lists every card for free.
 func _shop() -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1460,86 +1560,83 @@ func _shop() -> void:
 				_shop_step.emit(false))
 		if int(st.tab) == 1:
 			_shop_test_tab()
-			var go_t := _rw_button("ไปต่อ ▶", Vector2(810, 960), Vector2(300, 90), 36)
+			var go_t := _rw_button("ไปต่อ ▶", Vector2(810, 960), Vector2(300, 80), 36)
 			go_t.pressed.connect(func(): _shop_step.emit(true))
 			done = await _shop_step
 			continue
-		var x0 := (1920.0 - (stock.size() * 420.0 + (stock.size() - 1) * 30.0)) * 0.5
+		var free := slot_arr.find(null)
 		for i in stock.size():
 			var d: Resource = stock[i]
 			if d == null:
 				continue   # already bought
-			var free := slot_arr.find(null)
 			var cost := Shop.price(d)
 			var can := sim.gold >= cost and free >= 0
-			var label := "%s\n%s\n(%s · %s)\n\n%s\n\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th,
-				("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน"]
-			var b := _rw_button(label, Vector2(x0 + i * 450.0, 130), Vector2(420, 350), 26)
-			b.disabled = not can
-			b.pressed.connect(func():
+			var c := _art_card(reward_ui, Vector2(40 + i * 270.0, 110), Vector2(250, 380), d, ("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน", "" if can else "disabled", 20)
+			c.btn.pressed.connect(func():
 				sim.gold -= cost
 				slot_arr[free] = d
 				stock[i] = null
 				sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false))
-		# Chaos row: tarot-like cards, bought and used at once on the deck
-		var cx0 := (1920.0 - (chaos_stock.size() * 560.0 + (chaos_stock.size() - 1) * 30.0)) * 0.5
+		# Chaos cards: bought and used at once on the deck
 		for i in chaos_stock.size():
 			var cc = chaos_stock[i]
 			if cc == null:
 				continue   # already used
 			var ccost := int(cc.price)
-			var cb := _rw_button("%s %s   %d 🪙\n%s" % [cc.icon, cc.name, ccost, cc.text], Vector2(cx0 + i * 590.0, 495), Vector2(560, 105), 24)
-			cb.disabled = sim.gold < ccost
-			cb.pressed.connect(func():
+			var cb := _chaos_card(reward_ui, Vector2(1150 + i * 250.0, 110), Vector2(230, 380), cc, "%d 🪙" % ccost, "" if sim.gold >= ccost else "disabled")
+			cb.btn.pressed.connect(func():
 				var picks: Array = [] if cc.kind == "global" else await _chaos_pick(cc)
 				if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, cc, picks):
 					chaos_stock[i] = null
 					sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false))
-		var rc := Shop.reroll_cost(rerolls)
-		var rb := _rw_button("สุ่มใหม่ %d 🪙" % rc, Vector2(160, 620), Vector2(300, 90), 34)
-		rb.disabled = sim.gold < rc
-		rb.pressed.connect(func():
-			sim.gold -= rc
-			rerolls += 1
-			stock = Shop.stock(sim)
-			_shop_step.emit(false))
-		var hc := Shop.hp_up_cost(sim)
-		var hpb := _rw_button("❤ +%d HP สูงสุด   %d 🪙\n(ตอนนี้ %d)" % [Shop.HP_UP, hc, roundi(sim.max_hp)], Vector2(480, 620), Vector2(380, 90), 28)
-		hpb.disabled = sim.gold < hc
-		hpb.pressed.connect(func():
-			Shop.buy_hp(sim)
-			_sync_hero()
-			sfx.play("place", 1.3, -8.0)
-			_shop_step.emit(false))
-		var hdc := Shop.hand_up_cost(sim)
-		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
-		var hdb := _rw_button(("✋ มือ +1 ช่อง   %d 🪙\n(ตอนนี้ %d)" % [hdc, sim.hand_size]) if not maxed else "✋ มือเต็มแล้ว (%d)" % sim.hand_size, Vector2(880, 620), Vector2(380, 90), 28)
-		hdb.disabled = maxed or sim.gold < hdc
-		hdb.pressed.connect(func():
-			Shop.buy_hand(sim)
-			sfx.play("place", 1.3, -8.0)
-			_shop_step.emit(false))
-		var dsc := Shop.discard_up_cost(sim)
-		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
-		var dsb := _rw_button(("🗑 ทิ้ง +1 ต่อรอบ   %d 🪙\n(ตอนนี้ %d)" % [dsc, sim.discard_per_turn]) if not dmaxed else "🗑 ทิ้งเต็มแล้ว (%d)" % sim.discard_per_turn, Vector2(1280, 620), Vector2(380, 90), 28)
-		dsb.disabled = dmaxed or sim.gold < dsc
-		dsb.pressed.connect(func():
-			Shop.buy_discard(sim)
-			sfx.play("place", 1.3, -8.0)
-			_shop_step.emit(false))
+		# Owned cards: tap to sell
 		for i in SLOTS:
 			var o = slot_arr[i]
-			var sb := _rw_button(("ขาย %s %s +%d 🪙" % [o.icon, o.name_th, Shop.sell_value(o)]) if o != null else "ช่อง %d ว่าง" % (i + 1),
-				Vector2(160 + i * 320.0, 730), Vector2(300, 100), 26)
-			sb.disabled = o == null
-			sb.pressed.connect(func():
+			var pos := Vector2(60 + i * 165.0, 540)
+			if o == null:
+				_make_card(reward_ui, pos, Vector2(150, 215), {"title": "ช่อง %d" % (i + 1), "sub": "ว่าง", "kind": "art", "state": "empty"})
+				continue
+			var sc := _art_card(reward_ui, pos, Vector2(150, 215), o, "ขาย +%d 🪙" % Shop.sell_value(o), "", 0, false)
+			sc.btn.pressed.connect(func():
 				sim.gold += Shop.sell_value(o)
 				slot_arr[i] = null
 				sfx.play("place", 1.0, -8.0)
 				_shop_step.emit(false))
-		var go := _rw_button("ไปต่อ ▶", Vector2(810, 900), Vector2(300, 100), 40)
+		# Upgrade cards
+		var rc := Shop.reroll_cost(rerolls)
+		var hc := Shop.hp_up_cost(sim)
+		var hdc := Shop.hand_up_cost(sim)
+		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
+		var dsc := Shop.discard_up_cost(sim)
+		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
+		var ups := [
+			{"icon": "🎲", "title": "สุ่มใหม่", "body": "สุ่ม Artifact ชุดใหม่", "foot": "%d 🪙" % rc, "ok": sim.gold >= rc},
+			{"icon": "❤", "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "ตอนนี้ %d" % roundi(sim.max_hp), "foot": "%d 🪙" % hc, "ok": sim.gold >= hc},
+			{"icon": "✋", "title": "มือ +1 ช่อง", "body": "ตอนนี้ %d" % sim.hand_size, "foot": ("%d 🪙" % hdc) if not maxed else "เต็มแล้ว", "ok": not maxed and sim.gold >= hdc},
+			{"icon": "🗑", "title": "ทิ้ง +1 ต่อรอบ", "body": "ตอนนี้ %d" % sim.discard_per_turn, "foot": ("%d 🪙" % dsc) if not dmaxed else "เต็มแล้ว", "ok": not dmaxed and sim.gold >= dsc},
+		]
+		for i in ups.size():
+			var u: Dictionary = ups[i]
+			var uc := _make_card(reward_ui, Vector2(940 + i * 235.0, 520), Vector2(220, 330), {"icon": u.icon, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": u.foot, "kind": "util", "state": "" if u.ok else "disabled"})
+			uc.btn.pressed.connect(func():
+				match i:
+					0:
+						sim.gold -= rc
+						rerolls += 1
+						stock = Shop.stock(sim)
+					1:
+						Shop.buy_hp(sim)
+						_sync_hero()
+					2:
+						Shop.buy_hand(sim)
+					3:
+						Shop.buy_discard(sim)
+				if i > 0:
+					sfx.play("place", 1.3, -8.0)
+				_shop_step.emit(false))
+		var go := _rw_button("ไปต่อ ▶", Vector2(810, 920), Vector2(300, 100), 40)
 		go.pressed.connect(func(): _shop_step.emit(true))
 		done = await _shop_step
 	reward_ui.queue_free()
@@ -1552,15 +1649,12 @@ func _shop() -> void:
 ## Test tab: every artifact and every Chaos card, free. Artifact: tap to take/return a slot. Chaos: tap to use on the run deck.
 func _shop_test_tab() -> void:
 	var arts: Array = Catalog.all()
+	var free := slot_arr.find(null)
 	for i in arts.size():
 		var d: Resource = arts[i]
 		var idx := slot_arr.find(d)
-		var free := slot_arr.find(null)
-		var b := _rw_button("%s%s\n%s\n(%s · %s)" % ["✔ " if idx >= 0 else "", d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")],
-			Vector2(24 + (i % 6) * 312.0, 95 + (i / 6) * 200.0), Vector2(300, 190), 24)
-		b.disabled = idx < 0 and free < 0
-		b.tooltip_text = d.text_th
-		b.pressed.connect(func():
+		var c := _art_card(reward_ui, Vector2(24 + (i % 8) * 232.0, 130 + (i / 8) * 270.0), Vector2(190, 260), d, "ถืออยู่ ✔" if idx >= 0 else "", "owned" if idx >= 0 else ("disabled" if free < 0 else ""), 0, false)
+		c.btn.pressed.connect(func():
 			if idx >= 0:
 				slot_arr[idx] = null
 			else:
@@ -1569,10 +1663,8 @@ func _shop_test_tab() -> void:
 			_shop_step.emit(false))
 	for i in Chaos.CARDS.size():
 		var cc: Dictionary = Chaos.CARDS[i]
-		var cb := _rw_button("%s %s" % [cc.icon, cc.name], Vector2(27 + i * 262.0, 710), Vector2(252, 120), 20)
-		cb.tooltip_text = cc.text
-		cb.disabled = cc.id == "ashes" and sim.ashes
-		cb.pressed.connect(func():
+		var cb := _chaos_card(reward_ui, Vector2(24 + i * 232.0, 675), Vector2(190, 260), cc, "ใช้ฟรี", "disabled" if (cc.id == "ashes" and sim.ashes) else "", false)
+		cb.btn.pressed.connect(func():
 			var free_cc: Dictionary = cc.duplicate()
 			free_cc.price = 0
 			var picks: Array = [] if cc.kind == "global" else await _chaos_pick(free_cc)

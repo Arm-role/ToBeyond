@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="ToBeyond"
-config/version="0.1.76"
+config/version="0.1.77"
 run/main_scene="res://scenes/domino.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -33,6 +33,10 @@ project/assembly_name="ToBeyond"
 [gui]
 
 theme/custom="res://assets/fonts/main_theme.tres"
+
+[internationalization]
+
+locale/include_text_server_data=true
 
 [rendering]
 
