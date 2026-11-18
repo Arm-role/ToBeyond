@@ -874,7 +874,9 @@ func _style_diamond(b: Button, c: String, picked: bool) -> void:
 	var tex := _gem_tex(c)
 	spr.texture = tex
 	spr.visible = tex != null
-	dia.visible = tex == null
+	dia.visible = false   # no slot frame behind the hand card; only the picked outline shows
+	rim.visible = picked and tex != null
+	rim.show_behind_parent = false   # drawn over the sprite so the picked outline is visible
 	rim.default_color = Color("#ffd966") if picked else Color(1, 1, 1, 0.3)
 	rim.width = 8.0 if picked else 3.0
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.5))
