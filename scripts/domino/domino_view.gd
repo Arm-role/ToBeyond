@@ -420,8 +420,8 @@ func _card_style(kind: String, rarity: String, state: String, st: String) -> Sty
 	return sb
 
 
-## Portrait card (Button root, all text in clipped child labels). data: icon, title, sub, body, foot, kind, rarity,
-## state ("", "owned", "disabled", "empty"), bf (body font). Returns {btn, icon, name, sub, body, foot}.
+## Card (same size as the game's artifact slots, CARD_SZ): Button root, icon + foot only. All text lives in the detail panel.
+## data: icon, foot, kind, rarity, state ("", "disabled" = dimmed but tappable, "empty" = no card).
 func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) -> Dictionary:
 	var b := Button.new()
 	b.text = ""
@@ -431,51 +431,101 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 	var state: String = data.get("state", "")
 	for st in ["normal", "hover", "pressed", "disabled"]:
 		b.add_theme_stylebox_override(st, _card_style(data.get("kind", "art"), data.get("rarity", ""), state, st))
-	b.disabled = state == "disabled" or state == "empty"
-	if b.disabled:
-		b.modulate.a = 0.45
+	b.disabled = state == "empty"
+	if state == "disabled" or state == "empty":
+		b.modulate.a = 0.55
 	parent.add_child(b)
 	var h := sz.y
 	var w := sz.x
-	var C := HORIZONTAL_ALIGNMENT_CENTER
 	var c := {"btn": b}
-	c["icon"] = _card_label(b, roundi(h * 0.17), Vector2(0, h * 0.03), Vector2(w, h * 0.23), C)
-	c["name"] = _card_label(b, roundi(maxf(20.0, h * 0.058)), Vector2(8, h * 0.25), Vector2(w - 16, h * 0.20), C)
-	c["name"].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	c["sub"] = _card_label(b, roundi(maxf(16.0, h * 0.045)), Vector2(0, h * 0.45), Vector2(w, h * 0.06), C)
-	var bf := int(data.get("bf", maxf(20.0, h * 0.05)))
-	var body := _card_label(b, bf, Vector2(12, h * 0.52), Vector2(w - 24, h * 0.31), C)
-	body.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	body.max_lines_visible = maxi(1, int(h * 0.32 / (bf * 1.4)))
-	c["body"] = body
-	var foot := _card_label(b, roundi(maxf(22.0, h * 0.055)), Vector2(0, h * 0.84), Vector2(w, h * 0.15), C)
+	c["icon"] = _card_label(b, roundi(h * 0.32), Vector2(0, h * 0.10), Vector2(w, h * 0.52), HORIZONTAL_ALIGNMENT_CENTER)
+	c["icon"].text = data.get("icon", "")
+	var foot := _card_label(b, 24, Vector2(0, h * 0.74), Vector2(w, h * 0.2), HORIZONTAL_ALIGNMENT_CENTER)
 	foot.add_theme_color_override("font_color", Color("#ffd966"))
-	c["foot"] = foot
-	c.icon.text = data.get("icon", "")
-	c.name.text = data.get("title", "")
-	c.sub.text = data.get("sub", "")
-	body.text = data.get("body", "")
 	foot.text = data.get("foot", "")
-	b.tooltip_text = data.get("body", "")
+	c["foot"] = foot
 	return c
 
 
-func _art_card(parent: Control, pos: Vector2, sz: Vector2, d: Resource, foot: String, state: String = "", bf: int = 0, with_body: bool = true) -> Dictionary:
-	var data := {"icon": d.icon, "title": d.name_th, "sub": "%s · %s" % [ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")],
-		"body": d.text_th if with_body else "", "foot": foot, "kind": "art", "rarity": d.rarity, "state": state}
-	if bf > 0:
-		data["bf"] = bf
-	var c := _make_card(parent, pos, sz, data)
-	c.btn.tooltip_text = d.text_th
-	return c
+const CARD_SZ := Vector2(150, 215)
 
 
-func _chaos_card(parent: Control, pos: Vector2, sz: Vector2, cc: Dictionary, foot: String, state: String = "", with_body: bool = true) -> Dictionary:
-	var c := _make_card(parent, pos, sz, {"icon": cc.icon, "title": cc.name, "sub": "การ์ด Chaos", "body": cc.text if with_body else "", "foot": foot, "kind": "chaos", "state": state})
-	c.btn.tooltip_text = cc.text
-	return c
+## info = card data + title, sub, body (shown in the panel) + act (action button text, "" = none), ok, cb (Callable).
+func _art_info(d: Resource, foot: String, act: String, ok: bool, cb: Callable) -> Dictionary:
+	return {"icon": d.icon, "title": d.name_th, "sub": "%s · %s" % [ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")], "body": d.text_th,
+		"foot": foot, "kind": "art", "rarity": d.rarity, "state": "" if ok else "disabled", "act": act, "ok": ok, "cb": cb}
+
+
+func _chaos_info(cc: Dictionary, foot: String, act: String, ok: bool, cb: Callable) -> Dictionary:
+	return {"icon": cc.icon, "title": cc.name, "sub": "การ์ด Chaos", "body": cc.text, "foot": foot, "kind": "chaos",
+		"state": "" if ok else "disabled", "act": act, "ok": ok, "cb": cb}
+
+
+## Info panel at `rect`: tap a card to fill it.
+func _detail_panel(rect: Rect2) -> Control:
+	var pn := Panel.new()
+	pn.position = rect.position
+	pn.size = rect.size
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("#2a2340")
+	sb.set_corner_radius_all(18)
+	sb.set_border_width_all(3)
+	sb.border_color = Color("#8a7fb0")
+	pn.add_theme_stylebox_override("panel", sb)
+	reward_ui.add_child(pn)
+	_panel_label(pn, "แตะการ์ดเพื่อดูรายละเอียด", 30, Vector2(0, 0), rect.size, HORIZONTAL_ALIGNMENT_CENTER).modulate.a = 0.6
+	return pn
+
+
+func _panel_label(pn: Control, text: String, fs: int, pos: Vector2, sz: Vector2, align: int) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.position = pos
+	l.size = sz
+	l.horizontal_alignment = align
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.add_theme_font_size_override("font_size", fs)
+	pn.add_child(l)
+	return l
+
+
+## Add one tappable card to `cards`; tapping shows it in `panel`.
+func _add_card(parent: Control, cards: Array, panel: Control, pos: Vector2, info: Dictionary) -> void:
+	var c := _make_card(parent, pos, CARD_SZ, info)
+	cards.append({"btn": c.btn, "info": info})
+	var idx := cards.size() - 1
+	c.btn.pressed.connect(func(): _detail_show(panel, cards, idx))
+
+
+func _detail_show(panel: Control, cards: Array, idx: int) -> void:
+	for i in cards.size():
+		var inf: Dictionary = cards[i].info
+		var state := "owned" if i == idx else String(inf.get("state", ""))
+		for st in ["normal", "hover", "pressed", "disabled"]:
+			cards[i].btn.add_theme_stylebox_override(st, _card_style(inf.get("kind", "art"), inf.get("rarity", ""), state, st))
+	for ch in panel.get_children():
+		ch.queue_free()
+	var info: Dictionary = cards[idx].info
+	var w := panel.size.x
+	var h := panel.size.y
+	_panel_label(panel, info.get("icon", ""), 90, Vector2(20, 20), Vector2(130, 130), HORIZONTAL_ALIGNMENT_CENTER)
+	_panel_label(panel, info.get("title", ""), 40, Vector2(170, 20), Vector2(w - 190, 70), HORIZONTAL_ALIGNMENT_LEFT)
+	var sub := _panel_label(panel, info.get("sub", ""), 26, Vector2(170, 90), Vector2(w - 190, 50), HORIZONTAL_ALIGNMENT_LEFT)
+	sub.modulate.a = 0.7
+	var body := _panel_label(panel, info.get("body", ""), 30, Vector2(24, 160), Vector2(w - 48, h - 280), HORIZONTAL_ALIGNMENT_LEFT)
+	body.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	if String(info.get("act", "")) != "":
+		var ab := Button.new()
+		ab.text = info.act
+		ab.position = Vector2(24, h - 100)
+		ab.size = Vector2(w - 48, 80)
+		ab.add_theme_font_size_override("font_size", 34)
+		ab.disabled = not bool(info.get("ok", true))
+		ab.pressed.connect(func(): info.cb.call())
+		panel.add_child(ab)
+
+
 
 
 ## A label drawn on a card button (clicks pass through to the button).
@@ -1385,7 +1435,7 @@ func _blind_data(s: int) -> Dictionary:
 		icon = "💀"
 		title = "ศัตรูแกร่ง"
 		extra = "\n\nชนะแล้วเลือก Artifact 1 ใน 3"
-	return {"icon": icon, "title": title, "sub": "ด่าน %d%s" % [s, kind], "kind": "enemy", "bf": 26,
+	return {"icon": icon, "title": title, "sub": "ด่าน %d%s" % [s, kind], "kind": "enemy", "foot": "ด่าน %d" % s, "act": "", "ok": true,
 		"body": "❤ %d   ⚔ %s%s" % [st.hp, str(roundi(st.dmg * 10.0) / 10.0), extra]}
 
 
@@ -1396,15 +1446,13 @@ func _blinds(first: int) -> void:
 	add_child(reward_ui)
 	_rw_clear("ศัตรูที่ต้องสู้")
 	var n := mini(3, MAX_STAGE - first + 1)
-	var x0 := (1920.0 - (n * 460.0 - 60.0)) * 0.5
+	var panel := _detail_panel(Rect2(460, 450, 1000, 400))
+	var cards: Array = []
+	var x0 := (1920.0 - (n * 165.0 - 15.0)) * 0.5
 	for i in n:
-		var cur := i == 0
-		var data := _blind_data(first + i)
-		data["state"] = "" if cur else "disabled"
-		var c := _make_card(reward_ui, Vector2(x0 + i * 460.0, 190 if cur else 250), Vector2(400, 600 if cur else 540), data)
-		if cur:
-			c.btn.pressed.connect(func(): _blind_done.emit())
-	var go := _rw_button("สู้ ▶", Vector2(x0 + 50, 870), Vector2(300, 100), 44)
+		_add_card(reward_ui, cards, panel, Vector2(x0 + i * 165.0, 200), _blind_data(first + i))
+	_detail_show(panel, cards, 0)
+	var go := _rw_button("สู้ ▶", Vector2(810, 890), Vector2(300, 100), 44)
 	go.pressed.connect(func(): _blind_done.emit())
 	await _blind_done
 	reward_ui.queue_free()
@@ -1510,12 +1558,13 @@ func _rw_button(text: String, pos: Vector2, size: Vector2, font: int) -> Button:
 
 func _reward_offers(offers: Array) -> void:
 	_rw_clear("เลือก Artifact 1 ใบ")
-	var x0 := (1920.0 - (offers.size() * 380.0 + (offers.size() - 1) * 40.0)) * 0.5
+	var panel := _detail_panel(Rect2(460, 450, 1000, 400))
+	var cards: Array = []
+	var x0 := (1920.0 - (offers.size() * 165.0 - 15.0)) * 0.5
 	for i in offers.size():
 		var d: Resource = offers[i]
-		var c := _art_card(reward_ui, Vector2(x0 + i * 420.0, 170), Vector2(380, 540), d, "เลือก", "", 26)
-		c.btn.pressed.connect(_reward_pick.bind(d, offers))
-	var skip := _rw_button("ข้าม", Vector2(810, 780), Vector2(300, 100), 40)
+		_add_card(reward_ui, cards, panel, Vector2(x0 + i * 165.0, 200), _art_info(d, "", "เลือก", true, _reward_pick.bind(d, offers)))
+	var skip := _rw_button("ข้าม", Vector2(810, 890), Vector2(300, 100), 40)
 	skip.pressed.connect(func(): reward_done.emit())
 
 
@@ -1527,18 +1576,21 @@ func _reward_pick(d: Resource, offers: Array) -> void:
 			reward_done.emit()
 			return
 	_rw_clear("ช่องเต็ม: เลือกช่องที่จะแทนด้วย %s %s" % [d.icon, d.name_th])
+	var panel := _detail_panel(Rect2(460, 450, 1000, 400))
+	var cards: Array = []
+	var x0 := (1920.0 - (SLOTS * 165.0 - 15.0)) * 0.5
 	for i in SLOTS:
 		var o: Resource = slot_arr[i]
-		var c := _art_card(reward_ui, Vector2(150 + i * 330.0, 200), Vector2(300, 430), o, "ช่อง %d · แทนที่" % (i + 1), "", 22)
-		c.btn.pressed.connect(func():
+		_add_card(reward_ui, cards, panel, Vector2(x0 + i * 165.0, 200), _art_info(o, "ช่อง %d" % (i + 1), "แทนที่ด้วย %s %s" % [d.icon, d.name_th], true, func():
 			slot_arr[i] = d
-			reward_done.emit())
-	var back := _rw_button("กลับ", Vector2(810, 780), Vector2(300, 100), 40)
+			reward_done.emit()))
+	var back := _rw_button("กลับ", Vector2(810, 890), Vector2(300, 100), 40)
 	back.pressed.connect(func(): _reward_offers(offers))
 
 
-## Shop after a boss or on the shop door: 4 artifacts + 3 Chaos cards for coins, the owned cards (tap to sell for half price),
-## and 4 upgrade cards (reroll, HP, hand, discard). Tab "Test" lists every card for free.
+## Shop after a boss or on the shop door. Cards are small (same size as the game slots) and show only the icon and price;
+## tap one to read it in the panel on the right and press its action button: 4 artifacts + 3 Chaos cards, 4 upgrades,
+## the owned cards (sell for half price). Tab "Test" lists every card for free.
 func _shop() -> void:
 	reward_ui = Control.new()
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1564,6 +1616,8 @@ func _shop() -> void:
 			go_t.pressed.connect(func(): _shop_step.emit(true))
 			done = await _shop_step
 			continue
+		var panel := _detail_panel(Rect2(1260, 110, 620, 520))
+		var cards: Array = []
 		var free := slot_arr.find(null)
 		for i in stock.size():
 			var d: Resource = stock[i]
@@ -1571,40 +1625,25 @@ func _shop() -> void:
 				continue   # already bought
 			var cost := Shop.price(d)
 			var can := sim.gold >= cost and free >= 0
-			var c := _art_card(reward_ui, Vector2(40 + i * 270.0, 110), Vector2(250, 380), d, ("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน", "" if can else "disabled", 20)
-			c.btn.pressed.connect(func():
+			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 110), _art_info(d, "%d 🪙" % cost, ("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน", can, func():
 				sim.gold -= cost
 				slot_arr[free] = d
 				stock[i] = null
 				sfx.play("place", 1.3, -8.0)
-				_shop_step.emit(false))
+				_shop_step.emit(false)))
 		# Chaos cards: bought and used at once on the deck
 		for i in chaos_stock.size():
 			var cc = chaos_stock[i]
 			if cc == null:
 				continue   # already used
 			var ccost := int(cc.price)
-			var cb := _chaos_card(reward_ui, Vector2(1150 + i * 250.0, 110), Vector2(230, 380), cc, "%d 🪙" % ccost, "" if sim.gold >= ccost else "disabled")
-			cb.btn.pressed.connect(func():
+			_add_card(reward_ui, cards, panel, Vector2(740 + i * 165.0, 110), _chaos_info(cc, "%d 🪙" % ccost, "ใช้การ์ด %d 🪙" % ccost, sim.gold >= ccost, func():
 				var picks: Array = [] if cc.kind == "global" else await _chaos_pick(cc)
 				if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, cc, picks):
 					chaos_stock[i] = null
 					sfx.play("place", 1.3, -8.0)
-				_shop_step.emit(false))
-		# Owned cards: tap to sell
-		for i in SLOTS:
-			var o = slot_arr[i]
-			var pos := Vector2(60 + i * 165.0, 540)
-			if o == null:
-				_make_card(reward_ui, pos, Vector2(150, 215), {"title": "ช่อง %d" % (i + 1), "sub": "ว่าง", "kind": "art", "state": "empty"})
-				continue
-			var sc := _art_card(reward_ui, pos, Vector2(150, 215), o, "ขาย +%d 🪙" % Shop.sell_value(o), "", 0, false)
-			sc.btn.pressed.connect(func():
-				sim.gold += Shop.sell_value(o)
-				slot_arr[i] = null
-				sfx.play("place", 1.0, -8.0)
-				_shop_step.emit(false))
-		# Upgrade cards
+				_shop_step.emit(false)))
+		# Upgrades
 		var rc := Shop.reroll_cost(rerolls)
 		var hc := Shop.hp_up_cost(sim)
 		var hdc := Shop.hand_up_cost(sim)
@@ -1612,30 +1651,44 @@ func _shop() -> void:
 		var dsc := Shop.discard_up_cost(sim)
 		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
 		var ups := [
-			{"icon": "🎲", "title": "สุ่มใหม่", "body": "สุ่ม Artifact ชุดใหม่", "foot": "%d 🪙" % rc, "ok": sim.gold >= rc},
-			{"icon": "❤", "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "ตอนนี้ %d" % roundi(sim.max_hp), "foot": "%d 🪙" % hc, "ok": sim.gold >= hc},
-			{"icon": "✋", "title": "มือ +1 ช่อง", "body": "ตอนนี้ %d" % sim.hand_size, "foot": ("%d 🪙" % hdc) if not maxed else "เต็มแล้ว", "ok": not maxed and sim.gold >= hdc},
-			{"icon": "🗑", "title": "ทิ้ง +1 ต่อรอบ", "body": "ตอนนี้ %d" % sim.discard_per_turn, "foot": ("%d 🪙" % dsc) if not dmaxed else "เต็มแล้ว", "ok": not dmaxed and sim.gold >= dsc},
+			{"icon": "🎲", "title": "สุ่มใหม่", "body": "สุ่ม Artifact ในร้านชุดใหม่", "cost": rc, "ok": sim.gold >= rc},
+			{"icon": "❤", "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
+			{"icon": "✋", "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
+			{"icon": "🗑", "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
 		]
 		for i in ups.size():
 			var u: Dictionary = ups[i]
-			var uc := _make_card(reward_ui, Vector2(940 + i * 235.0, 520), Vector2(220, 330), {"icon": u.icon, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": u.foot, "kind": "util", "state": "" if u.ok else "disabled"})
-			uc.btn.pressed.connect(func():
-				match i:
-					0:
-						sim.gold -= rc
-						rerolls += 1
-						stock = Shop.stock(sim)
-					1:
-						Shop.buy_hp(sim)
-						_sync_hero()
-					2:
-						Shop.buy_hand(sim)
-					3:
-						Shop.buy_discard(sim)
-				if i > 0:
-					sfx.play("place", 1.3, -8.0)
-				_shop_step.emit(false))
+			var label := "เต็มแล้ว" if u.get("max", false) else "%d 🪙" % u.cost
+			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 350), {"icon": u.icon, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
+				"state": "" if u.ok else "disabled", "act": "ซื้อ " + label, "ok": u.ok, "cb": func():
+					match i:
+						0:
+							sim.gold -= rc
+							rerolls += 1
+							stock = Shop.stock(sim)
+						1:
+							Shop.buy_hp(sim)
+							_sync_hero()
+						2:
+							Shop.buy_hand(sim)
+						3:
+							Shop.buy_discard(sim)
+					if i > 0:
+						sfx.play("place", 1.3, -8.0)
+					_shop_step.emit(false)})
+		# Owned cards: sell
+		for i in SLOTS:
+			var o = slot_arr[i]
+			var pos := Vector2(40 + i * 165.0, 590)
+			if o == null:
+				_make_card(reward_ui, pos, CARD_SZ, {"state": "empty", "kind": "art"})
+				continue
+			var sell := Shop.sell_value(o)
+			_add_card(reward_ui, cards, panel, pos, _art_info(o, "+%d 🪙" % sell, "ขาย +%d 🪙" % sell, true, func():
+				sim.gold += sell
+				slot_arr[i] = null
+				sfx.play("place", 1.0, -8.0)
+				_shop_step.emit(false)))
 		var go := _rw_button("ไปต่อ ▶", Vector2(810, 920), Vector2(300, 100), 40)
 		go.pressed.connect(func(): _shop_step.emit(true))
 		done = await _shop_step
@@ -1646,31 +1699,37 @@ func _shop() -> void:
 	v_gold = sim.gold
 
 
-## Test tab: every artifact and every Chaos card, free. Artifact: tap to take/return a slot. Chaos: tap to use on the run deck.
+## Test tab: every artifact and every Chaos card, free. Artifact: take / return a slot. Chaos: use on the run deck.
 func _shop_test_tab() -> void:
+	var panel := _detail_panel(Rect2(1400, 110, 480, 520))
+	var cards: Array = []
 	var arts: Array = Catalog.all()
 	var free := slot_arr.find(null)
 	for i in arts.size():
 		var d: Resource = arts[i]
 		var idx := slot_arr.find(d)
-		var c := _art_card(reward_ui, Vector2(24 + (i % 8) * 232.0, 130 + (i / 8) * 270.0), Vector2(190, 260), d, "ถืออยู่ ✔" if idx >= 0 else "", "owned" if idx >= 0 else ("disabled" if free < 0 else ""), 0, false)
-		c.btn.pressed.connect(func():
+		var info := _art_info(d, "✔" if idx >= 0 else "", "คืนช่อง" if idx >= 0 else "ใช้ฟรี", idx >= 0 or free >= 0, func():
 			if idx >= 0:
 				slot_arr[idx] = null
 			else:
 				slot_arr[free] = d
 			sfx.play("place", 1.3, -8.0)
 			_shop_step.emit(false))
+		if idx >= 0:
+			info["state"] = ""
+		_add_card(reward_ui, cards, panel, Vector2(40 + (i % 8) * 165.0, 110 + (i / 8) * 230.0), info)
+		if idx >= 0:
+			cards[cards.size() - 1].btn.add_theme_stylebox_override("normal", _card_style("art", d.rarity, "owned", "normal"))
 	for i in Chaos.CARDS.size():
 		var cc: Dictionary = Chaos.CARDS[i]
-		var cb := _chaos_card(reward_ui, Vector2(24 + i * 232.0, 675), Vector2(190, 260), cc, "ใช้ฟรี", "disabled" if (cc.id == "ashes" and sim.ashes) else "", false)
-		cb.btn.pressed.connect(func():
+		var used: bool = cc.id == "ashes" and sim.ashes
+		_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 580), _chaos_info(cc, "ฟรี", "ใช้ฟรี", not used, func():
 			var free_cc: Dictionary = cc.duplicate()
 			free_cc.price = 0
 			var picks: Array = [] if cc.kind == "global" else await _chaos_pick(free_cc)
 			if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, free_cc, picks):
 				sfx.play("place", 1.3, -8.0)
-			_shop_step.emit(false))
+			_shop_step.emit(false)))
 
 
 ## Chaos picker: choose which Gems of the run deck the card works on (one tap = one Gem).
