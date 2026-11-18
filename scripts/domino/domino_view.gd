@@ -69,8 +69,6 @@ var art_pop: Panel
 var art_pop_l: Dictionary = {}
 var cards_lbl: Label
 var status_lbl: Label
-var spark_l: Label
-var spark_r: Label
 var reward_ui: Control
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
@@ -423,8 +421,6 @@ func _build() -> void:
 		badge.visible = false
 		card["badge"] = badge
 		slot_cards.append(card)
-	spark_l = _label("✨", 44, Vector2(0, 900), 60.0)
-	spark_r = _label("✨", 44, Vector2(0, 900), 60.0)
 	art_pop = Panel.new()   # floating detail frame for a tapped artifact card (like the shop's panel)
 	art_pop.position = Vector2(651, 185)
 	art_pop.size = Vector2(619, 250)
@@ -881,10 +877,6 @@ func _refresh() -> void:
 	if v_flag2 >= 0:
 		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - TAB_H - 10.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
-	spark_l.visible = hand.size() > 0
-	spark_r.visible = hand.size() > 0
-	spark_l.position.x = hx - 75.0
-	spark_r.position.x = hx + hand.size() * 221.0 - 21.0 + 35.0
 	if over:
 		status_lbl.text = "สถานะ: จบเกม"
 	elif busy:
