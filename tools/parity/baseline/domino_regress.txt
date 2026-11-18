@@ -1,5 +1,5 @@
-hands: ["orange", "orange", "blue"]["blue", "red", "orange"][4]
-deck: { "red": 20, "blue": 15, "orange": 10 } after hand 41 discard 1 left 0 again -
+hands: ["orange", "orange", "blue", "blue"]["red", "orange", "red", "red"][4]
+deck: { "red": 20, "blue": 15, "orange": 10 } after hand 40 discard 1 left 2 again blue
 == full [] walk 1: 30 events, hp 28.0, enemy 83, kept []
 block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0

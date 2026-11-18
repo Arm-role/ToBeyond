@@ -68,7 +68,6 @@ var slot_sel: int = -1              # slot picked for a swap (tap two slots to s
 var art_pop: Panel
 var art_pop_l: Dictionary = {}
 var cards_lbl: Label
-var status_lbl: Label
 var reward_ui: Control
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
@@ -250,9 +249,6 @@ func _build() -> void:
 	for l in [enemy_lbl, hp_lbl]:
 		l.add_theme_color_override("font_outline_color", Color.BLACK)
 		l.add_theme_constant_override("outline_size", 6)
-	_frame(Rect2(46, 1030, 520, 44))
-	status_lbl = _label("", 20, Vector2(58, 1038), 500.0)
-	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	var x0 := (1920.0 - (N * TILE + (N - 1) * GAP)) * 0.5
 	for i in N:
 		var b := Button.new()
@@ -878,14 +874,6 @@ func _refresh() -> void:
 	if v_flag2 >= 0:
 		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - TAB_H - 10.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
-	if over:
-		status_lbl.text = "สถานะ: จบเกม"
-	elif busy:
-		status_lbl.text = "สถานะ: กำลังเดิน"
-	elif sim.board.is_empty():
-		status_lbl.text = "สถานะ: เริ่มต้น (ยังไม่วางไพ่ · ปุ่มกดไม่ได้)"
-	else:
-		status_lbl.text = "สถานะ: พร้อมเดิน"
 	discard_btn.text = "🗑 ทิ้ง (%d)" % sim.discards_left
 	discard_btn.disabled = busy or over or selected < 0 or sim.discards_left <= 0
 	deck_btn.text = "สำรับ\n%d / %d" % [sim.deck.size(), _deck_total()]

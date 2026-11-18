@@ -6,7 +6,7 @@ extends RefCounted
 ## No class_name: const Sim = preload("res://scripts/domino/domino_sim.gd").
 
 const N := 8
-const HAND_SIZE := 3
+const HAND_SIZE := 4
 const MAX_HAND := 5
 const RED_DMG := 4
 const BLUE_BLOCK := 3
@@ -16,7 +16,7 @@ const CRIT_MULT := 2.0
 const ASH_BONUS := 1   # Chaos "ashes": a Gem of the same kind as the last pop on that tile gets this much power
 const ATTACK := ["red", "redcrit"]
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
-const DISCARDS_PER_TURN := 1
+const DISCARDS_PER_TURN := 3
 const MAX_DISCARDS := 4   # shop upgrades raise the discards per turn up to this
 const BASE_ENEMY_HP := 18
 const BASE_STRIKE := 8.0
