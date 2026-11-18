@@ -1307,6 +1307,10 @@ func _play_walk(evs: Array) -> void:
 			"ash":
 				v_ash[ev.tile] = ev.kind
 			"gold":
+				var gt: int = int(ev.get("tile", -1))
+				if ev.src == "base" and gt >= 0 and gt < tile_btns.size() and ev.amount > 0:
+					var gb: Control = tile_btns[gt]
+					await _charge_volley(gb.position + gb.size * 0.5, _hero_c(), roundi(ev.amount), Color("#ffa733"), Color("#ffe0a0"))   # coin Gem: orange balls gather and fly at the hero like attack / shield (not at the coin counter)
 				v_gold = ev.total
 				_float_text("+%d 🪙" % ev.amount, ENEMY_HOME + Vector2(40, 60), Color("#ffd966"))
 				_refresh()
