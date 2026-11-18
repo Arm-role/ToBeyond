@@ -924,7 +924,7 @@ func _refresh() -> void:
 			continue
 		hand_btns[i].position.x = hx + i * 221.0
 		var c: String = hand[i]
-		hand_btns[i].text = _hand_text(c)
+		hand_btns[i].text = ""   # the score is shown under the tile once placed, not on the hand card
 		hand_btns[i].disabled = c == "" or busy
 		_style_diamond(hand_btns[i], c, i == selected)
 	for i in tile_tabs.size():
