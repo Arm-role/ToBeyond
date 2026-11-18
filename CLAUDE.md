@@ -45,3 +45,6 @@ So after every change, before saying "done": `tools/parity/build.sh`, then drive
 ## Compact instructions
 Keep: the current task, files changed and why, open problems from the last check, what is committed and pushed.
 Drop: old tool output, screenshots, superseded plans.
+
+## Working with the user (user rule 2026-11-18)
+If a request is unclear or you are not sure you understood it, ask before acting, always. Reason: a wrong guess costs a whole build/test/push round.
