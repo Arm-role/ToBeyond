@@ -266,8 +266,8 @@ func _build() -> void:
 		gs.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		gs.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		gs.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		gs.size = Vector2(TILE - 16.0, TILE - 16.0)
-		gs.position = Vector2(8, 4)
+		gs.size = Vector2(TILE - 30.0, TILE - 24.0)
+		gs.position = Vector2(15, 14)
 		b.add_child(gs)
 		b.set_meta("gem", gs)
 		var gl := Label.new()   # value text over the sprite (the button's own text would sit under it)
