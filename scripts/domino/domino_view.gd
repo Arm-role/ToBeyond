@@ -271,8 +271,8 @@ func _build() -> void:
 		b.add_child(gs)
 		b.set_meta("gem", gs)
 		var gl := Label.new()   # value text over the sprite (the button's own text would sit under it)
-		gl.size = Vector2(TILE - 36.0, 34.0)   # score strip at the bottom of the tile, black background
-		gl.position = Vector2(18, TILE - 46.0)
+		gl.size = Vector2(TILE - 36.0, 34.0)   # score strip just below the tile (outside it), black background
+		gl.position = Vector2(18, TILE + 8.0)
 		var gbg := StyleBoxFlat.new()
 		gbg.bg_color = Color.BLACK
 		gbg.set_corner_radius_all(8)
