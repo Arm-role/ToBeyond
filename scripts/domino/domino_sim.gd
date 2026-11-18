@@ -13,6 +13,7 @@ const BLUE_BLOCK := 3
 const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
 const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
 const CRIT_MULT := 2.0
+const ASH_BONUS := 1   # Chaos "ashes": a Gem of the same kind as the last pop on that tile gets this much power
 const ATTACK := ["red", "redcrit"]
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
 const DISCARDS_PER_TURN := 1
@@ -68,6 +69,10 @@ var kind: String = "fight"       # "fight" | "elite" | "boss": the current fight
 var map_rng := RandomNumberGenerator.new()   # the stage plan only; never sim.rng, so fights and decks stay unchanged
 var stats: Dictionary = {}       # add_stat values, one walk long
 var run_deck: Dictionary = DECK_COUNTS.duplicate()   # Gems per colour in this run's deck; Chaos cards change it for good
+var ashes: bool = false          # bought from the Chaos shop row: every pop leaves ashes on its tile
+var ash: Dictionary = {}         # tile -> Gem kind of the last pop there (this fight only)
+var _prev_tiles: Array = []      # tiles that held a Gem in the previous walk (furnace)
+var _next_prev: Array = []
 var deck: Array = []             # limited draw pile of Gem colours (run_deck per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
 var discards_left: int = DISCARDS_PER_TURN   # reset to discard_per_turn each hand
@@ -122,6 +127,9 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
 	board.clear()
+	ash.clear()
+	_prev_tiles = []
+	_next_prev = []
 	build_deck()
 	_once_fight.clear()
 	_reset_walk()
@@ -323,6 +331,8 @@ func _route_next(tile: int, dir: int) -> int:
 
 func run_walk() -> Array:
 	_reset_walk()
+	_prev_tiles = _next_prev
+	_next_prev = board.keys()
 	events = []
 	walk_no += 1
 	_fire(_emit("ignite", {"walk": walk_no, "block": _block}))
@@ -473,6 +483,10 @@ func _do_pop(tile: int, cause: String) -> void:
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
 	var boost := roundi(float(ev.get("boost", 0.0)))   # "boost" rules add to this Gem's power, whatever its colour
+	var kind_now := "red" if g.color in ATTACK else String(g.color)
+	if ashes and not (base == 0 and red) and ash.get(tile, "") == kind_now:
+		boost += ASH_BONUS   # same kind of Gem on the ashes of the last pop here
+		ev["ash_used"] = true
 	if coin:
 		gold += COIN_GEM + boost
 		_emit("gold", {"amount": COIN_GEM + boost, "total": gold}, "base")
@@ -488,6 +502,9 @@ func _do_pop(tile: int, cause: String) -> void:
 		_hit("enemy", dmg, "base", "pop")
 	else:
 		_shield(base + boost, "base")
+	if ashes:
+		ash[tile] = kind_now
+		_emit("ash", {"tile": tile, "kind": kind_now}, "base")
 	_fire(ev)
 
 
@@ -599,6 +616,8 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 			return ev.dir == (1 if want == "fwd" else -1)
 		"nth":
 			return ev.get("nth", -1) == int(want)
+		"prev_tile":
+			return _prev_tiles.has(tile) == want   # the tile held a Gem in the previous walk
 		"every":
 			return int(want) > 0 and ev.get("nth", 0) % int(want) == 0
 		"cause":

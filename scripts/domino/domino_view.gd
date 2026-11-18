@@ -38,6 +38,7 @@ var v_flag: int = 3
 var v_flag2: int = -1               # second flag (twin-flag boss), -1 = none
 var v_gold: int = 0
 var v_boss: Resource = null
+var v_ash: Dictionary = {}          # tile -> Gem kind: ashes left by pops (Chaos ashes)
 var flag_seen: bool = false         # smoke boss: a flag is revealed once the fireball is within 2 tiles
 var v_board: Dictionary = {}        # tile -> {color, kept, ...}
 var hand: Array[String] = []        # "" = slot already placed
@@ -546,6 +547,7 @@ func _sync() -> void:
 	v_boss = sim.boss
 	flag_seen = false
 	v_board = sim.board.duplicate(true)
+	v_ash = sim.ash.duplicate()
 
 
 func _new_turn() -> void:
@@ -645,7 +647,11 @@ func _refresh() -> void:
 		var g: Dictionary = v_board.get(i, {})
 		var c: String = g.get("color", "")
 		tile_btns[i].text = _gem_text(c).replace("
-", " ") if c != "" else ""
+", " ") if c != "" else ("✦ +%d" % Sim.ASH_BONUS if v_ash.has(i) else "")
+		if c == "" and v_ash.has(i):
+			tile_btns[i].add_theme_color_override("font_color", COL["red" if v_ash[i] == "red" else v_ash[i]].lightened(0.35))
+		else:
+			tile_btns[i].remove_theme_color_override("font_color")
 		_style_tile(i, c, c != "" and g.get("kept", false))
 	var hx := 800.0 - (hand.size() * 210.0 - 20.0) * 0.5   # hand centred between the slot bar and the go button
 	for i in hand_btns.size():
@@ -1148,6 +1154,8 @@ func _play_walk(evs: Array) -> void:
 				_refresh()
 			"capped":
 				_float_text("สุดทาง", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 120.0), Color("#c8c8d0"))
+			"ash":
+				v_ash[ev.tile] = ev.kind
 			"gold":
 				v_gold = ev.total
 				_float_text("+%d 🪙" % ev.amount, ENEMY_HOME + Vector2(40, 60), Color("#ffd966"))
@@ -1452,8 +1460,8 @@ func _shop() -> void:
 			var cb := _rw_button("%s %s   %d 🪙\n%s" % [cc.icon, cc.name, ccost, cc.text], Vector2(cx0 + i * 590.0, 495), Vector2(560, 105), 24)
 			cb.disabled = sim.gold < ccost
 			cb.pressed.connect(func():
-				var picks: Array = await _chaos_pick(cc)
-				if not picks.is_empty() and Chaos.buy(sim, cc, picks):
+				var picks: Array = [] if cc.kind == "global" else await _chaos_pick(cc)
+				if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, cc, picks):
 					chaos_stock[i] = null
 					sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false))

@@ -6,16 +6,8 @@
 [sub_resource type="Resource" id="Resource_r0"]
 script = ExtResource("2_r")
 trigger = &"pop"
-cond = {"kept": true, "color": "red"}
+cond = {"prev_tile": true, "color": "red"}
 effect = &"damage"
-args = {"amount": "base"}
-once = &""
-
-[sub_resource type="Resource" id="Resource_r1"]
-script = ExtResource("2_r")
-trigger = &"pop"
-cond = {"kept": true, "color": "blue"}
-effect = &"shield"
 args = {"amount": "base"}
 once = &""
 
@@ -24,9 +16,9 @@ script = ExtResource("1_a")
 id = "furnace"
 name_th = "เตาเผา"
 icon = "🔥"
-text_th = "Gem ที่อยู่ต่อจากรอบก่อน ป๊อปแรงเป็นสองเท่า"
+text_th = "Gem แดงที่วางช่องเดียวกับที่วางรอบก่อน แรงเป็นสองเท่า"
 archetype = "ember"
 rarity = "uncommon"
 price = 6
 catalog_order = 8
-rules = Array[Resource]([SubResource("Resource_r0"), SubResource("Resource_r1")])
+rules = Array[Resource]([SubResource("Resource_r0")])

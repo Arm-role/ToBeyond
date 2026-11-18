@@ -15,6 +15,8 @@ const CARDS := [
 		"text": "เลือก Gem ในสำรับ 2 ใบ เปลี่ยนเป็น 🪙 ส้ม"},
 	{"id": "mark_crit", "kind": "convert", "to": "redcrit", "only": "red", "picks": 1, "price": 4, "icon": "⚡", "name": "Chaos ลับคม",
 		"text": "เลือก Gem แดง 1 ใบในสำรับ ให้มีโอกาสคริ 1 ใน 3 (ดาเมจ ×2) ถาวร"},
+	{"id": "ashes", "kind": "global", "picks": 0, "price": 5, "icon": "🌫", "name": "Chaos ขี้เถ้า",
+		"text": "ทุก Gem ที่ป๊อปทิ้งขี้เถ้า +1 ไว้ที่ช่อง Gem ชนิดเดียวกันที่วางทีหลังแรง +1 (ซื้อได้ครั้งเดียว)"},
 	{"id": "destroy", "kind": "destroy", "picks": 2, "price": 3, "icon": "💥", "name": "Chaos ทำลาย Gem",
 		"text": "เลือก Gem ในสำรับ 2 ใบ ทิ้งออกจากสำรับถาวร (เหลือขั้นต่ำ %d ใบ)" % MIN_DECK},
 	{"id": "clone", "kind": "clone", "picks": 1, "price": 4, "icon": "🧬", "name": "Chaos ทำสำเนา Gem",
@@ -24,7 +26,7 @@ const CARDS := [
 
 ## Up to `count` different Chaos cards for one shop visit (uses map_rng, never the fight rng).
 static func stock(sim, count: int = STOCK) -> Array:
-	var pool: Array = CARDS.duplicate()
+	var pool: Array = CARDS.filter(func(c): return not (c.id == "ashes" and sim.ashes))
 	var out: Array = []
 	while out.size() < count and not pool.is_empty():
 		out.append(pool.pop_at(sim.map_rng.randi_range(0, pool.size() - 1)))
@@ -40,6 +42,8 @@ static func deck_total(sim) -> int:
 
 ## `picks` = Gem colours chosen from the deck (one entry per Gem). True when the card can be used with them.
 static func valid(sim, card: Dictionary, picks: Array) -> bool:
+	if card.kind == "global":
+		return not (card.id == "ashes" and sim.ashes)
 	if picks.is_empty() or picks.size() > int(card.picks):
 		return false
 	var used := {}
@@ -63,6 +67,9 @@ static func buy(sim, card: Dictionary, picks: Array) -> bool:
 	if sim.gold < int(card.price) or not valid(sim, card, picks):
 		return false
 	sim.gold -= int(card.price)
+	if card.kind == "global":
+		sim.ashes = true
+		return true
 	for c in picks:
 		match String(card.kind):
 			"convert":
