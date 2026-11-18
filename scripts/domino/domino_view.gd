@@ -80,8 +80,8 @@ var _react_tw: Dictionary = {}
 var tile_btns: Array[Button] = []
 var tile_tabs: Array[Panel] = []   # frame above each tile: where the enemy's attack flag can stand
 var tile_kept: Array[TextureRect] = []
-var tile_prev: Array[Label] = []      # trace of the previous round: a Gem was placed on this tile
-var v_prev: Array = []
+var tile_prev: Array[Panel] = []      # trace of the previous round: a Gem was placed on this tile
+var v_prev: Dictionary = {}
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
 var discard_btn: Button
@@ -264,19 +264,13 @@ func _build() -> void:
 		k.visible = false
 		b.add_child(k)
 		tile_kept.append(k)
-		var prev_lbl := Label.new()   # previous-round trace
-		prev_lbl.text = "เคยวาง"
-		prev_lbl.add_theme_font_size_override("font_size", 22)
-		prev_lbl.add_theme_color_override("font_color", Color("#ffd966"))
-		prev_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-		prev_lbl.add_theme_constant_override("outline_size", 6)
-		prev_lbl.position = Vector2(0, TILE - 46.0)
-		prev_lbl.size = Vector2(TILE, 32)
-		prev_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		prev_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		prev_lbl.visible = false
-		b.add_child(prev_lbl)
-		tile_prev.append(prev_lbl)
+		var prev_frm := Panel.new()   # previous-round trace: an empty frame in the colour of the Gem that was placed
+		prev_frm.position = Vector2(5, 5)
+		prev_frm.size = Vector2(TILE - 10.0, TILE - 10.0)
+		prev_frm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		prev_frm.visible = false
+		b.add_child(prev_frm)
+		tile_prev.append(prev_frm)
 	hero = _char("🧙", HERO_HOME)
 	enemy = _char("👹", ENEMY_HOME)
 	badge = _label("", 52, HERO_HOME + Vector2(0, -75), 200.0)
@@ -610,6 +604,14 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 			tile_btns[i].add_theme_stylebox_override(s, sb)
 	tile_kept[i].visible = kept
 	tile_prev[i].visible = v_prev.has(i)
+	if v_prev.has(i):
+		var psb := StyleBoxFlat.new()
+		var pc: Color = COL[v_prev[i]]
+		psb.bg_color = Color(pc.r, pc.g, pc.b, 0.14)
+		psb.set_border_width_all(6)
+		psb.border_color = pc.lightened(0.15)
+		psb.set_corner_radius_all(14)
+		tile_prev[i].add_theme_stylebox_override("panel", psb)
 
 
 func _hand_text(c: String) -> String:

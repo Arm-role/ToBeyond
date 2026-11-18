@@ -71,8 +71,8 @@ var stats: Dictionary = {}       # add_stat values, one walk long
 var run_deck: Dictionary = DECK_COUNTS.duplicate()   # Gems per colour in this run's deck; Chaos cards change it for good
 var ashes: bool = false          # bought from the Chaos shop row: every pop leaves ashes on its tile
 var ash: Dictionary = {}         # tile -> Gem kind of the last pop there (this fight only)
-var _prev_tiles: Array = []      # tiles that held a Gem in the previous walk (furnace)
-var _next_prev: Array = []
+var _prev_tiles: Dictionary = {}   # tile -> Gem colour held there in the previous walk (furnace)
+var _next_prev: Dictionary = {}
 var deck: Array = []             # limited draw pile of Gem colours (run_deck per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
 var discards_left: int = DISCARDS_PER_TURN   # reset to discard_per_turn each hand
@@ -128,8 +128,8 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
 	board.clear()
 	ash.clear()
-	_prev_tiles = []
-	_next_prev = []
+	_prev_tiles = {}
+	_next_prev = {}
 	build_deck()
 	_once_fight.clear()
 	_reset_walk()
@@ -294,8 +294,8 @@ func take(tile: int) -> String:
 
 # --- walk ----------------------------------------------------------------------
 
-## Tiles that held a Gem in the last walk (what furnace calls "the previous round"); the view marks them.
-func last_tiles() -> Array:
+## tile -> Gem colour for the tiles that held a Gem in the last walk (what furnace calls "the previous round"); the view marks them.
+func last_tiles() -> Dictionary:
 	return _next_prev
 
 
@@ -337,7 +337,9 @@ func _route_next(tile: int, dir: int) -> int:
 func run_walk() -> Array:
 	_reset_walk()
 	_prev_tiles = _next_prev
-	_next_prev = board.keys()
+	_next_prev = {}
+	for t in board:
+		_next_prev[t] = board[t].color
 	events = []
 	walk_no += 1
 	_fire(_emit("ignite", {"walk": walk_no, "block": _block}))
