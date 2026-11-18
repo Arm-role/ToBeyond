@@ -805,9 +805,8 @@ func _tex(path: String) -> Texture2D:
 func _style_tile(i: int, c: String, kept: bool) -> void:
 	var key := "sb_%d_%s" % [i, c]
 	if not _tex_cache.has(key):
-		var t := _tex("res://assets/tiles/tile_empty_%d.svg" % i) if c == "" else _tex("res://assets/tiles/placed/tile_%d_%s_N.svg" % [i, c])
-		if t == null and c != "":
-			t = _tex("res://assets/tiles/tile_empty_%d.svg" % i)   # Lv2 has no placed art: show the plain tile frame under the sprite, not a flat colour
+		var art := c.replace("crit", "").trim_suffix("2")   # Lv2 and crit Gems have no placed art of their own: use the Lv1 tile art
+		var t := _tex("res://assets/tiles/tile_empty_%d.svg" % i) if c == "" else _tex("res://assets/tiles/placed/tile_%d_%s_N.svg" % [i, art])
 		var sbt: StyleBoxTexture = null
 		if t != null:
 			sbt = StyleBoxTexture.new()
