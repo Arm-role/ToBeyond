@@ -1536,6 +1536,36 @@ func _shop() -> void:
 	v_gold = sim.gold
 
 
+## Test tab: every artifact and every Chaos card, free. Artifact: tap to take/return a slot. Chaos: tap to use on the run deck.
+func _shop_test_tab() -> void:
+	var arts: Array = Catalog.all()
+	for i in arts.size():
+		var d: Resource = arts[i]
+		var idx := slot_arr.find(d)
+		var free := slot_arr.find(null)
+		var b := _rw_button("%s%s\n%s\n(%s · %s)\n%s" % ["✔ " if idx >= 0 else "", d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th],
+			Vector2(27 + (i % 8) * 235.0, 100 + (i / 8) * 320.0), Vector2(220, 305), 20)
+		b.disabled = idx < 0 and free < 0
+		b.pressed.connect(func():
+			if idx >= 0:
+				slot_arr[idx] = null
+			else:
+				slot_arr[free] = d
+			sfx.play("place", 1.3, -8.0)
+			_shop_step.emit(false))
+	for i in Chaos.CARDS.size():
+		var cc: Dictionary = Chaos.CARDS[i]
+		var cb := _rw_button("%s %s\n%s" % [cc.icon, cc.name, cc.text], Vector2(27 + i * 260.0, 750), Vector2(250, 190), 18)
+		cb.disabled = cc.id == "ashes" and sim.ashes
+		cb.pressed.connect(func():
+			var free_cc: Dictionary = cc.duplicate()
+			free_cc.price = 0
+			var picks: Array = [] if cc.kind == "global" else await _chaos_pick(free_cc)
+			if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, free_cc, picks):
+				sfx.play("place", 1.3, -8.0)
+			_shop_step.emit(false))
+
+
 ## Chaos picker: choose which Gems of the run deck the card works on (one tap = one Gem).
 ## Returns the chosen colours, or [] when cancelled.
 signal _chaos_step(act: String)
