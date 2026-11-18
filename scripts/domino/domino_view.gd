@@ -1596,11 +1596,10 @@ func _shop() -> void:
 	reward_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	reward_ui.z_index = 100
 	add_child(reward_ui)
-	var rerolls := 0
 	var stock: Array = Shop.stock(sim)
 	var chaos_stock: Array = Chaos.stock(sim)
 	var done := false
-	var st := {"tab": 0}
+	var st := {"tab": 0, "rerolls": 0}
 	while not done:
 		_apply_slots()
 		_rw_clear("ร้านค้า   🪙 %d" % sim.gold)
@@ -1644,14 +1643,13 @@ func _shop() -> void:
 					sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false)))
 		# Upgrades
-		var rc := Shop.reroll_cost(rerolls)
+		var rc := Shop.reroll_cost(int(st.rerolls))
 		var hc := Shop.hp_up_cost(sim)
 		var hdc := Shop.hand_up_cost(sim)
 		var maxed: bool = sim.hand_size >= Sim.MAX_HAND
 		var dsc := Shop.discard_up_cost(sim)
 		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
 		var ups := [
-			{"icon": "🎲", "title": "สุ่มใหม่", "body": "สุ่ม Artifact ในร้านชุดใหม่", "cost": rc, "ok": sim.gold >= rc},
 			{"icon": "❤", "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
 			{"icon": "✋", "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
 			{"icon": "🗑", "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
@@ -1663,19 +1661,23 @@ func _shop() -> void:
 				"state": "" if u.ok else "disabled", "act": "ซื้อ " + label, "ok": u.ok, "cb": func():
 					match i:
 						0:
-							sim.gold -= rc
-							rerolls += 1
-							stock = Shop.stock(sim)
-						1:
 							Shop.buy_hp(sim)
 							_sync_hero()
-						2:
+						1:
 							Shop.buy_hand(sim)
-						3:
+						2:
 							Shop.buy_discard(sim)
-					if i > 0:
-						sfx.play("place", 1.3, -8.0)
+					sfx.play("place", 1.3, -8.0)
 					_shop_step.emit(false)})
+		# Reroll is a plain button (not a card). Lambdas copy plain values, so the counter lives in `st` and the stock array is refilled in place.
+		var rb := _rw_button("🎲 สุ่มใหม่  %d 🪙" % rc, Vector2(560, 400), Vector2(340, 110), 34)
+		rb.disabled = sim.gold < rc
+		rb.pressed.connect(func():
+			sim.gold -= rc
+			st.rerolls = int(st.rerolls) + 1
+			stock.assign(Shop.stock(sim))
+			sfx.play("place", 1.3, -8.0)
+			_shop_step.emit(false))
 		# Owned cards: sell
 		for i in SLOTS:
 			var o = slot_arr[i]
