@@ -16,12 +16,12 @@ const ARCH_TH := {"route": "เส้นทาง", "guard": "ป้องกั
 const RARITY_TH := {"common": "สามัญ", "uncommon": "พบน้อย", "rare": "หายาก"}
 const N := Sim.N
 const MAX_HAND := Sim.MAX_HAND
-const HAND_D := 190.0   # diamond hand card: side of the square it fits in
-const TILE := 160.0
-const GAP := 12.0
-const TAB_H := 56.0        # height of the flag tab above each tile
-const ROW_Y := 650.0       # gameplay half starts at PREVIEW_H
-const PREVIEW_H := 525.0   # top half: the fight preview (same split as the main game)
+const HAND_D := 200.0   # diamond hand card: side of the square it fits in
+const TILE := 164.0
+const GAP := 20.0
+const TAB_H := 43.0        # height of the flag tab above each tile
+const ROW_Y := 587.0       # gameplay half starts at PREVIEW_H
+const PREVIEW_H := 500.0   # top half: the fight preview (same split as the main game)
 const COL := {"red": Color("#e5484d"), "redcrit": Color("#ff6a3d"), "blue": Color("#2f7fd6"), "orange": Color("#f08a24")}
 const MAX_WALK_TIME := 6.0   # fireball travel budget per walk (strike pauses do not count); slow on purpose, the eye follows step by step
 
@@ -57,21 +57,26 @@ var speed_btn: Button
 var last_cause := -1   # `cause_i` of the previous fire: same value = the same pop
 var fired_arts: Dictionary = {}   # artifacts that already fired in this walk
 const RARITY_COL := {"common": "#8aa0b8", "uncommon": "#6fd08c", "rare": "#ffcf5a"}
-const CARD_W := 150.0           # artifact cards: portrait, centred in the preview
-const CARD_H := 215.0
-const CARD_GAP := 14.0
-const CARD_Y := 295.0
-const CARD_X0 := (1920.0 - (5 * CARD_W + 4 * CARD_GAP)) * 0.5
+const CARD_W := 96.0           # artifact cards: portrait, centred in the preview
+const CARD_H := 133.0
+const CARD_GAP := 28.0
+const CARD_Y := 25.0
+const CARD_X0 := 664.0
 const FIRE_HOLD := 0.35        # pause per artifact trigger so the order can be followed
 const FIRE_HOLD_MAX := 6.0     # total pause per walk
 var slot_sel: int = -1              # slot picked for a swap (tap two slots to swap them)
-var art_tip: Label
+var art_pop: Panel
+var art_pop_l: Dictionary = {}
+var cards_lbl: Label
+var status_lbl: Label
+var spark_l: Label
+var spark_r: Label
 var reward_ui: Control
 
 # Characters: staged beside the row. Reactions always tween to/from these fixed
 # home positions (never relative), so rapid pops cannot make them drift.
-const HERO_HOME := Vector2(260.0, 120.0)
-const ENEMY_HOME := Vector2(1460.0, 120.0)
+const HERO_HOME := Vector2(233.0, 186.0)
+const ENEMY_HOME := Vector2(1530.0, 235.0)
 var hero: Label
 var enemy: Label
 var badge: Label
@@ -177,6 +182,22 @@ func _label(text: String, size: int, pos: Vector2, w: float = 600.0) -> Label:
 	return l
 
 
+## Rounded outline frame (wireframe boxes); clicks pass through.
+func _frame(r: Rect2, radius: int = 12, bw: int = 3, bg: Color = Color(0, 0, 0, 0.25)) -> Panel:
+	var pn := Panel.new()
+	pn.position = r.position
+	pn.size = r.size
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.set_corner_radius_all(radius)
+	sb.set_border_width_all(bw)
+	sb.border_color = Color("#8a7fb0")
+	pn.add_theme_stylebox_override("panel", sb)
+	pn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(pn)
+	return pn
+
+
 func _char(emoji: String, home: Vector2) -> Label:
 	var l := Label.new()
 	l.text = emoji
@@ -219,12 +240,27 @@ func _build() -> void:
 	pv.add_theme_stylebox_override("panel", pvs)
 	pv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(pv)
-	stage_lbl = _label("", 34, Vector2(660, 20))
-	intent_lbl = _label("", 40, Vector2(660, 75))
-	enemy_bar = _bar(ENEMY_HOME + Vector2(-80, 215), Color("#c0392b"), 360.0)
-	enemy_lbl = _label("", 32, ENEMY_HOME + Vector2(-200, 245), 600.0)
-	hp_bar = _bar(HERO_HOME + Vector2(-80, 215), Color("#2fa866"), 360.0)
-	hp_lbl = _label("", 32, HERO_HOME + Vector2(-200, 245), 600.0)
+	# Layout follows the wireframe (1672 px wide, scaled x1.148 to the 1920 canvas).
+	_frame(Rect2(216, 25, 146, 58))
+	stage_lbl = _label("", 30, Vector2(216, 33), 146.0)
+	_frame(Rect2(1481, 155, 310, 49))
+	intent_lbl = _label("", 28, Vector2(1481, 161), 310.0)
+	enemy_bar = _bar(Vector2(1446, 425), Color("#c0392b"), 322.0)
+	enemy_lbl = _label("", 26, Vector2(1307, 420), 600.0)
+	hp_bar = _bar(Vector2(168, 425), Color("#2fa866"), 311.0)
+	hp_lbl = _label("", 26, Vector2(23.5, 420), 600.0)
+	for l in [enemy_lbl, hp_lbl]:
+		l.add_theme_color_override("font_outline_color", Color.BLACK)
+		l.add_theme_constant_override("outline_size", 6)
+	_frame(Rect2(23, 461, 157, 37))
+	_label("▲ โซนสนามรบ", 20, Vector2(23, 468), 157.0)
+	_frame(Rect2(23, 513, 170, 39))
+	_label("▼ โซนแผงคำสั่ง", 20, Vector2(23, 520), 170.0)
+	_label("ช่องคิว 1–8", 26, Vector2(40, 615), 170.0)
+	_label("(แท็บ + ช่อง)", 20, Vector2(40, 655), 170.0).modulate.a = 0.7
+	_frame(Rect2(46, 1030, 520, 44))
+	status_lbl = _label("", 20, Vector2(58, 1038), 500.0)
+	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	var x0 := (1920.0 - (N * TILE + (N - 1) * GAP)) * 0.5
 	for i in N:
 		var b := Button.new()
@@ -287,19 +323,19 @@ func _build() -> void:
 	flag2 = flag.duplicate()
 	flag2.visible = false
 	add_child(flag2)
-	gold_lbl = _label("", 40, Vector2(1590, 15), 310.0)
+	_frame(Rect2(1730, 29, 150, 59), 29)
+	gold_lbl = _label("", 34, Vector2(1730, 36), 150.0)
 	speed_btn = Button.new()   # walk speed: x1 -> x2 -> x3 (Engine.time_scale scales the timers and tweens of the replay)
-	speed_btn.position = Vector2(30, 20)
-	speed_btn.size = Vector2(150, 70)
-	speed_btn.add_theme_font_size_override("font_size", 34)
+	speed_btn.position = Vector2(40, 25)
+	speed_btn.size = Vector2(158, 58)
+	speed_btn.add_theme_font_size_override("font_size", 30)
 	speed_btn.z_index = 5
 	speed_btn.pressed.connect(func():
 		Engine.time_scale = {1.0: 2.0, 2.0: 3.0}.get(Engine.time_scale, 1.0)
 		_speed_label())
 	add_child(speed_btn)
 	_speed_label()
-	gold_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	boss_lbl = _label("", 30, Vector2(460, 135), 1000.0)
+	boss_lbl = _label("", 20, Vector2(1440, 208), 480.0)
 	fire = Label.new()
 	fire.text = "🔥"
 	fire.add_theme_font_size_override("font_size", 80)
@@ -310,7 +346,7 @@ func _build() -> void:
 	add_child(fire)
 	for i in MAX_HAND:
 		var h := Button.new()
-		h.position = Vector2(300 + i * 210, 840)
+		h.position = Vector2(300 + i * 221, 824)
 		h.size = Vector2(HAND_D, HAND_D)
 		h.add_theme_font_size_override("font_size", 40)
 		var dia := Polygon2D.new()   # the card is a diamond (a square turned 45°) drawn behind the button's text
@@ -331,9 +367,9 @@ func _build() -> void:
 	go_btn = Button.new()
 	go_btn.text = "เดิน ▶"
 	# Bottom row: pile tools on the left (info + hand action), the primary action big on the right.
-	go_btn.position = Vector2(1520, 940)
-	go_btn.size = Vector2(300, 80)
-	go_btn.add_theme_font_size_override("font_size", 38)
+	go_btn.position = Vector2(1570, 928)
+	go_btn.size = Vector2(307, 125)
+	go_btn.add_theme_font_size_override("font_size", 44)
 	var gsb := StyleBoxFlat.new()
 	gsb.bg_color = Color("#2e9e5b")
 	gsb.set_corner_radius_all(20)
@@ -346,15 +382,15 @@ func _build() -> void:
 	go_btn.pressed.connect(_on_go)
 	add_child(go_btn)
 	deck_btn = Button.new()
-	deck_btn.position = Vector2(40, 880)
-	deck_btn.size = Vector2(230, 110)
-	deck_btn.add_theme_font_size_override("font_size", 28)
+	deck_btn.position = Vector2(52, 886)
+	deck_btn.size = Vector2(298, 122)
+	deck_btn.add_theme_font_size_override("font_size", 30)
 	deck_btn.pressed.connect(_open_deck)
 	add_child(deck_btn)
 	discard_btn = Button.new()
-	discard_btn.position = Vector2(1520, 840)   # same size and weight as the go button: the two turn actions
-	discard_btn.size = Vector2(300, 80)
-	discard_btn.add_theme_font_size_override("font_size", 38)
+	discard_btn.position = Vector2(1578, 798)   # same size and weight as the go button: the two turn actions
+	discard_btn.size = Vector2(293, 112)
+	discard_btn.add_theme_font_size_override("font_size", 36)
 	var dsb := gsb.duplicate()
 	dsb.bg_color = Color("#c9822b")
 	var dsd := gsb.duplicate()
@@ -370,6 +406,9 @@ func _build() -> void:
 	deck_ui.z_index = 3000
 	deck_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(deck_ui)
+	_frame(Rect2(651, 11, 619, 164), 24, 4)   # artifact tray
+	_frame(Rect2(496, 77, 109, 39))
+	cards_lbl = _label("", 20, Vector2(496, 84), 109.0)
 	for i in SLOTS:
 		slot_arr.append(null)
 		var ab := Button.new()
@@ -380,21 +419,37 @@ func _build() -> void:
 		add_child(ab)
 		slot_btns.append(ab)
 		var card := {}
-		card["icon"] = _card_label(ab, 66, Vector2(0, 10), Vector2(CARD_W, 80), HORIZONTAL_ALIGNMENT_CENTER)
-		card["name"] = _card_label(ab, 24, Vector2(6, 94), Vector2(CARD_W - 12, 64), HORIZONTAL_ALIGNMENT_CENTER)
+		card["icon"] = _card_label(ab, 44, Vector2(0, 8), Vector2(CARD_W, 52), HORIZONTAL_ALIGNMENT_CENTER)
+		card["name"] = _card_label(ab, 16, Vector2(4, 62), Vector2(CARD_W - 8, 44), HORIZONTAL_ALIGNMENT_CENTER)
 		card["name"].autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		card["name"].clip_text = false
-		card["sub"] = _card_label(ab, 18, Vector2(0, CARD_H - 52), Vector2(CARD_W, 40), HORIZONTAL_ALIGNMENT_CENTER)
-		var badge := _card_label(ab, 22, Vector2(CARD_W - 62, -18), Vector2(70, 30), HORIZONTAL_ALIGNMENT_CENTER)
+		card["sub"] = _card_label(ab, 12, Vector2(0, CARD_H - 24), Vector2(CARD_W, 20), HORIZONTAL_ALIGNMENT_CENTER)
+		var badge := _card_label(ab, 16, Vector2(CARD_W - 46, -12), Vector2(54, 24), HORIZONTAL_ALIGNMENT_CENTER)
 		badge.z_index = 5
 		badge.visible = false
 		card["badge"] = badge
 		slot_cards.append(card)
-	art_tip = _label("", 26, Vector2(1660, 545), 250.0)
-	art_tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	art_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	art_tip.size = Vector2(250, 420)
-	msg = _label("", 40, Vector2(460, 230), 1000.0)
+	spark_l = _label("✨", 44, Vector2(0, 900), 60.0)
+	spark_r = _label("✨", 44, Vector2(0, 900), 60.0)
+	art_pop = Panel.new()   # floating detail frame for a tapped artifact card (like the shop's panel)
+	art_pop.position = Vector2(651, 185)
+	art_pop.size = Vector2(619, 250)
+	art_pop.z_index = 60
+	art_pop.visible = false
+	art_pop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var aps := StyleBoxFlat.new()
+	aps.bg_color = Color("#2a2340")
+	aps.set_corner_radius_all(18)
+	aps.set_border_width_all(3)
+	aps.border_color = Color("#8a7fb0")
+	art_pop.add_theme_stylebox_override("panel", aps)
+	add_child(art_pop)
+	art_pop_l["icon"] = _panel_label(art_pop, "", 72, Vector2(20, 15), Vector2(100, 100), HORIZONTAL_ALIGNMENT_CENTER)
+	art_pop_l["title"] = _panel_label(art_pop, "", 36, Vector2(130, 15), Vector2(470, 60), HORIZONTAL_ALIGNMENT_LEFT)
+	art_pop_l["sub"] = _panel_label(art_pop, "", 24, Vector2(130, 75), Vector2(470, 40), HORIZONTAL_ALIGNMENT_LEFT)
+	art_pop_l["body"] = _panel_label(art_pop, "", 28, Vector2(24, 125), Vector2(571, 115), HORIZONTAL_ALIGNMENT_LEFT)
+	art_pop_l["body"].vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	msg = _label("", 40, Vector2(505, 300), 930.0)
 
 
 ## Card frame used by the shop, rewards and blinds: kind "art" (rarity border), "chaos" (indigo + gold), "enemy" (red), "util" (teal).
@@ -563,7 +618,10 @@ func _on_slot(i: int) -> void:
 
 
 func _slot_tip(d: Resource) -> void:
-	art_tip.text = "%s %s\n(%s · %s)\n%s" % [d.icon, d.name_th, ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, ""), d.text_th]
+	art_pop_l.icon.text = d.icon
+	art_pop_l.title.text = d.name_th
+	art_pop_l.sub.text = "%s · %s" % [ARCH_TH.get(d.archetype, ""), RARITY_TH.get(d.rarity, "")]
+	art_pop_l.body.text = d.text_th
 
 
 func _apply_slots() -> void:
@@ -582,11 +640,12 @@ func _refresh_slots() -> void:
 		b.text = ""
 		b.tooltip_text = d.text_th if d != null else ""
 		b.disabled = busy
-		c.icon.text = d.icon if d != null else ""
-		c.name.text = d.name_th if d != null else "%d\n—" % (i + 1)
-		c.name.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.35)
+		c.icon.text = d.icon if d != null else "+"
+		c.icon.add_theme_font_size_override("font_size", 44 if d != null else 56)
+		c.name.text = d.name_th if d != null else ""
+		c.name.modulate = Color.WHITE
 		c.sub.text = ("%d · %s" % [i + 1, ARCH_TH.get(d.archetype, "")]) if d != null else ""
-		c.icon.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.3)
+		c.icon.modulate = Color.WHITE if d != null else Color(1, 1, 1, 0.45)
 		var sb := StyleBoxFlat.new()
 		var rc := Color(RARITY_COL.get(d.rarity, "#8aa0b8")) if d != null else Color(1, 1, 1, 0.2)
 		sb.bg_color = Color("#3a2f55") if d != null else Color("#221c30")
@@ -595,6 +654,12 @@ func _refresh_slots() -> void:
 		sb.border_color = Color("#ffd966") if i == slot_sel else rc
 		for st in ["normal", "hover", "pressed", "disabled"]:
 			b.add_theme_stylebox_override(st, sb)
+	var owned := 0
+	for o in slot_arr:
+		if o != null:
+			owned += 1
+	cards_lbl.text = "การ์ด %d/%d" % [owned, SLOTS]
+	art_pop.visible = slot_sel >= 0 and slot_arr[slot_sel] != null and not busy
 
 
 ## Walk start: forget last walk's trigger order on the cards.
@@ -781,15 +846,15 @@ func _smoke() -> bool:
 
 
 func _refresh() -> void:
-	stage_lbl.text = ("ด่าน %d · %s %s" % [stage, v_boss.icon, v_boss.name_th]) if v_boss != null else "ด่าน %d" % stage
-	boss_lbl.text = v_boss.text_th if v_boss != null else ""
+	stage_lbl.text = "ด่าน %d" % stage
+	boss_lbl.text = ("%s %s\n%s" % [v_boss.icon, v_boss.name_th, v_boss.text_th]) if v_boss != null else ""
 	gold_lbl.text = "🪙 %d" % v_gold
 	enemy_lbl.text = "👹 HP %d / %d" % [maxi(v_enemy_hp, 0), v_enemy_max]
 	enemy_bar.max_value = v_enemy_max
 	enemy_bar.value = maxi(v_enemy_hp, 0)
 	var hidden := _smoke() and not flag_seen
 	var where := "?" if hidden else ("%d, %d" % [v_flag + 1, v_flag2 + 1] if v_flag2 >= 0 else "%d" % (v_flag + 1))
-	intent_lbl.text = "ตีแรง %d ที่ช่อง %s" % [roundi(v_strike), where]
+	intent_lbl.text = "⚔ ตีแรง %d ที่ช่อง %s" % [roundi(v_strike), where]
 	hp_lbl.text = "HP %d / %d" % [roundi(maxf(v_hp, 0.0)), roundi(v_max_hp)]
 	hp_bar.max_value = v_max_hp
 	hp_bar.value = maxf(v_hp, 0.0)
@@ -803,12 +868,12 @@ func _refresh() -> void:
 		else:
 			tile_btns[i].remove_theme_color_override("font_color")
 		_style_tile(i, c, c != "" and g.get("kept", false))
-	var hx := 800.0 - (hand.size() * 210.0 - 20.0) * 0.5   # hand centred between the slot bar and the go button
+	var hx := 960.0 - (hand.size() * 221.0 - 21.0) * 0.5   # hand centred under the queue
 	for i in hand_btns.size():
 		hand_btns[i].visible = i < hand.size()
 		if i >= hand.size():
 			continue
-		hand_btns[i].position.x = hx + i * 210.0
+		hand_btns[i].position.x = hx + i * 221.0
 		var c: String = hand[i]
 		hand_btns[i].text = _hand_text(c)
 		hand_btns[i].disabled = c == "" or busy
@@ -822,9 +887,21 @@ func _refresh() -> void:
 	if v_flag2 >= 0:
 		flag2.position = Vector2(tile_btns[v_flag2].position.x, ROW_Y - TAB_H - 10.0)
 	go_btn.disabled = busy or over or sim.board.is_empty()
+	spark_l.visible = hand.size() > 0
+	spark_r.visible = hand.size() > 0
+	spark_l.position.x = hx - 75.0
+	spark_r.position.x = hx + hand.size() * 221.0 - 21.0 + 35.0
+	if over:
+		status_lbl.text = "สถานะ: จบเกม"
+	elif busy:
+		status_lbl.text = "สถานะ: กำลังเดิน"
+	elif sim.board.is_empty():
+		status_lbl.text = "สถานะ: เริ่มต้น (ยังไม่วางไพ่ · ปุ่มกดไม่ได้)"
+	else:
+		status_lbl.text = "สถานะ: พร้อมเดิน"
 	discard_btn.text = "🗑 ทิ้ง (%d)" % sim.discards_left
 	discard_btn.disabled = busy or over or selected < 0 or sim.discards_left <= 0
-	deck_btn.text = "🂠 สำรับ %d/%d" % [sim.deck.size(), _deck_total()]
+	deck_btn.text = "สำรับ\n%d / %d" % [sim.deck.size(), _deck_total()]
 	deck_btn.disabled = busy or over
 	_refresh_slots()
 
@@ -1338,7 +1415,7 @@ func _tally_add(src: String, amount: int) -> void:
 	for k in tally:
 		total += int(tally[k])
 	if tally_lbl == null:
-		tally_lbl = _label("", 56, ENEMY_HOME + Vector2(-100, -110), 400.0)
+		tally_lbl = _label("", 56, Vector2(1040, 250), 400.0)
 		tally_lbl.add_theme_color_override("font_color", Color("#ffd966"))
 		tally_lbl.add_theme_color_override("font_outline_color", Color.BLACK)
 		tally_lbl.add_theme_constant_override("outline_size", 10)
