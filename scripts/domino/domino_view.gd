@@ -271,13 +271,19 @@ func _build() -> void:
 		b.add_child(gs)
 		b.set_meta("gem", gs)
 		var gl := Label.new()   # value text over the sprite (the button's own text would sit under it)
-		gl.size = gs.size
+		gl.size = Vector2(TILE - 36.0, 34.0)   # score strip at the bottom of the tile, black background
+		gl.position = Vector2(18, TILE - 46.0)
+		var gbg := StyleBoxFlat.new()
+		gbg.bg_color = Color.BLACK
+		gbg.set_corner_radius_all(8)
+		gl.add_theme_stylebox_override("normal", gbg)
+		gl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		gl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		gl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		gl.add_theme_font_size_override("font_size", 26)
+		gl.add_theme_font_size_override("font_size", 24)
 		gl.add_theme_constant_override("outline_size", 8)
 		gl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-		gs.add_child(gl)
+		b.add_child(gl)
 		b.set_meta("gem_lbl", gl)
 		var tab := Panel.new()
 		tab.position = Vector2(b.position.x, ROW_Y - TAB_H - 10.0)
@@ -825,7 +831,8 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 	gs.texture = gtex
 	gs.visible = gtex != null
 	var gl: Label = tile_btns[i].get_meta("gem_lbl")
-	gl.text = tile_btns[i].text
+	gl.text = tile_btns[i].text.replace(" คริ 1/3", "")
+	gl.visible = gtex != null
 	if gtex != null:   # the label above the sprite draws the value; the button's own text would be hidden under it
 		tile_btns[i].add_theme_color_override("font_color", Color(0, 0, 0, 0))
 		tile_btns[i].add_theme_color_override("font_outline_color", Color(0, 0, 0, 0))
