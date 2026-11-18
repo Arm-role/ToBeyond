@@ -80,6 +80,8 @@ var _react_tw: Dictionary = {}
 var tile_btns: Array[Button] = []
 var tile_tabs: Array[Panel] = []   # frame above each tile: where the enemy's attack flag can stand
 var tile_kept: Array[TextureRect] = []
+var tile_prev: Array[Label] = []      # trace of the previous round: a Gem was placed on this tile
+var v_prev: Array = []
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
 var discard_btn: Button
@@ -262,6 +264,19 @@ func _build() -> void:
 		k.visible = false
 		b.add_child(k)
 		tile_kept.append(k)
+		var prev_lbl := Label.new()   # previous-round trace
+		prev_lbl.text = "เคยวาง"
+		prev_lbl.add_theme_font_size_override("font_size", 22)
+		prev_lbl.add_theme_color_override("font_color", Color("#ffd966"))
+		prev_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+		prev_lbl.add_theme_constant_override("outline_size", 6)
+		prev_lbl.position = Vector2(0, TILE - 46.0)
+		prev_lbl.size = Vector2(TILE, 32)
+		prev_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		prev_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		prev_lbl.visible = false
+		b.add_child(prev_lbl)
+		tile_prev.append(prev_lbl)
 	hero = _char("🧙", HERO_HOME)
 	enemy = _char("👹", ENEMY_HOME)
 	badge = _label("", 52, HERO_HOME + Vector2(0, -75), 200.0)
@@ -548,6 +563,7 @@ func _sync() -> void:
 	flag_seen = false
 	v_board = sim.board.duplicate(true)
 	v_ash = sim.ash.duplicate()
+	v_prev = sim.last_tiles().duplicate()
 
 
 func _new_turn() -> void:
@@ -593,6 +609,7 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 		for s in ["normal", "hover", "pressed", "disabled"]:
 			tile_btns[i].add_theme_stylebox_override(s, sb)
 	tile_kept[i].visible = kept
+	tile_prev[i].visible = v_prev.has(i)
 
 
 func _hand_text(c: String) -> String:

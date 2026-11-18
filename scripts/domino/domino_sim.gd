@@ -294,6 +294,11 @@ func take(tile: int) -> String:
 
 # --- walk ----------------------------------------------------------------------
 
+## Tiles that held a Gem in the last walk (what furnace calls "the previous round"); the view marks them.
+func last_tiles() -> Array:
+	return _next_prev
+
+
 func _reset_walk() -> void:
 	_depth = 0
 	_step = 0
