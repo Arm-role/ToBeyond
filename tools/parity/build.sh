@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Check and build the game, printing only what matters.
 #   tools/parity/build.sh --check   parse every script (~0.3 s each), verify skill-doc references
-#                                   (check_refs.py), and smoke-run the Domino scene headless (TB_DOMINO_OK)
+#                                   (check_refs.py), smoke-run the Domino scene headless (TB_DOMINO_OK),
+#                                   and the Chaos card x Gem matrix (chaos_matrix.gd)
 #   (TB_SKIP_REFS=1 skips the reference check; evals use it on old code bases)
 #   tools/parity/build.sh --regress [--update]   the check, then the Domino regression
 #                                   against tools/parity/baseline (--update rewrites it)
@@ -24,6 +25,12 @@ drun=$(timeout 60 "$GODOT" --headless --path . -- --domino-smoke 2>&1)
 if ! echo "$drun" | grep -q "^TB_DOMINO_OK"; then
   echo "$drun" | grep -E "SCRIPT ERROR|^ERROR|^ +at: " | head -8
   echo "check FAILED (the Domino scene did not reach the first hand)"; exit 1
+fi
+# Chaos card x Gem colour matrix (pass/fail, prints only failures)
+cm=$(timeout 60 "$GODOT" --headless --path . --script res://tools/parity/chaos_matrix.gd 2>&1)
+if ! echo "$cm" | grep -q "^CHAOS_MATRIX_OK"; then
+  echo "$cm" | grep -E "^FAIL|SCRIPT ERROR|^ERROR" | head -12
+  echo "check FAILED (Chaos matrix)"; exit 1
 fi
 echo "check OK"
 [ "${1:-}" = "--check" ] && exit 0

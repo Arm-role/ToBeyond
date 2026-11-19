@@ -1884,7 +1884,7 @@ func _chaos_pick(card: Dictionary) -> Array:
 			var used := picks.count(c)
 			var left := int(sim.run_deck.get(c, 0)) - used
 			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(bx0 + ci * (bw + 30.0), 500), Vector2(bw, 200), 36 if cols.size() <= 4 else 28)
-			b.disabled = left <= 0 or picks.size() >= int(card.picks) or (card.kind == "convert" and c == card.to) or (card.has("only") and c.trim_suffix("2") != card.only) or (card.kind == "upgrade" and not Chaos.UP.has(c))
+			b.disabled = left <= 0 or picks.size() >= int(card.picks) or not Chaos.can_pick(card, c)
 			b.pressed.connect(func(): _chaos_step.emit("pick:" + c))
 		var ok_b := _rw_button("ใช้การ์ด %d 🪙" % int(card.price), Vector2(560, 800), Vector2(380, 100), 40)
 		ok_b.disabled = not Chaos.valid(sim, card, picks)

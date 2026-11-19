@@ -43,6 +43,28 @@ static func deck_total(sim) -> int:
 	return n
 
 
+## Colour a convert card makes of Gem `c`: the level stays (red2 -> blue2), a coin Gem has no level, crit is lost with the red kind.
+static func convert_dest(card: Dictionary, c: String) -> String:
+	if card.has("only"):   # mark_crit: red -> redcrit, red2 -> redcrit2
+		return String(card.to) + ("2" if c.ends_with("2") else "")
+	if card.to == "orange":
+		return "orange"
+	return String(card.to) + ("2" if c.ends_with("2") else "")
+
+
+## Per-Gem rule of a card (the shop picker greys buttons with it, valid() checks it): a pick that changes nothing is refused.
+static func can_pick(card: Dictionary, c: String) -> bool:
+	if not (c in COLORS):
+		return false
+	if card.kind == "convert":
+		if card.has("only") and String(c).trim_suffix("2") != card.only:
+			return false
+		return convert_dest(card, c) != c
+	if card.kind == "upgrade":
+		return UP.has(c)
+	return true
+
+
 ## `picks` = Gem colours chosen from the deck (one entry per Gem). True when the card can be used with them.
 static func valid(sim, card: Dictionary, picks: Array) -> bool:
 	if card.kind == "global":
@@ -56,11 +78,7 @@ static func valid(sim, card: Dictionary, picks: Array) -> bool:
 		used[c] = int(used.get(c, 0)) + 1
 		if used[c] > int(sim.run_deck.get(c, 0)):
 			return false
-		if card.kind == "convert" and c == card.to:
-			return false
-		if card.has("only") and String(c).trim_suffix("2") != card.only:
-			return false
-		if card.kind == "upgrade" and not UP.has(c):
+		if not can_pick(card, c):
 			return false
 	if card.kind == "destroy" and deck_total(sim) - picks.size() < MIN_DECK:
 		return false
@@ -79,7 +97,7 @@ static func buy(sim, card: Dictionary, picks: Array) -> bool:
 		match String(card.kind):
 			"convert":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1
-				var dest: String = String(card.to) + ("2" if card.has("only") and String(c).ends_with("2") else "")   # mark_crit keeps the level
+				var dest := convert_dest(card, c)
 				sim.run_deck[dest] = int(sim.run_deck.get(dest, 0)) + 1
 			"upgrade":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1

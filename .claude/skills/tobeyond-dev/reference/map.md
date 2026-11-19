@@ -16,7 +16,7 @@ Line numbers drift, so grep the name. Plan and per-phase docs: `docs/plan-domino
 | Reward pick 1 of 3 | `domino_reward.gd: offer pick` · `domino_view.gd: _reward _reward_offers _reward_pick` |
 | Enemy line-up (boss every 3rd stage, elite by chance, previewed) and blind select after the shop | `domino_sim.gd: plan enemy_stats` · `domino_view.gd: _blinds _blind_text` |
 | Shop after a boss or on the shop door | `domino_shop.gd: stock price sell_value reroll_cost` · `domino_view.gd: _shop` |
-| Chaos cards (shop row, used at once on the run deck `sim.run_deck`; `lv2` upgrades red/redcrit/blue to `red2`/`redcrit2`/`blue2`: attack 8, shield 6, status kept) | `domino_chaos.gd: stock valid buy` · `domino_view.gd: _chaos_pick` · debug `?shop=1` opens the shop with 30 coins |
+| Chaos cards (shop row, used at once on the run deck `sim.run_deck`; `lv2` upgrades red/redcrit/blue to `red2`/`redcrit2`/`blue2`: attack 8, shield 6, status kept) | `domino_chaos.gd: stock valid can_pick convert_dest buy` · `domino_view.gd: _chaos_pick` · debug `?shop=1` opens the shop with 30 coins |
 | Artifact slot bar (tap to read, tap two to swap) | `domino_view.gd: _on_slot _slot_tip _apply_slots _refresh_slots` |
 | Replaying a walk (fireball, pops, hits, shield, flags, gold) | `domino_view.gd: _on_go _play_walk _win _lose` |
 | Characters, lasers, floating text, shake | `domino_view.gd: _react _windup _laser _strike_fx _float_text _shake _badge` |
