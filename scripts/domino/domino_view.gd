@@ -1742,7 +1742,7 @@ func _shop() -> void:
 				_shop_step.emit(false))
 		if int(st.tab) == 1:
 			_shop_test_tab()
-			var go_t := _rw_button("ไปต่อ ▶", Vector2(810, 960), Vector2(300, 80), 36)
+			var go_t := _rw_button("ไปต่อ ▶", Vector2(1490, 960), Vector2(300, 80), 36)
 			go_t.pressed.connect(func(): _shop_step.emit(true))
 			done = await _shop_step
 			continue
@@ -1837,6 +1837,18 @@ func _shop_test_tab() -> void:
 	var panel := _detail_panel(Rect2(1400, 110, 480, 520))
 	var cards: Array = []
 	var arts: Array = Catalog.all()
+	const COLS := 8
+	const PITCH := Vector2(165, 230)
+	var artifact_rows := ceili(float(arts.size()) / COLS)
+	var chaos_rows := ceili(float(Chaos.CARDS.size()) / COLS)
+	var scroll := ScrollContainer.new()
+	scroll.position = Vector2(40, 110)
+	scroll.size = Vector2(1340, 930)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	reward_ui.add_child(scroll)
+	var grid := Control.new()
+	grid.custom_minimum_size = Vector2(COLS * PITCH.x, (artifact_rows + chaos_rows) * PITCH.y)
+	scroll.add_child(grid)
 	var free := slot_arr.find(null)
 	for i in arts.size():
 		var d: Resource = arts[i]
@@ -1850,13 +1862,14 @@ func _shop_test_tab() -> void:
 			_shop_step.emit(false))
 		if idx >= 0:
 			info["state"] = ""
-		_add_card(reward_ui, cards, panel, Vector2(40 + (i % 8) * 165.0, 110 + (i / 8) * 230.0), info)
+		_add_card(grid, cards, panel, Vector2(i % COLS, floori(float(i) / COLS)) * PITCH, info)
 		if idx >= 0:
 			cards[cards.size() - 1].btn.add_theme_stylebox_override("normal", _card_style("art", d.rarity, "owned", "normal"))
 	for i in Chaos.CARDS.size():
 		var cc: Dictionary = Chaos.CARDS[i]
 		var used: bool = cc.id == "ashes" and sim.ashes
-		_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 580), _chaos_info(cc, "ฟรี", "ใช้ฟรี", not used, func():
+		var pos := Vector2(i % COLS, artifact_rows + floori(float(i) / COLS)) * PITCH
+		_add_card(grid, cards, panel, pos, _chaos_info(cc, "ฟรี", "ใช้ฟรี", not used, func():
 			var free_cc: Dictionary = cc.duplicate()
 			free_cc.price = 0
 			var picks: Array = [] if cc.kind == "global" else await _chaos_pick(free_cc)
