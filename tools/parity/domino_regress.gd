@@ -142,21 +142,23 @@ func _initialize() -> void:
 	quit()
 
 
-const SINGLES := ["echo", "ring", "thorns", "push", "furnace", "fuse", "stoke", "twin", "alchemy", "firstblow", "vengeance"]
+const SINGLES := ["echo", "ring", "thorns", "push", "furnace", "fuse", "twin", "alchemy", "firstblow", "vengeance"]
 const COMBOS := [
 	["mirror", "riposte", "ring"],
 	["echo", "twin", "mirror"],
 	["coal", "furnace", "fuse"],
 	["push", "ring"],
 	["push", "mirror"],
-	["stoke", "mirror", "echo"],
+	["mirror", "echo"],
 	["thorns", "riposte"],
-	["ring", "mirror", "echo", "twin", "stoke"],
+	["ring", "mirror", "echo", "twin"],
 ]
 
 
 ## Phase 4: each new artifact alone and the dangerous combos; ceiling lines show in the output.
 func _phase4() -> void:
+	var red_bonus := {"gems": {0: "red", 1: "blue", 2: "red2", 3: "red", 4: "red", 5: "red"}, "flag": 6, "hp": 40.0}
+	_run("red bonus caps at three and resets each walk", _setup(red_bonus, []), 2)
 	var more := {"red_run": {"gems": {0: "red", 1: "red", 2: "red", 3: "blue", 4: "red", 5: "red", 6: "blue", 7: "red"}, "flag": 5, "hp": 40.0},
 		"blue_run": {"gems": {0: "blue", 1: "blue", 2: "blue", 3: "blue", 4: "blue", 5: "red"}, "flag": 4, "hp": 40.0}}
 	for name in ["full", "flag_red", "flag_end"]:
@@ -181,7 +183,7 @@ func _phase4() -> void:
 		_run("p4 redcrit [%s]" % ",".join(ids), _setup(rc, ids))
 	# orange Gem: coin Gem, +1 coin per pop, no attack or shield, not red for artifacts
 	var orange := {"gems": {0: "orange", 1: "red", 2: "orange", 3: "blue", 4: "orange", 5: "orange", 6: "blue", 7: "orange"}, "flag": 5, "hp": 40.0}
-	for ids in [[], ["twin"], ["stoke"], ["furnace", "coal"], ["mirror", "twin"]]:
+	for ids in [[], ["twin"], ["furnace", "coal"], ["mirror", "twin"]]:
 		_run("p4 orange [%s]" % ",".join(ids), _setup(orange, ids), 2 if "coal" in ids else 1)
 	# coal + furnace: kept Gems pop doubled on the next walk
 	var cf = _setup(more.red_run, ["coal", "furnace"])

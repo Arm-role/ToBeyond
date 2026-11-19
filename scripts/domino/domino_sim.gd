@@ -9,6 +9,7 @@ const N := 8
 const HAND_SIZE := 4
 const MAX_HAND := 5
 const RED_DMG := 4
+const MAX_RED_POP_BONUS := 3
 const BLUE_BLOCK := 3
 const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
 const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
@@ -479,8 +480,9 @@ func _do_pop(tile: int, cause: String) -> void:
 	var red: bool = g.color in ATTACK
 	var coin: bool = g.color == "orange"   # coin Gem: pays coins, no attack or shield
 	var lv := 2 if String(g.color).ends_with("2") else 1
-	var base: int = 0 if coin else ((RED_DMG * lv + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK * lv)
+	var base: int = 0 if coin else BLUE_BLOCK * lv
 	if red:
+		base = RED_DMG * lv + mini(_red_pops, MAX_RED_POP_BONUS)
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
 			base = 0   # the boss's armour eats the first red pops of the walk
