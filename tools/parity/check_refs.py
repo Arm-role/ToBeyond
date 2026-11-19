@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail when the skill docs point at code that no longer exists.
 
-Checks, in .claude/skills/tobeyond-dev/SKILL.md and reference/map.md (text before the
+Checks, in the shared workflow and feature map (text before the
 "Appendix" heading only):
   1. `file.gd: name name …`  every name must be a func/const/var/signal/enum defined in that file
                              (a trailing * is a prefix wildcard; "(args)" after a name is ignored)
@@ -15,8 +15,8 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DOCS = [
-    ".claude/skills/tobeyond-dev/SKILL.md",
-    ".claude/skills/tobeyond-dev/reference/map.md",
+    "docs/tobeyond-dev/workflow.md",
+    "docs/tobeyond-dev/reference/map.md",
 ]
 DEF_RE = re.compile(
     r"^\s*(?:@export\s+|@onready\s+|static\s+)*"

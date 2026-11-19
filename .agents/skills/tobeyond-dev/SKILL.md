@@ -1,14 +1,19 @@
 ---
 name: tobeyond-dev
-description: ToBeyond Godot 4 development guide. The maintained version is .claude/skills/tobeyond-dev/SKILL.md; read that file and its reference/ folder.
+description: Develop, run, test, or preview ToBeyond, a Godot 4.7.2 GDScript game. Use for gameplay, UI, balance, animation, assets, regressions, and Web builds in this repository.
 ---
 
-# ToBeyond development guide (moved)
+# ToBeyond in Codex
 
-The maintained guide now lives in `.claude/skills/tobeyond-dev/`:
+Read the [shared workflow](../../../docs/tobeyond-dev/workflow.md) before game work.
 
-- `SKILL.md`: workflow and rules
-- `reference/map.md`: feature → Godot code (Domino Run)
-- `reference/pitfalls.md`: known traps
+In the prepared Codex cloud, use the installed Godot executable and its writable paths:
 
-Tools (build, regression, recording, token report): `tools/parity/`. Most nodes are built in code (`domino_view.gd: _build`).
+```bash
+export GODOT=/workspace/.tobeyond-tools/bin/godot
+export XDG_DATA_HOME=/workspace/.tobeyond-tools/share
+export XDG_CACHE_HOME=/workspace/.tobeyond-tools/cache
+export XDG_CONFIG_HOME=/workspace/.tobeyond-tools/config
+```
+
+Reuse the current checkout. When a user wants to inspect or play the build, use the cloud desktop or preview capabilities available in the session.
