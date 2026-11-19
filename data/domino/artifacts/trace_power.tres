@@ -1,0 +1,15 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+
+[resource]
+script = ExtResource("1_a")
+id = "trace_power"
+name_th = "ตราฝังลึก"
+icon = "✦"
+text_th = "Gem ที่วางทิ้งพลัง +2 ไว้ในรอย"
+archetype = "ember"
+rarity = "uncommon"
+price = 6
+catalog_order = 17
+trace_power = 2

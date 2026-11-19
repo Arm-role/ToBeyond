@@ -10,4 +10,6 @@ extends Resource
 @export var rarity: String = "common"     # common | uncommon | rare
 @export var price: int = 6
 @export var catalog_order: int = 0
+@export var trace_power: int = 0  # overrides the power left by a placement
+@export var trace_cap: int = 0    # enables accumulation up to this power
 @export var rules: Array[Resource] = []

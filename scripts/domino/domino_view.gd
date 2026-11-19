@@ -85,6 +85,7 @@ var tile_tabs: Array[Panel] = []   # frame above each tile: where the enemy's at
 var tile_kept: Array[TextureRect] = []
 var tile_prev: Array[Panel] = []      # trace of the previous round: a Gem was placed on this tile
 var v_prev: Dictionary = {}
+var v_trace_power: Dictionary = {}
 var _tex_cache: Dictionary = {}   # path -> Texture2D / StyleBoxTexture (null = missing art)
 var hand_btns: Array[Button] = []
 var discard_btn: Button
@@ -773,6 +774,9 @@ func _sync() -> void:
 	v_board = sim.board.duplicate(true)
 	v_ash = sim.ash.duplicate()
 	v_prev = sim.last_tiles().duplicate()
+	v_trace_power.clear()
+	for tile in v_prev:
+		v_trace_power[tile] = sim.last_trace_power(tile)
 
 
 func _new_turn() -> void:
@@ -914,8 +918,14 @@ func _refresh() -> void:
 		var c: String = g.get("color", "")
 		tile_btns[i].text = _gem_text(c).replace("
 ", " ") if c != "" else ("✦ +%d" % Sim.ASH_BONUS if v_ash.has(i) else "")
-		if c == "" and v_ash.has(i):
-			tile_btns[i].add_theme_color_override("font_color", COL["red" if v_ash[i] == "red" else v_ash[i]].lightened(0.35))
+		var trace_color := Sim.gem_color(v_prev.get(i, ""))
+		if c != "" and trace_color == Sim.gem_color(c):
+			tile_btns[i].text += " · ✦ +%d" % v_trace_power[i]
+		if c == "" and v_prev.has(i):
+			tile_btns[i].text = "✦ +%d" % v_trace_power[i]
+		var mark_color: String = v_prev.get(i, v_ash.get(i, ""))
+		if c == "" and mark_color != "":
+			tile_btns[i].add_theme_color_override("font_color", COL[mark_color].lightened(0.35))
 		else:
 			tile_btns[i].remove_theme_color_override("font_color")
 		_style_tile(i, c, c != "" and g.get("kept", false))

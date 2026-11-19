@@ -1,0 +1,15 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+
+[resource]
+script = ExtResource("1_a")
+id = "trace_stack"
+name_th = "ตราสะสม"
+icon = "✧"
+text_th = "วาง Gem สีเดิมในช่องเดิมต่อเนื่องเพื่อสะสมพลังรอยได้สูงสุด +4"
+archetype = "ember"
+rarity = "rare"
+price = 8
+catalog_order = 18
+trace_cap = 4

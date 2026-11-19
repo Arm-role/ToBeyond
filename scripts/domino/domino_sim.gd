@@ -9,7 +9,6 @@ const N := 8
 const HAND_SIZE := 4
 const MAX_HAND := 5
 const RED_DMG := 4
-const MAX_RED_POP_BONUS := 3
 const BLUE_BLOCK := 3
 const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
 const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
@@ -74,6 +73,8 @@ var ashes: bool = false          # bought from the Chaos shop row: every pop lea
 var ash: Dictionary = {}         # tile -> Gem kind of the last pop there (this fight only)
 var _prev_tiles: Dictionary = {}   # tile -> Gem colour held there in the previous walk (furnace)
 var _next_prev: Dictionary = {}
+var _prev_trace_power: Dictionary = {}
+var _trace_power: Dictionary = {}
 var deck: Array = []             # limited draw pile of Gem colours (run_deck per fight)
 var discard_pile: Array = []     # reshuffled into the deck when it runs out
 var discards_left: int = DISCARDS_PER_TURN   # reset to discard_per_turn each hand
@@ -131,6 +132,8 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 	ash.clear()
 	_prev_tiles = {}
 	_next_prev = {}
+	_prev_trace_power = {}
+	_trace_power = {}
 	build_deck()
 	_once_fight.clear()
 	_reset_walk()
@@ -300,6 +303,14 @@ func last_tiles() -> Dictionary:
 	return _next_prev
 
 
+func last_trace_power(tile: int) -> int:
+	return _trace_power.get(tile, 0)
+
+
+static func gem_color(c: String) -> String:
+	return "red" if c in ATTACK else c.trim_suffix("2")
+
+
 func _reset_walk() -> void:
 	_depth = 0
 	_step = 0
@@ -339,8 +350,20 @@ func run_walk() -> Array:
 	_reset_walk()
 	_prev_tiles = _next_prev
 	_next_prev = {}
+	_prev_trace_power = _trace_power
+	_trace_power = {}
+	var mark_power := 1
+	var stack_cap := 0
+	for artifact in slots:
+		mark_power = maxi(mark_power, artifact.trace_power)
+		stack_cap = maxi(stack_cap, artifact.trace_cap)
 	for t in board:
-		_next_prev[t] = board[t].color
+		var color: String = board[t].color
+		_next_prev[t] = color
+		var power := mark_power
+		if stack_cap > 0 and gem_color(_prev_tiles.get(t, "")) == gem_color(color):
+			power = mini(stack_cap, mark_power + int(_prev_trace_power.get(t, 0)))
+		_trace_power[t] = power
 	events = []
 	walk_no += 1
 	_fire(_emit("ignite", {"walk": walk_no, "block": _block}))
@@ -480,9 +503,8 @@ func _do_pop(tile: int, cause: String) -> void:
 	var red: bool = g.color in ATTACK
 	var coin: bool = g.color == "orange"   # coin Gem: pays coins, no attack or shield
 	var lv := 2 if String(g.color).ends_with("2") else 1
-	var base: int = 0 if coin else BLUE_BLOCK * lv
+	var base: int = 0 if coin else ((RED_DMG * lv + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK * lv)
 	if red:
-		base = RED_DMG * lv + mini(_red_pops, MAX_RED_POP_BONUS)
 		_red_pops += 1
 		if _boss_is("bulwark") and _red_pops <= int(_boss_arg("pops", 2)):
 			base = 0   # the boss's armour eats the first red pops of the walk
@@ -493,10 +515,13 @@ func _do_pop(tile: int, cause: String) -> void:
 		return
 	_fire(ev, true)   # modifiers (convert) first, then the Gem's own effect, then the reactions
 	var boost := roundi(float(ev.get("boost", 0.0)))   # "boost" rules add to this Gem's power, whatever its colour
-	var kind_now := "red" if g.color in ATTACK else String(g.color).trim_suffix("2")   # ashes follow the Gem kind, not its level
-	if ashes and not (base == 0 and red) and ash.get(tile, "") == kind_now:
-		boost += ASH_BONUS   # same kind of Gem on the ashes of the last pop here
-		ev["ash_used"] = true
+	var kind_now := gem_color(g.color)
+	var trace_bonus := int(_prev_trace_power.get(tile, 0)) if gem_color(_prev_tiles.get(tile, "")) == kind_now else 0
+	var same_ash: bool = ashes and ash.get(tile, "") == kind_now
+	if not (base == 0 and red):
+		boost += maxi(trace_bonus, ASH_BONUS if same_ash else 0)
+		if same_ash:
+			ev["ash_used"] = true
 	if coin:
 		gold += COIN_GEM + boost
 		_emit("gold", {"amount": COIN_GEM + boost, "total": gold}, "base")
