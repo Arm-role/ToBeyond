@@ -513,13 +513,15 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 	var c := {"btn": b}
 	var art_region: Rect2 = data.get("art_region", Rect2())
 	var foot_y := h * 0.74
+	var foot_height := h * 0.2
 	if art_region.has_area():
-		_upgrade_art(b, art_region, Rect2(8, 8, w - 16, h - 46))
-		foot_y = h - 38
+		_upgrade_art(b, art_region, Rect2(5, 5, w - 10, h - 38))
+		foot_y = h - 33
+		foot_height = 30
 	else:
 		c["icon"] = _card_label(b, roundi(h * 0.32), Vector2(0, h * 0.10), Vector2(w, h * 0.52), HORIZONTAL_ALIGNMENT_CENTER)
 		c["icon"].text = data.get("icon", "")
-	var foot := _card_label(b, 24, Vector2(0, foot_y), Vector2(w, h * 0.2), HORIZONTAL_ALIGNMENT_CENTER)
+	var foot := _card_label(b, 24, Vector2(0, foot_y), Vector2(w, foot_height), HORIZONTAL_ALIGNMENT_CENTER)
 	foot.add_theme_color_override("font_color", Color("#ffd966"))
 	foot.text = data.get("foot", "")
 	c["foot"] = foot
@@ -527,6 +529,7 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 
 
 const CARD_SZ := Vector2(150, 215)
+const UPGRADE_CARD_SZ := Vector2(150, 270)
 const UPGRADE_ART := preload("res://assets/cards/shop_upgrade_tarot.png")
 
 
@@ -586,8 +589,8 @@ func _panel_label(pn: Control, text: String, fs: int, pos: Vector2, sz: Vector2,
 
 
 ## Add one tappable card to `cards`; tapping shows it in `panel`.
-func _add_card(parent: Control, cards: Array, panel: Control, pos: Vector2, info: Dictionary) -> void:
-	var c := _make_card(parent, pos, CARD_SZ, info)
+func _add_card(parent: Control, cards: Array, panel: Control, pos: Vector2, info: Dictionary, size: Vector2 = CARD_SZ) -> void:
+	var c := _make_card(parent, pos, size, info)
 	cards.append({"btn": c.btn, "info": info})
 	var idx := cards.size() - 1
 	c.btn.pressed.connect(func(): _detail_show(panel, cards, idx))
@@ -1822,7 +1825,7 @@ func _shop() -> void:
 		for i in ups.size():
 			var u: Dictionary = ups[i]
 			var label := "เต็มแล้ว" if u.get("max", false) else "%d 🪙" % u.cost
-			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 350), {"art_region": u.art_region, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
+			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 342), {"art_region": u.art_region, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
 				"state": "" if u.ok else "disabled", "act": "ซื้อ " + label, "ok": u.ok, "cb": func():
 					match i:
 						0:
@@ -1833,7 +1836,7 @@ func _shop() -> void:
 						2:
 							Shop.buy_discard(sim)
 					sfx.play("place", 1.3, -8.0)
-					_shop_step.emit(false)})
+					_shop_step.emit(false)}, UPGRADE_CARD_SZ)
 		# Reroll is a plain button (not a card). Lambdas copy plain values, so the counter lives in `st` and the stock array is refilled in place.
 		var rb := _rw_button("🎲 สุ่มใหม่  %d 🪙" % rc, Vector2(560, 400), Vector2(340, 110), 34)
 		rb.disabled = sim.gold < rc
@@ -1846,7 +1849,7 @@ func _shop() -> void:
 		# Owned cards: sell
 		for i in SLOTS:
 			var o = slot_arr[i]
-			var pos := Vector2(40 + i * 165.0, 590)
+			var pos := Vector2(40 + i * 165.0, 630)
 			if o == null:
 				_make_card(reward_ui, pos, CARD_SZ, {"state": "empty", "kind": "art"})
 				continue
