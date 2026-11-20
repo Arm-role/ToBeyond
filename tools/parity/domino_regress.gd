@@ -182,11 +182,16 @@ func _phase4() -> void:
 	for ids in COMBOS:
 		for name in ["red_run", "blue_run"]:
 			_run("p4 combo %s [%s]" % [name, ",".join(ids)], _setup(more[name], ids), 2 if "coal" in ids else 1)
-	# Chaos ashes: after a pop, the next same-kind Gem on that tile is +1 (with crit: (4+1) x2); furnace: same tile as last walk x2
-	var ash := {"gems": {1: "redcrit", 2: "red", 3: "blue", 4: "red"}, "flag": 6, "hp": 40.0}
-	var as1 = _setup(ash, [])
-	as1.ashes = true
-	_run("p4 ashes", as1, 3)
+	# A marked Gem leaves a +2 trace for a matching Gem on the following walk.
+	var ash := {"gems": {0: "redcrit2_trace", 1: "blue_trace", 2: "orange_trace"}, "flag": 6, "hp": 40.0}
+	var marked = _setup(ash, ["trace_stack"])
+	_run("Chaos trace starts at two", marked)
+	print("trace powers after marked walk: ", [marked.last_trace_power(0), marked.last_trace_power(1), marked.last_trace_power(2)])
+	marked.place(0, "red_trace")
+	marked.place(1, "blue")
+	marked.place(2, "orange")
+	_run("Chaos trace boosts matching Gems", marked)
+	print("stacked trace powers: ", [marked.last_trace_power(0), marked.last_trace_power(1), marked.last_trace_power(2)])
 	var as2 = _setup(ash, ["furnace"])
 	_run("p4 furnace same-tile", as2, 3)
 	# redcrit Gem: an attack Gem (red for artifacts) with a 1-in-3 crit, x2
@@ -259,13 +264,14 @@ func _phase5() -> void:
 	print("chaos too many picks refused: %s" % Chaos.buy(cs, by.clone, ["red", "red"]))
 	print("chaos clone blue: %s gold %d deck %s" % [Chaos.buy(cs, by.clone, ["blue"]), cs.gold, str(cs.run_deck)])
 	print("chaos destroy 2 red: %s gold %d deck %s" % [Chaos.buy(cs, by.destroy, ["red", "red"]), cs.gold, str(cs.run_deck)])
-	cs.gold = 10
-	cs.gold = 10
-	print("chaos ashes: %s ashes %s gold %d, again refused: %s" % [Chaos.buy(cs, by.ashes, []), cs.ashes, cs.gold, Chaos.buy(cs, by.ashes, [])])
+	cs.gold = 15
+	print("chaos trace one red: %s second marked rejected: %s next blue: %s gold %d deck %s" % [
+		Chaos.buy(cs, by.ashes, ["red"]), Chaos.buy(cs, by.ashes, ["red_trace"]),
+		Chaos.buy(cs, by.ashes, ["blue"]), cs.gold, str(cs.run_deck)])
 	cs.gold = 10
 	print("chaos mark_crit on blue refused: %s" % Chaos.buy(cs, by.mark_crit, ["blue"]))
 	print("chaos mark_crit red: %s gold %d deck %s" % [Chaos.buy(cs, by.mark_crit, ["red"]), cs.gold, str(cs.run_deck)])
-	# Chaos Lv2 upgrade: red -> red2 (attack 8), blue -> blue2 (shield 6), crit and ashes come along, orange refused
+	# Chaos Lv2 upgrade: red -> red2 (attack 8), blue -> blue2 (shield 6), crit and trace upgrades come along, orange refused
 	var lv := Sim.new()
 	lv.gold = 30
 	print("chaos lv2 orange refused: %s" % Chaos.buy(lv, by.lv2, ["orange"]))
@@ -278,9 +284,6 @@ func _phase5() -> void:
 	var l2 := {"gems": {0: "red2", 1: "blue2", 2: "redcrit2", 3: "red", 4: "blue", 5: "red2"}, "flag": 6, "hp": 40.0}
 	for ids in [[], ["twin"], ["mirror", "twin"]]:
 		_run("p4 lv2 [%s]" % ",".join(ids), _setup(l2, ids))
-	var l2a = _setup(l2, [])
-	l2a.ashes = true
-	_run("p4 lv2 ashes", l2a, 3)
 	cs.run_deck = {"red": 8, "orange": 4, "blue": 3}
 	print("chaos destroy below min refused: %s total %d" % [Chaos.buy(cs, by.destroy, ["red"]), Chaos.deck_total(cs)])
 	cs.gold = 1

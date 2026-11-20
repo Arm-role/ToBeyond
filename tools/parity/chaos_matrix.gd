@@ -15,13 +15,11 @@ func _fail(msg: String) -> void:
 
 
 func _lv(c: String) -> int:
-	return 2 if c.ends_with("2") else 1
+	return 2 if c.trim_suffix(Chaos.TRACE_SUFFIX).ends_with("2") else 1
 
 
 func _initialize() -> void:
 	for card in Chaos.CARDS:
-		if card.kind == "global":
-			continue
 		for c in Chaos.COLORS:
 			var sim = Sim.new()
 			for k in Chaos.COLORS:
@@ -48,30 +46,36 @@ func _initialize() -> void:
 				var dv := int(sim.run_deck[k]) - int(before.get(k, 0))
 				if dv != 0:
 					d[k] = dv
-			var total := Chaos.deck_total(sim) - 35
-			var want_total: int = {"convert": 0, "upgrade": 0, "destroy": -1, "clone": 1}[card.kind]
+			var total := Chaos.deck_total(sim) - 5 * Chaos.COLORS.size()
+			var want_total: int = {"convert": 0, "upgrade": 0, "trace": 0, "destroy": -1, "clone": 1}[card.kind]
 			if total != want_total:
 				_fail("%s: deck size %+d, want %+d" % [tag, total, want_total])
 			if sim.gold != 99 - int(card.price):
 				_fail("%s: price not paid" % tag)
-			if card.kind == "convert" or card.kind == "upgrade":
+			if card.kind in ["convert", "upgrade", "trace"]:
 				var dest := ""
 				for k in d:
 					if d[k] > 0:
 						dest = k
 				if dest == "" or dest == c:
 					_fail("%s: changed nothing (%s)" % [tag, str(d)])
-				elif dest != "orange" and _lv(dest) != _lv(c) and card.kind == "convert":
+				elif dest.trim_suffix(Chaos.TRACE_SUFFIX) != "orange" and _lv(dest) != _lv(c) and card.kind == "convert":
 					_fail("%s: level lost %s -> %s" % [tag, c, dest])
 				elif card.kind == "upgrade" and _lv(dest) != 2:
 					_fail("%s: upgrade did not reach Lv2 (%s)" % [tag, dest])
+				if card.kind == "trace":
+					if c.ends_with(Chaos.TRACE_SUFFIX) or dest != c + Chaos.TRACE_SUFFIX:
+						_fail("%s: must mark exactly one unmarked Gem" % tag)
+				elif dest.ends_with(Chaos.TRACE_SUFFIX) != c.ends_with(Chaos.TRACE_SUFFIX):
+					_fail("%s: trace upgrade changed" % tag)
 	# artifact colour conditions: Chaos Gems read as their Lv1 kind
 	var sim2 = Sim.new()
 	for c in Chaos.COLORS:
-		var attack: bool = c in Sim.ATTACK
+		var base := String(c).trim_suffix(Chaos.TRACE_SUFFIX)
+		var attack: bool = base in Sim.ATTACK
 		if sim2._is_color(c, "red") != attack:
 			_fail("_is_color(%s, red) != %s" % [c, attack])
-		var kind: String = "red" if attack else c.trim_suffix("2")
+		var kind: String = "red" if attack else base.trim_suffix("2")
 		if sim2._is_color(c, "blue") != (kind == "blue") or sim2._is_color(c, "orange") != (kind == "orange"):
 			_fail("_is_color(%s) wrong for blue/orange" % c)
 	print("CHAOS_MATRIX_OK" if fails == 0 else "CHAOS_MATRIX_FAILED %d" % fails)

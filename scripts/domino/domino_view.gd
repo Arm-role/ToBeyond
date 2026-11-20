@@ -39,7 +39,6 @@ var v_flag: int = 3
 var v_flag2: int = -1               # second flag (twin-flag boss), -1 = none
 var v_gold: int = 0
 var v_boss: Resource = null
-var v_ash: Dictionary = {}          # tile -> Gem kind: ashes left by pops (Chaos ashes)
 var flag_seen: bool = false         # smoke boss: a flag is revealed once the fireball is within 2 tiles
 var v_board: Dictionary = {}        # tile -> {color, kept, ...}
 var hand: Array[String] = []        # "" = slot already placed
@@ -772,7 +771,6 @@ func _sync() -> void:
 	v_boss = sim.boss
 	flag_seen = false
 	v_board = sim.board.duplicate(true)
-	v_ash = sim.ash.duplicate()
 	v_prev = sim.last_tiles().duplicate()
 	v_trace_power.clear()
 	for tile in v_prev:
@@ -790,6 +788,7 @@ func _new_turn() -> void:
 
 
 func _gem_text(c: String) -> String:
+	c = c.trim_suffix(Chaos.TRACE_SUFFIX)
 	if c == "orange":
 		return "🪙 +%d" % Sim.COIN_GEM
 	var lv := 2 if c.ends_with("2") else 1
@@ -801,6 +800,7 @@ func _gem_text(c: String) -> String:
 
 ## Gem sprite (assets/gems): red / blue / coin, Lv2 red / blue. Crit Gems use the red sprite.
 func _gem_tex(c: String) -> Texture2D:
+	c = c.trim_suffix(Chaos.TRACE_SUFFIX)
 	var n := "coin" if c == "orange" else c.replace("crit", "")
 	return _tex("res://assets/gems/gem_%s.png" % n) if c != "" else null
 
@@ -846,7 +846,7 @@ func _style_tile(i: int, c: String, kept: bool) -> void:
 	tile_prev[i].visible = v_prev.has(i)
 	if v_prev.has(i):
 		var psb := StyleBoxFlat.new()
-		var pc: Color = COL[v_prev[i]]
+		var pc: Color = COL[String(v_prev[i]).trim_suffix(Chaos.TRACE_SUFFIX)]
 		psb.bg_color = Color(pc.r, pc.g, pc.b, 0.14)
 		psb.set_border_width_all(6)
 		psb.border_color = pc.lightened(0.15)
@@ -873,7 +873,7 @@ func _style_diamond(b: Button, c: String, picked: bool) -> void:
 		b.add_theme_stylebox_override(s, e)
 	var dia: Polygon2D = b.get_meta("dia")
 	var rim: Line2D = b.get_meta("rim")
-	dia.color = COL[c] if c != "" else Color("#2a2438")
+	dia.color = COL[c.trim_suffix(Chaos.TRACE_SUFFIX)] if c != "" else Color("#2a2438")
 	var spr: TextureRect = b.get_meta("spr")
 	var tex := _gem_tex(c)
 	spr.texture = tex
@@ -888,7 +888,7 @@ func _style_diamond(b: Button, c: String, picked: bool) -> void:
 
 func _style(b: Button, c: String, picked: bool = false) -> void:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = COL[c] if c != "" else Color("#2a2438")
+	sb.bg_color = COL[c.trim_suffix(Chaos.TRACE_SUFFIX)] if c != "" else Color("#2a2438")
 	sb.set_corner_radius_all(18)
 	sb.set_border_width_all(6 if picked else 2)
 	sb.border_color = Color("#ffd966") if picked else Color(1, 1, 1, 0.25)
@@ -917,15 +917,15 @@ func _refresh() -> void:
 		var g: Dictionary = v_board.get(i, {})
 		var c: String = g.get("color", "")
 		tile_btns[i].text = _gem_text(c).replace("
-", " ") if c != "" else ("✦ +%d" % Sim.ASH_BONUS if v_ash.has(i) else "")
+", " ") if c != "" else ""
 		var trace_color := Sim.gem_color(v_prev.get(i, ""))
 		if c != "" and trace_color == Sim.gem_color(c):
 			tile_btns[i].text += " · ✦ +%d" % v_trace_power[i]
 		if c == "" and v_prev.has(i):
 			tile_btns[i].text = "✦ +%d" % v_trace_power[i]
-		var mark_color: String = v_prev.get(i, v_ash.get(i, ""))
+		var mark_color: String = v_prev.get(i, "")
 		if c == "" and mark_color != "":
-			tile_btns[i].add_theme_color_override("font_color", COL[mark_color].lightened(0.35))
+			tile_btns[i].add_theme_color_override("font_color", COL[mark_color.trim_suffix(Chaos.TRACE_SUFFIX)].lightened(0.35))
 		else:
 			tile_btns[i].remove_theme_color_override("font_color")
 		_style_tile(i, c, c != "" and g.get("kept", false))
@@ -936,7 +936,7 @@ func _refresh() -> void:
 			continue
 		hand_btns[i].position.x = hx + i * 221.0
 		var c: String = hand[i]
-		hand_btns[i].text = ""   # the score is shown under the tile once placed, not on the hand card
+		hand_btns[i].text = "รอย +2" if c.ends_with(Chaos.TRACE_SUFFIX) else ""
 		hand_btns[i].disabled = c == "" or busy
 		_style_diamond(hand_btns[i], c, i == selected)
 	for i in tile_tabs.size():
@@ -989,35 +989,43 @@ func _open_deck() -> void:
 	for c in sim.deck:
 		left[c] = int(left.get(c, 0)) + 1
 	var names := {"red": "⚔ โจมตี", "red2": "⚔ โจมตี Lv2 ⭐", "redcrit": "⚔⚡ โจมตีคริ", "redcrit2": "⚔⚡ โจมตีคริ Lv2 ⭐", "orange": "🪙 เหรียญ", "blue": "🛡 โล่", "blue2": "🛡 โล่ Lv2 ⭐"}
-	var y := 290.0
+	var y := 0.0
 	var rows: Array = []
-	for rc in ["red", "red2", "redcrit", "redcrit2", "orange", "blue", "blue2"]:
+	for rc in Chaos.COLORS:
 		if rc in ["red", "orange", "blue"] or int(sim.run_deck.get(rc, 0)) > 0:
 			rows.append(rc)
-	var row_step := 210.0 if rows.size() <= 3 else (170.0 if rows.size() == 4 else minf(170.0, 640.0 / rows.size()))
+	var row_step := 210.0 if rows.size() <= 3 else clampf(640.0 / rows.size(), 110.0, 170.0)
+	var scroll := ScrollContainer.new()
+	scroll.position = Vector2(200, 290)
+	scroll.size = Vector2(1540, 640)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	deck_ui.add_child(scroll)
+	var contents := Control.new()
+	contents.custom_minimum_size = Vector2(1520, rows.size() * row_step)
+	scroll.add_child(contents)
 	for c in rows:
 		var total := int(sim.run_deck.get(c, 0))
 		var step := minf(76.0, 1500.0 / maxf(float(total), 1.0))
 		var rem := int(left.get(c, 0))
 		var lbl := Label.new()
-		lbl.text = "%s   เหลือ %d / %d" % [names[c], rem, total]
+		lbl.text = "%s   เหลือ %d / %d" % [_trace_gem_name(c, names), rem, total]
 		lbl.add_theme_font_size_override("font_size", 34)
-		lbl.position = Vector2(200, y)
+		lbl.position = Vector2(0, y)
 		lbl.size = Vector2(1520, 50)
-		deck_ui.add_child(lbl)
+		contents.add_child(lbl)
 		for i in total:
 			var t := Panel.new()
 			var sb := StyleBoxFlat.new()
-			sb.bg_color = COL[c]
+			sb.bg_color = COL[c.trim_suffix(Chaos.TRACE_SUFFIX)]
 			sb.set_corner_radius_all(10)
 			sb.set_border_width_all(2)
 			sb.border_color = Color(1, 1, 1, 0.5)
 			t.add_theme_stylebox_override("panel", sb)
-			t.position = Vector2(200 + i * step, y + 60)
+			t.position = Vector2(i * step, y + 60)
 			t.size = Vector2(step * 0.87, minf(90.0, row_step - 70.0))
 			t.modulate.a = 1.0 if i < rem else 0.2
 			t.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			deck_ui.add_child(t)
+			contents.add_child(t)
 		y += row_step
 	var hint := Label.new()
 	hint.text = "สว่าง = ยังอยู่ในสำรับ   ·   จาง = จั่วไปแล้ว (อยู่ในมือ/บนกระดาน/กองทิ้ง)   ·   แตะที่ไหนก็ได้เพื่อปิด"
@@ -1434,8 +1442,6 @@ func _play_walk(evs: Array) -> void:
 				_refresh()
 			"capped":
 				_float_text("สุดทาง", Vector2(tile_btns[ev.tile].position.x, ROW_Y - 120.0), Color("#c8c8d0"))
-			"ash":
-				v_ash[ev.tile] = ev.kind
 			"gold":
 				var gt: int = int(ev.get("tile", -1))
 				if ev.src == "base" and gt >= 0 and gt < tile_btns.size() and ev.amount > 0:
@@ -1771,8 +1777,8 @@ func _shop() -> void:
 				continue   # already used
 			var ccost := int(cc.price)
 			_add_card(reward_ui, cards, panel, Vector2(740 + i * 165.0, 110), _chaos_info(cc, "%d 🪙" % ccost, "ใช้การ์ด %d 🪙" % ccost, sim.gold >= ccost, func():
-				var picks: Array = [] if cc.kind == "global" else await _chaos_pick(cc)
-				if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, cc, picks):
+				var picks: Array = await _chaos_pick(cc)
+				if not picks.is_empty() and Chaos.buy(sim, cc, picks):
 					chaos_stock[i] = null
 					sfx.play("place", 1.3, -8.0)
 				_shop_step.emit(false)))
@@ -1878,13 +1884,12 @@ func _shop_test_tab(shop_state: Dictionary) -> void:
 			cards[cards.size() - 1].btn.add_theme_stylebox_override("normal", _card_style("art", d.rarity, "owned", "normal"))
 	for i in Chaos.CARDS.size():
 		var cc: Dictionary = Chaos.CARDS[i]
-		var used: bool = cc.id == "ashes" and sim.ashes
 		var pos := Vector2(i % COLS, floori(float(i) / COLS)) * PITCH + Vector2(0, chaos_y + HEADING_H)
-		_add_card(grid, cards, panel, pos, _chaos_info(cc, "ฟรี", "ใช้ฟรี", not used, func():
+		_add_card(grid, cards, panel, pos, _chaos_info(cc, "ฟรี", "ใช้ฟรี", true, func():
 			var free_cc: Dictionary = cc.duplicate()
 			free_cc.price = 0
-			var picks: Array = [] if cc.kind == "global" else await _chaos_pick(free_cc)
-			if (cc.kind == "global" or not picks.is_empty()) and Chaos.buy(sim, free_cc, picks):
+			var picks: Array = await _chaos_pick(free_cc)
+			if not picks.is_empty() and Chaos.buy(sim, free_cc, picks):
 				sfx.play("place", 1.3, -8.0)
 			_shop_step.emit(false)))
 
@@ -1893,6 +1898,11 @@ func _shop_test_tab(shop_state: Dictionary) -> void:
 ## Returns the chosen colours, or [] when cancelled.
 signal _chaos_step(act: String)
 
+func _trace_gem_name(c: String, names: Dictionary) -> String:
+	var base := c.trim_suffix(Chaos.TRACE_SUFFIX)
+	return String(names[base]) + (" · รอย +2" if c != base else "")
+
+
 func _chaos_pick(card: Dictionary) -> Array:
 	var picks: Array = []
 	var names := {"red": "⚔ แดง", "red2": "⚔ แดง ⭐", "redcrit": "⚔⚡ แดงคริ", "redcrit2": "⚔⚡ แดงคริ ⭐", "orange": "🪙 ส้ม", "blue": "🛡 น้ำเงิน", "blue2": "🛡 น้ำเงิน ⭐"}
@@ -1900,7 +1910,7 @@ func _chaos_pick(card: Dictionary) -> Array:
 	while true:
 		_rw_clear("%s %s" % [card.icon, card.name])
 		var info := Label.new()
-		var chosen := "  ".join(picks.map(func(c): return names[c]))
+		var chosen := "  ".join(picks.map(func(c): return _trace_gem_name(c, names)))
 		info.text = "%s\n\nเลือกแล้ว %d / %d :  %s\nสำรับตอนนี้ %d ใบ" % [card.text, picks.size(), int(card.picks), chosen, Chaos.deck_total(sim)]
 		info.add_theme_font_size_override("font_size", 36)
 		info.position = Vector2(0, 170)
@@ -1912,12 +1922,15 @@ func _chaos_pick(card: Dictionary) -> Array:
 			if cn in ["red", "orange", "blue"] or int(sim.run_deck.get(cn, 0)) > 0:
 				cols.append(cn)
 		var bw := 320.0 if cols.size() <= 4 else 230.0
-		var bx0 := (1920.0 - (cols.size() * (bw + 30.0) - 30.0)) * 0.5
+		var per_row := mini(cols.size(), 7)
 		for ci in cols.size():
 			var c: String = cols[ci]
+			var row := floori(float(ci) / per_row)
+			var in_row := mini(per_row, cols.size() - row * per_row)
+			var bx0 := (1920.0 - (in_row * (bw + 30.0) - 30.0)) * 0.5
 			var used := picks.count(c)
 			var left := int(sim.run_deck.get(c, 0)) - used
-			var b := _rw_button("%s\nในสำรับ %d" % [names[c], left], Vector2(bx0 + ci * (bw + 30.0), 500), Vector2(bw, 200), 36 if cols.size() <= 4 else 28)
+			var b := _rw_button("%s\nในสำรับ %d" % [_trace_gem_name(c, names), left], Vector2(bx0 + (ci % per_row) * (bw + 30.0), 490 + row * 135), Vector2(bw, 120), 36 if cols.size() <= 4 else 28)
 			b.disabled = left <= 0 or picks.size() >= int(card.picks) or not Chaos.can_pick(card, c)
 			b.pressed.connect(func(): _chaos_step.emit("pick:" + c))
 		var ok_b := _rw_button("ใช้การ์ด %d 🪙" % int(card.price), Vector2(560, 800), Vector2(380, 100), 40)

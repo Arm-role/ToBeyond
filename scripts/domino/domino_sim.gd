@@ -13,7 +13,8 @@ const BLUE_BLOCK := 3
 const COIN_GEM := 1          # orange Gem: no attack or shield, pays this many coins each time it pops
 const CRIT_CHANCE := 1.0 / 3.0   # "redcrit": an attack Gem marked by a Chaos card, 1 in 3 to hit for CRIT_MULT
 const CRIT_MULT := 2.0
-const ASH_BONUS := 1   # Chaos "ashes": a Gem of the same kind as the last pop on that tile gets this much power
+const Chaos := preload("res://scripts/domino/domino_chaos.gd")
+const UPGRADED_TRACE_POWER := 2
 const ATTACK := ["red", "redcrit", "red2", "redcrit2"]   # "...2" = level 2 (Chaos upgrade): attack and shield x2, same status as the Lv1 kind
 const DECK_COUNTS := {"red": 20, "orange": 10, "blue": 15}   # attack 20, coin 10, shield 15
 const DISCARDS_PER_TURN := 3
@@ -69,8 +70,6 @@ var kind: String = "fight"       # "fight" | "elite" | "boss": the current fight
 var map_rng := RandomNumberGenerator.new()   # the stage plan only; never sim.rng, so fights and decks stay unchanged
 var stats: Dictionary = {}       # add_stat values, one walk long
 var run_deck: Dictionary = DECK_COUNTS.duplicate()   # Gems per colour in this run's deck; Chaos cards change it for good
-var ashes: bool = false          # bought from the Chaos shop row: every pop leaves ashes on its tile
-var ash: Dictionary = {}         # tile -> Gem kind of the last pop there (this fight only)
 var _prev_tiles: Dictionary = {}   # tile -> Gem colour held there in the previous walk (furnace)
 var _next_prev: Dictionary = {}
 var _prev_trace_power: Dictionary = {}
@@ -129,7 +128,6 @@ func start_fight(s: int, forced_boss: Resource = null, fight_kind: String = "fig
 	if s > 1:
 		hp = minf(max_hp, hp + max_hp * WIN_HEAL)
 	board.clear()
-	ash.clear()
 	_prev_tiles = {}
 	_next_prev = {}
 	_prev_trace_power = {}
@@ -308,7 +306,8 @@ func last_trace_power(tile: int) -> int:
 
 
 static func gem_color(c: String) -> String:
-	return "red" if c in ATTACK else c.trim_suffix("2")
+	var base := c.trim_suffix(Chaos.TRACE_SUFFIX)
+	return "red" if base in ATTACK else base.trim_suffix("2")
 
 
 func _reset_walk() -> void:
@@ -360,9 +359,9 @@ func run_walk() -> Array:
 	for t in board:
 		var color: String = board[t].color
 		_next_prev[t] = color
-		var power := mark_power
+		var power := maxi(mark_power, UPGRADED_TRACE_POWER) if color.ends_with(Chaos.TRACE_SUFFIX) else mark_power
 		if stack_cap > 0 and gem_color(_prev_tiles.get(t, "")) == gem_color(color):
-			power = mini(stack_cap, mark_power + int(_prev_trace_power.get(t, 0)))
+			power = mini(stack_cap, power + int(_prev_trace_power.get(t, 0)))
 		_trace_power[t] = power
 	events = []
 	walk_no += 1
@@ -500,9 +499,10 @@ func _do_pop(tile: int, cause: String) -> void:
 	_tile_pops[tile] = tp + 1
 	_pops += 1
 	var g: Dictionary = board[tile]
-	var red: bool = g.color in ATTACK
-	var coin: bool = g.color == "orange"   # coin Gem: pays coins, no attack or shield
-	var lv := 2 if String(g.color).ends_with("2") else 1
+	var color: String = g.color.trim_suffix(Chaos.TRACE_SUFFIX)
+	var red := color in ATTACK
+	var coin := color == "orange"   # coin Gem: pays coins, no attack or shield
+	var lv := 2 if color.ends_with("2") else 1
 	var base: int = 0 if coin else ((RED_DMG * lv + roundi(stats.get("red_bonus", 0.0))) if red else BLUE_BLOCK * lv)
 	if red:
 		_red_pops += 1
@@ -517,11 +517,8 @@ func _do_pop(tile: int, cause: String) -> void:
 	var boost := roundi(float(ev.get("boost", 0.0)))   # "boost" rules add to this Gem's power, whatever its colour
 	var kind_now := gem_color(g.color)
 	var trace_bonus := int(_prev_trace_power.get(tile, 0)) if gem_color(_prev_tiles.get(tile, "")) == kind_now else 0
-	var same_ash: bool = ashes and ash.get(tile, "") == kind_now
 	if not (base == 0 and red):
-		boost += maxi(trace_bonus, ASH_BONUS if same_ash else 0)
-		if same_ash:
-			ev["ash_used"] = true
+		boost += trace_bonus
 	if coin:
 		gold += COIN_GEM + boost
 		_emit("gold", {"amount": COIN_GEM + boost, "total": gold}, "base")
@@ -531,16 +528,13 @@ func _do_pop(tile: int, cause: String) -> void:
 	elif red or ev.get("convert", "") == "damage":
 		base += boost
 		var dmg := float(base)
-		if String(g.color).begins_with("redcrit") and rng.randf() < CRIT_CHANCE:
+		if color.begins_with("redcrit") and rng.randf() < CRIT_CHANCE:
 			dmg *= CRIT_MULT
 			ev["crit"] = true
 		ev["damage"] = dmg
 		_hit("enemy", dmg, "base", "pop")
 	else:
 		_shield(base + boost, "base")
-	if ashes:
-		ash[tile] = kind_now
-		_emit("ash", {"tile": tile, "kind": kind_now}, "base")
 	_fire(ev)
 
 
@@ -632,7 +626,8 @@ func _color_at(tile: int) -> String:
 
 ## Artifact conditions on "red" match attack Gems only.
 func _is_color(c: String, want) -> bool:
-	return c in ATTACK if want == "red" else c.trim_suffix("2") == want
+	var base := c.trim_suffix(Chaos.TRACE_SUFFIX)
+	return base in ATTACK if want == "red" else base.trim_suffix("2") == want
 
 
 func _check(key: String, want, ev: Dictionary) -> bool:

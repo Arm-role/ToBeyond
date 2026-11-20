@@ -5,7 +5,9 @@ extends RefCounted
 
 const MIN_DECK := 15   # destroying cannot leave fewer Gems than this
 const STOCK := 3
-const COLORS := ["red", "red2", "redcrit", "redcrit2", "orange", "blue", "blue2"]
+const TRACE_SUFFIX := "_trace"
+const COLORS := ["red", "red2", "redcrit", "redcrit2", "orange", "blue", "blue2",
+	"red_trace", "red2_trace", "redcrit_trace", "redcrit2_trace", "orange_trace", "blue_trace", "blue2_trace"]
 const UP := {"red": "red2", "redcrit": "redcrit2", "blue": "blue2"}   # Lv2 upgrade: Gem kind -> its Lv2 kind (status like crit comes along)
 const CARDS := [
 	{"id": "to_red", "kind": "convert", "to": "red", "picks": 2, "price": 3, "icon": "🌀", "name": "Chaos เปลี่ยนเป็นแดง",
@@ -18,8 +20,8 @@ const CARDS := [
 		"text": "เลือก Gem แดง 1 ใบในสำรับ ให้มีโอกาสคริ 1 ใน 3 (ดาเมจ ×2) ถาวร"},
 	{"id": "lv2", "kind": "upgrade", "picks": 1, "price": 5, "icon": "⬆️", "name": "Chaos อัปเกรด Lv2",
 		"text": "เลือก Gem โจมตีหรือโล่ 1 ใบในสำรับ อัปเกรดเป็น Lv2 (⚔ 4→8 · 🛡 3→6) สถานะจาก Chaos อื่น เช่น คริ ติดไปด้วย"},
-	{"id": "ashes", "kind": "global", "picks": 0, "price": 5, "icon": "🌫", "name": "Chaos ขี้เถ้า",
-		"text": "ทุก Gem ที่ป๊อปทิ้งขี้เถ้า +1 ไว้ที่ช่อง Gem ชนิดเดียวกันที่วางทีหลังแรง +1 (ซื้อได้ครั้งเดียว)"},
+	{"id": "ashes", "kind": "trace", "picks": 1, "price": 5, "icon": "🌫", "name": "Chaos ขี้เถ้า",
+		"text": "เลือก Gem ในสำรับ 1 ใบ\nGem ใบนั้นทิ้งรอย +2 ทุกครั้งที่วาง"},
 	{"id": "destroy", "kind": "destroy", "picks": 2, "price": 3, "icon": "💥", "name": "Chaos ทำลาย Gem",
 		"text": "เลือก Gem ในสำรับ 2 ใบ ทิ้งออกจากสำรับถาวร (เหลือขั้นต่ำ %d ใบ)" % MIN_DECK},
 	{"id": "clone", "kind": "clone", "picks": 1, "price": 4, "icon": "🧬", "name": "Chaos ทำสำเนา Gem",
@@ -29,7 +31,7 @@ const CARDS := [
 
 ## Up to `count` different Chaos cards for one shop visit (uses map_rng, never the fight rng).
 static func stock(sim, count: int = STOCK) -> Array:
-	var pool: Array = CARDS.filter(func(c): return not (c.id == "ashes" and sim.ashes))
+	var pool: Array = CARDS.duplicate()
 	var out: Array = []
 	while out.size() < count and not pool.is_empty():
 		out.append(pool.pop_at(sim.map_rng.randi_range(0, pool.size() - 1)))
@@ -45,11 +47,10 @@ static func deck_total(sim) -> int:
 
 ## Colour a convert card makes of Gem `c`: the level stays (red2 -> blue2), a coin Gem has no level, crit is lost with the red kind.
 static func convert_dest(card: Dictionary, c: String) -> String:
-	if card.has("only"):   # mark_crit: red -> redcrit, red2 -> redcrit2
-		return String(card.to) + ("2" if c.ends_with("2") else "")
-	if card.to == "orange":
-		return "orange"
-	return String(card.to) + ("2" if c.ends_with("2") else "")
+	var base := c.trim_suffix(TRACE_SUFFIX)
+	var level := "2" if base.ends_with("2") and card.to != "orange" else ""
+	var trace := TRACE_SUFFIX if c != base else ""
+	return String(card.to) + level + trace
 
 
 ## Per-Gem rule of a card (the shop picker greys buttons with it, valid() checks it): a pick that changes nothing is refused.
@@ -57,18 +58,18 @@ static func can_pick(card: Dictionary, c: String) -> bool:
 	if not (c in COLORS):
 		return false
 	if card.kind == "convert":
-		if card.has("only") and String(c).trim_suffix("2") != card.only:
+		if card.has("only") and c.trim_suffix(TRACE_SUFFIX).trim_suffix("2") != card.only:
 			return false
 		return convert_dest(card, c) != c
 	if card.kind == "upgrade":
-		return UP.has(c)
+		return UP.has(c.trim_suffix(TRACE_SUFFIX))
+	if card.kind == "trace":
+		return not c.ends_with(TRACE_SUFFIX)
 	return true
 
 
 ## `picks` = Gem colours chosen from the deck (one entry per Gem). True when the card can be used with them.
 static func valid(sim, card: Dictionary, picks: Array) -> bool:
-	if card.kind == "global":
-		return not (card.id == "ashes" and sim.ashes)
 	if picks.is_empty() or picks.size() > int(card.picks):
 		return false
 	var used := {}
@@ -90,9 +91,6 @@ static func buy(sim, card: Dictionary, picks: Array) -> bool:
 	if sim.gold < int(card.price) or not valid(sim, card, picks):
 		return false
 	sim.gold -= int(card.price)
-	if card.kind == "global":
-		sim.ashes = true
-		return true
 	for c in picks:
 		match String(card.kind):
 			"convert":
@@ -101,7 +99,13 @@ static func buy(sim, card: Dictionary, picks: Array) -> bool:
 				sim.run_deck[dest] = int(sim.run_deck.get(dest, 0)) + 1
 			"upgrade":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1
-				sim.run_deck[UP[c]] = int(sim.run_deck.get(UP[c], 0)) + 1
+				var base: String = c.trim_suffix(TRACE_SUFFIX)
+				var dest: String = UP[base] + (TRACE_SUFFIX if c != base else "")
+				sim.run_deck[dest] = int(sim.run_deck.get(dest, 0)) + 1
+			"trace":
+				sim.run_deck[c] = int(sim.run_deck[c]) - 1
+				var dest: String = c + TRACE_SUFFIX
+				sim.run_deck[dest] = int(sim.run_deck.get(dest, 0)) + 1
 			"destroy":
 				sim.run_deck[c] = int(sim.run_deck[c]) - 1
 			"clone":
