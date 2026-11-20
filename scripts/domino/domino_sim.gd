@@ -534,6 +534,7 @@ func _do_pop(tile: int, cause: String) -> void:
 		if String(g.color).begins_with("redcrit") and rng.randf() < CRIT_CHANCE:
 			dmg *= CRIT_MULT
 			ev["crit"] = true
+		ev["damage"] = dmg
 		_hit("enemy", dmg, "base", "pop")
 	else:
 		_shield(base + boost, "base")

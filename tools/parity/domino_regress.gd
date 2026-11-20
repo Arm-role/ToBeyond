@@ -193,6 +193,17 @@ func _phase4() -> void:
 	var rc := {"gems": {0: "redcrit", 1: "redcrit", 2: "redcrit", 3: "redcrit", 4: "redcrit", 5: "redcrit", 6: "redcrit", 7: "redcrit"}, "flag": 5, "hp": 40.0}
 	for ids in [[], ["twin"]]:
 		_run("p4 redcrit [%s]" % ",".join(ids), _setup(rc, ids))
+	for color in ["redcrit", "redcrit2"]:
+		var crit_chain := {"gems": {0: color, 1: "red2"}, "flag": 7, "hp": 40.0}
+		for ids in [["echo"], ["twin"], ["mirror"]]:
+			_run("crit repop %s [%s]" % [color, ",".join(ids)], _setup(crit_chain, ids))
+		var furnace = _setup(crit_chain, ["furnace"])
+		_run("furnace prepares trace %s" % color, furnace)
+		furnace.place(0, color)
+		_run("furnace doubles traced crit damage %s" % color, furnace)
+	var blue_lv2 := {"gems": {0: "blue2", 2: "blue2", 4: "blue2"}, "flag": 2, "hp": 40.0}
+	for ids in [["push"], ["riposte"], ["alchemy"]]:
+		_run("Lv2 blue matches [%s]" % ",".join(ids), _setup(blue_lv2, ids))
 	# orange Gem: coin Gem, +1 coin per pop, no attack or shield, not red for artifacts
 	var orange := {"gems": {0: "orange", 1: "red", 2: "orange", 3: "blue", 4: "orange", 5: "orange", 6: "blue", 7: "orange"}, "flag": 5, "hp": 40.0}
 	for ids in [[], ["twin"], ["stoke"], ["furnace", "coal"], ["mirror", "twin"]]:

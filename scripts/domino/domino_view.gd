@@ -1358,6 +1358,9 @@ func _play_walk(evs: Array) -> void:
 			"pop":
 				sfx.step(ev.nth - 1)
 				_pop(tile_btns[ev.tile], 1.3)
+				if ev.tile_pops > 1:
+					var tile_pos: Vector2 = tile_btns[ev.tile].position
+					_float_text("ป๊อปซ้ำ", tile_pos + Vector2(TILE * 0.5, -52), Color("#ffd966"))
 				if ev.get("crit", false):
 					_float_text("คริ! ×2", ENEMY_HOME + Vector2(60, -50), Color("#ffb347"))
 					_shake(8.0)

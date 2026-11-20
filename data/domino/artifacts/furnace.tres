@@ -8,7 +8,7 @@ script = ExtResource("2_r")
 trigger = &"pop"
 cond = {"prev_tile": true, "color": "red"}
 effect = &"damage"
-args = {"amount": "base"}
+args = {"amount": "damage"}
 once = &""
 
 [resource]
