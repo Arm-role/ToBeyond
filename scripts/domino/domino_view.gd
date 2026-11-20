@@ -494,8 +494,7 @@ func _card_style(kind: String, rarity: String, state: String, st: String) -> Sty
 	return sb
 
 
-## Card (same size as the game's artifact slots, CARD_SZ): Button root, icon + foot only. All text lives in the detail panel.
-## data: icon, foot, kind, rarity, state ("", "disabled" = dimmed but tappable, "empty" = no card).
+## A shop card shows its illustration or icon and its price. Details appear in the side panel.
 func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) -> Dictionary:
 	var b := Button.new()
 	b.text = ""
@@ -512,9 +511,15 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 	var h := sz.y
 	var w := sz.x
 	var c := {"btn": b}
-	c["icon"] = _card_label(b, roundi(h * 0.32), Vector2(0, h * 0.10), Vector2(w, h * 0.52), HORIZONTAL_ALIGNMENT_CENTER)
-	c["icon"].text = data.get("icon", "")
-	var foot := _card_label(b, 24, Vector2(0, h * 0.74), Vector2(w, h * 0.2), HORIZONTAL_ALIGNMENT_CENTER)
+	var art_region: Rect2 = data.get("art_region", Rect2())
+	var foot_y := h * 0.74
+	if art_region.has_area():
+		_upgrade_art(b, art_region, Rect2(8, 8, w - 16, h - 46))
+		foot_y = h - 38
+	else:
+		c["icon"] = _card_label(b, roundi(h * 0.32), Vector2(0, h * 0.10), Vector2(w, h * 0.52), HORIZONTAL_ALIGNMENT_CENTER)
+		c["icon"].text = data.get("icon", "")
+	var foot := _card_label(b, 24, Vector2(0, foot_y), Vector2(w, h * 0.2), HORIZONTAL_ALIGNMENT_CENTER)
 	foot.add_theme_color_override("font_color", Color("#ffd966"))
 	foot.text = data.get("foot", "")
 	c["foot"] = foot
@@ -522,6 +527,22 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 
 
 const CARD_SZ := Vector2(150, 215)
+const UPGRADE_ART := preload("res://assets/cards/shop_upgrade_tarot.png")
+
+
+func _upgrade_art(parent: Control, region: Rect2, rect: Rect2) -> void:
+	var art := AtlasTexture.new()
+	art.atlas = UPGRADE_ART
+	art.region = region
+	art.filter_clip = true
+	var image := TextureRect.new()
+	image.texture = art
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	image.position = rect.position
+	image.size = rect.size
+	parent.add_child(image)
 
 
 ## info = card data + title, sub, body (shown in the panel) + act (action button text, "" = none), ok, cb (Callable).
@@ -583,7 +604,11 @@ func _detail_show(panel: Control, cards: Array, idx: int) -> void:
 	var info: Dictionary = cards[idx].info
 	var w := panel.size.x
 	var h := panel.size.y
-	_panel_label(panel, info.get("icon", ""), 90, Vector2(20, 20), Vector2(130, 130), HORIZONTAL_ALIGNMENT_CENTER)
+	var art_region: Rect2 = info.get("art_region", Rect2())
+	if art_region.has_area():
+		_upgrade_art(panel, art_region, Rect2(20, 20, 130, 130))
+	else:
+		_panel_label(panel, info.get("icon", ""), 90, Vector2(20, 20), Vector2(130, 130), HORIZONTAL_ALIGNMENT_CENTER)
 	_panel_label(panel, info.get("title", ""), 40, Vector2(170, 20), Vector2(w - 190, 70), HORIZONTAL_ALIGNMENT_LEFT)
 	var sub := _panel_label(panel, info.get("sub", ""), 26, Vector2(170, 90), Vector2(w - 190, 50), HORIZONTAL_ALIGNMENT_LEFT)
 	sub.modulate.a = 0.7
@@ -1790,14 +1815,14 @@ func _shop() -> void:
 		var dsc := Shop.discard_up_cost(sim)
 		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
 		var ups := [
-			{"icon": "❤", "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
-			{"icon": "✋", "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
-			{"icon": "🗑", "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
+			{"art_region": Rect2(1028, 90, 465, 842), "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
+			{"art_region": Rect2(45, 90, 463, 842), "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
+			{"art_region": Rect2(536, 90, 465, 842), "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
 		]
 		for i in ups.size():
 			var u: Dictionary = ups[i]
 			var label := "เต็มแล้ว" if u.get("max", false) else "%d 🪙" % u.cost
-			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 350), {"icon": u.icon, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
+			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 350), {"art_region": u.art_region, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
 				"state": "" if u.ok else "disabled", "act": "ซื้อ " + label, "ok": u.ok, "cb": func():
 					match i:
 						0:

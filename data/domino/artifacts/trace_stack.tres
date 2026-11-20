@@ -6,7 +6,7 @@
 script = ExtResource("1_a")
 id = "trace_stack"
 name_th = "ตราสะสม"
-icon = "✧"
+icon = "🧱"
 text_th = "วาง Gem สีเดิมในช่องเดิมต่อเนื่องเพื่อสะสมพลังรอยได้สูงสุด +4"
 archetype = "ember"
 rarity = "rare"

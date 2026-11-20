@@ -6,10 +6,10 @@
 script = ExtResource("1_a")
 id = "trace_power"
 name_th = "ตราฝังลึก"
-icon = "✦"
-text_th = "Gem ที่วางทิ้งพลัง +2 ไว้ในรอย"
+icon = "🗿"
+text_th = "Gem โจมตีทิ้งรอยแรงขึ้น +1\nรวมกับ Chaos ขี้เถ้าเป็นรอย +3"
 archetype = "ember"
 rarity = "uncommon"
 price = 6
 catalog_order = 17
-trace_power = 2
+attack_trace_bonus = 1

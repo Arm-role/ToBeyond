@@ -192,6 +192,13 @@ func _phase4() -> void:
 	marked.place(2, "orange")
 	_run("Chaos trace boosts matching Gems", marked)
 	print("stacked trace powers: ", [marked.last_trace_power(0), marked.last_trace_power(1), marked.last_trace_power(2)])
+	for ids in [["trace_power"], ["trace_power", "trace_stack"]]:
+		var deep_trace = _setup(ash, ids)
+		_run("Deep Mark with Chaos [%s]" % ",".join(ids), deep_trace)
+		print("first marks: ", [deep_trace.last_trace_power(0), deep_trace.last_trace_power(1), deep_trace.last_trace_power(2)])
+		deep_trace.place(0, "redcrit2_trace")
+		_run("Deep Mark repeats in place [%s]" % ",".join(ids), deep_trace)
+		print("repeated red mark: ", deep_trace.last_trace_power(0))
 	var as2 = _setup(ash, ["furnace"])
 	_run("p4 furnace same-tile", as2, 3)
 	# redcrit Gem: an attack Gem (red for artifacts) with a 1-in-3 crit, x2

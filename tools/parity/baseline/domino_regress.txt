@@ -1871,7 +1871,7 @@ amount=5.0 depth=0 dir=1 hp_after=47.0 i=12 k=hit lap=0 src=base step=8 target=h
 depth=0 dir=1 i=13 k=shield_break lap=0 left=0 src=base step=8 tile=7
 depth=0 dir=1 i=14 k=reach_end lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
-new blue trace: 2
+new blue trace: 1
 == placement trace power [trace_stack] walk 1: 16 events, hp 92.0, enemy 95, kept []
 block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
@@ -2111,7 +2111,7 @@ amount=5.0 depth=0 dir=1 hp_after=47.0 i=12 k=hit lap=0 src=base step=8 target=h
 depth=0 dir=1 i=13 k=shield_break lap=0 left=0 src=base step=8 tile=7
 depth=0 dir=1 i=14 k=reach_end lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
-new blue trace: 2
+new blue trace: 1
 == p4 full [echo] walk 1: 33 events, hp 28.0, enemy 79, kept []
 block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
@@ -4608,6 +4608,86 @@ depth=0 dir=1 i=17 k=pass lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=18 k=reach_end lap=0 src=base step=8 tile=7
 depth=0 dir=1 i=19 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
 stacked trace powers: [4, 3, 3]
+== Deep Mark with Chaos [trace_power] walk 1: 20 events, hp 35.0, enemy 91, kept []
+block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=8 cause=pass color=redcrit2_trace damage=8.0 depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=8.0 depth=0 dir=1 hp_after=91.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue_trace depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=0 cause=pass color=orange_trace depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=1 depth=0 dir=1 i=9 k=gold lap=0 src=base step=3 tile=2 total=1
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=5 tile=4
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=7 tile=6
+block=3 dealt=5.0 depth=0 dir=1 dmg=8.0 excess=0.0 i=14 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=
+amount=5.0 depth=0 dir=1 hp_after=35.0 i=15 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=16 k=shield_break lap=0 left=0 src=base step=7 tile=6
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=18 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=19 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+first marks: [3, 2, 2]
+== Deep Mark repeats in place [trace_power] walk 1: 16 events, hp 27.0, enemy 69, kept []
+block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=2
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=8 cause=pass color=redcrit2_trace crit=true damage=22.0 depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=22.0 depth=0 dir=1 hp_after=69.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+depth=0 dir=1 i=5 k=pass lap=0 src=base step=3 tile=2
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=5 tile=4
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=7 tile=6
+block=0 dealt=8.0 depth=0 dir=1 dmg=8.0 excess=0.0 i=10 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=
+amount=8.0 depth=0 dir=1 hp_after=27.0 i=11 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=12 k=shield_break lap=0 left=0 src=base step=7 tile=6
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=14 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+repeated red mark: 3
+== Deep Mark with Chaos [trace_power,trace_stack] walk 1: 20 events, hp 35.0, enemy 91, kept []
+block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=8 cause=pass color=redcrit2_trace damage=8.0 depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=8.0 depth=0 dir=1 hp_after=91.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+base=3 cause=pass color=blue_trace depth=0 dir=1 i=5 k=pop kept=false lap=0 nth=2 src=base step=2 temp=false tile=1 tile_pops=1
+amount=3 depth=0 dir=1 i=6 k=shield lap=0 src=base step=2 tile=1 total=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=3 tile=2
+base=0 cause=pass color=orange_trace depth=0 dir=1 i=8 k=pop kept=false lap=0 nth=3 src=base step=3 temp=false tile=2 tile_pops=1
+amount=1 depth=0 dir=1 i=9 k=gold lap=0 src=base step=3 tile=2 total=1
+depth=0 dir=1 i=10 k=pass lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=11 k=pass lap=0 src=base step=5 tile=4
+depth=0 dir=1 i=12 k=pass lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=7 tile=6
+block=3 dealt=5.0 depth=0 dir=1 dmg=8.0 excess=0.0 i=14 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=
+amount=5.0 depth=0 dir=1 hp_after=35.0 i=15 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=16 k=shield_break lap=0 left=0 src=base step=7 tile=6
+depth=0 dir=1 i=17 k=pass lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=18 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=19 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+first marks: [3, 2, 2]
+== Deep Mark repeats in place [trace_power,trace_stack] walk 1: 16 events, hp 27.0, enemy 69, kept []
+block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=2
+depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0
+base=8 cause=pass color=redcrit2_trace crit=true damage=22.0 depth=0 dir=1 i=2 k=pop kept=false lap=0 nth=1 src=base step=1 temp=false tile=0 tile_pops=1
+amount=22.0 depth=0 dir=1 hp_after=69.0 i=3 k=hit lap=0 src=base step=1 target=enemy tile=0 via=pop
+depth=0 dir=1 i=4 k=pass lap=0 src=base step=2 tile=1
+depth=0 dir=1 i=5 k=pass lap=0 src=base step=3 tile=2
+depth=0 dir=1 i=6 k=pass lap=0 src=base step=4 tile=3
+depth=0 dir=1 i=7 k=pass lap=0 src=base step=5 tile=4
+depth=0 dir=1 i=8 k=pass lap=0 src=base step=6 tile=5
+depth=0 dir=1 i=9 k=pass lap=0 src=base step=7 tile=6
+block=0 dealt=8.0 depth=0 dir=1 dmg=8.0 excess=0.0 i=10 k=strike lap=0 redirect= src=base step=7 tile=6 tile_color=
+amount=8.0 depth=0 dir=1 hp_after=27.0 i=11 k=hit lap=0 src=base step=7 target=hero tile=6 via=strike
+depth=0 dir=1 i=12 k=shield_break lap=0 left=0 src=base step=7 tile=6
+depth=0 dir=1 i=13 k=pass lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=14 k=reach_end lap=0 src=base step=8 tile=7
+depth=0 dir=1 i=15 k=walk_end kept_tiles=[] lap=0 src=base step=8 tile=7
+repeated red mark: 4
 == p4 furnace same-tile walk 1: 20 events, hp 35.0, enemy 91, kept []
 block=0 depth=0 dir=1 i=0 k=ignite lap=0 src=base step=0 tile=0 walk=1
 depth=0 dir=1 i=1 k=pass lap=0 src=base step=1 tile=0

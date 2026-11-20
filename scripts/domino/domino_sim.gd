@@ -351,16 +351,19 @@ func run_walk() -> Array:
 	_next_prev = {}
 	_prev_trace_power = _trace_power
 	_trace_power = {}
-	var mark_power := 1
+	var attack_trace_bonus := 0
 	var stack_cap := 0
 	for artifact in slots:
-		mark_power = maxi(mark_power, artifact.trace_power)
+		attack_trace_bonus += artifact.attack_trace_bonus
 		stack_cap = maxi(stack_cap, artifact.trace_cap)
 	for t in board:
 		var color: String = board[t].color
 		_next_prev[t] = color
-		var power := maxi(mark_power, UPGRADED_TRACE_POWER) if color.ends_with(Chaos.TRACE_SUFFIX) else mark_power
-		if stack_cap > 0 and gem_color(_prev_tiles.get(t, "")) == gem_color(color):
+		var kind_now := gem_color(color)
+		var power := UPGRADED_TRACE_POWER if color.ends_with(Chaos.TRACE_SUFFIX) else 1
+		if kind_now == "red":
+			power += attack_trace_bonus
+		if stack_cap > 0 and gem_color(_prev_tiles.get(t, "")) == kind_now:
 			power = mini(stack_cap, power + int(_prev_trace_power.get(t, 0)))
 		_trace_power[t] = power
 	events = []
