@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1795146496|2208572';
+const CACHE_VERSION = '1795151468|1713487';
 /** @type {string} */
 const CACHE_PREFIX = 'ToBeyond-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
