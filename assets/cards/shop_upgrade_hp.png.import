@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bpnop2bychcij"
-path="res://.godot/imported/shop_upgrade_tarot.png-db6e8360861b99ea2f0dd7878ad1438f.ctex"
+uid="uid://dkeshl8ylfbtt"
+path="res://.godot/imported/shop_upgrade_hp.png-6f091187896afb0489219c8f276d8419.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/shop_upgrade_tarot.png"
-dest_files=["res://.godot/imported/shop_upgrade_tarot.png-db6e8360861b99ea2f0dd7878ad1438f.ctex"]
+source_file="res://assets/cards/shop_upgrade_hp.png"
+dest_files=["res://.godot/imported/shop_upgrade_hp.png-6f091187896afb0489219c8f276d8419.ctex"]
 
 [params]
 

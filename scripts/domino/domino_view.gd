@@ -511,11 +511,11 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 	var h := sz.y
 	var w := sz.x
 	var c := {"btn": b}
-	var art_region: Rect2 = data.get("art_region", Rect2())
+	var art: Texture2D = data.get("art")
 	var foot_y := h * 0.74
 	var foot_height := h * 0.2
-	if art_region.has_area():
-		_upgrade_art(b, art_region, Rect2(5, 5, w - 10, h - 38))
+	if art != null:
+		_upgrade_art(b, art, Rect2(5, 5, w - 10, h - 38))
 		foot_y = h - 33
 		foot_height = 30
 	else:
@@ -530,14 +530,12 @@ func _make_card(parent: Control, pos: Vector2, sz: Vector2, data: Dictionary) ->
 
 const CARD_SZ := Vector2(150, 215)
 const UPGRADE_CARD_SZ := Vector2(150, 270)
-const UPGRADE_ART := preload("res://assets/cards/shop_upgrade_tarot.png")
+const HP_UPGRADE_ART := preload("res://assets/cards/shop_upgrade_hp.png")
+const HAND_UPGRADE_ART := preload("res://assets/cards/shop_upgrade_hand.png")
+const DISCARD_UPGRADE_ART := preload("res://assets/cards/shop_upgrade_discard.png")
 
 
-func _upgrade_art(parent: Control, region: Rect2, rect: Rect2) -> void:
-	var art := AtlasTexture.new()
-	art.atlas = UPGRADE_ART
-	art.region = region
-	art.filter_clip = true
+func _upgrade_art(parent: Control, art: Texture2D, rect: Rect2) -> void:
 	var image := TextureRect.new()
 	image.texture = art
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -607,9 +605,9 @@ func _detail_show(panel: Control, cards: Array, idx: int) -> void:
 	var info: Dictionary = cards[idx].info
 	var w := panel.size.x
 	var h := panel.size.y
-	var art_region: Rect2 = info.get("art_region", Rect2())
-	if art_region.has_area():
-		_upgrade_art(panel, art_region, Rect2(20, 20, 130, 130))
+	var art: Texture2D = info.get("art")
+	if art != null:
+		_upgrade_art(panel, art, Rect2(20, 20, 130, 130))
 	else:
 		_panel_label(panel, info.get("icon", ""), 90, Vector2(20, 20), Vector2(130, 130), HORIZONTAL_ALIGNMENT_CENTER)
 	_panel_label(panel, info.get("title", ""), 40, Vector2(170, 20), Vector2(w - 190, 70), HORIZONTAL_ALIGNMENT_LEFT)
@@ -1818,14 +1816,14 @@ func _shop() -> void:
 		var dsc := Shop.discard_up_cost(sim)
 		var dmaxed: bool = sim.discard_per_turn >= Sim.MAX_DISCARDS
 		var ups := [
-			{"art_region": Rect2(1028, 90, 465, 842), "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
-			{"art_region": Rect2(45, 90, 463, 842), "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
-			{"art_region": Rect2(536, 90, 465, 842), "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
+			{"art": HP_UPGRADE_ART, "title": "+%d HP สูงสุด" % Shop.HP_UP, "body": "เพิ่ม HP สูงสุดและฟื้นเท่ากัน\nตอนนี้ %d" % roundi(sim.max_hp), "cost": hc, "ok": sim.gold >= hc},
+			{"art": HAND_UPGRADE_ART, "title": "มือ +1 ช่อง", "body": "เพิ่มไพ่ในมือ 1 ช่อง\nตอนนี้ %d" % sim.hand_size, "cost": hdc, "ok": not maxed and sim.gold >= hdc, "max": maxed},
+			{"art": DISCARD_UPGRADE_ART, "title": "ทิ้ง +1 ต่อรอบ", "body": "ทิ้งได้เพิ่ม 1 ครั้งต่อรอบ\nตอนนี้ %d" % sim.discard_per_turn, "cost": dsc, "ok": not dmaxed and sim.gold >= dsc, "max": dmaxed},
 		]
 		for i in ups.size():
 			var u: Dictionary = ups[i]
 			var label := "เต็มแล้ว" if u.get("max", false) else "%d 🪙" % u.cost
-			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 342), {"art_region": u.art_region, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
+			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 342), {"art": u.art, "title": u.title, "sub": "อัปเกรด", "body": u.body, "foot": label, "kind": "util",
 				"state": "" if u.ok else "disabled", "act": "ซื้อ " + label, "ok": u.ok, "cb": func():
 					match i:
 						0:
