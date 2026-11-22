@@ -1,0 +1,24 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/domino/domino_artifact.gd" id="1_a"]
+[ext_resource type="Script" path="res://scripts/domino/domino_rule.gd" id="2_r"]
+
+[sub_resource type="Resource" id="Resource_r0"]
+script = ExtResource("2_r")
+trigger = &"pop"
+cond = {"color": "red"}
+effect = &"boost"
+args = {"amount": "empty"}
+once = &""
+
+[resource]
+script = ExtResource("1_a")
+id = "hollow"
+name_th = "ช่องโหว่"
+icon = "🕳️"
+text_th = "Gem โจมตีค่าแรง +1 ต่อช่องว่างบนกระดาน\n(กระดานมี 8 ช่อง)"
+archetype = "blaze"
+rarity = "common"
+price = 4
+catalog_order = 19
+rules = Array[Resource]([SubResource("Resource_r0")])

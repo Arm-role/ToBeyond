@@ -681,6 +681,8 @@ func _check(key: String, want, ev: Dictionary) -> bool:
 
 func _amt(v, ev: Dictionary) -> float:
 	if v is String:
+		if v == "empty":
+			return float(N - board.size())   # empty tiles on the Gem board right now
 		return float(ev.get(v, 0))
 	return float(v)
 
