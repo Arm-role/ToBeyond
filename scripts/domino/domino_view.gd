@@ -587,11 +587,69 @@ func _panel_label(pn: Control, text: String, fs: int, pos: Vector2, sz: Vector2,
 
 
 ## Add one tappable card to `cards`; tapping shows it in `panel`.
-func _add_card(parent: Control, cards: Array, panel: Control, pos: Vector2, info: Dictionary, size: Vector2 = CARD_SZ) -> void:
+func _add_card(parent: Control, cards: Array, panel: Control, pos: Vector2, info: Dictionary, size: Vector2 = CARD_SZ) -> Button:
 	var c := _make_card(parent, pos, size, info)
 	cards.append({"btn": c.btn, "info": info})
 	var idx := cards.size() - 1
 	c.btn.pressed.connect(func(): _detail_show(panel, cards, idx))
+	return c.btn
+
+
+## Make a shop card draggable. Drop it on an empty slot (`empties`: slot index -> button) to call `buy(slot)`; anywhere else, or when `can` is false, it slides back. A short press is still a tap (detail panel).
+func _drag_to_slot(btn: Button, info: Dictionary, empties: Dictionary, can: bool, buy: Callable) -> void:
+	var ds := {"down": false, "drag": false, "start": Vector2.ZERO, "ghost": null}
+	var home := btn.position
+	var rest := Color(1, 1, 1, 0.55)   # an empty slot's normal look (see _make_card)
+	var tint := func(over: int):
+		for j in empties:
+			var eb: Button = empties[j]
+			eb.modulate = Color(1.7, 1.5, 0.7, 1.0) if (j == over and can) else (Color(1, 1, 1, 0.9) if can else rest)
+	btn.gui_input.connect(func(ev: InputEvent):
+		var m := reward_ui.get_local_mouse_position()
+		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT:
+			if ev.pressed:
+				ds.down = true
+				ds.drag = false
+				ds.start = m
+			elif ds.drag:
+				ds.down = false
+				ds.drag = false
+				var over := -1
+				for j in empties:
+					var eb: Button = empties[j]
+					if Rect2(eb.position, eb.size).has_point(m):
+						over = j
+				for j in empties:
+					empties[j].modulate = rest
+				var ghost: Control = ds.ghost
+				if can and over >= 0:
+					ghost.queue_free()
+					buy.call(over)
+				else:
+					var tw := ghost.create_tween()
+					tw.tween_property(ghost, "position", home, 0.15).set_ease(Tween.EASE_OUT)
+					tw.finished.connect(func():
+						ghost.queue_free()
+						btn.modulate.a = 1.0)
+			else:
+				ds.down = false
+		elif ev is InputEventMouseMotion and ds.down:
+			if not ds.drag and m.distance_to(ds.start) > 12.0:
+				ds.drag = true
+				var g := _make_card(reward_ui, home, CARD_SZ, info)
+				g.btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				g.btn.z_index = 50
+				ds.ghost = g.btn
+				btn.modulate.a = 0.35
+			if ds.drag:
+				var gh: Control = ds.ghost
+				gh.position = m - CARD_SZ * 0.5
+				var over2 := -1
+				for j in empties:
+					var eb2: Button = empties[j]
+					if Rect2(eb2.position, eb2.size).has_point(m):
+						over2 = j
+				tint.call(over2))
 
 
 func _detail_show(panel: Control, cards: Array, idx: int) -> void:
@@ -615,6 +673,9 @@ func _detail_show(panel: Control, cards: Array, idx: int) -> void:
 	sub.modulate.a = 0.7
 	var body := _panel_label(panel, info.get("body", ""), 30, Vector2(24, 160), Vector2(w - 48, h - 280), HORIZONTAL_ALIGNMENT_LEFT)
 	body.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	if String(info.get("hint", "")) != "":
+		var hl := _panel_label(panel, info.hint, 30, Vector2(24, h - 100), Vector2(w - 48, 80), HORIZONTAL_ALIGNMENT_CENTER)
+		hl.add_theme_color_override("font_color", Color("#ffd966"))
 	if String(info.get("act", "")) != "":
 		var ab := Button.new()
 		ab.text = info.act
@@ -1784,18 +1845,27 @@ func _shop() -> void:
 		var panel := _detail_panel(Rect2(1260, 110, 620, 520))
 		var cards: Array = []
 		var free := slot_arr.find(null)
+		var empties := {}   # empty slot index -> its card button; filled below, read while a card is dragged
 		for i in stock.size():
 			var d: Resource = stock[i]
 			if d == null:
 				continue   # already bought
 			var cost := Shop.price(d)
 			var can := sim.gold >= cost and free >= 0
-			_add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 110), _art_info(d, "%d 🪙" % cost, ("ซื้อ %d 🪙" % cost) if free >= 0 else "ช่องเต็ม: ขายก่อน", can, func():
+			var hint := "ลากการ์ดไปวางที่ช่องว่างด้านล่างเพื่อซื้อ"
+			if free < 0:
+				hint = "ช่องเต็ม: ขายก่อน"
+			elif sim.gold < cost:
+				hint = "เหรียญไม่พอ"
+			var info := _art_info(d, "%d 🪙" % cost, "", can, Callable())
+			info["hint"] = hint
+			var ac := _add_card(reward_ui, cards, panel, Vector2(40 + i * 165.0, 110), info)
+			_drag_to_slot(ac, info, empties, can, func(j: int):
 				sim.gold -= cost
-				slot_arr[free] = d
+				slot_arr[j] = d
 				stock[i] = null
 				sfx.play("place", 1.3, -8.0)
-				_shop_step.emit(false)))
+				_shop_step.emit(false))
 		# Chaos cards: bought and used at once on the deck
 		for i in chaos_stock.size():
 			var cc = chaos_stock[i]
@@ -1849,7 +1919,7 @@ func _shop() -> void:
 			var o = slot_arr[i]
 			var pos := Vector2(40 + i * 165.0, 630)
 			if o == null:
-				_make_card(reward_ui, pos, CARD_SZ, {"state": "empty", "kind": "art"})
+				empties[i] = _make_card(reward_ui, pos, CARD_SZ, {"state": "empty", "kind": "art"}).btn
 				continue
 			var sell := Shop.sell_value(o)
 			_add_card(reward_ui, cards, panel, pos, _art_info(o, "+%d 🪙" % sell, "ขาย +%d 🪙" % sell, true, func():
