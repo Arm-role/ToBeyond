@@ -5,9 +5,9 @@
 
 [sub_resource type="Resource" id="Resource_r0"]
 script = ExtResource("2_r")
-trigger = &"pop"
-cond = {"color": "red"}
-effect = &"boost"
+trigger = &"walk_end"
+cond = {}
+effect = &"damage"
 args = {"amount": "empty"}
 once = &""
 
@@ -16,7 +16,7 @@ script = ExtResource("1_a")
 id = "hollow"
 name_th = "ช่องโหว่"
 icon = "🕳️"
-text_th = "Gem โจมตีค่าแรง +1 ต่อช่องว่างบนกระดาน\n(กระดานมี 8 ช่อง)"
+text_th = "เดินจบแล้วโจมตีเพิ่ม +1 ต่อช่องว่างบนกระดาน\n(กระดานมี 8 ช่อง)"
 archetype = "blaze"
 rarity = "common"
 price = 4
